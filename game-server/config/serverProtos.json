@@ -1,0 +1,14 @@
+{
+    "message Player": {
+        "required string id":        1
+    },
+    "message Error": {
+        "required int32 code":       1,
+        "optional string message":   2
+    },
+
+    "connector.entryHandler.enter": {
+        "optional Error error":      1,
+        "optional Player user":      2
+    }
+}

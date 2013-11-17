@@ -1,0 +1,12 @@
+.idea/workspace.xml
+node_modules
+components
+game-server/logs
+game-server/perf-test/log
+web-server/views/*.html
+web-server/views/mixins/*.html
+web-server/views/partials/*.html
+npm-debug.log
+tmp
+/shared
+/game-server/app

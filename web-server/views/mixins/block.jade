@@ -1,0 +1,14 @@
+mixin block(title, tabs)
+    div(class=['block'].concat(attributes.classes))
+        .block_head
+            .bheadl
+            .bheadr
+            h2= title
+            if tabs
+                ul.tabs
+                    - each t in tabs
+                        li: a(href="##{t[0]}") #{t[1]}
+        .block_content
+            block
+        .bendl
+        .bendr

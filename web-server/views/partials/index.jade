@@ -1,0 +1,36 @@
+include ../mixins/block
+
++block("统计信息")
+    p
+        | 在线用户数(客户端数)/总用户数(总角色数):&nbsp;
+        span.count(count-to="{{userStats.onlineUsers}}", value="{{userStats._onlineUsers}}", duration="{{refreshInterval}}")
+        | &nbsp;(&nbsp;
+        span.count(count-to="{{userStats.clients}}", value="{{userStats._clients}}", duration="{{refreshInterval}}")
+        | &nbsp;)&nbsp;
+        | /&nbsp;
+        span.count(count-to="{{userStats.totalUsers}}", value="{{userStats._totalUsers}}", duration="{{refreshInterval}}")
+        | &nbsp;(&nbsp;
+        span.count(count-to="{{userStats.totalClients}}", value="{{userStats._totalClients}}", duration="{{refreshInterval}}")
+        | &nbsp;)&nbsp;
+    p(ng-repeat="uid in onlineUser.loginedList | limitTo:50")
+        | {{uid}}
+
+
++block("服务器状态")
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead
+            tr
+                th 节点名
+                th 节点类型
+                th CPU占用%
+                th 内存占用
+                th 在线时间
+                th 服务器
+        tbody
+            tr(ng-repeat="node in nodes | orderBy:'serverId'")
+                td {{node.serverId}}
+                td {{node.serverType}}
+                td {{node.cpuAvg}}
+                td {{node.heapUsed}}MB
+                td {{humanizeUpTime(node.uptime)}}
+                td {{node.hostname}}

@@ -1,0 +1,18 @@
+{
+    "development": {
+        "auth": [
+            {"id": "auth-1", "host": "127.0.0.1", "port": 3200, "args": " --debug=13200 "}
+        ],
+        "connector": [
+            {"id": "connector-1", "host": "127.0.0.1", "port": 3110, "clientPort": 3010, "frontend": true, "args": " --debug=13150 "}
+        ]
+    },
+    "production": {
+        "auth": [
+            {"id": "auth-1", "host": "127.0.0.1", "port": 3200}
+        ],
+        "connector": [
+            {"id": "connector-1", "host": "127.0.0.1", "port": 3110, "clientPort": 3010, "frontend": true}
+        ]
+    }
+}

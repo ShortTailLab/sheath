@@ -1,0 +1,32 @@
+{
+    "name": "sheath",
+    "version": "0.0.1",
+    "description": "Game server that goes with dagger",
+    "repo": "https://github.com/ShortTailLab/sheath",
+    "private": true,
+    "dependencies": {
+        "commander": "latest",
+        "bluebird": "latest",
+        "underscore": "latest",
+        "generic-pool": "latest",
+        "bcrypt": "latest",
+        "pomelo-logger": "latest",
+        "rethinkdb": "latest",
+        "jugglingdb": "latest",
+        "jugglingdb-rethink": "colprog/jugglingdb-rethink",
+        "traceur": "latest",
+        "iweibo": "latest",
+        "express": "latest",
+        "ws": "latest",
+        "jade": "latest",
+        "socket.io-client": "latest",
+        "pomelo": "latest"
+    },
+    "devDependencies": {
+        "pomelo-robot": "latest",
+        "pomelo-protocol": "*",
+        "pomelo-protobuf": "*",
+        "should": "latest",
+        "mocha": "latest"
+    }
+}

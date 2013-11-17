@@ -1,0 +1,24 @@
+extends base
+
+block body
+    div(class=['block', 'small', 'center', 'login'])
+        .block_head
+            .bheadl
+            .bheadr
+            h2 登陆
+
+        .block_content
+            form(action="login", method="post")
+                p
+                    label 用户名:
+                    input(name='name', id='name').text
+                p
+                    label 密码:
+                    input(name='password', type='password', id='password').text
+                p
+                    input(value="登陆", type='submit').submit
+                    input(type='checkbox', name='rememberme', checked).checkbox
+                    |  记住我
+
+        .bendl
+        .bendr

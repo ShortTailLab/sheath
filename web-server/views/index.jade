@@ -1,0 +1,69 @@
+extends base
+
+block menu
+    ul#nav
+        li: a(href='/') 首页
+        li: a(href='user') 用户
+            ul
+                li: a(href='task') 任务
+                li: a(href='push') 定向推送
+                li: a(href='goldrewards') 元宝奖励
+                li: a(href='coinrewards') 铜钱奖励
+                li: a(href='herorewards') 发侠客
+                li: a(href='taobao') 淘宝购买
+                li: a(href='gmmail') GM邮箱
+        li: a(href='game') 关卡
+            ul
+                li: a(href='chest') 宝箱掉落模板
+                li: a(href='export_stage') 导出
+                li: a(href='import_stage') 导入
+        li: a(href='hero') 侠客
+            ul
+                li: a(href='enemy') 敌人模板
+                li: a(href='skill') 技能
+                li: a(href='relations') 缘分
+                li: a(href='herodraw') 抽将
+                li: a(href='heronode') 节点
+                li: a(href='export_hero') 导出
+                li: a(href='import_hero') 导入
+        li: a(href='store') 商店
+            ul
+                li: a(href='vip') VIP等级
+                li: a(href='vip_gift') VIP礼包
+        li: a(href='events') 活动
+        li: a(href='control') 设置
+        li: a(href='stats') 数据
+            ul
+                li: a(href='payment') 支付
+                li: a(href='analytic') 分析
+                li: a(href='export_stats') 导出Excel
+        li: a(href='transfer') 上线数据
+    p.user
+        if user
+            | #{user.name} 你好, <a href='logout'>登出</a>
+
+block script
+    script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular-animate.min.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular-route.min.js')
+    script(src='/js/lib/highcharts.js')
+    script(src='/js/lib/jquery.img.preload.js')
+    //<script src="/static/js/jquery.filestyle.mini.js"></script>
+    //<script src="/static/js/jquery.wysiwyg.js"></script>
+    script(src='/js/lib/anytime.c.js')
+    script(src='/js/lib/anytimetz.js')
+    //script(src='/js/lib/codemirror.js')
+    script(src='/js/lib/jquery.lazyload.min.js')
+    script(src='/js/lib/appCustom.js')
+    script(src='/js/lib/moment-with-langs.min.js')
+    script(src='/js/lib/underscore-min.js')
+    script(src='/js/lib/ng-grid.min.js')
+    script(src='/js/lib/loading-bar.min.js')
+    script(src='/js/lib/angular-count-to.min.js')
+    script(src='/js/lib/highcharts-ng.min.js')
+    script(src='/js/app.js')
+    script(src='/js/controllers.js')
+    script(src='/js/services.js')
+    script(type='text/javascript').
+        moment.lang('zh-CN');

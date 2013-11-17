@@ -1,0 +1,12 @@
+{
+    "development": {
+        "host": "192.168.0.245",
+        "port": "28015",
+        "database": "sheath_dev"
+    },
+    "production": {
+        "host": "127.0.0.1",
+        "port": "28015",
+        "database": "sheath"
+    }
+}

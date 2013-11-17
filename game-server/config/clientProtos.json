@@ -1,0 +1,24 @@
+{
+    "message Device": {
+        "message Resolution": {
+            "required int32 width":      1,
+            "required int32 height":     2
+        },
+
+        "required string os":            1,
+        "required string device":        2,
+        "required Resolution res":       3,
+        "required string osVersion":     4,
+        "required string mac":           5,
+        "required string deviceID":      6
+    },
+
+
+    "connector.entryHandler.enter": {
+        "required string accType":       1,
+        "required string username":      2,
+        "required string password":      3,
+        "required string distro":        4,
+        "required Device device":        5
+    }
+}
