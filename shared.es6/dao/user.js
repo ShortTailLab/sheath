@@ -16,7 +16,7 @@ class UserHelper {
     }
 
     newUser(accType, uname, password) {
-        var u = new models.User;
+        var u = new models.User();
         u.auth = [
             {
                 type: accType,
@@ -39,7 +39,7 @@ class UserHelper {
             if (_.size(users) === 1) {
                 var user = _.first(users);
                 if (self.isUserAuthMatch(user, accType, uname, password)) {
-                    return [user, null]
+                    return [user, null];
                 }
                 else {
                     return [null, constants.LoginFailed.ID_PASSWORD_MISMATCH];

@@ -6,14 +6,16 @@ var Patcher = module.exports;
 
 module.exports.patchRPC = function (app) {
     Promise.promisifyAll(app.rpc.auth.authRemote);
+    Promise.promisifyAll(app.rpc.chat.chatRemote);
     if (app.get('sessionService'))
         Patcher.wrapModule(app.get('sessionService'), ["kick", "kickBySessionId"]);
 };
 
 module.exports.wrapModule = function (m, functions, suffix="") {
-    for (let f of functions) {
-        m[f + suffix] = Promise.promisify(m[f]);
-    }
+    for (let f of functions)
+        if (functions.hasOwnProperty(f)) {
+            m[f + suffix] = Promise.promisify(m[f]);
+        }
 };
 
 module.exports.wrapModel = function (sessionIns) {

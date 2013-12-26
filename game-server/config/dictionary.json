@@ -1,2 +1,5 @@
 [
+    "onAdd",
+    "onChat",
+    "onLeave"
 ]

@@ -3,7 +3,7 @@
   <component name="JavaScriptLibraryMappings">
     <file url="PROJECT" libraries="{Node.js v0.10.22 Core Modules}" />
     <includedPredefinedLibrary name="Node.js Globals" />
-    <excludedPredefinedLibrary name="HTML5 / EcmaScript 5" />
+    <excludedPredefinedLibrary name="HTML" />
   </component>
 </project>
 

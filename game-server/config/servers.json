@@ -3,6 +3,9 @@
         "auth": [
             {"id": "auth-1", "host": "127.0.0.1", "port": 3200, "args": " --debug=13200 "}
         ],
+        "chat": [
+            {"id": "chat-1", "host": "127.0.0.1", "port": 3310, "args": " --debug=13250 "}
+        ],
         "connector": [
             {"id": "connector-1", "host": "127.0.0.1", "port": 3110, "clientPort": 3010, "frontend": true, "args": " --debug=13150 "}
         ]
@@ -10,6 +13,9 @@
     "production": {
         "auth": [
             {"id": "auth-1", "host": "127.0.0.1", "port": 3200}
+        ],
+        "chat": [
+            {"id": "chat-1", "host": "127.0.0.1", "port": 3300}
         ],
         "connector": [
             {"id": "connector-1", "host": "127.0.0.1", "port": 3110, "clientPort": 3010, "frontend": true}
