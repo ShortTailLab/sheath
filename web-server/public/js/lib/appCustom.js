@@ -184,16 +184,6 @@ $(function () {
 //				}
 //		});
 //	}
-		
-		
-	
-	// Date picker
-    var format = {
-        format : "%Y-%m-%d %T %@"
-
-    };
-	$('input.date_picker').AnyTime_picker(format);
-    $('input.anytime_date_picker').AnyTime_picker(format);
 	
 
 

@@ -6,5 +6,17 @@
     {
         "type": "auth",
         "token": "1b5777fdee3ddaf7ba79e120bea41e5f854a076e"
+    },
+    {
+        "type": "chat",
+        "token": "83b3490138932fc4592a474740bfff54"
+    },
+    {
+        "type": "game",
+        "token": "95adf32c5f4648d36fb0ff96576898e1"
+    },
+    {
+        "type": "manager",
+        "token": "4dbc600be53e1b0d3480ccdc2eca988f"
     }
 ]

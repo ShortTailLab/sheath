@@ -35,7 +35,8 @@ class UserHelper {
                 auth: [accType, uname]
             },
             limit: 2
-        }).then(function (users) {
+        })
+        .then((users) => {
             if (_.size(users) === 1) {
                 var user = _.first(users);
                 if (self.isUserAuthMatch(user, accType, uname, password)) {
@@ -54,11 +55,18 @@ class UserHelper {
         });
     }
 
-    serializeRole(role) {
+    toClientRole(role) {
+        var ret = {
+            id: role.id,
+            name: role.name
+        };
 
+        if (role.isNew) ret.isNew = role.isNew;
+
+        return ret;
     }
 
-    serialize(user) {
+    toRPCObj(user) {
         var ret = {
             id: user.id,
             name: user.name,
@@ -68,10 +76,13 @@ class UserHelper {
         if (user.isNew)
             ret.isNew = true;
 
-        if (user.role !== undefined)
-            ret.role = this.serializeRole(user.role);
-
         return ret;
+    }
+
+    toClientObj(user) {
+        return {
+            id: user.id
+        };
     }
 }
 

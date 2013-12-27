@@ -11,7 +11,10 @@ module.exports = {
         NO_USER: 2,
         AlreadyLoggedIn: 3
     },
-
+    PartitionFailed: {
+        PARTITION_DO_NOT_EXIST: 5,
+        PARTITION_FULL: 6
+    },
 
 
     InternalServerError: 500

@@ -6,9 +6,13 @@ var _app;
 
 
 var logger = {};
-var logModel = new models.Log();
+var logModel = null;
 
 logger.log = function (severity, msg) {
+    if (logModel === null) {
+        logModel = new models.Log();
+    }
+
     var entry = {
         severity: severity,
         time: new Date(),
@@ -18,7 +22,7 @@ logger.log = function (severity, msg) {
     try {
         var adapter = logModel._adapter();
         adapter.pool.acquire(function(error, client) {
-            r.table("log").insert(entry).run({connection: client, noreply: true}, function(err) {
+            r.db(adapter.database).table("log").insert(entry).run({connection: client, noreply: true}, function(err) {
                 if (err) pLogger.warn("error writing log to database." + err);
                 adapter.pool.release(client);
             });

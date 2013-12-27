@@ -1,9 +1,10 @@
 var sheath = angular.module('sheath', [
     'ngRoute',
     'ngAnimate',
-    'ngGrid',
     'countTo',
     'highcharts-ng',
+//    'ui.grid',
+    'ui.bootstrap',
     'angular-loading-bar',
     'sheath.controllers',
     'sheath.services'
@@ -19,9 +20,9 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
             templateUrl: 'partials/user',
             controller: 'userListController'
         }).
-        when('/phones/:phoneId', {
-            templateUrl: 'partials/phone-detail.html',
-            controller: 'PhoneDetailCtrl'
+        when('/partition', {
+            templateUrl: 'partials/partition',
+            controller: 'partitionController'
         }).
         otherwise({
             redirectTo: '/index'
@@ -36,7 +37,7 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
         function error(response) {
             var status = response.status;
 
-            if (status == 401) {
+            if (status === 401) {
                 $window.location = "/login";
                 return;
             }

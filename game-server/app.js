@@ -26,7 +26,7 @@ app.configure("development|production", 'connector', function () {
         });
 });
 
-app.configure("development|production", 'auth|connector', function () {
+app.configure("development|production", 'auth|connector|game', function () {
     Patcher.wrapModel();
 
     var rethinkConfig = app.get("rethinkdb");
@@ -49,7 +49,7 @@ app.configure(function () {
 });
 
 app.event.on(pomelo.events.ADD_SERVERS, function () {
-    if (["connector", "auth"].indexOf(app.settings.serverType) !== -1) {
+    if (["connector", "auth", "game"].indexOf(app.settings.serverType) !== -1) {
         process.nextTick(function () {
             Patcher.patchRPC(app);
         });

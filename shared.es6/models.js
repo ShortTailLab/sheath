@@ -10,6 +10,7 @@ exports.init = function (dbConfig) {
         auth: {type: db.Schema.JSON, default: function () { return new Array(); } },
         joinDate: {type: Date, default: function () { return new Date(); }},
         activated: {type: Boolean, default: true},
+        isNew: Boolean,
 
         adminName: {type: String},
         manRole: {type: String}
@@ -29,7 +30,10 @@ exports.init = function (dbConfig) {
 
     var Role = exports.Role = schema.define("role", {
         name: {type: String, default: ""},
-        createTime: {type: Date, default: function () { return new Date(); }}
+        level: {type: Number, default: 1},
+        createTime: {type: Date, default: function () { return new Date(); }},
+
+        isNew: Boolean
     });
 
     var Log = exports.Log = schema.define("log", {

@@ -60,7 +60,6 @@ sheathControllers.controller('userListController', function ($scope, $http, $win
         useExternalFilter: true
     };
     $scope.gridOptions = {
-        data: 'users',
         enablePaging: true,
         showFooter: true,
         totalServerItems: 'totalUsers',

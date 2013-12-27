@@ -2,13 +2,29 @@
     "message Player": {
         "required string id":        1
     },
+    "message Role": {
+        "required string id":        1,
+        "required string name":      2,
+        "optional bool isNew":       3
+    },
     "message Error": {
         "required int32 code":       1,
         "optional string message":   2
     },
+    "message Partition": {
+        "required int32 status":     1,
+        "required string name":      2,
+        "required int64 publicSince":3
+    },
 
     "connector.entryHandler.enter": {
         "optional Error error":      1,
-        "optional Player user":      2
+        "optional Player user":      2,
+        "repeated Partition partitions": 3
+    },
+    "connector.entryHandler.enterPartition": {
+        "optional Error error":      1,
+        "optional Player user":      2,
+        "optional Role role":        3
     }
 }

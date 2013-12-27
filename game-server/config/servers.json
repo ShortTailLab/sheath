@@ -6,6 +6,12 @@
         "chat": [
             {"id": "chat-1", "host": "127.0.0.1", "port": 3310, "args": " --debug=13250 "}
         ],
+        "game": [
+            {"id": "game-1", "host": "127.0.0.1", "port": 3510, "args": " --debug=13350 "}
+        ],
+        "manager": [
+            {"id": "manager-1", "host": "127.0.0.1", "port": 3410, "args": " --debug=13300 "}
+        ],
         "connector": [
             {"id": "connector-1", "host": "127.0.0.1", "port": 3110, "clientPort": 3010, "frontend": true, "args": " --debug=13150 "}
         ]
@@ -16,6 +22,12 @@
         ],
         "chat": [
             {"id": "chat-1", "host": "127.0.0.1", "port": 3300}
+        ],
+        "game": [
+            {"id": "game-1", "host": "127.0.0.1", "port": 3500}
+        ],
+        "manager": [
+            {"id": "manager-1", "host": "127.0.0.1", "port": 3400}
         ],
         "connector": [
             {"id": "connector-1", "host": "127.0.0.1", "port": 3110, "clientPort": 3010, "frontend": true}

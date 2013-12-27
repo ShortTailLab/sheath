@@ -17,15 +17,17 @@ class AuthRemote {
     authenticate(accType, uname, password, next) {
         userDAO.getUserByAuth(accType, uname, password).spread(function (user, err) {
             if (!err) {
-                next(null, userDAO.serialize(user));
+                next(null, userDAO.toRPCObj(user));
             }
             else if (err === constants.LoginFailed.NO_USER) {
                 user = userDAO.newUser(accType, uname, password);
                 user.isNew = true;
 
-                user.saveP().then(function () {
-                    next(null, userDAO.serialize(user));
-                }).catch(function (err) {
+                user.saveP()
+                .then(() => {
+                    next(null, userDAO.toRPCObj(user));
+                })
+                .catch((err) => {
                     next(err);
                 });
             }
