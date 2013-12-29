@@ -81,9 +81,54 @@ sheathControllers.controller('userListController', function ($scope, $http, $win
     }, true);
 });
 
-sheathControllers.controller('partitionListController', function ($scope, $http) {
-    $http.get("/api/partitions").
-        success(function (data) {
-            $scope.partitions = data.partitions;
+sheathControllers.controller('partitionListController', function ($scope, $modal, $http) {
+    $http.get("/api/partitions").success(function (data) {
+        $scope.partitions = data.partitions;
+    });
+
+    $scope.humanize = function (date) {
+        return moment(date).format("YYYY-MM-DD HH:mm");
+    };
+
+    $scope.openAdd = function () {
+        var modalInstance = $modal.open({
+            templateUrl: 'modalAddPartition.html',
+            controller: 'addPartitionController',
+            backdrop: "static"
         });
+
+        modalInstance.result.then(function (newPart) {
+            $http.post("/api/addPartitions", newPart).success(function (data) {
+                $scope.partitions.push(data);
+                $scope.error = null;
+            })
+            .error(function (data) {
+                $scope.error = "添加分区 " + newPart.name + " 失败，" + (data.message || "未知错误");
+            });
+        });
+    };
+});
+
+sheathControllers.controller('addPartitionController', function ($scope, $modalInstance) {
+    var openTime = moment(new Date());
+    openTime.seconds(0);
+    $scope.newPartition = {
+        openSince: openTime,
+        public: true
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close($scope.newPartition);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+
+    $scope.openDate = function($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+
+        $scope.dpOpened = true;
+    };
 });

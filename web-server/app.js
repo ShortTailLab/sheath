@@ -94,6 +94,7 @@ app.get('/partials/:name', routes.partials);
 app.get('/api/nodeInfo', restrictAPI, api.nodeInfo);
 app.get('/api/basicStats', restrictAPI, api.basicStats);
 app.get('/api/partitions', restrictAPI, api.partitions);
+app.post('/api/addPartitions', restrictAPI, api.addPartition);
 app.post('/api/userList', restrictAPI, api.userList);
 
 app.get('*', restrict, routes.index);

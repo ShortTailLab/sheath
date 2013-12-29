@@ -2,6 +2,7 @@ var pomeloConn = require("../pomelo-conn");
 var _ = require("underscore");
 var Promise = require("bluebird");
 var appModels = require("../../shared/models");
+var r = require("rethinkdb");
 
 exports.nodeInfo = function (req, res) {
     Promise.all([
@@ -48,14 +49,41 @@ exports.basicStats = function (req, res) {
     });
 };
 
+function partitionRoleCount() {
+    return new Promise(function (resolve, reject) {
+        var helperModel = new appModels.Partition();
+        var adapter = helperModel._adapter();
+        adapter.pool.acquire(function(error, client) {
+            r.db(adapter.database).table("role").groupBy("partition", r.count).run(client, function (err, data) {
+                adapter.pool.release(client);
+
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(data);
+                }
+            });
+        });
+    });
+}
+
 exports.partitions = function (req, res) {
-    appModels.Partition.allP().then(function (parts) {
+    Promise.join(appModels.Partition.allP(), partitionRoleCount())
+    .spread(function (parts, roleCounts) {
+        for (var i=0;i<parts.length;i++) {
+            var p = parts[i] = _.pick(parts[i], ["id", "name", "public", "openSince"]);
+            var countObj = _.find(roleCounts, function (red) {
+                return red.group.partition === p.id;
+            });
+            if (countObj)
+                p.roleCount = countObj.reduction;
+            else
+                p.roleCount = 0;
+        }
+
         res.json({
-            partitions: _.map(parts, function (p) {
-                return {
-                    name: p.name
-                };
-            })
+            partitions: parts
         });
     })
     .catch(function (err) {
@@ -63,11 +91,46 @@ exports.partitions = function (req, res) {
     });
 };
 
-exports.userList = function (req, res) {
-    res.json({
-        user: [
-            {name: "moe", age: 10}
-        ],
-        totalUsers: 1
+exports.addPartition = function (req, res) {
+    var newPart = req.body;
+    var createTime = new Date();
+
+    appModels.Partition.findOrCreateP({
+        where: {
+            name: newPart.name
+        }
+    },{
+        name: newPart.name,
+        public: newPart.public,
+        openSince: newPart.openSince,
+        createTime: createTime
     })
+    .then(function (p) {
+        if (p.createTime === createTime) {
+            var ret = _.pick(p, ["id", "name", "public", "openSince"]);
+            ret.roleCount = 0;
+            res.send(ret);
+        }
+        else {
+            res.send(400, {message: "区名重复"});
+        }
+    })
+    .catch(function (err) {
+        res.send(400, {message: ""+err});
+    });
+};
+
+exports.userList = function (req, res) {
+    Promise.joins(appModels.User.allP({
+
+    }), appModels.User.countP())
+    .spread(function (users, userCount) {
+        res.json({
+            user: _.map(users, function (u) {return _._.pluck(u, ["joinDate", "activated"])}),
+            totalUsers: userCount
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
 };

@@ -25,7 +25,9 @@ exports.init = function (dbConfig) {
     var Partition = exports.Partition = schema.define("partition", {
         name: {type: String, default: ""},
         public: {type: Boolean, default: true},
-        openSince: {type: Date, default: function () { return new Date(); }}
+        openSince: {type: Date, default: function () { return new Date(); }},
+
+        createTime: {type: Date, default: function () { return new Date(); }}
     });
 
     var Role = exports.Role = schema.define("role", {

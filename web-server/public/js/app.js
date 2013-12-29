@@ -4,6 +4,7 @@ var sheath = angular.module('sheath', [
     'countTo',
     'highcharts-ng',
 //    'ui.grid',
+    'ui.select2',
     'ui.bootstrap',
     'angular-loading-bar',
     'sheath.controllers',
@@ -22,7 +23,7 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
         }).
         when('/partition', {
             templateUrl: 'partials/partition',
-            controller: 'partitionController'
+            controller: 'partitionListController'
         }).
         otherwise({
             redirectTo: '/index'

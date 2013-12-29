@@ -17,8 +17,9 @@ block body
                     input(name='password', type='password', id='password').text
                 p
                     input(value="登陆", type='submit').submit
-                    input(type='checkbox', name='rememberme', checked).checkbox
-                    |  记住我
+                    label(type="checkbox")
+                        input(type='checkbox', name='rememberme', checked).checkbox
+                        | 记住我
 
         .bendl
         .bendr
