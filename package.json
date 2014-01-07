@@ -11,6 +11,7 @@
         "generic-pool": "latest",
         "bcrypt": "latest",
         "pomelo-logger": "latest",
+        "pomelo-data-plugin": "latest",
         "rethinkdb": "latest",
         "jugglingdb": "latest",
         "jugglingdb-rethink": "colprog/jugglingdb-rethink",

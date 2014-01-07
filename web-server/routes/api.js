@@ -106,7 +106,7 @@ exports.addPartition = function (req, res) {
         createTime: createTime
     })
     .then(function (p) {
-        if (p.createTime === createTime) {
+        if (p.createTime.getTime() === createTime.getTime()) {
             var ret = _.pick(p, ["id", "name", "public", "openSince"]);
             ret.roleCount = 0;
             res.send(ret);

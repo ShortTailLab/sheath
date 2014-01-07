@@ -18,19 +18,19 @@
     },
     "production": {
         "auth": [
-            {"id": "auth-1", "host": "127.0.0.1", "port": 3200}
+            {"host": "127.0.0.1", "port": "3200++", "clusterCount": 1}
         ],
         "chat": [
-            {"id": "chat-1", "host": "127.0.0.1", "port": 3300}
+            {"host": "127.0.0.1", "port": "3300++", "clusterCount": 1}
         ],
         "game": [
-            {"id": "game-1", "host": "127.0.0.1", "port": 3500}
+            {"host": "127.0.0.1", "port": "3500++", "clusterCount": 1}
         ],
         "manager": [
             {"id": "manager-1", "host": "127.0.0.1", "port": 3400}
         ],
         "connector": [
-            {"id": "connector-1", "host": "127.0.0.1", "port": 3110, "clientPort": 3010, "frontend": true}
+            {"host": "127.0.0.1", "port": "3110++", "clientPort": "3010++", "frontend": true, "clusterCount": 1}
         ]
     }
 }

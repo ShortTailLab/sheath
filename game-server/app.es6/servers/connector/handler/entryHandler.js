@@ -2,6 +2,8 @@ var Constants = require("../../../../../shared/constants");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var userDAO = require("../../../../../shared/dao/user");
 var models = require("../../../../../shared/models");
+var base = require("../../../../../shared/base");
+var _ = require("underscore");
 var Promise = require("bluebird");
 var logger;
 
@@ -10,21 +12,10 @@ module.exports = function (app) {
     return new EntryHandler(app);
 };
 
-class EntryHandler {
+class EntryHandler extends base.HandlerBase {
     constructor(app) {
         this.app = app;
         logger = require('../../../utils/rethinkLogger').getLogger(app);
-    }
-
-    errorNext(err, next) {
-        var result = {error: {code: Constants.UnknownError}};
-        if (typeof err === "number")
-            result.error.code = err;
-        else if (err.__sheath__error__) {}
-            result.error.code = err.code;
-        if (typeof err.message === "string")
-            result.error.message = err.message;
-        next(null, result);
     }
 
     enter(msg, session, next) {
@@ -48,28 +39,35 @@ class EntryHandler {
         })
         .then(() => {
             var partUCount = this.app.rpc.manager.partitionStatsRemote.getUserCountAsync(session);
-            var allParts = models.Partition.allP({where: {public: true}});
+            var allParts = models.Partition.allP({where: {public: true}, order: "openSince DESC"});
             var clientUserObj = userDAO.toClientObj(user);
             session.set("user", clientUserObj);
             return [session.bind(user.id), partUCount, allParts, clientUserObj, session.pushAll()];
         })
-        .all().spread((_, partStats, partitions, clientUserObj) => {
+        .all().spread((__, partStats, partitions, clientUserObj) => {
             session.on('closed', onUserLeave.bind(null, this.app));
 
-            logger.logInfo({
-                "type": "user.login",
+            logger.logInfo("user.login", {
                 "user": user.id
             });
 
-            for (let part of partitions) {
-                var partUsers = partStats[part.id] || 0;
+            partitions = _.map(partitions, function (p) {
+                var ret = {
+                    id: p.id,
+                    name: p.name,
+                    openSince: +p.openSince
+                };
+                var partUsers = partStats[p.id] || 0;
                 if (partUsers < 500)
-                    part.status = 0;
+                    ret.status = 0;
                 else if (partUsers < 850)
-                    part.status = 1;
+                    ret.status = 1;
                 else
-                    part.status = 2;
-            }
+                    ret.status = 2;
+
+                return ret;
+            });
+
             next(null, {
                 user: clientUserObj,
                 partitions: partitions
@@ -100,7 +98,7 @@ class EntryHandler {
             if (!role.isNew) {
                 promises[1] = this.app.rpc.chat.chatRemote.addP(session, session.uid, role.name, this.app.get('serverId'), part.id);
             }
-            session.set("role", role);
+            session.set("role", role.toObject(true));
             session.set("partId", part.id);
             promises[2] = session.pushAll();
             return promises;
@@ -127,8 +125,7 @@ var onUserLeave = function (app, session, reason) {
             app.rpc.chat.chatRemote.kick(session, session.uid, role.name, app.get('serverId'), partId, null);
         }
     }
-    logger.logInfo({
-        "type": "user.logout",
+    logger.logInfo("user.logout", {
         "user": session.uid
     });
 };

@@ -6,17 +6,18 @@ block menu
         li: a(href='user') 用户
         li: a(href='partition') 分服
         li: a(href='store') 商店
-        li: a(href='events') 活动
+        li: a(href='event') 活动
         li: a(href='control') 设置
+        li: a(href='admin') 管理员
     p.user
         if user
             | #{user.adminName} 你好, <a href='logout'>登出</a>
 
 block script
     script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
-    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js')
-    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular-animate.min.js')
-    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular-route.min.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.min.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-animate.min.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-route.min.js')
     script(src='/js/lib/highcharts.js')
     script(src='/js/lib/jquery.img.preload.js')
     //<script src="/static/js/jquery.filestyle.mini.js"></script>

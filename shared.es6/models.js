@@ -7,7 +7,7 @@ exports.init = function (dbConfig) {
     // As a workaround, array type should be rename to JSON type
 
     var User = exports.User = schema.define("user", {
-        auth: {type: db.Schema.JSON, default: function () { return new Array(); } },
+        auth: {type: db.Schema.JSON, default: function () { return []; } },
         joinDate: {type: Date, default: function () { return new Date(); }},
         activated: {type: Boolean, default: true},
         isNew: Boolean,
@@ -33,20 +33,25 @@ exports.init = function (dbConfig) {
     var Role = exports.Role = schema.define("role", {
         name: {type: String, default: ""},
         level: {type: Number, default: 1},
+        exp: {type: Number, default: 0},
+        title: {type: String, default: ""},
+        vipLevel: {type: Number, default: 0},
+
+        energy: {type: Number, default: 0},
+        coins: {type: Number, default: 0},
+        golds: {type: Number, default: 0},
+        contrib: {type: Number, default: 0},
+
+        dailyRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
+        manualRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
+
         createTime: {type: Date, default: function () { return new Date(); }},
-
         isNew: Boolean
-    });
-
-    var Log = exports.Log = schema.define("log", {
-        severity: String,
-        time: Date,
-        server: String,
-        msg: Object
     });
 
     var HeroDef = exports.HeroDef = schema.define("herodef", {
         name: {type: String, default: ""},
+        resKey: {type: String, default: ""},
         male: {type: Boolean, default: false},
         stars: {type: Number, default: 3},
         maxLevel: {type: Number, default: 90},
@@ -56,24 +61,49 @@ exports.init = function (dbConfig) {
         props: {type: db.Schema.JSON, default: function () {return [];}}
     });
 
-    var Hero = exports.Hero = schema.define("hero", {
+    var ItemDef = exports.ItemDef = schema.define("itemdef", {
+        name: {type: String, default: ""},
         type: {type: String, default: ""},
-        level: {type: Number, default: 1},
-        exp: {type: Number, default: 0}
-    });
-
-    var Equipment = exports.Equipment = schema.define("equipment", {
-        type: {type: String, default: ""},
+        resKey: {type: String, default: ""},
+        levelReq: {type: Number, default: 1},
+        quality: {type: Number, default: 3},
 
         props: {type: db.Schema.JSON, default: function () {return [];}}
+    });
+
+    var Hero = exports.Hero = schema.define("hero", {
+        level: {type: Number, default: 1},
+        exp: {type: Number, default: 0},
+
+        createTime: {type: Date, default: function () { return new Date(); }}
+    });
+
+    var Item = exports.Item = schema.define("item", {
+        level: {type: Number, default: 0},
+        exp: {type: Number, default: 0},
+
+        createTime: {type: Date, default: function () { return new Date(); }}
+    });
+
+    var Stage = exports.Stage = schema.define("stage", {
+        name: {type: String, default: ""}
+    });
+
+    var Log = exports.Log = schema.define("log", {
+        severity: String,
+        time: Date,
+        server: String,
+        msg: Object
     });
 
     // relations should be used mostly in web server
     Partition.hasMany(Role, {as: "roles", foreignKey: "partition"});
     User.hasMany(Role, {as: "roles", foreignKey: "owner"});
     Role.hasMany(Hero, {as: "heroes", foreignKey: "owner"});
-    Hero.hasMany(Equipment, {as: "equipments", foreignKey: "bound"});
+    Role.hasMany(Item, {as: "bag", foreignKey: "owner"});
+    Hero.hasMany(Item, {as: "equipments", foreignKey: "bound"});
     Hero.belongsTo(HeroDef, {as: "def", foreignKey: "heroDefId"});
+    Item.belongsTo(ItemDef, {as: "def", foreignKey: "itemDefId"});
 
     return schema;
 };

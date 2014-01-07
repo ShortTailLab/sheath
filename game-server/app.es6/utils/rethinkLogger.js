@@ -8,7 +8,7 @@ var _app;
 var logger = {};
 var logModel = null;
 
-logger.log = function (severity, msg) {
+logger.log = function (severity, type, msg) {
     if (logModel === null) {
         logModel = new models.Log();
     }
@@ -17,6 +17,7 @@ logger.log = function (severity, msg) {
         severity: severity,
         time: new Date(),
         server: _app.getServerId(),
+        type: type,
         msg: msg
     };
     try {
@@ -33,16 +34,16 @@ logger.log = function (severity, msg) {
     }
 };
 
-logger.logInfo = function (msg) {
-    logger.log("INFO", msg);
+logger.logInfo = function (type, msg) {
+    logger.log("INFO", type, msg);
 };
 
-logger.logDebug = function (msg) {
-    logger.log("DEBUG", msg);
+logger.logDebug = function (type, msg) {
+    logger.log("DEBUG", type, msg);
 };
 
-logger.logError = function (msg) {
-    logger.log("ERROR", msg);
+logger.logError = function (type, msg) {
+    logger.log("ERROR", type, msg);
 };
 
 

@@ -15,6 +15,10 @@ module.exports = {
         PARTITION_DO_NOT_EXIST: 5,
         PARTITION_FULL: 6
     },
+    EquipmentFailed: {
+        DO_NOT_OWN_ITEM: 7
+    },
+    ALREADY_CLAIMED: 8,
 
 
     InternalServerError: 500

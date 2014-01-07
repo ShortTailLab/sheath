@@ -21,7 +21,7 @@ var EntityType = {
 
 var ActFlagType = {
     ENTRY: 0,
-    ENTER_SCENE: 1,
+    ENTER_PARTITION: 1,
     ATTACK: 2,
     MOVE: 3,
     PICK_ITEM: 4
@@ -42,7 +42,7 @@ if (typeof actor !== 'undefined') {
     console.log(offset + ' ' + actor.id);
 }
 
-function entry(host, port, accType, username, password, callback) {
+function entry(host, port, accType, username, password) {
     var entry = function () {
         monitor(START, 'entry', ActFlagType.ENTRY);
         var request = {
@@ -65,16 +65,13 @@ function entry(host, port, accType, username, password, callback) {
 
         pomelo.request('connector.entryHandler.enter', request, function (data) {
             monitor(END, 'entry', ActFlagType.ENTRY);
-            if (callback) {
-                callback(data.code);
-            }
 
-            if (data.err) {
-                console.log('Login fail!' + err);
+            if (data.error) {
+                console.log('Login fail!' + data.error);
             }
             else {
-                console.log("Login succeeded. user = " + data.user);
-//                afterLogin(pomelo,data);
+                console.log(data);
+                enterPartition(pomelo, data);
             }
         });
     };
@@ -86,6 +83,23 @@ function entry(host, port, accType, username, password, callback) {
         entry();
     }
 }
+
+var enterPartition = function (pomelo, data) {
+    pomelo.user = data.user;
+
+    monitor(START, 'enterPart', ActFlagType.ENTER_PARTITION);
+    pomelo.request('connector.entryHandler.enterPartition', {partId: data.partitions[0].id}, function (data) {
+        monitor(END, 'enterPart', ActFlagType.ENTER_PARTITION);
+
+        if (data.error) {
+            console.log('Login fail!' + data.error);
+        }
+        else {
+            console.log(data);
+            process.exit(0);
+        }
+    });
+};
 
 var afterLogin = function (pomelo, data) {
     pomelo.player = null;

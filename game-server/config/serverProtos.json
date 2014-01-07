@@ -12,9 +12,10 @@
         "optional string message":   2
     },
     "message Partition": {
-        "required int32 status":     1,
-        "required string name":      2,
-        "required int64 openSince":3
+        "required string id":        1,
+        "required int32 status":     2,
+        "required string name":      3,
+        "required int32 openSince":  4
     },
 
     "connector.entryHandler.enter": {

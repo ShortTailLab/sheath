@@ -1,5 +1,6 @@
 require("traceur");
 var pomelo = require('pomelo');
+var dataPlugin = require('pomelo-data-plugin');
 var appModels = require("../shared/models");
 var logger = require('pomelo-logger').getLogger('sheath', __filename);
 var Constants = require("../shared/constants");
@@ -26,7 +27,7 @@ app.configure("development|production", 'connector', function () {
         });
 });
 
-app.configure("development|production", 'auth|connector|game', function () {
+app.configure("development|production", 'auth|connector|game|manager', function () {
     Patcher.wrapModel();
 
     var rethinkConfig = app.get("rethinkdb");
@@ -44,15 +45,30 @@ app.configure('development', function () {
 });
 
 app.configure(function () {
-    app.before(new authFilter("connector.entryHandler.enter"));
+    app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
     app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
+
+    app.use(dataPlugin, {
+        watcher: {
+            dir: __dirname + "/config/data",
+            idx: "id",
+            interval: 5000
+        }
+    });
 });
+
+function patchRPC(app) {
+    process.nextTick(function () {
+        if (app.rpc)
+            Patcher.patchRPC(app);
+        else
+            patchRPC(app);
+    });
+}
 
 app.event.on(pomelo.events.ADD_SERVERS, function () {
     if (["connector", "auth", "game"].indexOf(app.settings.serverType) !== -1) {
-        process.nextTick(function () {
-            Patcher.patchRPC(app);
-        });
+        patchRPC(app);
     }
 });
 
