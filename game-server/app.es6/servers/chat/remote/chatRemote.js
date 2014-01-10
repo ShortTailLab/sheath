@@ -53,18 +53,19 @@ ChatRemote.prototype.add = function(uid, username, sid, name, cb) {
  * @param {string} name channel name
  *
  */
-ChatRemote.prototype.kick = function(uid, username, sid, name) {
+ChatRemote.prototype.kick = function(uid, username, sid, name, cb) {
     var channel = this.channelService.getChannel(name, false);
     // leave channel
     if( !!channel ) {
         channel.leave(uid + "*" + username, sid);
+        var param = {
+            route: 'onLeave',
+            user: {
+                name: username,
+                id: uid
+            }
+        };
+        channel.pushMessage(param);
     }
-    var param = {
-        route: 'onLeave',
-        user: {
-            name: username,
-            id: uid
-        }
-    };
-    channel.pushMessage(param);
+    cb();
 };

@@ -13,7 +13,8 @@ module.exports = {
     },
     PartitionFailed: {
         PARTITION_DO_NOT_EXIST: 5,
-        PARTITION_FULL: 6
+        PARTITION_FULL: 6,
+        PARTITION_NOT_OPEN: 7
     },
     EquipmentFailed: {
         DO_NOT_OWN_ITEM: 7

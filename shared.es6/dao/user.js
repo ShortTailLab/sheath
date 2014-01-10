@@ -56,12 +56,8 @@ class UserHelper {
     }
 
     toClientRole(role) {
-        var ret = {
-            id: role.id,
-            name: role.name
-        };
-
-        if (role.isNew) ret.isNew = role.isNew;
+        var ret = _.pick(role, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs");
+        if (role.isNew) ret.isNew = 1;
 
         return ret;
     }

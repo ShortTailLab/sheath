@@ -86,12 +86,20 @@ class EntryHandler extends base.HandlerBase {
             if (!part) {
                 return Promise.reject(Constants.PartitionFailed.PARTITION_DO_NOT_EXIST);
             }
+            else if (part.openSince > new Date()) {
+                return Promise.reject(Constants.PartitionFailed.PARTITION_NOT_OPEN);
+            }
             else {
                 return this.app.rpc.manager.partitionStatsRemote.joinPartitionAsync(session, part.id);
             }
         })
         .then(() => {
-            return models.Role.findOrCreateP({where: {owner: session.uid, partition: part.id}}, {isNew: true});
+            var newData = {
+                partition: part.id,
+                owner: session.uid,
+                isNew: true
+            };
+            return models.Role.findOrCreateP({where: {owner: session.uid, partition: part.id}}, newData);
         })
         .then((role) => {
             var promises = [role, null, null];
@@ -119,7 +127,7 @@ class EntryHandler extends base.HandlerBase {
 var onUserLeave = function (app, session, reason) {
     var partId = session.get('partId');
     if (typeof partId === "string") {
-        app.rpc.manager.partitionStatsRemote.leavePartition(partId, null);
+        app.rpc.manager.partitionStatsRemote.leavePartition(session, partId, null);
         var role = session.get("role");
         if (role) {
             app.rpc.chat.chatRemote.kick(session, session.uid, role.name, app.get('serverId'), partId, null);

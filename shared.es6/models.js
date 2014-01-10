@@ -40,7 +40,7 @@ exports.init = function (dbConfig) {
         energy: {type: Number, default: 0},
         coins: {type: Number, default: 0},
         golds: {type: Number, default: 0},
-        contrib: {type: Number, default: 0},
+        contribs: {type: Number, default: 0},
 
         dailyRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
         manualRefreshData: {type: db.Schema.JSON, default: function () {return {};}},

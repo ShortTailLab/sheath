@@ -5,7 +5,16 @@
     "message Role": {
         "required string id":        1,
         "required string name":      2,
-        "optional bool isNew":       3
+        "required int32 level":      3,
+        "required int32 exp":        4,
+        "required string title":     5,
+
+        "required int32 energy":     6,
+        "required int32 coins":      7,
+        "required int32 golds":      8,
+        "required int32 contribs":   9,
+
+        "optional int32 isNew":      10
     },
     "message Error": {
         "required int32 code":       1,
