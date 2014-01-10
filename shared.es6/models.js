@@ -1,6 +1,7 @@
 var db = require('jugglingdb');
 var Promise = require('bluebird');
 var r = require("rethinkdb");
+var _ = require("underscore");
 
 exports.init = function (dbConfig) {
     var schema = exports.schema = new db.Schema("rethink", dbConfig);
@@ -104,6 +105,10 @@ exports.init = function (dbConfig) {
     Hero.hasMany(Item, {as: "equipments", foreignKey: "bound"});
     Hero.belongsTo(HeroDef, {as: "def", foreignKey: "heroDefId"});
     Item.belongsTo(ItemDef, {as: "def", foreignKey: "itemDefId"});
+
+    Role.prototype.toSessionObj = function () {
+        return _.pick(this.toObject(true), "id", "name", "level", "exp", "title", "dailyRefreshData", "manualRefreshData");
+    };
 
     return schema;
 };

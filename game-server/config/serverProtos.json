@@ -26,6 +26,17 @@
         "required string name":      3,
         "required int32 openSince":  4
     },
+    "message ProfileChange": {
+        "required int32 energyDiff":     1,
+        "required int32 coinsDiff":      2,
+        "required int32 goldsDiff":      3,
+        "required int32 contribsDiff":   4,
+
+        "required int32 energy":     5,
+        "required int32 coins":      6,
+        "required int32 golds":      7,
+        "required int32 contribs":   8
+    },
 
     "connector.entryHandler.enter": {
         "optional Error error":      1,
@@ -36,5 +47,14 @@
         "optional Error error":      1,
         "optional Player user":      2,
         "optional Role role":        3
+    },
+
+    "game.roleHandler.claimDailyReward": {
+        "optional Error error":      1,
+        "optional ProfileChange reward": 2
+    },
+    "game.roleHandler.claimQuarterHourlyReward": {
+        "optional Error error":      1,
+        "optional ProfileChange reward": 2
     }
 }

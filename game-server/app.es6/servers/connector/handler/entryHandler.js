@@ -106,7 +106,7 @@ class EntryHandler extends base.HandlerBase {
             if (!role.isNew) {
                 promises[1] = this.app.rpc.chat.chatRemote.addP(session, session.uid, role.name, this.app.get('serverId'), part.id);
             }
-            session.set("role", role.toObject(true));
+            session.set("role", role.toSessionObj());
             session.set("partId", part.id);
             promises[2] = session.pushAll();
             return promises;
