@@ -7,10 +7,10 @@ class AuthFilter {
     }
 
     before(msg, session, next) {
-        if (!_.contains(this.excludeList, msg.__route__) && !session.uid && !session.get("role")) {
+        if (!_.contains(this.excludeList, msg.__route__) && (!session.uid || !session.get("role"))) {
             next({
                 __sheath__error__: true,
-                code: Constants.NeedAuth
+                code: Constants.NEED_AUTH
             });
         }
         else {

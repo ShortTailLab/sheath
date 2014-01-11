@@ -72,18 +72,21 @@ app.event.on(pomelo.events.ADD_SERVERS, function () {
     }
 });
 
-app.set("globalErrorHandler", function (err, msg, resp, session, cb) {
+var errorHandler = function (err, msg, resp, session, cb) {
     if (err.__sheath__error__) {
         cb(null, {error: {code: err.code}});
     }
     else if (err.code === 500 && err.message === "Server toobusy!") {
-        cb(null, {error: {code: Constants.TimeOut, message: "Server too busy"}});
+        cb(null, {error: {code: Constants.TIME_OUT, message: "Server too busy"}});
     }
     else {
         cb(null, {error: {code: Constants.InternalServerError, message: "Internal Server Error"}});
         logger.debug('exception. ' + err.stack);
     }
-});
+};
+
+app.set("globalErrorHandler", errorHandler);
+app.set("errorHandler", errorHandler);
 
 // start app
 app.start();

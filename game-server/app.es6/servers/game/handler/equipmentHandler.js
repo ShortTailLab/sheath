@@ -13,6 +13,7 @@ module.exports = function (app) {
 class EquipmentHandler extends base.HandlerBase {
     constructor(app) {
         this.app = app;
+        logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
     equip(msg, session, next) {

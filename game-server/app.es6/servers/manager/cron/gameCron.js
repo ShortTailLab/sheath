@@ -1,4 +1,5 @@
 var models = require("../../../../../shared/models");
+var r = require("rethinkdb");
 var logger;
 
 module.exports = function (app) {
@@ -12,7 +13,7 @@ class GameCron {
     }
 
     dailyRefresh() {
-        models.Role.updateAttribute("dailyRefreshData", {}, function (err) {
+        models.Role.update({update: {"dailyRefreshData": r.literal({})}}, function (err) {
             if (err) {
                 logger.logError("cron.dailyRefresh", {
                     message: ""+err

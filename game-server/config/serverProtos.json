@@ -9,6 +9,8 @@
         "required int32 exp":        4,
         "required string title":     5,
 
+        "repeated string team":     11,
+
         "required int32 energy":     6,
         "required int32 coins":      7,
         "required int32 golds":      8,

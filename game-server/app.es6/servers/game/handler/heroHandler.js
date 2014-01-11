@@ -7,12 +7,16 @@ var logger;
 
 
 module.exports = function (app) {
-    return new TutorialHandler(app);
+    return new HeroHandler(app);
 };
 
-class TutorialHandler extends base.HandlerBase {
+class HeroHandler extends base.HandlerBase {
     constructor(app) {
         this.app = app;
         logger = require('../../../utils/rethinkLogger').getLogger(app);
+    }
+
+    recruit(msg, session, next) {
+
     }
 }

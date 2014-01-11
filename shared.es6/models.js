@@ -38,6 +38,8 @@ exports.init = function (dbConfig) {
         title: {type: String, default: ""},
         vipLevel: {type: Number, default: 0},
 
+        team: {type: db.Schema.JSON, default: function () {return [null, null, null];}},
+
         energy: {type: Number, default: 0},
         coins: {type: Number, default: 0},
         golds: {type: Number, default: 0},
@@ -106,8 +108,21 @@ exports.init = function (dbConfig) {
     Hero.belongsTo(HeroDef, {as: "def", foreignKey: "heroDefId"});
     Item.belongsTo(ItemDef, {as: "def", foreignKey: "itemDefId"});
 
+    User.prototype.toClientObj = function () {
+        return _.pick(this, "id");
+    };
+
     Role.prototype.toSessionObj = function () {
-        return _.pick(this.toObject(true), "id", "name", "level", "exp", "title", "dailyRefreshData", "manualRefreshData");
+        return _.pick(this, "id", "name", "team", "level", "exp", "title", "dailyRefreshData", "manualRefreshData");
+    };
+
+    Role.prototype.toClientObj = function() {
+        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs");
+        if (this.isNew) ret.isNew = 1;
+
+        ret.team = _.map(this.team, (t) => { return t || ""; });
+
+        return ret;
     };
 
     return schema;

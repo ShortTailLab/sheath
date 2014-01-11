@@ -3,6 +3,7 @@ var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var userDAO = require("../../../../../shared/dao/user");
 var models = require("../../../../../shared/models");
 var base = require("../../../../../shared/base");
+var uuid = require("node-uuid");
 var _ = require("underscore");
 var Promise = require("bluebird");
 var logger;
@@ -40,11 +41,10 @@ class EntryHandler extends base.HandlerBase {
         .then(() => {
             var partUCount = this.app.rpc.manager.partitionStatsRemote.getUserCountAsync(session);
             var allParts = models.Partition.allP({where: {public: true}, order: "openSince DESC"});
-            var clientUserObj = userDAO.toClientObj(user);
-            session.set("user", clientUserObj);
-            return [session.bind(user.id), partUCount, allParts, clientUserObj, session.pushAll()];
+            session.set("userId", user.id);
+            return [session.bind(user.id), partUCount, allParts, session.pushAll()];
         })
-        .all().spread((__, partStats, partitions, clientUserObj) => {
+        .all().spread((__, partStats, partitions) => {
             session.on('closed', onUserLeave.bind(null, this.app));
 
             logger.logInfo("user.login", {
@@ -69,7 +69,7 @@ class EntryHandler extends base.HandlerBase {
             });
 
             next(null, {
-                user: clientUserObj,
+                user: {id: user.id},
                 partitions: partitions
             });
         })
@@ -90,18 +90,42 @@ class EntryHandler extends base.HandlerBase {
                 return Promise.reject(Constants.PartitionFailed.PARTITION_NOT_OPEN);
             }
             else {
-                return this.app.rpc.manager.partitionStatsRemote.joinPartitionAsync(session, part.id);
+                return [models.Role.findOneP({where: {owner: session.uid, partition: part.id}}),
+                    this.app.rpc.manager.partitionStatsRemote.joinPartitionAsync(session, part.id)];
             }
         })
-        .then(() => {
-            var newData = {
-                partition: part.id,
-                owner: session.uid,
-                isNew: true
-            };
-            return models.Role.findOrCreateP({where: {owner: session.uid, partition: part.id}}, newData);
+        .all().spread((role) => {
+            if (!role) {
+                var newRoleConf = this.app.get("dataService").get("roleBootstrap").data;
+                var newData = {
+                    partition: part.id,
+                    owner: session.uid,
+
+                    energy: parseInt(newRoleConf.energy.value),
+                    coins: parseInt(newRoleConf.coins.value),
+                    golds: parseInt(newRoleConf.golds.value),
+                    contribs: parseInt(newRoleConf.contribs.value),
+
+                    isNew: true
+                };
+
+                return models.Role.createP(newData).then((role) => {
+                    var initialHeroes = JSON.parse(newRoleConf.heroes.value);
+                    var heros = _.map(initialHeroes, function (hid) {
+                        return {
+                            heroDefId: hid,
+                            owner: role.id
+                        };
+                    });
+
+                    return [role, models.Hero.createP(heros)];
+                });
+            }
+            else {
+                return [role];
+            }
         })
-        .then((role) => {
+        .all().spread((role) => {
             var promises = [role, null, null];
             if (!role.isNew) {
                 promises[1] = this.app.rpc.chat.chatRemote.addP(session, session.uid, role.name, this.app.get('serverId'), part.id);
@@ -113,7 +137,7 @@ class EntryHandler extends base.HandlerBase {
         })
         .all().spread((role) => {
             next(null, {
-                role: userDAO.toClientRole(role)
+                role: role.toClientObj()
             });
         })
         .catch((err) => {

@@ -6,6 +6,7 @@
     "private": true,
     "dependencies": {
         "commander": "latest",
+        "node-uuid": "latest",
         "bluebird": "latest",
         "underscore": "latest",
         "generic-pool": "latest",

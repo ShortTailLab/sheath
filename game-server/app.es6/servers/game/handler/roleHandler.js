@@ -13,6 +13,7 @@ module.exports = function (app) {
 class RoleHandler extends base.HandlerBase {
     constructor(app) {
         this.app = app;
+        logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
     changeName(msg, session, next) {
@@ -21,6 +22,56 @@ class RoleHandler extends base.HandlerBase {
         var newName = msg.newName;
         var role = session.get("role");
         if (!newName || role.name === newName) {
+            this.errorNext(Constants.InvalidRequest, next);
+        }
+        else {
+            role.name = newName;
+            Promise.all(models.User.updateAttributeP("name", newName), session.push("role")).then(() => {
+                next(null, {
+                });
+            })
+            .catch((err) => {
+                this.errorNext(err, next);
+            });
+        }
+    }
+
+    setTeam(msg, session, next) {
+        wrapSession(session);
+
+        if (msg.heroes.length !== 3 || !msg.heroes[0]) {
+            this.errorNext(Constants.InvalidRequest, next);
+        }
+        else {
+            for (let i=0;i<3;i++) {
+                msg.heroes[i] = msg.heroes[i] || null;
+            }
+
+            var role;
+            models.Role.findP(session.get("role").id)
+            .then((r) => {
+                role = r;
+                return models.Hero.allP({where: {owner: role.id}});
+            })
+            .then((heroes) => {
+                const heroIds = _.pluck(heroes, "id");
+                for (let hid of msg.heroes) {
+                    if (hid !== null && !_.contains(heroIds, hid)) {
+                        return Promise.reject(Constants.InvalidRequest);
+                    }
+                }
+
+                role.team = msg.heroes;
+                return [role.updateAttributeP("team", msg.heroes), session.push("role")];
+            })
+            .then(() => {
+                next(null, {
+                    role: role.toClientObj()
+                });
+            })
+            .catch((err) => {
+                this.errorNext(err, next);
+            });
         }
     }
 

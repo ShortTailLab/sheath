@@ -21,8 +21,11 @@
         "required string distro":        4,
         "required Device device":        5
     },
-
     "connector.entryHandler.enterPartition": {
         "required string partId":        1
+    },
+
+    "game.roleHandler.setTeam": {
+        "repeated string heroes":        1
     }
 }

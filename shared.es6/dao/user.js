@@ -55,13 +55,6 @@ class UserHelper {
         });
     }
 
-    toClientRole(role) {
-        var ret = _.pick(role, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs");
-        if (role.isNew) ret.isNew = 1;
-
-        return ret;
-    }
-
     toRPCObj(user) {
         var ret = {
             id: user.id,
@@ -75,10 +68,8 @@ class UserHelper {
         return ret;
     }
 
-    toClientObj(user) {
-        return {
-            id: user.id
-        };
+    createRoleWithConf() {
+
     }
 }
 

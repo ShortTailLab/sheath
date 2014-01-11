@@ -5,33 +5,34 @@ var envConfig = require(cwd + '/app/config/env.json');
 var config = require(cwd + '/app/config/' + envConfig.env + '/config');
 
 var ActFlagType = {
-    ENTRY: 0,
-    ENTER_PARTITION: 1,
-    CLAIM_DAILY_REWARD: 2,
-    CLAIM_QHOURLY_REWARD: 3,
-
-    ACT_END: 100000
-};
-
-var ActDetail = [
-    {
+    ENTRY: {
+        reqId: 0,
         name: "entry",
         route: "connector.entryHandler.enter"
     },
-    {
+    ENTER_PARTITION: {
+        reqId: 1,
         name: "enterPart",
         route: "connector.entryHandler.enterPartition"
     },
-    {
+    CLAIM_DAILY_REWARD: {
+        reqId: 2,
         name: "claimDaily",
         route: "game.roleHandler.claimDailyReward"
     },
-    {
+    CLAIM_QHOURLY_REWARD: {
+        reqId: 3,
         name: "claimQuarterHourlyReward",
         route: "game.roleHandler.claimQuarterHourlyReward"
     },
-    {}
-];
+    SET_TEAM: {
+        reqId: 4,
+        name: "setTeam",
+        route: "game.roleHandler.setTeam"
+    },
+
+    ACT_END: null
+};
 
 var monitor = function (type, name, reqId) {
     if (typeof actor !== 'undefined') {
@@ -41,20 +42,18 @@ var monitor = function (type, name, reqId) {
     }
 };
 
-var timePomeloRequest = function (actType, msg, cb) {
-    var conf = ActDetail[actType];
-
-    monitor('start', conf.name, ActFlagType.CLAIM_DAILY_REWARD);
+var timePomeloRequest = function (conf, msg, cb) {
+    monitor('start', conf.name, conf.reqId);
     pomelo.request(conf.route, msg, function (data) {
-        monitor('end', conf.name, ActFlagType.CLAIM_DAILY_REWARD);
+        monitor('end', conf.name, conf.reqId);
 
         if (data.error) {
             console.log(conf.name + ' failed!' + (data.error.message || data.error.code));
         }
         else {
             console.log(data);
-            cb(data);
         }
+        cb(data);
     });
 };
 
@@ -115,11 +114,17 @@ var afterLogin = function (pomelo, data) {
 
     timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
         timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
-            process.exit(0);
+            setTeam(pomelo, data);
         });
+    });
+};
+
+var setTeam = function (pomelo, data) {
+    timePomeloRequest(ActFlagType.SET_TEAM, {heroes: ["", "", ""]}, function (data) {
+        process.exit(0);
     });
 };
 
 setTimeout(function () {
     entry("127.0.0.1", 3010, "main", "uname", "password");
-}, Math.random() * 1000);
+}, Math.random() * 2000);

@@ -1,9 +1,11 @@
 module.exports = {
     OK: 0,
-    UnknownError: 1,
-    InvalidRequest: 2,
-    TimeOut: 3,
-    NeedAuth: 4,
+    UnknownError: 101,
+    InvalidRequest: 102,
+    TIME_OUT: 103,
+    NEED_AUTH: 104,
+    ALREADY_CLAIMED: 105,
+    LEVEL_TOO_LOW: 106,
 
 
     LoginFailed: {
@@ -19,7 +21,6 @@ module.exports = {
     EquipmentFailed: {
         DO_NOT_OWN_ITEM: 7
     },
-    ALREADY_CLAIMED: 8,
 
 
     InternalServerError: 500
