@@ -39,6 +39,21 @@ var hDefs = [
     }
 ];
 
+var itemDefs = [
+    {
+        id: 100,
+        name: "强化石",
+        type: "STONE",
+        stars: 3
+    },
+    {
+        id: 101,
+        name: "青龙偃月刀",
+        type: "WE_BLADE",
+        stars: 5
+    }
+];
+
 jugglingdb.AbstractClass._forDB = function (data) {
     var res = {};
     Object.keys(data).forEach(function (propName) {
@@ -66,7 +81,15 @@ models.HeroDef.create(hDefs, function (err) {
         process.exit(1);
     }
     else {
-        console.log("Test data filled.");
-        process.exit(0);
+        models.ItemDef.create(itemDefs, function (err) {
+            if (err) {
+                console.error(err);
+                process.exit(1);
+            }
+            else {
+                console.log("Test data filled.");
+                process.exit(0);
+            }
+        });
     }
 });

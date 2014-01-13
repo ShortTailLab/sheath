@@ -3,7 +3,6 @@ var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var userDAO = require("../../../../../shared/dao/user");
 var models = require("../../../../../shared/models");
 var base = require("../../../../../shared/base");
-var uuid = require("node-uuid");
 var _ = require("underscore");
 var Promise = require("bluebird");
 var logger;
@@ -111,14 +110,21 @@ class EntryHandler extends base.HandlerBase {
 
                 return models.Role.createP(newData).then((role) => {
                     var initialHeroes = JSON.parse(newRoleConf.heroes.value);
+                    var initialItems = JSON.parse(newRoleConf.items.value);
                     var heros = _.map(initialHeroes, function (hid) {
                         return {
                             heroDefId: hid,
                             owner: role.id
                         };
                     });
+                    var items = _.map(initialItems, function (itemId) {
+                        return {
+                            itemDefId: itemId,
+                            owner: role.id
+                        };
+                    });
 
-                    return [role, models.Hero.createP(heros)];
+                    return [role, models.Hero.createP(heros), models.Item.createP(items)];
                 });
             }
             else {

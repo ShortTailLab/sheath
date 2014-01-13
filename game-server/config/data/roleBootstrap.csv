@@ -3,5 +3,6 @@ id,value
 coins,100
 golds,20
 heroes,"[1,2,3]"
+items,"[100,100,100,101]"
 energy,5
 contribs,0

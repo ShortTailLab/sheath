@@ -16,6 +16,10 @@ class HeroHandler extends base.HandlerBase {
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
+    list(msg, session, next) {
+
+    }
+
     recruit(msg, session, next) {
 
     }

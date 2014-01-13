@@ -30,6 +30,16 @@ var ActFlagType = {
         name: "setTeam",
         route: "game.roleHandler.setTeam"
     },
+    LIST_ITEM: {
+        reqId: 5,
+        name: "listItems",
+        route: "game.itemHandler.list"
+    },
+    UPGRADE_EQUIPMENT: {
+        reqId: 6,
+        name: "upgrade_weapon",
+        route: "game.equipmentHandler.upgrade"
+    },
 
     ACT_END: null
 };
@@ -114,7 +124,22 @@ var afterLogin = function (pomelo, data) {
 
     timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
         timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
-            setTeam(pomelo, data);
+            upgradeWeapon(pomelo, data);
+        });
+    });
+};
+
+var upgradeWeapon = function (pomelo, data) {
+    timePomeloRequest(ActFlagType.LIST_ITEM, {}, function (data) {
+        var weaponId;
+        for (var i=0;i<data.items.length;i++) {
+            if (data.items[i].defId === 101) {
+                weaponId = data.items[i].id;
+            }
+        }
+
+        timePomeloRequest(ActFlagType.UPGRADE_EQUIPMENT, {equipmentId: weaponId}, function (data) {
+            process.exit(0);
         });
     });
 };

@@ -39,6 +39,12 @@
         "required int32 golds":      7,
         "required int32 contribs":   8
     },
+    "message Item": {
+        "required string id":        1,
+        "required int32 defId":      2,
+        "required int32 level":      3,
+        "required int32 refinement": 4
+    },
 
     "connector.entryHandler.enter": {
         "optional Error error":      1,
@@ -58,5 +64,17 @@
     "game.roleHandler.claimQuarterHourlyReward": {
         "optional Error error":      1,
         "optional ProfileChange reward": 2
+    },
+
+    "game.itemHandler.list": {
+        "optional Error error":      1,
+        "repeated Item items":       2
+    },
+
+    "game.equipmentHandler.upgrade": {
+        "optional Error error":      1,
+        "optional string destroyed": 2,
+        "optional Item equipment":   3,
+        "optional ProfileChange stateDiff": 4
     }
 }

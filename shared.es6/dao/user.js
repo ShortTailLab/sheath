@@ -67,10 +67,6 @@ class UserHelper {
 
         return ret;
     }
-
-    createRoleWithConf() {
-
-    }
 }
 
 module.exports = new UserHelper();
