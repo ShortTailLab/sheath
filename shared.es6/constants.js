@@ -23,7 +23,8 @@ module.exports = {
     EquipmentFailed: {
         DO_NOT_OWN_ITEM: 8,
         LEVEL_MAX: 9,
-        NO_ENFORCEMENT_STONE: 10
+        NO_ENFORCEMENT_STONE: 10,
+        NO_MATERIAL: 11
     },
 
 

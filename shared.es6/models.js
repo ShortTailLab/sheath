@@ -69,12 +69,12 @@ exports.init = function (dbConfig) {
         name: {type: String, default: ""},
         resKey: {type: String, default: ""},
 
+        price: {type: Number, default: 1000},
         levelReq: {type: Number, default: 1},
         quality: {type: Number, default: 3},
 
         transformTarget: {type: Number, default: 0},
         transformCount: {type: Number, default: 0},
-        refineCount: {type: Number, default: 0},
 
         props: {type: db.Schema.JSON, default: function () {return [];}}
     });
@@ -89,10 +89,12 @@ exports.init = function (dbConfig) {
     });
 
     var Item = exports.Item = schema.define("item", {
+        bound: {type: String, index: true},
         itemDefId: {type: Number, index: true},
 
         level: {type: Number, default: 0},
         refinement: {type: Number, default: 0},
+        refineProgress: {type: Number, default: 0},
 
         createTime: {type: Date, default: function () { return new Date(); }}
     });
@@ -117,7 +119,6 @@ exports.init = function (dbConfig) {
     User.hasMany(Role, {as: "roles", foreignKey: "owner"});
     Role.hasMany(Hero, {as: "heroes", foreignKey: "owner"});
     Role.hasMany(Item, {as: "bag", foreignKey: "owner"});
-    Hero.hasMany(Item, {as: "equipments", foreignKey: "bound"});
     Stage.hasMany(Level, {as: "levels", foreignKey: "stageId"});
 
     User.prototype.toClientObj = function () {
@@ -142,7 +143,17 @@ exports.init = function (dbConfig) {
             id: this.id,
             defId: this.itemDefId,
             level: this.level,
-            refinement: this.refinement
+            refinement: this.refinement,
+            refineProgress: this.refineProgress
+        };
+    };
+
+    Hero.prototype.toClientObj = function () {
+        return {
+            id: this.id,
+            defId: this.heroDefId,
+            level: this.level,
+            exp: this.exp
         };
     };
 

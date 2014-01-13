@@ -19,15 +19,35 @@ class HandlerBase {
         promise.catch((err) => {this.errorNext(err, next);});
     }
 
-    getItemWithDef(equipmentId) {
-        return models.Item.findP(equipmentId).then((equipment) => {
+    getItemWithDef(itemId) {
+        return models.Item.findP(itemId).then((equipment) => {
             if (!equipment) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
-            else {
-                return [equipment, models.ItemDef.findP(equipment.itemDefId)];
-            }
+            return [equipment, models.ItemDef.findP(equipment.itemDefId)];
         }).bind(this);
+    }
+
+    getItemWithPrefixDef(itemId, prefix) {
+        return this.getItemWithDef(itemId).all().spread((equipment, itemDef) => {
+            if (!itemDef || !itemDef.type.startsWith(prefix)) {
+                return Promise.reject(Constants.InvalidRequest);
+            }
+            return [equipment, itemDef];
+        });
+    }
+
+    getEquipmentWithDef(equipmentId) {
+        return this.getItemWithDef(equipmentId).all().spread((equipment, itemDef) => {
+            if (!itemDef || !(itemDef.type.startsWith("WE_") || itemDef.type.startsWith("AR_"))) {
+                return Promise.reject(Constants.InvalidRequest);
+            }
+            return [equipment, itemDef];
+        });
+    }
+
+    getGemWithDef(itemId) {
+        return this.getItemWithPrefixDef(itemId, "GEM_");
     }
 }
 

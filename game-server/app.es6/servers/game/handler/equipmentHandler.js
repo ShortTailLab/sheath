@@ -16,24 +16,98 @@ class EquipmentHandler extends base.HandlerBase {
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
-    equip(msg, session, next) {
-        var itemId = msg.itemId;
-        var heroId = msg.heroId;
+    composite(msg, session, next) {
+        wrapSession(session);
+
+        var matType = msg.matType;
         var role = session.get("role");
 
-        Promise.all(models.Role.findP(role.id), models.Item.findP(itemId))
-        .spread((role, item) => {
-            if (!role || !item || item.owner !== role.id) {
-                this.errorNext(Constants.EquipmentFailed.DO_NOT_OWN_ITEM, next);
-                return;
+        if (!matType) {
+            this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        var matQuery = models.Item.allP({where: {owner: role.id, itemDefId: matType}, limit: 2});
+        var itemDefQuery = models.ItemDef.findP(matType);
+
+        this.safe(Promise.join(matQuery, itemDefQuery).bind(this)
+        .spread((mats, itemDef) => {
+            if (mats.length < 2 || !itemDef) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
+            if (itemDef.type !== "WEP" && itemDef.type !== "ARP") {
+                return Promise.reject(Constants.InvalidRequest);
+            }
+
+            var matchExpr = "^" + itemDef.type.substr(0, 2) + "_";
+            var targetQuery = models.ItemDef.allP({where: {
+                quality: itemDef.quality,
+                type: {match: matchExpr}
+            }, sample: 1});
+            return [mats, itemDef, targetQuery];
         })
-        .catch((err) => {
-            this.errorNext(err, next);
-        });
+        .all().spread((mats, itemDef, targets) => {
+            if (targets.length !== 1) {
+                return Promise.reject(Constants.InternalServerError);
+            }
+
+            return [mats, models.Item.createP({itemDefId: targets[0].id, owner: role.id}), mats[0].destroyP(), mats[1].destroyP()];
+        })
+        .all().spread((mats, newItem) => {
+            next(null, {
+                destroyed: [mats[0].id, mats[1].id],
+                newItem: newItem.toClientObj()
+            });
+        }), next);
     }
 
     refine(msg, session, next) {
+        wrapSession(session);
+
+        var eqId = msg.equipmentId;
+        var role = session.get("role");
+        var equipment, itemDef;
+
+        if (!eqId) {
+            this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        this.safe(this.getEquipmentWithDef(eqId)
+        .all().spread((_equipment, _itemDef) => {
+            [equipment, itemDef] = [_equipment, _itemDef];
+
+            if (equipment.owner !== role.id) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            }
+            if (equipment.refinement >= 3) {
+                return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
+            }
+            return models.Item.findOneP({where: {
+                owner: role.id,
+                itemDefId: equipment.itemDefId,
+                refinement: 0,
+                refineProgress: 0,
+                level: 0
+            }});
+        })
+        .then((material) => {
+            if (!material) {
+                return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
+            }
+            var progressReq = [2, 4, 6][equipment.refinement];
+
+            equipment.refineProgress += 1;
+            if (equipment.refineProgress === progressReq) {
+                equipment.refineProgress = 0;
+                equipment.refinement += 1;
+            }
+            return [material.id, material.destroyP(), equipment.saveP()];
+        })
+        .all().spread((mid) => {
+            next(null, {
+                destroyed: mid,
+                equipment: equipment.toClientObj()
+            });
+        }), next);
     }
 
     upgrade(msg, session, next) {
@@ -45,12 +119,16 @@ class EquipmentHandler extends base.HandlerBase {
 
         var equipment, itemDef;
 
-        this.safe(this.getItemWithDef(eqId)
+        if (!eqId) {
+            this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        this.safe(this.getEquipmentWithDef(eqId)
         .all().spread((_equipment, _itemDef) => {
             [equipment, itemDef] = [_equipment, _itemDef];
 
-            if (equipment.owner !== role.id || !itemDef || !(itemDef.type.startsWith("WE_") || itemDef.type.startsWith("AR_"))) {
-                return Promise.reject(Constants.InvalidRequest);
+            if (equipment.owner !== role.id) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
             if (equipment.level >= weaponLevelLimit) {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
@@ -94,10 +172,14 @@ class EquipmentHandler extends base.HandlerBase {
     }
 
     setGem(msg, session, next) {
+        wrapSession(session);
     }
 
     removeGem(msg, session, next) {
+        wrapSession(session);
     }
 
-
+    destruct(msg, session, next) {
+        wrapSession(session);
+    }
 }

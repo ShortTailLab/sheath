@@ -43,7 +43,14 @@
         "required string id":        1,
         "required int32 defId":      2,
         "required int32 level":      3,
-        "required int32 refinement": 4
+        "required int32 refinement": 4,
+        "required int32 refineProgress": 5
+    },
+    "message Hero": {
+        "required string id":        1,
+        "required int32 defId":      2,
+        "required int32 level":      3,
+        "required int32 exp":        4
     },
 
     "connector.entryHandler.enter": {
@@ -71,6 +78,16 @@
         "repeated Item items":       2
     },
 
+    "game.equipmentHandler.composite": {
+        "optional Error error":      1,
+        "repeated string destroyed": 2,
+        "optional Item newItem":     3
+    },
+    "game.equipmentHandler.refine": {
+        "optional Error error":      1,
+        "optional string destroyed": 2,
+        "optional Item equipment":   3
+    },
     "game.equipmentHandler.upgrade": {
         "optional Error error":      1,
         "optional string destroyed": 2,

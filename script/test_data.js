@@ -51,6 +51,24 @@ var itemDefs = [
         name: "青龙偃月刀",
         type: "WE_BLADE",
         stars: 5
+    },
+    {
+        id: 102,
+        name: "紫金靴",
+        type: "AR_BOOT",
+        stars: 5
+    },
+    {
+        id: 111,
+        name: "精品武器碎片",
+        type: "WEP",
+        stars: 5
+    },
+    {
+        id: 112,
+        name: "精品防具碎片",
+        type: "ARP",
+        stars: 5
     }
 ];
 
@@ -74,22 +92,29 @@ models.init({
     database: program.database
 }).connect();
 
-
-models.HeroDef.create(hDefs, function (err) {
-    if (err) {
-        console.error(err);
-        process.exit(1);
-    }
-    else {
-        models.ItemDef.create(itemDefs, function (err) {
-            if (err) {
-                console.error(err);
-                process.exit(1);
-            }
-            else {
-                console.log("Test data filled.");
-                process.exit(0);
-            }
-        });
-    }
+models.HeroDef.destroyAll(function (err) {
+    models.ItemDef.destroyAll(function (err) {
+        doWork();
+    });
 });
+
+var doWork = function () {
+    models.HeroDef.create(hDefs, function (err) {
+        if (err) {
+            console.error(err);
+            process.exit(1);
+        }
+        else {
+            models.ItemDef.create(itemDefs, function (err) {
+                if (err) {
+                    console.error(err);
+                    process.exit(1);
+                }
+                else {
+                    console.log("Test data filled.");
+                    process.exit(0);
+                }
+            });
+        }
+    });
+};
