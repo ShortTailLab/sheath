@@ -49,13 +49,13 @@ var itemDefs = [
     {
         id: 101,
         name: "青龙偃月刀",
-        type: "WE_BLADE",
+        type: "WE_R_BLADE",
         stars: 5
     },
     {
         id: 102,
         name: "紫金靴",
-        type: "AR_BOOT",
+        type: "AR_F_BOOT",
         stars: 5
     },
     {
@@ -69,6 +69,12 @@ var itemDefs = [
         name: "精品防具碎片",
         type: "ARP",
         stars: 5
+    },
+    {
+        id: 122,
+        name: "橙宝石",
+        type: "GEM_ORANGE",
+        stars: 4
     }
 ];
 

@@ -45,6 +45,8 @@ exports.init = function (dbConfig) {
         golds: {type: Number, default: 0},
         contribs: {type: Number, default: 0},
 
+        energyRefreshTime: {type: Date, default: function () { return new Date(); }},
+
         dailyRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
         manualRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
 
@@ -72,9 +74,6 @@ exports.init = function (dbConfig) {
         price: {type: Number, default: 1000},
         levelReq: {type: Number, default: 1},
         quality: {type: Number, default: 3},
-
-        transformTarget: {type: Number, default: 0},
-        transformCount: {type: Number, default: 0},
 
         props: {type: db.Schema.JSON, default: function () {return [];}}
     });
@@ -144,7 +143,8 @@ exports.init = function (dbConfig) {
             defId: this.itemDefId,
             level: this.level,
             refinement: this.refinement,
-            refineProgress: this.refineProgress
+            refineProgress: this.refineProgress,
+            bound: this.bound || undefined
         };
     };
 

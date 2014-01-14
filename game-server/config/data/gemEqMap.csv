@@ -1,0 +1,6 @@
+#宝石镶嵌配置表
+id,GEM_RED,GEM_ORANGE,GEM_YELLOW,GEM_LIGHT,GEM_DARK
+WE_R_,,1,,1,1
+AR_B_,1,1,1,,
+AR_H_,1,1,1,,
+AR_F_,1,,,1,1

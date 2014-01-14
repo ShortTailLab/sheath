@@ -23,7 +23,7 @@ class EquipmentHandler extends base.HandlerBase {
         var role = session.get("role");
 
         if (!matType) {
-            this.errorNext(Constants.InvalidRequest, next);
+            return this.errorNext(Constants.InvalidRequest, next);
         }
 
         var matQuery = models.Item.allP({where: {owner: role.id, itemDefId: matType}, limit: 2});
@@ -50,7 +50,7 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.InternalServerError);
             }
 
-            return [mats, models.Item.createP({itemDefId: targets[0].id, owner: role.id}), mats[0].destroyP(), mats[1].destroyP()];
+            return [mats, models.Item.createP({owner: role.id, itemDefId: targets[0].id}), mats[0].destroyP(), mats[1].destroyP()];
         })
         .all().spread((mats, newItem) => {
             next(null, {
@@ -68,7 +68,7 @@ class EquipmentHandler extends base.HandlerBase {
         var equipment, itemDef;
 
         if (!eqId) {
-            this.errorNext(Constants.InvalidRequest, next);
+            return this.errorNext(Constants.InvalidRequest, next);
         }
 
         this.safe(this.getEquipmentWithDef(eqId)
@@ -86,7 +86,9 @@ class EquipmentHandler extends base.HandlerBase {
                 itemDefId: equipment.itemDefId,
                 refinement: 0,
                 refineProgress: 0,
-                level: 0
+                level: 0,
+                bound: null,
+                id: {ne: equipment.id}
             }});
         })
         .then((material) => {
@@ -115,12 +117,12 @@ class EquipmentHandler extends base.HandlerBase {
 
         var eqId = msg.equipmentId;
         var role = session.get("role");
-        var weaponLevelLimit = role.level;
+        var weaponLevelLimit = Math.min(role.level, 99);
 
         var equipment, itemDef;
 
         if (!eqId) {
-            this.errorNext(Constants.InvalidRequest, next);
+            return this.errorNext(Constants.InvalidRequest, next);
         }
 
         this.safe(this.getEquipmentWithDef(eqId)
@@ -171,12 +173,105 @@ class EquipmentHandler extends base.HandlerBase {
         }), next);
     }
 
+    refineGem(msg, session, next) {
+        wrapSession(session);
+
+        var gemType = msg.gemType;
+        var gemLevel = msg.gemLevel;
+        var role = session.get("role");
+
+        if (!gemType || gemLevel < 0 || gemLevel >= 10) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        this.safe(models.Item.allP({where: {owner: role.id, itemDefId: gemType, level: gemLevel, bound: null}, limit: 2}).bind(this)
+        .then((mats) => {
+            if (mats.length < 2) {
+                return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
+            }
+            mats[0].level += 1;
+            return [mats, mats[0].saveP(), mats[1].destroyP()];
+        })
+        .all().spread((mats) => {
+            next(null, {
+                destroyed: mats[1].id,
+                gem: mats[0].toClientObj()
+            });
+        }), next);
+    }
+
     setGem(msg, session, next) {
         wrapSession(session);
+
+        var eqId = msg.equipmentId;
+        var gemId = msg.gemId;
+        var role = session.get("role");
+
+        if (!eqId || !gemId) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+        var equipment, eqPrefix;
+
+        this.safe(this.getEquipmentWithDef(eqId)
+        .all().spread((_equipment, itemDef) => {
+            if (itemDef.quality < 1) {
+                return Promise.reject(Constants.EquipmentFailed.QUALITY_TOO_LOW);
+            }
+            if (_equipment.owner !== role.id) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            }
+            equipment = _equipment;
+            eqPrefix = itemDef.type.substr(0, 5);
+            return this.getGemWithDef(gemId);
+        })
+        .all().spread((gem, itemDef) => {
+            if (gem.owner !== role.id) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            }
+            if (gem.bound && gem.bound !== equipment.id) {
+                return Promise.reject(Constants.EquipmentFailed.ALREADY_BOUND);
+            }
+            var gemEqMap = this.app.get("dataService").get("gemEqMap").data;
+            if (!gemEqMap[eqPrefix][itemDef.type]) {
+                return Promise.reject(Constants.EquipmentFailed.CANNOT_BIND_GEM_TYPE);
+            }
+            return [gem, models.Item.countP({bound: eqId})];
+        })
+        .all().spread((gem, boundGemCount) => {
+            if (boundGemCount >= 3) {
+                return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
+            }
+
+            gem.bound = equipment.id;
+            return gem.saveP();
+        })
+        .then((gem) => {
+            next(null, { gem: gem.toClientObj() });
+        }), next);
     }
 
     removeGem(msg, session, next) {
         wrapSession(session);
+
+        var gemId = msg.gemId;
+        var role = session.get("role");
+
+        if (!gemId) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        this.safe(this.getGemWithDef(gemId)
+        .all().spread((gem) => {
+            if (gem.owner !== role.id) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            }
+
+            gem.bound = null;
+            return gem.saveP();
+        })
+        .then((gem) => {
+            next(null, { gem: gem.toClientObj() });
+        }), next);
     }
 
     destruct(msg, session, next) {

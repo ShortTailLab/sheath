@@ -64,7 +64,7 @@ class RoleHandler extends base.HandlerBase {
                 role.team = msg.heroes;
                 return [role.updateAttributeP("team", msg.heroes), session.push("role")];
             })
-            .then(() => {
+            .all().then(() => {
                 next(null, {
                     role: role.toClientObj()
                 });

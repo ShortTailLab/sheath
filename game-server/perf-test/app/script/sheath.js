@@ -51,6 +51,21 @@ var ActFlagType = {
         name: "refine_weapon",
         route: "game.equipmentHandler.refine"
     },
+    REFINE_GEM: {
+        reqId: 9,
+        name: "refine_gem",
+        route: "game.equipmentHandler.refineGem"
+    },
+    SET_GEM: {
+        reqId: 10,
+        name: "set_gem",
+        route: "game.equipmentHandler.setGem"
+    },
+    REMOVE_GEM: {
+        reqId: 11,
+        name: "remove_gem",
+        route: "game.equipmentHandler.removeGem"
+    },
 
     ACT_END: null
 };
@@ -167,7 +182,19 @@ var refineWeapon = function (pomelo) {
     var weaponId = _.findWhere(_.values(pomelo.items), {defId: 101}).id;
     timePomeloRequest(ActFlagType.REFINE_EQUIPMENT, {equipmentId: weaponId}, function (data) {
         timePomeloRequest(ActFlagType.REFINE_EQUIPMENT, {equipmentId: weaponId}, function (data) {
-            process.exit(0);
+            refineGem(pomelo);
+        });
+    });
+};
+
+var refineGem = function (pomelo) {
+    timePomeloRequest(ActFlagType.REFINE_GEM, {gemType: 122, gemLevel: 0}, function (data) {
+        pomelo.items[data.gem.id] = data.gem;
+        var weaponId = _.findWhere(pomelo.items, {defId: 101}).id;
+        timePomeloRequest(ActFlagType.SET_GEM, {gemId: data.gem.id, equipmentId: weaponId}, function (data) {
+            timePomeloRequest(ActFlagType.REMOVE_GEM, {gemId: data.gem.id}, function (data) {
+                process.exit(0);
+            });
         });
     });
 };
