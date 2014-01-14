@@ -3,6 +3,7 @@ var base = require("../../../../../shared/base");
 var Constants = require("../../../../../shared/constants");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var Promise = require("bluebird");
+var _ = require("underscore");
 var logger;
 
 
@@ -119,7 +120,7 @@ class EquipmentHandler extends base.HandlerBase {
         var role = session.get("role");
         var weaponLevelLimit = Math.min(role.level, 99);
 
-        var equipment, itemDef;
+        var equipment, itemDef, stoneRequired;
 
         if (!eqId) {
             return this.errorNext(Constants.InvalidRequest, next);
@@ -136,12 +137,14 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
 
-            var enforceStoneId = parseInt(this.app.get("dataService").get("specialItemId").data.enforceStone.itemId);
-            return [models.Item.findOneP({where: {owner: role.id, itemDefId: enforceStoneId}}),
+            var enforceStoneId = parseInt(this.app.get("dataService").get("specialItemId").data.enpowerStone.itemId);
+            stoneRequired = Math.max(1, Math.floor(equipment.level/10));
+
+            return [models.Item.allP({where: {owner: role.id, itemDefId: enforceStoneId}, limit: stoneRequired}),
                     models.Role.findP(role.id)];
         })
-        .all().spread((stone, role) => {
-            if (!stone) {
+        .all().spread((stones, role) => {
+            if (stones.length < stoneRequired) {
                 return Promise.reject(Constants.EquipmentFailed.NO_ENFORCEMENT_STONE);
             }
 
@@ -152,11 +155,12 @@ class EquipmentHandler extends base.HandlerBase {
             role.coins -= coinsNeeded;
             equipment.level += 1;
 
-            return [coinsNeeded, role.saveP(), stone, stone.destroyP(), equipment.saveP()];
+            var destroyAll = Promise.all(_.map(stones, (s) => {return s.destroyP();}));
+            return [coinsNeeded, role.saveP(), stones,  destroyAll, equipment.saveP()];
         })
-        .all().spread((coinsSpent, roleObj, stone) => {
+        .all().spread((coinsSpent, roleObj, stones) => {
             next(null, {
-                destroyed: stone.id,
+                destroyed: _.pluck(stones, "id"),
                 equipment: equipment.toClientObj(),
                 stateDiff: {
                     energy: roleObj.energy,
@@ -276,5 +280,122 @@ class EquipmentHandler extends base.HandlerBase {
 
     destruct(msg, session, next) {
         wrapSession(session);
+
+        var eqId = msg.equipmentId;
+        var role = session.get("role");
+
+        if (!eqId) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        this.safe(this._genDestructMemory(eqId, role)
+        .then((result) => {
+            return [result, models.Role.findP(role.id)];
+        })
+        .all().spread((result, role) => {
+            role.coins += result.coins;
+
+            var createPieces = Promise.all(_.map(_.range(result.pieces[1]), () => {
+                return models.Item.createP({itemDefId: result.pieces[0], owner: role.id});
+            }));
+            var createStones = Promise.all(_.map(_.range(result.stones[1]), () => {
+                return models.Item.createP({itemDefId: result.stones[0], owner: role.id});
+            }));
+            var unBoundGem = models.Item.updateP({where: {bound: result.equipment.id}, update: {bound: null}});
+            return [result, role.saveP(), createPieces, createStones, unBoundGem, result.equipment.destroyP()];
+        })
+        .all().spread((result, roleObj, pieces, stones) => {
+            next(null, {
+                stateDiff: {
+                    energy: roleObj.energy,
+                    coins: roleObj.coins,
+                    golds: roleObj.golds,
+                    contribs: roleObj.contribs,
+
+                    energyDiff: 0,
+                    coinsDiff: result.coins,
+                    goldsDiff: 0,
+                    contribsDiff: 0
+                },
+                removeGems: result.gems,
+                newItems: _.invoke(pieces, "toClientObj").concat(_.invoke(stones, "toClientObj"))
+            });
+        }), next);
+    }
+
+    destructCheck(msg, session, next) {
+        wrapSession(session);
+
+        var eqId = msg.equipmentId;
+        var role = session.get("role");
+
+        if (!eqId) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        this.safe(this._genDestructMemory(eqId, role)
+        .then((result) => {
+            next(null, {
+                coins: result.coins,
+                pieceId: result.pieces[0],
+                pieceCount: result.pieces[1],
+                stoneId: result.stones[0],
+                stoneCount: result.stones[1],
+                gems: result.gems
+            });
+        }), next);
+    }
+
+    _genDestructMemory(eqId, role) {
+        var specialItemIds = this.app.get("dataService").get("specialItemId").data;
+        return this.getEquipmentWithDef(eqId)
+        .all().spread((equipment, itemDef) => {
+            if (equipment.owner !== role.id) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            }
+            if (equipment.bound) {
+                return Promise.reject(Constants.EquipmentFailed.ALREADY_BOUND);
+            }
+            if (!equipment.destructMemory || equipment.refinement !== equipment.destructMemory.refinement || equipment.refineProgress !== equipment.destructMemory.refineProgress) {
+                var pieceId;
+                if (itemDef.type.startsWith("WE_R_")) {
+                    pieceId = parseInt(specialItemIds.WEP.itemId);
+                }
+                else {
+                    pieceId = parseInt(specialItemIds.ARP.itemId);
+                }
+                var matCount = [0, 2, 6, 12][equipment.refinement] + equipment.refineProgress + 1;
+                var pieceCount = 0;
+                for (let i=0, m=Math.min(matCount, itemDef.destructCoeff.length);i<m;i++) {
+                    let coeff = itemDef.destructCoeff[i];
+                    if (coeff) {
+                        let randValue = Math.random();
+                        if (randValue > coeff)
+                            pieceCount += 2;
+                        else
+                            pieceCount += 1;
+                    }
+                }
+
+                equipment.destructMemory = {
+                    refinement: equipment.refinement,
+                    refineProgress: equipment.refineProgress,
+                    pieces: [pieceId, pieceCount]
+                };
+                return [equipment.saveP(), itemDef, models.Item.allP({where: {bound: equipment.id}})];
+            }
+            return [equipment, itemDef, models.Item.allP({where: {bound: equipment.id}})];
+        })
+        .all().spread((equipment, itemDef, gems) => {
+            var stoneId = parseInt(specialItemIds.enpowerStone.itemId);
+            return {
+                coins: itemDef.price + equipment.level * 100 * 0.3,
+                stones: [stoneId, Math.floor(equipment.stoneUsed * 0.8)],
+                pieces: equipment.destructMemory.pieces,
+                gems: _.pluck(gems, "id"),
+
+                equipment: equipment
+            };
+        });
     }
 }

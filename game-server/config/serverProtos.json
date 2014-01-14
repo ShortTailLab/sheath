@@ -104,8 +104,23 @@
     },
     "game.equipmentHandler.upgrade": {
         "optional Error error":      1,
-        "optional string destroyed": 2,
+        "repeated string destroyed": 2,
         "optional Item equipment":   3,
         "optional ProfileChange stateDiff": 4
+    },
+    "game.equipmentHandler.destructCheck": {
+        "optional Error error":      1,
+        "optional int32 coins":      2,
+        "optional int32 pieceId":    3,
+        "optional int32 pieceCount": 4,
+        "optional int32 stoneId":    5,
+        "optional int32 stoneCount": 6,
+        "repeated string gems":      7
+    },
+    "game.equipmentHandler.destruct": {
+        "optional Error error":      1,
+        "optional ProfileChange stateDiff": 2,
+        "repeated Item newItems":    3,
+        "repeated string removeGems":4
     }
 }

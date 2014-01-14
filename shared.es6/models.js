@@ -75,6 +75,7 @@ exports.init = function (dbConfig) {
         levelReq: {type: Number, default: 1},
         quality: {type: Number, default: 3},
 
+        destructCoeff: {type: db.Schema.JSON, default: function () {return [];}},
         props: {type: db.Schema.JSON, default: function () {return [];}}
     });
 
@@ -92,8 +93,12 @@ exports.init = function (dbConfig) {
         itemDefId: {type: Number, index: true},
 
         level: {type: Number, default: 0},
+        stoneUsed: {type: Number, default: 0},
+
         refinement: {type: Number, default: 0},
         refineProgress: {type: Number, default: 0},
+
+        destructMemory: db.Schema.JSON,
 
         createTime: {type: Date, default: function () { return new Date(); }}
     });

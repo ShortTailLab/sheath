@@ -50,7 +50,8 @@ var itemDefs = [
         id: 101,
         name: "青龙偃月刀",
         type: "WE_R_BLADE",
-        stars: 5
+        stars: 5,
+        destructCoeff: [1]
     },
     {
         id: 102,

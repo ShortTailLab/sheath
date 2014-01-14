@@ -66,6 +66,17 @@ var ActFlagType = {
         name: "remove_gem",
         route: "game.equipmentHandler.removeGem"
     },
+    DESTRUCT_CHECK: {
+        reqId: 12,
+        name: "check_destruct",
+        route: "game.equipmentHandler.destructCheck"
+    },
+    DESTRUCT: {
+        reqId: 13,
+        name: "destruct",
+        route: "game.equipmentHandler.destruct"
+    },
+
 
     ACT_END: null
 };
@@ -193,8 +204,17 @@ var refineGem = function (pomelo) {
         var weaponId = _.findWhere(pomelo.items, {defId: 101}).id;
         timePomeloRequest(ActFlagType.SET_GEM, {gemId: data.gem.id, equipmentId: weaponId}, function (data) {
             timePomeloRequest(ActFlagType.REMOVE_GEM, {gemId: data.gem.id}, function (data) {
-                process.exit(0);
+                destroyEquipment(pomelo);
             });
+        });
+    });
+};
+
+var destroyEquipment = function (pomelo) {
+    var weaponId = _.findWhere(pomelo.items, {defId: 101}).id;
+    timePomeloRequest(ActFlagType.DESTRUCT_CHECK, {equipmentId: weaponId}, function (data) {
+        timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: weaponId}, function (data) {
+            process.exit(0);
         });
     });
 };
