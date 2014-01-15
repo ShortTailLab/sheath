@@ -58,6 +58,11 @@ class EquipmentHandler extends base.HandlerBase {
                 destroyed: [mats[0].id, mats[1].id],
                 newItem: newItem.toClientObj()
             });
+            logger.logInfo("equipment.composite", {
+                role: this.toLogObj(role),
+                materials: [mats[0].toLogObj(), mats[1].toLogObj()],
+                newItem: newItem.toLogObj()
+            });
         }), next);
     }
 
@@ -103,12 +108,17 @@ class EquipmentHandler extends base.HandlerBase {
                 equipment.refineProgress = 0;
                 equipment.refinement += 1;
             }
-            return [material.id, material.destroyP(), equipment.saveP()];
+            return [material, material.destroyP(), equipment.saveP()];
         })
-        .all().spread((mid) => {
+        .all().spread((material) => {
             next(null, {
-                destroyed: mid,
+                destroyed: material.id,
                 equipment: equipment.toClientObj()
+            });
+            logger.logInfo("equipment.refine", {
+                role: this.toLogObj(role),
+                material: material.toLogObj(),
+                newItem: equipment.toLogObj()
             });
         }), next);
     }
@@ -174,6 +184,12 @@ class EquipmentHandler extends base.HandlerBase {
                     contribsDiff: 0
                 }
             });
+            logger.logInfo("equipment.upgrade", {
+                role: this.toLogObj(roleObj),
+                spentCoin: coinsSpent,
+                stones: _.pluck(stones, "id"),
+                newItem: equipment.toLogObj()
+            });
         }), next);
     }
 
@@ -201,6 +217,11 @@ class EquipmentHandler extends base.HandlerBase {
                 destroyed: mats[1].id,
                 gem: mats[0].toClientObj()
             });
+            logger.logInfo("equipment.refineGem", {
+                role: this.toLogObj(role),
+                materail: mats[1].toLogObj(),
+                refined: mats[0].toLogObj()
+            });
         }), next);
     }
 
@@ -214,7 +235,7 @@ class EquipmentHandler extends base.HandlerBase {
         if (!eqId || !gemId) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
-        var equipment, eqPrefix;
+        var equipment, eqPrefix, boundGemCount;
 
         this.safe(this.getEquipmentWithDef(eqId)
         .all().spread((_equipment, itemDef) => {
@@ -241,7 +262,8 @@ class EquipmentHandler extends base.HandlerBase {
             }
             return [gem, models.Item.countP({bound: eqId})];
         })
-        .all().spread((gem, boundGemCount) => {
+        .all().spread((gem, _boundGemCount) => {
+            boundGemCount = _boundGemCount;
             if (boundGemCount >= 3) {
                 return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
             }
@@ -251,6 +273,12 @@ class EquipmentHandler extends base.HandlerBase {
         })
         .then((gem) => {
             next(null, { gem: gem.toClientObj() });
+            logger.logInfo("equipment.setGem", {
+                role: this.toLogObj(role),
+                equipment: equipment.toLogObj(),
+                boundGem: boundGemCount,
+                gem: gem.toLogObj()
+            });
         }), next);
     }
 
@@ -259,6 +287,7 @@ class EquipmentHandler extends base.HandlerBase {
 
         var gemId = msg.gemId;
         var role = session.get("role");
+        var eqId;
 
         if (!gemId) {
             return this.errorNext(Constants.InvalidRequest, next);
@@ -270,11 +299,17 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
 
+            eqId = gem.bound;
             gem.bound = null;
             return gem.saveP();
         })
         .then((gem) => {
             next(null, { gem: gem.toClientObj() });
+            logger.logInfo("equipment.removeGem", {
+                role: this.toLogObj(role),
+                equipmentId: eqId,
+                gem: gem.toLogObj()
+            });
         }), next);
     }
 
@@ -319,6 +354,13 @@ class EquipmentHandler extends base.HandlerBase {
                 },
                 removeGems: result.gems,
                 newItems: _.invoke(pieces, "toClientObj").concat(_.invoke(stones, "toClientObj"))
+            });
+            logger.logInfo("equipment.removeGem", {
+                role: this.toLogObj(roleObj),
+                equipment: result.equipment.toLogObj(),
+                equipmentCreateTime: result.equipment.createTime,
+                gemIds: result.gems,
+                newItems: _.invoke(pieces, "toLogObj").concat(_.invoke(stones, "toLogObj"))
             });
         }), next);
     }

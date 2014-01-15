@@ -32,19 +32,33 @@ class HeroHandler extends base.HandlerBase {
     }
 
     equip(msg, session, next) {
-        var itemId = msg.itemId;
+        var eqId = msg.equipmentId;
         var heroId = msg.heroId;
         var role = session.get("role");
 
-        Promise.all(models.Role.findP(role.id), models.Item.findP(itemId))
-            .spread((role, item) => {
-                if (!role || !item || item.owner !== role.id) {
-                    this.errorNext(Constants.EquipmentFailed.DO_NOT_OWN_ITEM, next);
-                    return;
-                }
-            })
-            .catch((err) => {
-                this.errorNext(err, next);
-            });
+        var equipment, itemDef;
+
+        if (!eqId || !heroId) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        this.safe(this.getEquipmentWithDef(eqId)
+        .all().spread((_equipment, _itemDef) => {
+            equipment = _equipment;
+            itemDef = _itemDef;
+            if (_equipment.owner !== role.id) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            }
+
+            return [models.Hero.findP(heroId), models.Item.allP({where: {bound: equipment.id}})];
+        })
+        .all().spread((hero, equipments) => {
+            if (hero.owner !== role.id) {
+                return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
+            }
+        }), next);
+    }
+
+    unEquip(msg, session, next) {
     }
 }

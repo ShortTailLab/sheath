@@ -30,6 +30,9 @@ module.exports = {
         ALREADY_BOUND: 14,
         CANNOT_BIND_GEM_TYPE: 15
     },
+    HeroFailed: {
+        DO_NOT_OWN_HERO: 60
+    },
 
 
     InternalServerError: 500

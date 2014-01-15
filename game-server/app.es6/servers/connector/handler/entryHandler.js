@@ -145,6 +145,11 @@ class EntryHandler extends base.HandlerBase {
             next(null, {
                 role: role.toClientObj()
             });
+            logger.logInfo("user.enterPartition", {
+                user: session.uid,
+                role: role.toLogObj(),
+                partition: part.toLogObj()
+            });
         })
         .catch((err) => {
             this.errorNext(err, next);

@@ -2,6 +2,7 @@ var db = require('jugglingdb');
 var Promise = require('bluebird');
 var r = require("rethinkdb");
 var _ = require("underscore");
+var moment = require("moment");
 
 exports.init = function (dbConfig) {
     var schema = exports.schema = new db.Schema("rethink", dbConfig);
@@ -125,6 +126,10 @@ exports.init = function (dbConfig) {
     Role.hasMany(Item, {as: "bag", foreignKey: "owner"});
     Stage.hasMany(Level, {as: "levels", foreignKey: "stageId"});
 
+    Partition.prototype.toClientObj = function () {
+        return _.pick(this, "id", "name");
+    };
+
     User.prototype.toClientObj = function () {
         return _.pick(this, "id");
     };
@@ -142,6 +147,20 @@ exports.init = function (dbConfig) {
         return ret;
     };
 
+    Role.prototype.toLogObj = function () {
+        return _.pick(this, "id", "name", "level", "title", "coins", "golds");
+    };
+
+    Role.prototype.fillEnergy = function () {
+        var now = moment();
+        var lastCheck = moment(this.energyRefreshTime);
+        var energyGain = Math.floor(moment.duration(now - lastCheck).asMinutes()/15);
+        if (energyGain > 0) {
+            this.energy = Math.max(this.energy + energyGain, 50);
+            this.energyRefreshTime = lastCheck.add(energyGain*15, "minutes").toDate();
+        }
+    };
+
     Item.prototype.toClientObj = function () {
         return {
             id: this.id,
@@ -153,6 +172,10 @@ exports.init = function (dbConfig) {
         };
     };
 
+    Item.prototype.toLogObj = function () {
+        return _.pick(this, "id", "itemDefId", "level", "refinement", "refineProgress", "bound");
+    };
+
     Hero.prototype.toClientObj = function () {
         return {
             id: this.id,
@@ -160,6 +183,10 @@ exports.init = function (dbConfig) {
             level: this.level,
             exp: this.exp
         };
+    };
+
+    Hero.prototype.toLogObj = function () {
+        return _.pick(this, "id", "heroDefId", "level", "exp");
     };
 
     return schema;

@@ -1,6 +1,7 @@
 var Constants = require("./constants");
 var models = require("./models");
 var Promise = require("bluebird");
+var _ = require("underscore");
 
 
 class HandlerBase {
@@ -48,6 +49,15 @@ class HandlerBase {
 
     getGemWithDef(itemId) {
         return this.getItemWithPrefixDef(itemId, "GEM_");
+    }
+
+    toLogObj(role) {
+        if (typeof role.toLogObj === "function") {
+            return role.toLogObj();
+        }
+        else {
+            return _.pick(this, "id", "name", "level", "title");
+        }
     }
 }
 

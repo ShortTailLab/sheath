@@ -6,6 +6,7 @@
     "private": true,
     "dependencies": {
         "commander": "latest",
+        "moment": "latest",
         "bluebird": "latest",
         "underscore": "latest",
         "generic-pool": "latest",
