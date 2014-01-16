@@ -54,6 +54,20 @@ app.configure('development', function () {
     }).connect();
 });
 
+app.configure('test', function () {
+    app.use(express.logger('dev'));
+    app.use(express.static(pub));
+    app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
+
+    Patcher.wrapModel();
+    appModels.init({
+        host: dbConfig.test.host,
+        port: dbConfig.test.port,
+        database: dbConfig.test.database,
+        poolMax: 100
+    }).connect();
+});
+
 app.configure('production', function () {
     var oneYear = 31557600000;
     app.use(express.static(pub, {maxAge: oneYear}));
@@ -95,6 +109,7 @@ app.get('/api/nodeInfo', restrictAPI, api.nodeInfo);
 app.get('/api/basicStats', restrictAPI, api.basicStats);
 app.get('/api/partitions', restrictAPI, api.partitions);
 app.post('/api/addPartitions', restrictAPI, api.addPartition);
+app.post('/api/removePartition', restrictAPI, api.removePartition);
 app.post('/api/userList', restrictAPI, api.userList);
 
 app.get('*', restrict, routes.index);

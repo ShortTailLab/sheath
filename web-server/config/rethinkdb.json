@@ -1,11 +1,16 @@
 {
     "development": {
-        "host": "192.168.0.244",
+        "host": "192.168.0.35",
         "port": "28015",
         "database": "sheath_dev"
     },
+    "test": {
+        "host": "db0.stl.com",
+        "port": "28015",
+        "database": "sheath_test"
+    },
     "production": {
-        "host": "127.0.0.1",
+        "host": "db0.stl.com",
         "port": "28015",
         "database": "sheath"
     }

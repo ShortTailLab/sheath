@@ -5,6 +5,12 @@
         "username": "monitor",
         "password": "monitor"
     },
+    "test": {
+        "host": "127.0.0.1",
+        "port": "3005",
+        "username": "monitor",
+        "password": "monitor"
+    },
     "production": {
         "host": "127.0.0.1",
         "port": "3005",

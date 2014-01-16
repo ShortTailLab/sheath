@@ -107,6 +107,16 @@ sheathControllers.controller('partitionListController', function ($scope, $modal
             });
         });
     };
+
+    $scope.removePartition = function (part) {
+        $http.post("/api/removePartition", {id: part.id}).success(function (data) {
+            $scope.partitions = _.reject($scope.partitions, function (p) {return p.id === data.id;});
+            $scope.error = null;
+        })
+        .error(function (data) {
+            $scope.error = "删除分区 " + part.name + " 失败，" + (data.message || "未知错误");
+        });
+    };
 });
 
 sheathControllers.controller('addPartitionController', function ($scope, $modalInstance) {

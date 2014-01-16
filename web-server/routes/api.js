@@ -120,6 +120,28 @@ exports.addPartition = function (req, res) {
     });
 };
 
+exports.removePartition = function (req, res) {
+    var part = req.body;
+
+    Promise.join(appModels.Partition.findP(part.id), partitionRoleCount())
+    .spread(function (p, roleCounts) {
+        if (!p) {
+            return res.send(400, {message: "分区不存在"});
+        }
+        var countObj = _.find(roleCounts, function (red) {
+            return red.group.partition === p.id;
+        });
+        if (countObj && countObj.reduction > 0) {
+            return res.send(400, {message: "区内已有角色，不能删除"});
+        }
+        res.send({id: p.id});
+        return p.destroyP();
+    })
+    .catch(function (err) {
+        res.send(400, {message: ""+err});
+    });
+};
+
 exports.userList = function (req, res) {
     Promise.joins(appModels.User.allP({
 
