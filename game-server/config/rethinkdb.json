@@ -4,8 +4,13 @@
         "port": "28015",
         "database": "sheath_dev"
     },
+    "test": {
+        "host": "db0.stl.com",
+        "port": "28015",
+        "database": "sheath_dev"
+    },
     "production": {
-        "host": "127.0.0.1",
+        "host": "db0.stl.com",
         "port": "28015",
         "database": "sheath"
     }

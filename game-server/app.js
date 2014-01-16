@@ -17,7 +17,7 @@ app.enable('systemMonitor');
 app.before(pomelo.filters.toobusy(80));
 
 // app configuration
-app.configure("development|production", 'connector', function () {
+app.configure("development|production|test", 'connector', function () {
     app.set('connectorConfig',
         {
             connector: pomelo.connectors.hybridconnector,
@@ -27,7 +27,7 @@ app.configure("development|production", 'connector', function () {
         });
 });
 
-app.configure("development|production", 'auth|connector|game|manager', function () {
+app.configure("development|production|test", 'auth|connector|game|manager', function () {
     Patcher.wrapModel();
 
     var rethinkConfig = app.get("rethinkdb");

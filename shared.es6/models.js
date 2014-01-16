@@ -37,10 +37,13 @@ exports.init = function (dbConfig) {
         level: {type: Number, default: 1},
         exp: {type: Number, default: 0},
         title: {type: String, default: ""},
+
         vipLevel: {type: Number, default: 0},
+        spent: {type: Number, default: 0},
 
         team: {type: db.Schema.JSON, default: function () {return [null, null, null];}},
         storageRoom: {type: Number, default: 25},
+        cleared: {type: db.Schema.JSON, default: function () {return {};}},
 
         energy: {type: Number, default: 0},
         coins: {type: Number, default: 0},
@@ -114,7 +117,10 @@ exports.init = function (dbConfig) {
     });
 
     var Level = exports.Level = schema.define("level", {
-        name: {type: String, default: ""}
+        name: {type: String, default: ""},
+        resKey: {type: String, default: ""},
+
+        public: {type: Boolean, default: true}
     });
 
     var Log = exports.Log = schema.define("log", {

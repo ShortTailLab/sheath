@@ -16,6 +16,23 @@
             {"id": "connector-1", "host": "127.0.0.1", "port": 3110, "clientPort": 3010, "frontend": true, "args": " --debug=13150 "}
         ]
     },
+    "test": {
+        "auth": [
+            {"id": "auth-1", "host": "127.0.0.1", "port": 3200}
+        ],
+        "chat": [
+            {"id": "chat-1", "host": "127.0.0.1", "port": 3310}
+        ],
+        "game": [
+            {"id": "game-1", "host": "127.0.0.1", "port": 3510}
+        ],
+        "manager": [
+            {"id": "manager-1", "host": "127.0.0.1", "port": 3410}
+        ],
+        "connector": [
+            {"id": "connector-1", "host": "127.0.0.1", "port": 3110, "clientPort": 3010, "frontend": true}
+        ]
+    },
     "production": {
         "auth": [
             {"host": "127.0.0.1", "port": "3200++", "clusterCount": 1}
