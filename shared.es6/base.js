@@ -51,6 +51,24 @@ class HandlerBase {
         return this.getItemWithPrefixDef(itemId, "GEM_");
     }
 
+    getItemStacks(roleId) {
+        models.Item.allP({where: {owner: roleId}}).bind(this)
+        .then((items) => {
+            var itemGroups = _.groupBy(items, "itemDefId");
+            var itemDefs = models.ItemDef.allP({where: {id: {inq: _.keys(itemGroups)}}});
+            return [itemGroups, itemDefs];
+        })
+        .all().spread((itemGroups, itemDefs) => {
+            itemDefs = _.groupBy(itemDefs, "id");
+            var stack = 0;
+            for (let itemId of itemGroups) {
+                let stackSize = itemDefs[itemId][0].stackSize;
+                stack += Math.ceil(itemGroups[itemId].length/stackSize);
+            }
+            return stack;
+        });
+    }
+
     toLogObj(role) {
         if (typeof role.toLogObj === "function") {
             return role.toLogObj();

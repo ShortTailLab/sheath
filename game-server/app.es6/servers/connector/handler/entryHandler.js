@@ -79,7 +79,7 @@ class EntryHandler extends base.HandlerBase {
 
     enterPartition(msg, session, next) {
         var part;
-        models.Partition.findP(msg.partId).bind(this)
+        this.safe(models.Partition.findP(msg.partId).bind(this)
         .then((p) => {
             part = p;
             if (!part) {
@@ -128,7 +128,8 @@ class EntryHandler extends base.HandlerBase {
                 });
             }
             else {
-                return [role];
+                role.fillEnergy();
+                return [role.saveP()];
             }
         })
         .all().spread((role) => {
@@ -150,10 +151,7 @@ class EntryHandler extends base.HandlerBase {
                 role: role.toLogObj(),
                 partition: part.toLogObj()
             });
-        })
-        .catch((err) => {
-            this.errorNext(err, next);
-        });
+        }), next);
     }
 
     // handler calls for initial role setup

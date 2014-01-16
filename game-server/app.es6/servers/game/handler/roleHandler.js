@@ -26,13 +26,11 @@ class RoleHandler extends base.HandlerBase {
         }
         else {
             role.name = newName;
-            Promise.all(models.User.updateAttributeP("name", newName), session.push("role")).then(() => {
+            this.safe(Promise.all(models.User.updateAttributeP("name", newName), session.push("role")).bind(this)
+            .then(() => {
                 next(null, {
                 });
-            })
-            .catch((err) => {
-                this.errorNext(err, next);
-            });
+            }), next);
         }
     }
 
@@ -48,7 +46,7 @@ class RoleHandler extends base.HandlerBase {
             }
 
             var role;
-            models.Role.findP(session.get("role").id)
+            this.safe(models.Role.findP(session.get("role").id).bind(this)
             .then((r) => {
                 role = r;
                 return models.Hero.allP({where: {owner: role.id}});
@@ -68,10 +66,7 @@ class RoleHandler extends base.HandlerBase {
                 next(null, {
                     role: role.toClientObj()
                 });
-            })
-            .catch((err) => {
-                this.errorNext(err, next);
-            });
+            }), next);
         }
     }
 
@@ -83,7 +78,7 @@ class RoleHandler extends base.HandlerBase {
             role.dailyRefreshData.dailyReward = true;
             var rewardConf = this.app.get("dataService").get("reward").data.daily;
 
-            models.Role.findP(role.id)
+            this.safe(models.Role.findP(role.id).bind(this)
             .then((roleObj) => {
                 roleObj.coins += parseInt(rewardConf.coins);
                 roleObj.golds += parseInt(rewardConf.golds);
@@ -94,23 +89,24 @@ class RoleHandler extends base.HandlerBase {
                 return [roleObj, roleObj.saveP(), session.push("role")];
             })
             .all().spread((roleObj) => {
-                next(null, {
-                    reward: {
-                        energy: roleObj.energy,
-                        coins: roleObj.coins,
-                        golds: roleObj.golds,
-                        contribs: roleObj.contribs,
+                var rewardDict = {
+                    energy: roleObj.energy,
+                    coins: roleObj.coins,
+                    golds: roleObj.golds,
+                    contribs: roleObj.contribs,
 
-                        energyDiff: parseInt(rewardConf.energy),
-                        coinsDiff: parseInt(rewardConf.coins),
-                        goldsDiff: parseInt(rewardConf.golds),
-                        contribsDiff: parseInt(rewardConf.contribs)
-                    }
+                    energyDiff: parseInt(rewardConf.energy),
+                    coinsDiff: parseInt(rewardConf.coins),
+                    goldsDiff: parseInt(rewardConf.golds),
+                    contribsDiff: parseInt(rewardConf.contribs)
+                };
+
+                next(null, { reward: rewardDict });
+                logger.logInfo("role.claimDaily", {
+                    role: roleObj.toLogObj(),
+                    reward: rewardDict
                 });
-            })
-            .catch((err) => {
-                this.errorNext(err, next);
-            });
+            }), next);
         }
         else {
             this.errorNext(Constants.ALREADY_CLAIMED, next);
@@ -125,7 +121,7 @@ class RoleHandler extends base.HandlerBase {
         if ((role.dailyRefreshData.qhourlyReward || 0) < parseInt(rewardConf.extra)) {
             role.dailyRefreshData.qhourlyReward = (role.dailyRefreshData.qhourlyReward || 0) + 1;
 
-            models.Role.findP(role.id)
+            this.safe(models.Role.findP(role.id).bind(this)
             .then((roleObj) => {
                 roleObj.coins += parseInt(rewardConf.coins);
                 roleObj.golds += parseInt(rewardConf.golds);
@@ -136,26 +132,55 @@ class RoleHandler extends base.HandlerBase {
                 return [roleObj, roleObj.saveP(), session.push("role")];
             })
             .all().spread((roleObj) => {
-                next(null, {
-                    reward: {
-                        energy: roleObj.energy,
-                        coins: roleObj.coins,
-                        golds: roleObj.golds,
-                        contribs: roleObj.contribs,
+                var rewardDict = {
+                    energy: roleObj.energy,
+                    coins: roleObj.coins,
+                    golds: roleObj.golds,
+                    contribs: roleObj.contribs,
 
-                        energyDiff: parseInt(rewardConf.energy),
-                        coinsDiff: parseInt(rewardConf.coins),
-                        goldsDiff: parseInt(rewardConf.golds),
-                        contribsDiff: parseInt(rewardConf.contribs)
-                    }
+                    energyDiff: parseInt(rewardConf.energy),
+                    coinsDiff: parseInt(rewardConf.coins),
+                    goldsDiff: parseInt(rewardConf.golds),
+                    contribsDiff: parseInt(rewardConf.contribs)
+                };
+
+                next(null, { reward: rewardDict });
+                logger.logInfo("role.claimQH", {
+                    role: roleObj.toLogObj(),
+                    reward: rewardDict
                 });
-            })
-            .catch((err) => {
-                this.errorNext(err, next);
-            });
+            }), next);
         }
         else {
             this.errorNext(Constants.ALREADY_CLAIMED, next);
         }
+    }
+
+    buyRoom(msg, session, next) {
+        var role = session.get("role");
+
+        this.safe(models.findP(role.id).bind(this)
+        .then((roleObj) => {
+            if (roleObj.storageRoom === 125) {
+                return Promise.reject(Constants.HeroFailed.STORAGE_MAX);
+            }
+            if (roleObj.golds < 25) {
+                return Promise.reject(Constants.HeroFailed.NO_GOLDS);
+            }
+            roleObj.fillEnergy();
+            roleObj.golds -= 25;
+            roleObj.storageRoom += 5;
+            session.set("role", roleObj.toSessionObj());
+            return [roleObj.saveP(), session.push("role")];
+        })
+        .all().spread((roleObj) => {
+            next(null, {
+                role: roleObj.toClientObj()
+            });
+            logger.logInfo("role.buyRoom", {
+                role: roleObj.toLogObj(),
+                golds: 25
+            });
+        }), next);
     }
 }

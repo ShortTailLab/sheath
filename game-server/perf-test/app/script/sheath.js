@@ -76,6 +76,31 @@ var ActFlagType = {
         name: "destruct",
         route: "game.equipmentHandler.destruct"
     },
+    LIST_HERO_DEF: {
+        reqId: 14,
+        name: "list_herodef",
+        route: "game.heroHandler.listDef"
+    },
+    LIST_ITEM_DEF: {
+        reqId: 15,
+        name: "list_itemdef",
+        route: "game.itemHandler.listDef"
+    },
+    EQUIP: {
+        reqId: 16,
+        name: "equip",
+        route: "game.heroHandler.equip"
+    },
+    UNEQUIP: {
+        reqId: 17,
+        name: "unequip",
+        route: "game.heroHandler.unEquip"
+    },
+    LIST_HERO: {
+        reqId: 18,
+        name: "listHeroes",
+        route: "game.heroHandler.list"
+    },
 
 
     ACT_END: null
@@ -135,7 +160,16 @@ function entry(host, port, accType, username, password) {
             pomelo.user = data.user;
 
             timePomeloRequest(ActFlagType.ENTER_PARTITION, {partId: data.partitions[0].id}, function (data) {
-                afterLogin(pomelo, data);
+                timePomeloRequest(ActFlagType.LIST_ITEM_DEF, {}, function (data) {
+                    pomelo.itemDefs = data.defs;
+                    timePomeloRequest(ActFlagType.LIST_HERO_DEF, {}, function (data) {
+                        pomelo.heroDefs = data.defs;
+                        timePomeloRequest(ActFlagType.LIST_HERO, {}, function (data) {
+                            pomelo.heroes = data.heroes;
+                            afterLogin(pomelo, data);
+                        });
+                    });
+                });
             });
         });
     };
@@ -204,6 +238,18 @@ var refineGem = function (pomelo) {
         var weaponId = _.findWhere(pomelo.items, {defId: 101}).id;
         timePomeloRequest(ActFlagType.SET_GEM, {gemId: data.gem.id, equipmentId: weaponId}, function (data) {
             timePomeloRequest(ActFlagType.REMOVE_GEM, {gemId: data.gem.id}, function (data) {
+                equip(pomelo);
+            });
+        });
+    });
+};
+
+var equip = function (pomelo) {
+    var weaponId = _.findWhere(pomelo.items, {defId: 101}).id;
+    timePomeloRequest(ActFlagType.EQUIP, {equipmentId: weaponId, heroId: pomelo.heroes[0].id}, function (data) {
+        // should fail
+        timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: weaponId}, function (data) {
+            timePomeloRequest(ActFlagType.UNEQUIP, {equipmentId: weaponId}, function (data) {
                 destroyEquipment(pomelo);
             });
         });

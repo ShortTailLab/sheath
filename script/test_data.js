@@ -17,25 +17,29 @@ var hDefs = [
         id: 1,
         name: "刘备",
         male: true,
-        stars: 3
+        stars: 3,
+        canEquip: [101]
     },
     {
         id: 2,
         name: "关羽",
         male: true,
-        stars: 5
+        stars: 5,
+        canEquip: [101]
     },
     {
         id: 3,
         name: "张飞",
         male: true,
-        stars: 5
+        stars: 5,
+        canEquip: [101]
     },
     {
         id: 4,
         name: "貂蝉",
         male: false,
-        stars: 4
+        stars: 4,
+        canEquip: [101]
     }
 ];
 

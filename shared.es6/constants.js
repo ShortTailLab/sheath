@@ -31,7 +31,10 @@ module.exports = {
         CANNOT_BIND_GEM_TYPE: 15
     },
     HeroFailed: {
-        DO_NOT_OWN_HERO: 60
+        DO_NOT_OWN_HERO: 60,
+        ALREADY_EQUIPPED: 61,
+        CANNOT_EQUIP_WEAPON_TYPE: 62,
+        STORAGE_MAX: 63
     },
 
 

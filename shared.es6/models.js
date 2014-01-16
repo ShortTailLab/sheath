@@ -40,6 +40,7 @@ exports.init = function (dbConfig) {
         vipLevel: {type: Number, default: 0},
 
         team: {type: db.Schema.JSON, default: function () {return [null, null, null];}},
+        storageRoom: {type: Number, default: 25},
 
         energy: {type: Number, default: 0},
         coins: {type: Number, default: 0},
@@ -64,6 +65,8 @@ exports.init = function (dbConfig) {
         face: {type: String, default: ""},
         skill: {type: db.Schema.JSON, default: function () {return [];}},
 
+        canEquip: {type: db.Schema.JSON, default: function () {return [];}},
+
         props: {type: db.Schema.JSON, default: function () {return [];}}
     });
 
@@ -75,6 +78,8 @@ exports.init = function (dbConfig) {
         price: {type: Number, default: 1000},
         levelReq: {type: Number, default: 1},
         quality: {type: Number, default: 3},
+
+        stackSize: {type: Number, default: 1},
 
         destructCoeff: {type: db.Schema.JSON, default: function () {return [];}},
         props: {type: db.Schema.JSON, default: function () {return [];}}
@@ -130,16 +135,20 @@ exports.init = function (dbConfig) {
         return _.pick(this, "id", "name");
     };
 
+    Partition.prototype.toLogObj = function () {
+        return _.pick(this, "id", "name");
+    };
+
     User.prototype.toClientObj = function () {
         return _.pick(this, "id");
     };
 
     Role.prototype.toSessionObj = function () {
-        return _.pick(this, "id", "name", "team", "level", "exp", "title", "dailyRefreshData", "manualRefreshData");
+        return _.pick(this, "id", "name", "team", "level", "exp", "title", "storageRoom", "dailyRefreshData", "manualRefreshData");
     };
 
     Role.prototype.toClientObj = function () {
-        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs");
+        var ret = _.pick(this, "id", "name", "level", "exp", "title", "storageRoom", "energy", "coins", "golds", "contribs");
         if (this.isNew) ret.isNew = 1;
 
         ret.team = _.map(this.team, (t) => { return t || ""; });
@@ -159,6 +168,22 @@ exports.init = function (dbConfig) {
             this.energy = Math.max(this.energy + energyGain, 50);
             this.energyRefreshTime = lastCheck.add(energyGain*15, "minutes").toDate();
         }
+    };
+
+    ItemDef.prototype.toClientObj = function () {
+        return _.pick(this, "id", "name", "resKey", "price", "levelReq", "quality", "stackSize");
+    };
+
+    HeroDef.prototype.toClientObj = function () {
+        var ret = _.pick(this, "id", "name", "resKey", "stars", "maxLevel");
+        if (this.male) {
+            ret.male = 1;
+        }
+        else {
+            ret.male = 0;
+        }
+
+        return ret;
     };
 
     Item.prototype.toClientObj = function () {

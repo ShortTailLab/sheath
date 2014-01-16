@@ -10,6 +10,7 @@
         "required string title":     5,
 
         "repeated string team":     11,
+        "required int32 storageRoom":12,
 
         "required int32 energy":     6,
         "required int32 coins":      7,
@@ -39,6 +40,24 @@
         "required int32 golds":      7,
         "required int32 contribs":   8
     },
+    "message ItemDef": {
+        "required int32 id":         1,
+        "required string name":      2,
+        "required string resKey":    3,
+        "required int32 price":      4,
+        "required int32 levelReq":   5,
+        "required int32 quality":    6,
+        "required int32 stackSize":  7
+    },
+    "message HeroDef": {
+        "required int32 id":         1,
+        "required string name":      2,
+        "required string resKey":    3,
+        "required int32 male":       4,
+        "required int32 stars":      5,
+        "required int32 maxLevel":   6,
+        "repeated int32 canEquip":   7
+    },
     "message Item": {
         "required string id":        1,
         "required int32 defId":      2,
@@ -61,8 +80,7 @@
     },
     "connector.entryHandler.enterPartition": {
         "optional Error error":      1,
-        "optional Player user":      2,
-        "optional Role role":        3
+        "optional Role role":        2
     },
 
     "game.roleHandler.claimDailyReward": {
@@ -74,9 +92,30 @@
         "optional ProfileChange reward": 2
     },
 
+    "game.itemHandler.listDef": {
+        "optional Error error":      1,
+        "repeated ItemDef defs":     2
+    },
     "game.itemHandler.list": {
         "optional Error error":      1,
         "repeated Item items":       2
+    },
+
+    "game.heroHandler.listDef": {
+        "optional Error error":      1,
+        "repeated HeroDef defs":     2
+    },
+    "game.heroHandler.list": {
+        "optional Error error":      1,
+        "repeated Hero heroes":      2
+    },
+    "game.heroHandler.equip": {
+        "optional Error error":      1,
+        "optional Item equipment":   2
+    },
+    "game.heroHandler.unEquip": {
+        "optional Error error":      1,
+        "optional Item equipment":   2
     },
 
     "game.equipmentHandler.refineGem": {

@@ -17,6 +17,15 @@ class HeroHandler extends base.HandlerBase {
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
+    listDef(msg, session, next) {
+        this.safe(models.HeroDef.allP().bind(this)
+        .then((defs) => {
+            next(null, {
+                defs: _.map(defs, (hd) => { return hd.toClientObj(); })
+            });
+        }), next);
+    }
+
     list(msg, session, next) {
         var roleId = session.get("role").id;
         this.safe(models.Hero.allP({where: {owner: roleId}}).bind(this)
@@ -36,7 +45,7 @@ class HeroHandler extends base.HandlerBase {
         var heroId = msg.heroId;
         var role = session.get("role");
 
-        var equipment, itemDef;
+        var equipment, itemDef, hero;
 
         if (!eqId || !heroId) {
             return this.errorNext(Constants.InvalidRequest, next);
@@ -50,15 +59,65 @@ class HeroHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
 
-            return [models.Hero.findP(heroId), models.Item.allP({where: {bound: equipment.id}})];
+            return [models.Hero.findP(heroId), models.Item.allP({where: {bound: heroId}})];
         })
-        .all().spread((hero, equipments) => {
-            if (hero.owner !== role.id) {
+        .all().spread((_hero, equipments) => {
+            hero = _hero;
+            if (!hero || hero.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
+            if (equipments.length === 4 || _.findWhere(equipments, {itemDefId: equipment.itemDefId})) {
+                return Promise.reject(Constants.HeroFailed.ALREADY_EQUIPPED);
+            }
+            return models.HeroDef.findP(hero.heroDefId);
+        })
+        .then((heroDef) => {
+            if (!_.contains(heroDef.canEquip, itemDef.id)) {
+                return Promise.reject(Constants.HeroFailed.CANNOT_EQUIP_WEAPON_TYPE);
+            }
+            equipment.bound = hero.id;
+            return equipment.saveP();
+        })
+        .then((equipment) => {
+            next(null, {
+                equipment: equipment.toClientObj()
+            });
+            logger.logInfo("hero.equip", {
+                role: this.toLogObj(role),
+                hero: hero.toLogObj(),
+                equipment: equipment.toLogObj()
+            });
         }), next);
     }
 
     unEquip(msg, session, next) {
+        var eqId = msg.equipmentId;
+        var role = session.get("role");
+
+        if (!eqId) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        var heroId;
+
+        this.safe(this.getEquipmentWithDef(eqId)
+        .all().spread((equipment, _itemDef) => {
+            if (equipment.owner !== role.id) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            }
+            heroId = equipment.bound;
+            equipment.bound = null;
+            return equipment.saveP();
+        })
+        .then((equipment) => {
+            next(null, {
+                equipment: equipment.toClientObj()
+            });
+            logger.logInfo("hero.unEquip", {
+                role: this.toLogObj(role),
+                heroId: heroId,
+                equipment: equipment.toLogObj()
+            });
+        }), next);
     }
 }

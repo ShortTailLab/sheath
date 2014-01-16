@@ -17,6 +17,15 @@ class ItemHandler extends base.HandlerBase {
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
+    listDef(msg, session, next) {
+        this.safe(models.ItemDef.allP().bind(this)
+        .then((defs) => {
+            next(null, {
+                defs: _.map(defs, (hd) => { return hd.toClientObj(); })
+            });
+        }), next);
+    }
+
     list(msg, session, next) {
         var roleId = session.get("role").id;
         this.safe(models.Item.allP({where: {owner: roleId}}).bind(this)
