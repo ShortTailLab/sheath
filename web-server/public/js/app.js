@@ -25,6 +25,13 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
             templateUrl: 'partials/partition',
             controller: 'partitionListController'
         }).
+        when('/admin', {
+            templateUrl: 'partials/admin',
+            controller: 'adminController'
+        }).
+        when('/logout', {
+            redirectTo: function () {window.location = "/logout";}
+        }).
         otherwise({
             redirectTo: '/index'
         });
@@ -48,7 +55,7 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
 
         return function (promise) {
             return promise.then(success, error);
-        }
+        };
 
     }]);
 

@@ -6,6 +6,7 @@ game-server/perf-test/log
 web-server/views/*.html
 web-server/views/mixins/*.html
 web-server/views/partials/*.html
+web-server/views/templates/*.html
 npm-debug.log
 tmp
 /shared

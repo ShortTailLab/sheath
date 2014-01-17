@@ -108,16 +108,8 @@ $(function () {
 	
 	// Sidebar Tabs
 	$(".sidebar_content").hide();
-	
-	if(window.location.hash && window.location.hash.match('sb')) {
-	
-		$("ul.sidemenu li a[href="+window.location.hash+"]").parent().addClass("active").show();
-		$(".block .sidebar_content#"+window.location.hash).show();
-	} else {
-	
-		$("ul.sidemenu li:first-child").addClass("active").show();
-		$(".block .sidebar_content:first").show();
-	}
+    $("ul.sidemenu li:first-child").addClass("active").show();
+    $(".block .sidebar_content:first").show();
 
 	$("ul.sidemenu li").click(function() {
 	

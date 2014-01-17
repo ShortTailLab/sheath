@@ -14,12 +14,16 @@ exports.init = function (dbConfig) {
         activated: {type: Boolean, default: true},
         isNew: Boolean,
 
-        adminName: {type: String},
-        manRole: {type: String}
+        manRole: {type: db.Schema.JSON}
     }, {
         auth: {index: true, indexOption: {multi: true}, indexFunction: function (user) {
             return user("auth").map(function (auth) {
                 return [auth("type"), auth("id")];
+            });
+        }},
+        authId: {index: true, indexOption: {multi: true}, indexFunction: function (user) {
+            return user("auth").map(function (auth) {
+                return auth("id");
             });
         }}
     });
@@ -177,7 +181,7 @@ exports.init = function (dbConfig) {
     };
 
     ItemDef.prototype.toClientObj = function () {
-        return _.pick(this, "id", "name", "resKey", "price", "levelReq", "quality", "stackSize");
+        return _.pick(this, "id", "type", "name", "resKey", "price", "levelReq", "quality", "stackSize");
     };
 
     HeroDef.prototype.toClientObj = function () {

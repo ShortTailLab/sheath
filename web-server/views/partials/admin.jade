@@ -1,0 +1,23 @@
+include ../mixins/block
+
++blockWithSideBar("管理员", [["openAdd();focusInput=true", "添加管理员"]])
+    div(class="message errormsg", ng-show="error")
+        p {{error}}
+    div(class="message success", ng-show="info")
+        p {{info}}
+    div(ng-show="editable")
+        form
+            h2 管理员权限:
+            hr
+            label.checkbox
+                input(type="checkbox", ng-model="editable.manRole.admin")
+                | 修改管理员
+            label.checkbox
+                input(type="checkbox", ng-model="editable.manRole.editUser")
+                | 编辑用户信息
+            label.checkbox
+                input(type="checkbox", ng-model="editable.manRole.data")
+                | 导入导出数据
+            hr
+            input(type="submit", class="submit small", value="修改", ng-click="modify(editable.id)")
+            input(type="submit", class="submit small", value="删除", ng-click="delete(editable.id)")

@@ -12,3 +12,23 @@ mixin block(title, tabs)
             block
         .bendl
         .bendr
+
+mixin blockWithSideBar(title, tabs)
+    div(class="block withsidebar")
+        .block_head
+            .bheadl
+            .bheadr
+            h2= title
+            if tabs
+                ul.tabs
+                    - each t in tabs
+                        li: a(ng-click="#{t[0]}") #{t[1]}
+        .block_content
+            .sidebar
+                ul.sidemenu
+                    li(ng-repeat="m in items | orderBy:'name'", ng-class="{active: selected===m}")
+                        a(href="", ng-click="select(m)") {{m.name}}
+            .sidebar_content
+                block
+        .bendl
+        .bendr

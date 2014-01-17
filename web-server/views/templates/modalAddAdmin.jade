@@ -1,0 +1,19 @@
+script(type="text/ng-template")#taCustomTemplate.
+    <a>
+        <span color="gray">
+        登陆ID: {{match.model.name}} | {{match.model.partName}}: {{match.model.roleName}}
+        </span>
+    </a>
+
+
+.modal-header
+    h3 增加管理员
+div(class="modal-body form-group")
+    input(type="text", class="form-control", placeholder="角色名|用户ID|登陆名", ng-model="userId",
+        typeahead="user.id for user in getUserByHint($viewValue)", typeahead-loading="loading",
+        typeahead-template-url="taCustomTemplate"
+    )
+    i(ng-show="loading", class="glyphicon glyphicon-refresh")
+.modal-footer
+    button(class="btn btn-primary", ng-click="ok(userId)") OK
+    button(class="btn btn-warning", ng-click="cancel()") Cancel

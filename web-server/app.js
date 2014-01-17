@@ -103,6 +103,7 @@ app.get('/logout', routes.logout);
 
 app.get('/', restrict, routes.index);
 app.get('/partials/:name', routes.partials);
+app.get('/templates/:name', routes.templates);
 
 // JSON API
 app.get('/api/nodeInfo', restrictAPI, api.nodeInfo);
@@ -111,6 +112,12 @@ app.get('/api/partitions', restrictAPI, api.partitions);
 app.post('/api/addPartitions', restrictAPI, api.addPartition);
 app.post('/api/removePartition', restrictAPI, api.removePartition);
 app.post('/api/userList', restrictAPI, api.userList);
+app.post('/api/adminList', restrictAPI, api.adminList);
+app.post('/api/modifyAdmin', restrictAPI, api.modifyAdmin);
+app.post('/api/removeAdmin', restrictAPI, api.removeAdmin);
+app.post('/api/addAdmin', restrictAPI, api.addAdmin);
+
+app.post('/api/findUsers', restrictAPI, api.findUsers);
 
 app.get('*', restrict, routes.index);
 

@@ -11,6 +11,11 @@ exports.partials = function (req, res) {
     res.render('partials/' + name);
 };
 
+exports.templates = function (req, res) {
+    var name = req.params.name;
+    res.render('templates/' + name);
+};
+
 exports.login = function (req, res) {
     res.render('login');
 };
@@ -20,11 +25,16 @@ exports.postLogin = function (req, res) {
     var pwd = req.param("password");
 
     userDAO.getUserByAuth("main", uname, pwd).spread(function (user, err) {
-        if (user && user.activated) {
-            req.session.user = {
-                id: user.id,
-                name: user.adminName
-            };
+        if (user && user.manRole) {
+            var sessionUser = _.pick(user, "id", "manRole");
+            for (var i=0;i<user.auth.length;i++) {
+                if (user.auth[i].type === "main") {
+                    sessionUser.name = user.auth[i].id;
+                    break;
+                }
+            }
+
+            req.session.user = sessionUser;
             res.redirect("/");
         }
         else {

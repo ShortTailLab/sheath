@@ -148,11 +148,153 @@ exports.userList = function (req, res) {
     }), appModels.User.countP())
     .spread(function (users, userCount) {
         res.json({
-            user: _.map(users, function (u) {return _._.pluck(u, ["joinDate", "activated"])}),
+            user: _.map(users, function (u) {return _.pick(u, "joinDate", "activated");}),
             totalUsers: userCount
         });
     })
     .catch(function (err) {
         res.send(400);
+    });
+};
+
+exports.findUsers = function (req, res) {
+    var hint = req.body.hint;
+    var queries = [];
+
+    queries.push(appModels.User.allP({where: {authId: {between: [hint, hint + "\uffff"]}, manRole: null}, limit: 10}));
+    queries.push(appModels.User.findP(hint));
+    queries.push(appModels.Role.allP({where: {name: {match: hint}}, limit: 10}));
+    queries.push(appModels.Partition.allP());
+
+    Promise.all(queries)
+    .spread(function (users, u, roles, partitions) {
+        if (u) {
+            users.unshift(u);
+        }
+
+        var owner = appModels.User.allP({where: {id: {inq: _.pluck(roles, "owner")}, manRole: null}});
+        var ownerRole = Promise.all(_.map(users, function (u) { return appModels.Role.findOneP({where: {owner: u.id}}); }));
+
+        return [users, owner, roles, ownerRole, partitions];
+    })
+    .spread(function (users, roleOwners, roles, userRoles, partitions) {
+        users = _.compact(users.concat(roleOwners));
+        roles = _.compact(roles.concat(userRoles));
+
+        partitions = _.groupBy(partitions, "id");
+        roles = _.groupBy(roles, "owner");
+
+        res.send({
+            users: _.map(users, function (u) {
+                var ret = adminToJson(u);
+                if (roles[u.id]) {
+                    var role = roles[u.id][0];
+                    var partition = partitions[role.partition][0];
+                    ret.roleName = role.name;
+                    ret.partName = partition.name;
+                }
+                else {
+                    ret.roleName = "无角色";
+                    ret.partName = "无角色";
+                }
+
+                return ret;
+            })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+var adminToJson = function (u) {
+    var ret = _.pick(u, "id", "manRole");
+    for (var i=0;i<u.auth.length;i++) {
+        if (u.auth[i].type === "main") {
+            ret.name = u.auth[i].id;
+            break;
+        }
+    }
+    return ret;
+};
+
+exports.adminList = function (req, res) {
+    if (!req.session.user.manRole.admin)
+        return res.send(400, {message: "没有查看管理员的权限"});
+
+    appModels.User.allP({ where: {manRole: {neq: null}} })
+    .then(function (admins) {
+        res.json({
+            admins: _.map(admins, adminToJson)
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.modifyAdmin = function (req, res) {
+    if (!req.session.user.manRole.admin)
+        return res.send(400, {message: "没有修改管理员权限的权限"});
+
+    var newAdminRole = req.body;
+    appModels.User.findP(newAdminRole.id)
+    .then(function (admin) {
+        if (admin.manRole === null) {
+            return res.send(400, {message: "用户不是管理员"});
+        }
+        admin.manRole = _.pick(newAdminRole.manRole, "admin", "editUser", "data");
+        return admin.saveP();
+    })
+    .then(function (admin) {
+        res.send(adminToJson(admin));
+    })
+    .catch(function (err) {
+        res.send(400, {message: ""+err});
+    });
+};
+
+exports.removeAdmin = function (req, res) {
+    if (!req.session.user.manRole.admin)
+        return res.send(400, {message: "没有删除管理员的权限"});
+
+    var newAdminRole = req.body;
+    appModels.User.findP(newAdminRole.id)
+    .then(function (admin) {
+        if (admin.manRole === null) {
+            return res.send(200);
+        }
+        admin.manRole = null;
+        return admin.saveP();
+    })
+    .then(function (admin) {
+        res.send(200);
+    })
+    .catch(function (err) {
+        res.send(400, {message: ""+err});
+    });
+};
+
+exports.addAdmin = function (req, res) {
+    if (!req.session.user.manRole.admin)
+        return res.send(400, {message: "没有添加管理员的权限"});
+
+    var userId = req.body.userId;
+    appModels.User.findP(userId)
+    .then(function (admin) {
+        if (!admin) {
+            return res.send(400, {message: "找不到用户"});
+        }
+        if (admin.manRole !== null) {
+            return res.send(400, {message: "用户已是管理员"});
+        }
+        admin.manRole = {};
+        return admin.saveP();
+    })
+    .then(function (admin) {
+        res.send(adminToJson(admin));
+    })
+    .catch(function (err) {
+        res.send(400, {message: ""+err});
     });
 };

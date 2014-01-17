@@ -142,3 +142,84 @@ sheathControllers.controller('addPartitionController', function ($scope, $modalI
         $scope.dpOpened = true;
     };
 });
+
+sheathControllers.controller('adminController', function ($scope, $http, $timeout, $modal) {
+    $http.post("/api/adminList").success(function (data) {
+        $scope.items = data.admins;
+        $scope.select($scope.items[0]);
+    })
+    .error(function (data) {
+        $scope.error = data.message || "未知错误";
+    });
+
+    $scope.select = function (data) {
+        $scope.selected = data;
+        $scope.editable = angular.copy(data);
+    };
+
+    $scope.modify = function () {
+        $http.post("/api/modifyAdmin", {id: $scope.editable.id, manRole: $scope.editable.manRole}).success(function (data) {
+            var stock = _.findWhere($scope.items, {id: data.id});
+            if (stock) {
+                _.extend(stock, data);
+                $scope.select(stock);
+                $scope.info = "修改成功";
+                $timeout(function () {$scope.info = null;}, 2000);
+            }
+        })
+        .error(function (data) {
+            $scope.error = data.message || "未知错误";
+        });
+    };
+
+    $scope.delete = function () {
+        $http.post("/api/removeAdmin", {id: $scope.editable.id}).success(function () {
+            $scope.items = _.reject($scope.items, function (item) {
+                return item.id === $scope.editable.id;
+            });
+            $scope.editable = null;
+            if ($scope.items.length) {
+                $scope.select($scope.items[0]);
+            }
+        })
+        .error(function (data) {
+            $scope.error = data.message || "未知错误";
+        });
+    };
+
+    $scope.openAdd = function () {
+        var modalInstance = $modal.open({
+            templateUrl: 'templates/modalAddAdmin',
+            controller: 'addAdminController',
+            backdrop: "static"
+        });
+
+        modalInstance.result.then(function (newAdmin) {
+            $http.post("/api/addAdmin", {userId: newAdmin}).success(function (data) {
+                $scope.items.push(data);
+                $scope.error = null;
+                $scope.select(data);
+            })
+            .error(function (data) {
+                $scope.error = "添加管理员错误。 " + (data.message || "未知错误");
+            });
+        });
+    };
+});
+
+sheathControllers.controller('addAdminController', function ($scope, $http, $modalInstance) {
+    $scope.userId = "una";
+    $scope.getUserByHint = function (val) {
+        return $http.post("/api/findUsers", {hint: val}).then(function (res) {
+            return res.data.users;
+        });
+    };
+
+    $scope.ok = function (userId) {
+        $modalInstance.close(userId);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});
