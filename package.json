@@ -6,6 +6,7 @@
     "private": true,
     "dependencies": {
         "commander": "latest",
+        "csv": "latest",
         "moment": "latest",
         "bluebird": "latest",
         "underscore": "latest",

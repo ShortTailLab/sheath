@@ -3,7 +3,8 @@ var sheath = angular.module('sheath', [
     'ngAnimate',
     'countTo',
     'highcharts-ng',
-//    'ui.grid',
+    'ui.grid',
+    'ui.grid.edit',
     'ui.select2',
     'ui.bootstrap',
     'angular-loading-bar',
@@ -28,6 +29,14 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
         when('/admin', {
             templateUrl: 'partials/admin',
             controller: 'adminController'
+        }).
+        when('/export', {
+            templateUrl: 'partials/export',
+            controller: 'exportController'
+        }).
+        when('/import', {
+            templateUrl: 'partials/import',
+            controller: 'importController'
         }).
         when('/logout', {
             redirectTo: function () {window.location = "/logout";}

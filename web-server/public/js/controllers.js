@@ -49,7 +49,7 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
     fetch();
 });
 
-sheathControllers.controller('userListController', function ($scope, $http, $window) {
+sheathControllers.controller('userListController', function ($scope, $http) {
     $scope.totalUsers = 0;
     $scope.pagingOptions = {
         pageSize: 25,
@@ -60,16 +60,21 @@ sheathControllers.controller('userListController', function ($scope, $http, $win
         useExternalFilter: true
     };
     $scope.gridOptions = {
-        enablePaging: true,
-        showFooter: true,
-        totalServerItems: 'totalUsers',
-        pagingOptions: $scope.pagingOptions,
-        filterOptions: $scope.filterOptions
+//        enablePaging: true,
+//        showFooter: true,
+//        totalServerItems: 'totalUsers',
+//        pagingOptions: $scope.pagingOptions,
+//        filterOptions: $scope.filterOptions,
+        columnDefs: [
+            {name: "name"},
+            {name: "activated"}
+        ],
+        data: []
     };
     $scope.getPagedDataAsync = function (pageSize, page, searchText) {
         $http.post("/api/userList", {pageSize: pageSize, page: page, search: searchText}).
             success(function (data) {
-                _.extend($scope, data);
+                _.extend($scope.gridOptions.data, data);
             });
     };
 

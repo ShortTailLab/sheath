@@ -1,17 +1,16 @@
 include ../mixins/block
 
 +block("统计信息")
-    p
-        | 在线用户数(客户端数)/总用户数(总角色数):&nbsp;
-        span.count(count-to="{{userStats.onlineUsers}}", value="{{userStats._onlineUsers}}", duration="{{refreshInterval}}")
-        | &nbsp;(&nbsp;
-        span.count(count-to="{{userStats.clients}}", value="{{userStats._clients}}", duration="{{refreshInterval}}")
-        | &nbsp;)&nbsp;
-        | /&nbsp;
-        span.count(count-to="{{userStats.totalUsers}}", value="{{userStats._totalUsers}}", duration="{{refreshInterval}}")
-        | &nbsp;(&nbsp;
-        span.count(count-to="{{userStats.totalClients}}", value="{{userStats._totalClients}}", duration="{{refreshInterval}}")
-        | &nbsp;)&nbsp;
+    table
+        tr
+            td 在线用户数：
+            td: span.count(count-to="{{userStats.onlineUsers}}", value="{{userStats._onlineUsers}}", duration="{{refreshInterval}}")
+            td 客户端连接数：
+            td: span.count(count-to="{{userStats.clients}}", value="{{userStats._clients}}", duration="{{refreshInterval}}")
+            td 用户数：
+            td: span.count(count-to="{{userStats.totalUsers}}", value="{{userStats._totalUsers}}", duration="{{refreshInterval}}")
+            td 角色数：
+            td: span.count(count-to="{{userStats.totalRoles}}", value="{{userStats._totalRoles}}", duration="{{refreshInterval}}")
     p(ng-repeat="uid in onlineUser.loginedList | limitTo:50")
         | {{uid}}
 

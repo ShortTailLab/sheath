@@ -143,12 +143,26 @@ exports.removePartition = function (req, res) {
 };
 
 exports.userList = function (req, res) {
-    Promise.joins(appModels.User.allP({
+    var listOptions = req.body;
 
+    Promise.join(appModels.User.allP({
+        limit: listOptions.pageSize,
+        skip: (listOptions.page - 1) * listOptions.pageSize
     }), appModels.User.countP())
     .spread(function (users, userCount) {
         res.json({
-            user: _.map(users, function (u) {return _.pick(u, "joinDate", "activated");}),
+            user: _.map(users, function (u) {
+                var ret = _.pick(u, "id", "activated");
+                ret.name = null;
+                for (var i=0;i<u.auth.length;i++) {
+                    if (u.auth[i].type === "main") {
+                        ret.name = u.auth[i].id;
+                        break;
+                    }
+                }
+
+                return ret;
+            }),
             totalUsers: userCount
         });
     })
@@ -297,4 +311,14 @@ exports.addAdmin = function (req, res) {
     .catch(function (err) {
         res.send(400, {message: ""+err});
     });
+};
+
+// data import / data export
+
+exports.import = function (req, res) {
+
+};
+
+exports.export = function (req, res) {
+
 };
