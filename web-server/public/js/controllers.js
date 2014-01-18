@@ -213,7 +213,6 @@ sheathControllers.controller('adminController', function ($scope, $http, $timeou
 });
 
 sheathControllers.controller('addAdminController', function ($scope, $http, $modalInstance) {
-    $scope.userId = "una";
     $scope.getUserByHint = function (val) {
         return $http.post("/api/findUsers", {hint: val}).then(function (res) {
             return res.data.users;
@@ -227,4 +226,12 @@ sheathControllers.controller('addAdminController', function ($scope, $http, $mod
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
+});
+
+sheathControllers.controller('importController', function ($scope, $http) {
+
+});
+
+sheathControllers.controller('exportController', function ($scope, $http) {
+
 });

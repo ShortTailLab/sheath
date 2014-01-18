@@ -3,6 +3,7 @@ var _ = require("underscore");
 var Promise = require("bluebird");
 var appModels = require("../../shared/models");
 var r = require("rethinkdb");
+var csv = require("csv");
 
 exports.nodeInfo = function (req, res) {
     Promise.all([

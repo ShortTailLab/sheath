@@ -8,6 +8,8 @@ var sheath = angular.module('sheath', [
     'ui.select2',
     'ui.bootstrap',
     'angular-loading-bar',
+    'angularFileUpload',
+    'ngTable',
     'sheath.controllers',
     'sheath.services'
 ]);
