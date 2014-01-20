@@ -117,6 +117,9 @@ app.post('/api/modifyAdmin', restrictAPI, api.modifyAdmin);
 app.post('/api/removeAdmin', restrictAPI, api.removeAdmin);
 app.post('/api/addAdmin', restrictAPI, api.addAdmin);
 
+app.post('/api/import', restrictAPI, api.import);
+app.post('/api/export', restrictAPI, api.export);
+
 app.post('/api/findUsers', restrictAPI, api.findUsers);
 
 app.get('*', restrict, routes.index);

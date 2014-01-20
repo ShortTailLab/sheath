@@ -228,8 +228,23 @@ sheathControllers.controller('addAdminController', function ($scope, $http, $mod
     };
 });
 
-sheathControllers.controller('importController', function ($scope, $http) {
-
+sheathControllers.controller('importController', function ($scope, $http, $upload, $timeout) {
+    $scope.upload = function ($files, tag) {
+        var file = $files[0];
+        $upload.upload({
+            url: "/api/import",
+            data: {tag: tag},
+            file: file
+        })
+        .success(function (data) {
+            $scope.error = null;
+            $scope.info = "导入成功";
+            $timeout(function () {$scope.info = null;}, 2000);
+        })
+        .error(function (err) {
+            $scope.error = "上传文件失败: " + (err.message || "未知错误");
+        });
+    };
 });
 
 sheathControllers.controller('exportController', function ($scope, $http) {

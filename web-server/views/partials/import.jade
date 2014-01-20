@@ -1,5 +1,15 @@
 include ../mixins/block
 
+mixin uploadBox(title, func, tag)
+    pre(ng-file-drop="#{func}($files, '#{tag}')"): form
+        h4= title
+        input(type="file", value="上传", ng-file-select="#{func}($files, '#{tag}')")
+        | 或将文件拖拽至此
+
 +block("导入数据")
-    pre
-        | 导入侠客数据：
+    div(class="message errormsg", ng-show="error")
+        p {{error}}
+    div(class="message success", ng-show="info")
+        p {{info}}
+    +uploadBox("侠客数据:", "upload", "heroDef")
+    +uploadBox("道具数据:", "upload", "itemDef")

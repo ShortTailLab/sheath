@@ -315,11 +315,110 @@ exports.addAdmin = function (req, res) {
 };
 
 // data import / data export
+var dataColumns = {
+    heroDef: ["id", "name", "stars", "resKey", "maxLevel", "male", "canEquip"],
+    itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"]
+};
+
+var transformHeroDef = function (row) {
+    row.id = parseInt(row.id);
+    row.stars = parseInt(row.stars);
+    row.maxLevel = parseInt(row.maxLevel);
+    row.male = Boolean(parseInt(row.male));
+    row.canEquip = JSON.parse(row.canEquip);
+};
+
+var transformItemDef = function (row) {
+    row.id = parseInt(row.id);
+    row.quality = parseInt(row.quality);
+    row.levelReq = parseInt(row.levelReq);
+    row.price = parseInt(row.price);
+    row.destructCoeff = JSON.parse(row.destructCoeff);
+};
 
 exports.import = function (req, res) {
+    var file = req.files.file;
+    var data = req.body;
+    var modelsAndTransform = {
+        heroDef: [appModels.HeroDef, transformHeroDef],
+        itemDef: [appModels.ItemDef, transformItemDef]
+    };
 
+    csv().from.path(file.path, { columns: dataColumns[data.tag] }).to.array(function (newDefs) {
+        if (newDefs[0].id === "id") {
+            newDefs.shift();
+        }
+        var updates = _.map(newDefs, function (d) {
+            return modelsAndTransform[data.tag][0].upsertP(d);
+        });
+
+        Promise.all(updates).then(function () {
+            res.send(200);
+        })
+        .catch(function (err) {
+            res.send(400, {message: ""+err});
+        });
+    }).transform(function (row) {
+        if (row.id !== "id") {
+            modelsAndTransform[data.tag][1](row);
+        }
+        return row;
+    });
 };
 
 exports.export = function (req, res) {
+    var data = req.body;
+    res.header('content-type','text/csv');
+    res.header('content-disposition', 'attachment; filename=' + data.tag + '.csv');
 
+    if (data.tag === "heroDef") {
+        appModels.HeroDef.allP({order: "id"}).then(function (hDefs) {
+            csv().from.array(hDefs, { columns: dataColumns[data.tag] }).to(res, {
+                header: true,
+                eof: true,
+                columns: {
+                    id: "id",
+                    name: "武将名",
+                    stars: "星级",
+                    resKey: "拼音",
+                    maxLevel: "最大等级",
+                    male: "性别",
+                    canEquip: "可装备武器类型"
+                }
+            }).transform(function (row) {
+                if (row.male) {
+                    row.male = 1;
+                }
+                else {
+                    row.male = 0;
+                }
+                row.canEquip = JSON.stringify(row.canEquip);
+                return row;
+            });
+        });
+    }
+    else if (data.tag === "itemDef") {
+        appModels.ItemDef.allP({order: "id"}).then(function (itemDefs) {
+            csv().from.array(itemDefs, { columns: dataColumns[data.tag] }).to(res, {
+                header: true,
+                eof: true,
+                columns: {
+                    id: "id",
+                    name: "道具名",
+                    type: "类型",
+                    quality: "品质",
+                    resKey: "拼音",
+                    levelReq: "等级需求",
+                    price: "售价",
+                    destructCoeff: "拆解参数"
+                }
+            }).transform(function (row) {
+                row.destructCoeff = JSON.stringify(row.destructCoeff);
+                return row;
+            });
+        });
+    }
+    else if (data.tag === "stage") {
+
+    }
 };
