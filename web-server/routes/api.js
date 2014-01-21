@@ -146,26 +146,44 @@ exports.removePartition = function (req, res) {
 exports.userList = function (req, res) {
     var listOptions = req.body;
 
-    Promise.join(appModels.User.allP({
+    var query = {
+        where: {},
         limit: listOptions.pageSize,
         skip: (listOptions.page - 1) * listOptions.pageSize
-    }), appModels.User.countP())
-    .spread(function (users, userCount) {
-        res.json({
-            user: _.map(users, function (u) {
-                var ret = _.pick(u, "id", "activated");
-                ret.name = null;
-                for (var i=0;i<u.auth.length;i++) {
-                    if (u.auth[i].type === "main") {
-                        ret.name = u.auth[i].id;
-                        break;
-                    }
-                }
+    };
+    if (listOptions.partitions) {
+        query.where.partition = {inq: listOptions.partitions};
+    }
+    if (listOptions.hint) {
+        query.where.name = {match: listOptions.hint};
+    }
 
-                return ret;
-            }),
-            totalUsers: userCount
+    Promise.join(appModels.Role.allP(query), appModels.Role.countP(query))
+    .spread(function (roles, roleCount) {
+        res.json({
+            roles: _.map(roles, roleToJson),
+            totalRoles: roleCount
         });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.updateRole = function (req, res) {
+    if (!req.session.user.manRole.editUser)
+        return res.send(400, {message: "没有修改用户数据的权限"});
+
+    var diff = req.body;
+    appModels.Role.findP(diff.id).then(function (role) {
+        if (!role) {
+            return Promise.reject();
+        }
+        delete diff.id;
+        return role.updateAttributesP(diff);
+    })
+    .then(function (role) {
+        res.json(roleToJson(role));
     })
     .catch(function (err) {
         res.send(400);
@@ -230,6 +248,13 @@ var adminToJson = function (u) {
             break;
         }
     }
+    return ret;
+};
+
+var roleToJson = function (role) {
+    var ret = _.pick(role, "id", "name", "title", "level", "energy", "golds", "coins", "contribs", "partition", "spent");
+    ret.createTime = +role.createTime;
+
     return ret;
 };
 

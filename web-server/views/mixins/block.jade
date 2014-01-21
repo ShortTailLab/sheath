@@ -32,3 +32,15 @@ mixin blockWithSideBar(title, tabs)
                 block
         .bendl
         .bendr
+
+mixin blockWithSearch(title)
+    div(class=['block'].concat(attributes.classes))
+        .block_head
+            .bheadl
+            .bheadr
+            h2= title
+            form(ng-submit="submit()"): input.text(type="text", value="Search", ng-model="query", style="box-sizing: content-box")
+        .block_content
+            block
+        .bendl
+        .bendr

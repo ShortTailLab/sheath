@@ -1,4 +1,42 @@
 include ../mixins/block
 
-+block("所有用户")
-    .grid(ui-grid="gridOptions")
++blockWithSearch("所有用户")
+    div(class="message errormsg", ng-show="error")
+        p {{error}}
+    div(class="message success", ng-show="info")
+        p {{info}}
+    pre
+        .checkbox-inline(ng-repeat="p in partitions")
+            label
+                input(type="checkbox", ng-model="p.selected", ng-click="submit()")
+                | {{ p.name }}
+    table(ng-table="tableParams").table
+        tbody(ng-repeat="group in $groups")
+            tr.ng-table-group
+                td(colspan="{{$columns.length}}")
+                    a(href="", ng-click="group.$hideRows=!group.$hideRows")
+                        span.glyphicon(ng-class="{'glyphicon-chevron-right': group.$hideRows, 'glyphicon-chevron-down': !group.$hideRows}")
+                        strong {{group.value}}
+            tr(ng-repeat="role in group.data", ng-hide="group.$hideRows")
+                td(data-title="'角色名'", ng-bind="role.name")
+                td(data-title="'等级'")
+                    span(ng-if="!role.editable", ng-bind="role.level")
+                    div(ng-if="role.editable"): input(type="number", ng-model="role.editable.level", style="width: 45px")
+                td(data-title="'体力'")
+                    span(ng-if="!role.editable", ng-bind="role.energy")
+                    div(ng-if="role.editable"): input(type="number", ng-model="role.editable.energy", style="width: 45px")
+                td(data-title="'元宝'")
+                    span(ng-if="!role.editable", ng-bind="role.golds")
+                    div(ng-if="role.editable"): input(type="number", ng-model="role.editable.golds", style="width: 45px")
+                td(data-title="'铜钱'")
+                    span(ng-if="!role.editable", ng-bind="role.coins")
+                    div(ng-if="role.editable"): input(type="number", ng-model="role.editable.coins", style="width: 80px")
+                td(data-title="'战功'")
+                    span(ng-if="!role.editable", ng-bind="role.contribs")
+                    div(ng-if="role.editable"): input(type="number", ng-model="role.editable.contribs", style="width: 45px")
+                td(data-title="'分区'", ng-bind="role.partitionName")
+                td(data-title="'充值'", ng-bind="role.spent")
+                td(data-title="'创建时间'") {{humanize(role.createTime)}}
+                td(data-title="'操作'", width=80)
+                    a(ng-if="!role.editable", href="", class="btn btn-default btn-xs", ng-click="edit(role)") 编辑
+                    a(ng-if="role.editable", href="", class="btn btn-primary btn-xs", ng-click="save(role)") 保存

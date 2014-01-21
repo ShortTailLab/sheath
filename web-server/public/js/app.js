@@ -36,6 +36,10 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
             templateUrl: 'partials/export',
             controller: 'exportController'
         }).
+        when('/control', {
+            templateUrl: 'partials/control',
+            controller: 'settingsController'
+        }).
         when('/import', {
             templateUrl: 'partials/import',
             controller: 'importController'

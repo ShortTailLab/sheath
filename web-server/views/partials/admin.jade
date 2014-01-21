@@ -9,13 +9,13 @@ include ../mixins/block
         form
             h2 管理员权限:
             hr
-            label.checkbox
+            .checkbox: label
                 input(type="checkbox", ng-model="editable.manRole.admin")
                 | 修改管理员
-            label.checkbox
+            .checkbox: label
                 input(type="checkbox", ng-model="editable.manRole.editUser")
                 | 编辑用户信息
-            label.checkbox
+            .checkbox: label
                 input(type="checkbox", ng-model="editable.manRole.data")
                 | 导入导出数据
             hr

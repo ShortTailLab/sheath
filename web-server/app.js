@@ -111,7 +111,10 @@ app.get('/api/basicStats', restrictAPI, api.basicStats);
 app.get('/api/partitions', restrictAPI, api.partitions);
 app.post('/api/addPartitions', restrictAPI, api.addPartition);
 app.post('/api/removePartition', restrictAPI, api.removePartition);
+
 app.post('/api/userList', restrictAPI, api.userList);
+app.post('/api/updateRole', restrictAPI, api.updateRole);
+
 app.post('/api/adminList', restrictAPI, api.adminList);
 app.post('/api/modifyAdmin', restrictAPI, api.modifyAdmin);
 app.post('/api/removeAdmin', restrictAPI, api.removeAdmin);

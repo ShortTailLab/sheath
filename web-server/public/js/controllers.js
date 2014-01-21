@@ -49,41 +49,72 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
     fetch();
 });
 
-sheathControllers.controller('userListController', function ($scope, $http) {
-    $scope.totalUsers = 0;
-    $scope.pagingOptions = {
-        pageSize: 25,
-        currentPage: 1
-    };
-    $scope.filterOptions = {
-        filterText: "",
-        useExternalFilter: true
-    };
-    $scope.gridOptions = {
-//        enablePaging: true,
-//        showFooter: true,
-//        totalServerItems: 'totalUsers',
-//        pagingOptions: $scope.pagingOptions,
-//        filterOptions: $scope.filterOptions,
-        columnDefs: [
-            {name: "name"},
-            {name: "activated"}
-        ],
-        data: []
-    };
-    $scope.getPagedDataAsync = function (pageSize, page, searchText) {
-        $http.post("/api/userList", {pageSize: pageSize, page: page, search: searchText}).
-            success(function (data) {
-                _.extend($scope.gridOptions.data, data);
-            });
-    };
+sheathControllers.controller('userListController', function ($scope, $http, ngTableParams) {
+    $scope.query = null;
 
-    $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
-    $scope.$watch('filterOptions', function (newVal, oldVal) {
-        if (newVal !== oldVal) {
-            $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
+    $http.get("/api/partitions").success(function (data) {
+        $scope.partitions = data.partitions;
+        _.each($scope.partitions, function (p) { p.selected = true; });
+
+        $scope.tableParams = new ngTableParams({
+            page: 1,
+            count: 50
+        }, {
+            total: 0,
+            counts: [],
+            groupBy: "partitionName",
+            getData: function($defer, params) {
+                var partitions = _.pluck(_.filter($scope.partitions, function (p) {return p.selected;}), "id");
+                $http.post("/api/userList", {pageSize: params.count(), page: params.page(), hint:$scope.query, partitions: partitions})
+                .success(function (data) {
+                    params.total(data.totalRoles);
+                    _.each(data.roles, function (r) {
+                        var part = _.findWhere($scope.partitions, {id: r.partition});
+                        if (part) {
+                            r.partitionName = part.name;
+                        }
+                        else {
+                            r.partitionName = "---";
+                        }
+                    });
+
+                    $defer.resolve(data.roles);
+                });
+            }
+        });
+    });
+
+    $scope.humanize = function (date) {
+        return moment(date).format("YYYY-MM-DD HH:mm:ss");
+    };
+    $scope.submit = function () {
+        $scope.tableParams.reload();
+    };
+    $scope.edit = function (role) {
+        role.editable = angular.copy(role);
+    };
+    $scope.save = function (role) {
+        var editable = role.editable;
+        delete role.editable;
+
+        var diff = {id: role.id};
+        var fields = ["level", "energy", "golds", "coins", "contribs"];
+        for (var i=0;i<fields.length;i++) {
+            var field = fields[i];
+            if (role[field] !== editable[field]) {
+                diff[field] = editable[field];
+            }
         }
-    }, true);
+
+        if (_.size(diff) > 1) {
+            $http.post("/api/updateRole", diff).success(function (data) {
+                _.extend(role, data);
+            })
+            .error(function (err) {
+                $scope.error = "更新用户数据失败: " + (err.message || "未知错误");
+            });
+        }
+    };
 });
 
 sheathControllers.controller('partitionListController', function ($scope, $modal, $http) {
@@ -249,4 +280,7 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
 
 sheathControllers.controller('exportController', function ($scope, $http) {
 
+});
+
+sheathControllers.controller('settingsController', function ($scope, $http) {
 });
