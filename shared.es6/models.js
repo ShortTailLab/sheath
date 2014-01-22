@@ -55,9 +55,7 @@ exports.init = function (dbConfig) {
         contribs: {type: Number, default: 0},
 
         energyRefreshTime: {type: Date, default: function () { return new Date(); }},
-
         dailyRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
-        manualRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
 
         createTime: {type: Date, default: function () { return new Date(); }},
         isNew: Boolean

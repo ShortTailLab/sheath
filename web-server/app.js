@@ -146,7 +146,7 @@ console.log('Express server listening on port ' + app.get('port'));
 
 // Uncaught exception handler
 process.on('uncaughtException', function (err) {
-    console.error(' Caught exception: ' + err.stack);
+    console.error(' Caught exception: ' + err + ". stack = " + err.stack);
 });
 
 app.on('error', function(err) {

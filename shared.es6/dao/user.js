@@ -2,6 +2,7 @@ var bcrypt = require("bcrypt");
 var models = require("../models");
 var constants = require("../constants");
 var _ = require("underscore");
+var Promise = require("bluebird");
 
 class UserHelper {
     isUserAuthMatch(user, accType, uname, password) {
@@ -52,6 +53,24 @@ class UserHelper {
             else {
                 return [null, constants.InternalServerError];
             }
+        });
+    }
+
+    changePassword(uid, accType, oldPassword, newPassword) {
+        return models.User.findP(uid).bind(this)
+        .then((user) => {
+            for (let auth of user.auth) {
+                if (auth.type === accType){
+                    if (bcrypt.compareSync(oldPassword, auth.password)) {
+                        auth.password = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(5));
+                        return user.saveP();
+                    }
+                    else {
+                        return Promise.reject("old password does not match.");
+                    }
+                }
+            }
+            return Promise.reject("No account type matched.");
         });
     }
 

@@ -7,96 +7,115 @@ var _ = require("underscore");
 
 var ActFlagType = {
     ENTRY: {
+        desc: "登陆服务器",
         reqId: 0,
         name: "entry",
         route: "connector.entryHandler.enter"
     },
     ENTER_PARTITION: {
+        desc: "登陆后选服",
         reqId: 1,
         name: "enterPart",
         route: "connector.entryHandler.enterPartition"
     },
     CLAIM_DAILY_REWARD: {
+        desc: "领取每日奖励",
         reqId: 2,
         name: "claimDaily",
         route: "game.roleHandler.claimDailyReward"
     },
     CLAIM_QHOURLY_REWARD: {
+        desc: "每15分钟领取奖励",
         reqId: 3,
         name: "claimQuarterHourlyReward",
         route: "game.roleHandler.claimQuarterHourlyReward"
     },
     SET_TEAM: {
+        desc: "编队",
         reqId: 4,
         name: "setTeam",
         route: "game.roleHandler.setTeam"
     },
     LIST_ITEM: {
+        desc: "获得角色道具",
         reqId: 5,
         name: "listItems",
         route: "game.itemHandler.list"
     },
     UPGRADE_EQUIPMENT: {
+        desc: "强化道具",
         reqId: 6,
         name: "upgrade_weapon",
         route: "game.equipmentHandler.upgrade"
     },
     COMPOSITE_EQUIPMENT: {
+        desc: "合成道具",
         reqId: 7,
         name: "composite_weapon",
         route: "game.equipmentHandler.composite"
     },
     REFINE_EQUIPMENT: {
+        desc: "",
         reqId: 8,
         name: "refine_weapon",
         route: "game.equipmentHandler.refine"
     },
     REFINE_GEM: {
+        desc: "精炼武器",
         reqId: 9,
         name: "refine_gem",
         route: "game.equipmentHandler.refineGem"
     },
     SET_GEM: {
+        desc: "镶嵌宝石",
         reqId: 10,
         name: "set_gem",
         route: "game.equipmentHandler.setGem"
     },
     REMOVE_GEM: {
+        desc: "卸载宝石",
         reqId: 11,
         name: "remove_gem",
         route: "game.equipmentHandler.removeGem"
     },
     DESTRUCT_CHECK: {
+        desc: "获得武器分解结果",
         reqId: 12,
         name: "check_destruct",
         route: "game.equipmentHandler.destructCheck"
     },
     DESTRUCT: {
+        desc: "武器分解",
         reqId: 13,
         name: "destruct",
         route: "game.equipmentHandler.destruct"
     },
     LIST_HERO_DEF: {
+        desc: "获得武将设定数据",
         reqId: 14,
         name: "list_herodef",
         route: "game.heroHandler.listDef"
     },
     LIST_ITEM_DEF: {
+        desc: "获得道具设定数据",
         reqId: 15,
         name: "list_itemdef",
         route: "game.itemHandler.listDef"
     },
     EQUIP: {
+        desc: "装备",
         reqId: 16,
         name: "equip",
         route: "game.heroHandler.equip"
     },
     UNEQUIP: {
+        desc: "卸下装备",
         reqId: 17,
         name: "unequip",
         route: "game.heroHandler.unEquip"
     },
     LIST_HERO: {
+        desc: "获得角色武将",
         reqId: 18,
         name: "listHeroes",
         route: "game.heroHandler.list"
