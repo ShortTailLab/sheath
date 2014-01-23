@@ -3,12 +3,12 @@ var _ = require("underscore");
 
 
 exports.index = function (req, res) {
-    res.render('index', {user: req.session.user});
+    res.render('index', {user: req.session.user, show_debug: process.env.NODE_ENV !== "production"});
 };
 
 exports.partials = function (req, res) {
     var name = req.params.name;
-    res.render('partials/' + name);
+    res.render('partials/' + name, {user: req.session.user, show_debug: process.env.NODE_ENV !== "production"});
 };
 
 exports.templates = function (req, res) {

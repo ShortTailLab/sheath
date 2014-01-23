@@ -28,6 +28,6 @@ pro.connect = function () {
 
 pro.request = function (moduleId, msg, cb) {
     this.client.request(moduleId, msg, cb);
-}
+};
 
 module.exports = new PomeloConn();

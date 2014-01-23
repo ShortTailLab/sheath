@@ -283,7 +283,7 @@ exports.modifyAdmin = function (req, res) {
         if (admin.manRole === null) {
             return res.send(400, {message: "用户不是管理员"});
         }
-        admin.manRole = _.pick(newAdminRole.manRole, "admin", "editUser", "data");
+        admin.manRole = _.pick(newAdminRole.manRole, "admin", "editUser", "data", "debug");
         return admin.saveP();
     })
     .then(function (admin) {
@@ -362,6 +362,9 @@ var transformItemDef = function (row) {
 };
 
 exports.import = function (req, res) {
+    if (!req.session.user.manRole.data)
+        return res.send(400, {message: "没有导入数据的权限"});
+
     var file = req.files.file;
     var data = req.body;
     var modelsAndTransform = {
@@ -392,6 +395,9 @@ exports.import = function (req, res) {
 };
 
 exports.export = function (req, res) {
+    if (!req.session.user.manRole.data)
+        return res.send(400, {message: "没有导出数据的权限"});
+
     var data = req.body;
     res.header('content-type','text/csv');
     res.header('content-disposition', 'attachment; filename=' + data.tag + '.csv');
@@ -446,4 +452,26 @@ exports.export = function (req, res) {
     else if (data.tag === "stage") {
 
     }
+};
+
+// debug handlers
+exports.kickAll = function (req, res) {
+    if (!req.session.user.manRole.debug)
+        return res.send(400, {message: "没有执行调试命令的权限"});
+    pomeloConn.client.request("debugCommand", {command: "kickAll"});
+    res.send(200);
+};
+
+exports.broadcast = function (req, res) {
+    if (!req.session.user.manRole.debug)
+        return res.send(400, {message: "没有执行调试命令的权限"});
+    pomeloConn.client.request("debugCommand", {command: "broadcast", msg: "测试消息."});
+    res.send(200);
+};
+
+exports.chat = function (req, res) {
+    if (!req.session.user.manRole.debug)
+        return res.send(400, {message: "没有执行调试命令的权限"});
+    pomeloConn.client.request("debugCommand", {command: "chat"});
+    res.send(200);
 };

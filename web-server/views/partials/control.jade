@@ -1,3 +1,11 @@
 include ../mixins/block
 
 +block("设置")
+    span
+
+div(ng-show="#{show_debug}")
+    +block("调试")
+        form.row
+            .col-md-1: input(type="submit", value="全部踢下线", ng-click="kickAll()").submit
+            .col-md-1: input(type="submit", value="广播", ng-click="broadcast()").submit
+            .col-md-1: input(type="submit", value="发聊天消息", ng-click="chat()").submit

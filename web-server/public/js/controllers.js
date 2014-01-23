@@ -283,4 +283,15 @@ sheathControllers.controller('exportController', function ($scope, $http) {
 });
 
 sheathControllers.controller('settingsController', function ($scope, $http) {
+    $scope.kickAll = function () {
+        $http.post("/api/kickAll");
+    };
+
+    $scope.broadcast = function () {
+        $http.post("/api/broadcast");
+    };
+
+    $scope.chat = function () {
+        $http.post("/api/chat");
+    };
 });

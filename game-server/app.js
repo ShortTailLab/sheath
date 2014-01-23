@@ -47,6 +47,7 @@ app.configure('development', function () {
 app.configure(function () {
     app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
     app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
+    app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
 
     app.use(dataPlugin, {
         watcher: {
