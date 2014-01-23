@@ -1,5 +1,6 @@
 var userDAO = require("../../shared/dao/user.js");
 var _ = require("underscore");
+var crypto = require('crypto');
 
 
 exports.index = function (req, res) {
@@ -23,6 +24,10 @@ exports.login = function (req, res) {
 exports.postLogin = function (req, res) {
     var uname = req.param("name");
     var pwd = req.param("password");
+
+    var shasum = crypto.createHash("sha1");
+    shasum.update(pwd);
+    pwd = shasum.digest("hex");
 
     userDAO.getUserByAuth("main", uname, pwd).spread(function (user, err) {
         if (user && user.manRole) {
