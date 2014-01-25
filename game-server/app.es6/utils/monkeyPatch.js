@@ -24,20 +24,6 @@ module.exports.wrapModule = function (m, functions, suffix="") {
 module.exports.wrapModel = function (sessionIns) {
     Patcher.wrapModule(jugglingdb.AbstractClass, ["update", "create", "upsert", "findOrCreate", "exists", "find", "all", "iterate", "findOne", "destroyAll", "count", "include"], "P");
     Patcher.wrapModule(jugglingdb.AbstractClass.prototype, ["save", "destroy", "updateAttribute", "updateAttributes", "reload"], "P");
-
-    jugglingdb.AbstractClass._forDB = function (data) {
-        var res = {};
-        Object.keys(data).forEach(function (propName) {
-            var typeName = this.whatTypeName(propName);
-            if (!typeName && !data[propName] instanceof Array) {
-                return;
-            }
-            else {
-                res[propName] = data[propName];
-            }
-        }.bind(this));
-        return res;
-    };
 };
 
 function emptyFunc() {}

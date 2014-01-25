@@ -204,8 +204,8 @@ function entry(host, port, accType, username, password) {
 var afterLogin = function (pomelo, data) {
     pomelo.role = data.role;
 
-    pomelo.on('onKick', function () {
-        console.log('You have been kicked offline for the same account login in other place.');
+    pomelo.on('onKick', function (data) {
+        console.log('You have been kicked offline.');
     });
 
     pomelo.on('disconnect', function (reason) {
@@ -300,5 +300,5 @@ var toKeyedObject = function (list) {
 };
 
 setTimeout(function () {
-    entry("127.0.0.1", 3010, "main", "uname", "c8fed00eb2e87f1cee8e90ebbe870c190ac3848c");
+    entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
 }, Math.random() * 2000);

@@ -54,8 +54,8 @@ class HandlerBase {
     getItemStacks(roleId) {
         models.Item.allP({where: {owner: roleId}}).bind(this)
         .then((items) => {
-            var itemGroups = _.groupBy(items, "itemDefId");
-            var itemDefs = models.ItemDef.allP({where: {id: {inq: _.keys(itemGroups)}}});
+            var itemGroups = _.groupBy(items, function (item) { return item.itemDefId + "_" + item.level; });
+            var itemDefs = models.ItemDef.allP({where: {id: {inq: _.map(_.values(itemGroups), function (g) {return g[0].itemDefId;})}}});
             return [itemGroups, itemDefs];
         })
         .all().spread((itemGroups, itemDefs) => {
