@@ -175,6 +175,13 @@ exports.updateRole = function (req, res) {
         return res.send(400, {message: "没有修改用户数据的权限"});
 
     var diff = req.body;
+    var rawObject = false;
+
+    if (!req.body.id) {
+        diff = req.body.diff;
+        rawObject = req.body.rawObject;
+    }
+
     appModels.Role.findP(diff.id).then(function (role) {
         if (!role) {
             return Promise.reject();
@@ -183,7 +190,7 @@ exports.updateRole = function (req, res) {
         return role.updateAttributesP(diff);
     })
     .then(function (role) {
-        res.json(roleToJson(role));
+        res.json(roleToJson(role, rawObject));
     })
     .catch(function (err) {
         res.send(400);
@@ -212,6 +219,20 @@ exports.findRoles = function (req, res) {
                 return ret;
             })
         });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.getRole = function (req, res) {
+    if (!req.session.user.manRole.editUser)
+        return res.send(400, {message: "没有修改用户数据的权限"});
+
+    var uid = req.body.uid;
+    appModels.Role.findP(uid)
+    .then(function (role) {
+        res.json(roleToJson(role, true));
     })
     .catch(function (err) {
         res.send(400);
@@ -284,8 +305,14 @@ var adminToJson = function (u) {
     return ret;
 };
 
-var roleToJson = function (role) {
-    var ret = _.pick(role, "id", "name", "title", "level", "energy", "golds", "coins", "contribs", "partition", "spent");
+var roleToJson = function (role, rawObject) {
+    var ret;
+    if (rawObject) {
+        ret = _.omit(role.toObject(true), "energyRefreshTime", "dailyRefreshData");
+    }
+    else {
+        ret = _.pick(role, "id", "name", "title", "level", "energy", "golds", "coins", "contribs", "partition", "spent");
+    }
     ret.createTime = +role.createTime;
 
     return ret;

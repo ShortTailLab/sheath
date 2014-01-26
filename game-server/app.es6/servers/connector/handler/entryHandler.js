@@ -99,6 +99,7 @@ class EntryHandler extends base.HandlerBase {
                 var newData = {
                     partition: part.id,
                     owner: session.uid,
+                    name: newRoleConf.name,
 
                     energy: parseInt(newRoleConf.energy.value),
                     coins: parseInt(newRoleConf.coins.value),

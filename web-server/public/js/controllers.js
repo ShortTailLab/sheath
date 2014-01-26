@@ -116,6 +116,46 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
     };
 });
 
+sheathControllers.controller('userDetailController', function ($scope, $http, $routeParams, $timeout) {
+    $scope.uid = $routeParams.uid;
+    $scope.editorParams = {
+        useWrapMode : false,
+        showGutter: true,
+        theme:'xcode',
+        mode: 'json'
+    };
+    $scope.update = function () {
+        var modified = angular.fromJson($scope.roleJson);
+        var oldDataFields = _.keys($scope.roleData);
+        for (var i=0;i<oldDataFields.length;i++) {
+            var field = oldDataFields[i];
+            if (modified[field] === $scope.roleData[field]) {
+                delete modified[field];
+            }
+        }
+        modified.id = $scope.roleData.id;
+        if (_.size(modified) > 1) {
+            $http.post("/api/updateRole", {diff: modified, rawObject: true}).success(function (data) {
+                _.extend($scope.roleData, data);
+                $scope.roleJson = angular.toJson($scope.roleData, true);
+                $scope.info = "更新成功";
+                $timeout(function () {$scope.info = null;}, 2000);
+            })
+            .error(function (err) {
+                $scope.error = "更新用户数据失败: " + (err.message || "未知错误");
+            });
+        }
+    };
+
+    $http.post("/api/getRole", {uid: $scope.uid}).success(function (data) {
+        $scope.roleData = data;
+        $scope.roleJson = angular.toJson(data, true);
+    })
+    .error(function (data) {
+        $scope.error = "查看用户失败，" + (data.message || "未知错误");
+    });
+});
+
 sheathControllers.controller('rewardController', function ($scope, $http) {
     $scope.getRoleByHint = function (val) {
         return $http.post("/api/findRoles", {hint: val}).then(function (res) {

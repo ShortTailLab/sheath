@@ -7,6 +7,7 @@ var sheath = angular.module('sheath', [
     'ui.grid.edit',
     'ui.select2',
     'ui.bootstrap',
+    'ui.ace',
     'angular-loading-bar',
     'angularFileUpload',
     'ngTable',
@@ -23,6 +24,10 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
         when('/user', {
             templateUrl: 'partials/user',
             controller: 'userListController'
+        }).
+        when('/user/detail/:uid', {
+            templateUrl: 'partials/userDetail',
+            controller: 'userDetailController'
         }).
         when('/reward', {
             templateUrl: 'partials/reward',

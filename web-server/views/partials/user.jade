@@ -18,7 +18,7 @@ include ../mixins/block
                         span.glyphicon(ng-class="{'glyphicon-chevron-right': group.$hideRows, 'glyphicon-chevron-down': !group.$hideRows}")
                         strong {{group.value}}
             tr(ng-repeat="role in group.data", ng-hide="group.$hideRows")
-                td(data-title="'角色名'", ng-bind="role.name")
+                td(data-title="'角色名'"): a(href="/user/detail/{{role.id}}", ng-bind="role.name")
                 td(data-title="'等级'")
                     span(ng-if="!role.editable", ng-bind="role.level")
                     div(ng-if="role.editable"): input(type="number", ng-model="role.editable.level", style="width: 45px")

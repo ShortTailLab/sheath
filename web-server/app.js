@@ -125,6 +125,7 @@ app.post('/api/export', restrictAPI, api.export);
 
 app.post('/api/findUsers', restrictAPI, api.findUsers);
 app.post('/api/findRoles', restrictAPI, api.findRoles);
+app.post('/api/getRole', restrictAPI, api.getRole);
 
 app.post('/api/kickAll', restrictAPI, api.kickAll);
 app.post('/api/broadcast', restrictAPI, api.broadcast);

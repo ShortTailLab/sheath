@@ -11,6 +11,7 @@ block menu
             ul
                 li: a(href='import') 导入
                 li: a(href='export') 导出
+        li: a(href='stats') 数据
         li: a(href='admin') 管理员
     p.user
         if user
@@ -18,9 +19,9 @@ block menu
 
 block script
     script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
-    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js')
-    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular-animate.min.js')
-    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular-route.min.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-animate.min.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-route.min.js')
     script(src='/js/lib/angular-file-upload.min.js')
     script(src='/js/lib/highcharts.js')
     script(src='/js/lib/jquery.img.preload.js')
@@ -39,6 +40,8 @@ block script
     script(src='/js/lib/ng-table.js')
     script(src='/js/lib/highcharts-ng.min.js')
     script(src='/js/lib/ui-bootstrap-tpls-0.10.0.min.js')
+    script(src='/js/lib/ace/ace.js')
+    script(src='/js/lib/ui-ace.js')
     script(src='/js/lib/appCustom.js')
     script(src='/js/app.js')
     script(src='/js/controllers.js')

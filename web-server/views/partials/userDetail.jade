@@ -1,0 +1,10 @@
+include ../mixins/block
+
++block("角色原始数据")
+    div(class="message errormsg", ng-show="error")
+        p {{error}}
+    div(class="message success", ng-show="info")
+        p {{info}}
+    div(style="height: 500px;", ui-ace="{{editorParams}}", ng-model="roleJson")
+    hr
+    form: input.submit(type="submit", value="修改", ng-click="update()")
