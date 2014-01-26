@@ -158,7 +158,7 @@ exports.userList = function (req, res) {
         query.where.name = {match: listOptions.hint};
     }
 
-    Promise.join(appModels.Role.allP(query), appModels.Role.countP(query))
+    Promise.join(appModels.Role.allP(query), appModels.Role.countP(query.where))
     .spread(function (roles, roleCount) {
         res.json({
             roles: _.map(roles, roleToJson),
@@ -190,11 +190,44 @@ exports.updateRole = function (req, res) {
     });
 };
 
+exports.findRoles = function (req, res) {
+    var hint = req.body.hint;
+    var queries = [];
+
+    queries.push(appModels.Role.allP({where: {name: {match: hint}}, limit: 10}));
+    queries.push(appModels.Role.findP(hint));
+    queries.push(appModels.Partition.allP());
+
+    Promise.all(queries)
+    .spread(function (roles, r, partitions) {
+        if (r) roles.unshift(r);
+
+        partitions = _.groupBy(partitions, "id");
+        res.send({
+            roles: _.map(roles, function (role) {
+                var ret = roleToJson(role);
+                var partition = partitions[role.partition][0];
+                ret.partName = partition.name;
+
+                return ret;
+            })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
 exports.findUsers = function (req, res) {
     var hint = req.body.hint;
     var queries = [];
 
-    queries.push(appModels.User.allP({where: {authId: {between: [hint, hint + "\uffff"]}, manRole: null}, limit: 10}));
+    var userQuery = {where: {authId: {between: [hint, hint + "\uffff"]}}, limit: 10};
+    if (req.body.notAdmin) {
+        userQuery.where.manRole = null;
+    }
+
+    queries.push(appModels.User.allP(userQuery));
     queries.push(appModels.User.findP(hint));
     queries.push(appModels.Role.allP({where: {name: {match: hint}}, limit: 10}));
     queries.push(appModels.Partition.allP());

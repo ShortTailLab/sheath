@@ -60,7 +60,6 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
             page: 1,
             count: 50
         }, {
-            total: 0,
             counts: [],
             groupBy: "partitionName",
             getData: function($defer, params) {
@@ -114,6 +113,14 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
                 $scope.error = "更新用户数据失败: " + (err.message || "未知错误");
             });
         }
+    };
+});
+
+sheathControllers.controller('rewardController', function ($scope, $http) {
+    $scope.getRoleByHint = function (val) {
+        return $http.post("/api/findRoles", {hint: val}).then(function (res) {
+            return _.pluck(res.data.roles, "name");
+        });
     };
 });
 
@@ -245,7 +252,7 @@ sheathControllers.controller('adminController', function ($scope, $http, $timeou
 
 sheathControllers.controller('addAdminController', function ($scope, $http, $modalInstance) {
     $scope.getUserByHint = function (val) {
-        return $http.post("/api/findUsers", {hint: val}).then(function (res) {
+        return $http.post("/api/findUsers", {hint: val, notAdmin: true}).then(function (res) {
             return res.data.users;
         });
     };
@@ -280,6 +287,12 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
 
 sheathControllers.controller('exportController', function ($scope, $http) {
 
+});
+
+sheathControllers.controller('storeController', function ($scope, $http) {
+});
+
+sheathControllers.controller('eventController', function ($scope, $http) {
 });
 
 sheathControllers.controller('settingsController', function ($scope, $http) {
