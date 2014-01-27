@@ -43,7 +43,7 @@ class EntryHandler extends base.HandlerBase {
             session.set("userId", user.id);
             return [session.bind(user.id), partUCount, allParts, session.pushAll()];
         })
-        .all().spread((__, partStats, partitions) => {
+        .spread((__, partStats, partitions) => {
             session.on('closed', onUserLeave.bind(null, this.app));
 
             logger.logInfo("user.login", {
@@ -93,13 +93,13 @@ class EntryHandler extends base.HandlerBase {
                     this.app.rpc.manager.partitionStatsRemote.joinPartitionAsync(session, part.id)];
             }
         })
-        .all().spread((role) => {
+        .spread((role) => {
             if (!role) {
                 var newRoleConf = this.app.get("dataService").get("roleBootstrap").data;
                 var newData = {
                     partition: part.id,
                     owner: session.uid,
-                    name: newRoleConf.name,
+                    name: newRoleConf.name.value,
 
                     energy: parseInt(newRoleConf.energy.value),
                     coins: parseInt(newRoleConf.coins.value),
@@ -133,7 +133,7 @@ class EntryHandler extends base.HandlerBase {
                 return [role.saveP()];
             }
         })
-        .all().spread((role) => {
+        .spread((role) => {
             var promises = [role, null, null];
             if (!role.isNew) {
                 promises[1] = this.app.rpc.chat.chatRemote.addP(session, session.uid, role.name, this.app.get('serverId'), part.id);
@@ -143,7 +143,7 @@ class EntryHandler extends base.HandlerBase {
             promises[2] = session.pushAll();
             return promises;
         })
-        .all().spread((role) => {
+        .spread((role) => {
             next(null, {
                 role: role.toClientObj()
             });

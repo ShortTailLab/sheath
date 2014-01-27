@@ -1,7 +1,21 @@
 var userDAO = require("../../shared/dao/user.js");
 var _ = require("underscore");
 var crypto = require('crypto');
+var appModels = require("../../shared/models");
 
+exports.logRedirect = function (req, res) {
+    var log = new appModels.Log();
+
+    log.severity = "INFO";
+    log.type = "click-thru";
+    log.time = new Date();
+    log.server = "web-0";
+    log.msg = {
+        source: req.query.source
+    };
+
+    log.save();
+};
 
 exports.index = function (req, res) {
     res.render('index', {user: req.session.user, show_debug: process.env.NODE_ENV !== "production"});

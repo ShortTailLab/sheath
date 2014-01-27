@@ -221,7 +221,7 @@ var afterLogin = function (pomelo, data) {
 
 var upgradeWeapon = function (pomelo, data) {
     timePomeloRequest(ActFlagType.LIST_ITEM, {}, function (data) {
-        var weaponId = _.findWhere(data.items, {defId: 101}).id;
+        var weaponId = _.findWhere(data.items, {defId: 1001}).id;
         pomelo.items = toKeyedObject(data.items);
 
         timePomeloRequest(ActFlagType.UPGRADE_EQUIPMENT, {equipmentId: weaponId}, function (data) {
@@ -233,7 +233,7 @@ var upgradeWeapon = function (pomelo, data) {
 };
 
 var compositeEquipment = function (pomelo) {
-    timePomeloRequest(ActFlagType.COMPOSITE_EQUIPMENT, {matType: 111}, function (data) {
+    timePomeloRequest(ActFlagType.COMPOSITE_EQUIPMENT, {matType: 1011}, function (data) {
         delete pomelo.items[data.destroyed[0]];
         delete pomelo.items[data.destroyed[1]];
         pomelo.items[data.newItem.id] = data.newItem;
@@ -243,7 +243,7 @@ var compositeEquipment = function (pomelo) {
 };
 
 var refineWeapon = function (pomelo) {
-    var weaponId = _.findWhere(_.values(pomelo.items), {defId: 101}).id;
+    var weaponId = _.findWhere(_.values(pomelo.items), {defId: 1001}).id;
     timePomeloRequest(ActFlagType.REFINE_EQUIPMENT, {equipmentId: weaponId}, function (data) {
         timePomeloRequest(ActFlagType.REFINE_EQUIPMENT, {equipmentId: weaponId}, function (data) {
             refineGem(pomelo);
@@ -252,9 +252,9 @@ var refineWeapon = function (pomelo) {
 };
 
 var refineGem = function (pomelo) {
-    timePomeloRequest(ActFlagType.REFINE_GEM, {gemType: 122, gemLevel: 0}, function (data) {
+    timePomeloRequest(ActFlagType.REFINE_GEM, {gemType: 1022, gemLevel: 0}, function (data) {
         pomelo.items[data.gem.id] = data.gem;
-        var weaponId = _.findWhere(pomelo.items, {defId: 101}).id;
+        var weaponId = _.findWhere(pomelo.items, {defId: 1001}).id;
         timePomeloRequest(ActFlagType.SET_GEM, {gemId: data.gem.id, equipmentId: weaponId}, function (data) {
             timePomeloRequest(ActFlagType.REMOVE_GEM, {gemId: data.gem.id}, function (data) {
                 equip(pomelo);
@@ -264,8 +264,9 @@ var refineGem = function (pomelo) {
 };
 
 var equip = function (pomelo) {
-    var weaponId = _.findWhere(pomelo.items, {defId: 101}).id;
-    timePomeloRequest(ActFlagType.EQUIP, {equipmentId: weaponId, heroId: pomelo.heroes[0].id}, function (data) {
+    var weaponId = _.findWhere(pomelo.items, {defId: 1001}).id;
+    var heroId = _.findWhere(pomelo.heroes, {defId: 101}).id;
+    timePomeloRequest(ActFlagType.EQUIP, {equipmentId: weaponId, heroId: heroId}, function (data) {
         // should fail
         timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: weaponId}, function (data) {
             timePomeloRequest(ActFlagType.UNEQUIP, {equipmentId: weaponId}, function (data) {
@@ -276,7 +277,7 @@ var equip = function (pomelo) {
 };
 
 var destroyEquipment = function (pomelo) {
-    var weaponId = _.findWhere(pomelo.items, {defId: 101}).id;
+    var weaponId = _.findWhere(pomelo.items, {defId: 1001}).id;
     timePomeloRequest(ActFlagType.DESTRUCT_CHECK, {equipmentId: weaponId}, function (data) {
         timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: weaponId}, function (data) {
             process.exit(0);

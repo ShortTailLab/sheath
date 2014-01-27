@@ -46,14 +46,14 @@ class EquipmentHandler extends base.HandlerBase {
             }, sample: 1});
             return [mats, itemDef, targetQuery];
         })
-        .all().spread((mats, itemDef, targets) => {
+        .spread((mats, itemDef, targets) => {
             if (targets.length !== 1) {
                 return Promise.reject(Constants.InternalServerError);
             }
 
             return [mats, models.Item.createP({owner: role.id, itemDefId: targets[0].id}), mats[0].destroyP(), mats[1].destroyP()];
         })
-        .all().spread((mats, newItem) => {
+        .spread((mats, newItem) => {
             next(null, {
                 destroyed: [mats[0].id, mats[1].id],
                 newItem: newItem.toClientObj()
@@ -78,7 +78,7 @@ class EquipmentHandler extends base.HandlerBase {
         }
 
         this.safe(this.getEquipmentWithDef(eqId)
-        .all().spread((_equipment, _itemDef) => {
+        .spread((_equipment, _itemDef) => {
             [equipment, itemDef] = [_equipment, _itemDef];
 
             if (equipment.owner !== role.id) {
@@ -110,7 +110,7 @@ class EquipmentHandler extends base.HandlerBase {
             }
             return [material, material.destroyP(), equipment.saveP()];
         })
-        .all().spread((material) => {
+        .spread((material) => {
             next(null, {
                 destroyed: material.id,
                 equipment: equipment.toClientObj()
@@ -137,7 +137,7 @@ class EquipmentHandler extends base.HandlerBase {
         }
 
         this.safe(this.getEquipmentWithDef(eqId)
-        .all().spread((_equipment, _itemDef) => {
+        .spread((_equipment, _itemDef) => {
             [equipment, itemDef] = [_equipment, _itemDef];
 
             if (equipment.owner !== role.id) {
@@ -153,7 +153,7 @@ class EquipmentHandler extends base.HandlerBase {
             return [models.Item.allP({where: {owner: role.id, itemDefId: enforceStoneId}, limit: stoneRequired}),
                     models.Role.findP(role.id)];
         })
-        .all().spread((stones, role) => {
+        .spread((stones, role) => {
             if (stones.length < stoneRequired) {
                 return Promise.reject(Constants.EquipmentFailed.NO_ENFORCEMENT_STONE);
             }
@@ -168,7 +168,7 @@ class EquipmentHandler extends base.HandlerBase {
             var destroyAll = Promise.all(_.map(stones, (s) => {return s.destroyP();}));
             return [coinsNeeded, role.saveP(), stones,  destroyAll, equipment.saveP()];
         })
-        .all().spread((coinsSpent, roleObj, stones) => {
+        .spread((coinsSpent, roleObj, stones) => {
             next(null, {
                 destroyed: _.pluck(stones, "id"),
                 equipment: equipment.toClientObj(),
@@ -212,7 +212,7 @@ class EquipmentHandler extends base.HandlerBase {
             mats[0].level += 1;
             return [mats, mats[0].saveP(), mats[1].destroyP()];
         })
-        .all().spread((mats) => {
+        .spread((mats) => {
             next(null, {
                 destroyed: mats[1].id,
                 gem: mats[0].toClientObj()
@@ -238,7 +238,7 @@ class EquipmentHandler extends base.HandlerBase {
         var equipment, eqPrefix, boundGemCount;
 
         this.safe(this.getEquipmentWithDef(eqId)
-        .all().spread((_equipment, itemDef) => {
+        .spread((_equipment, itemDef) => {
             if (itemDef.quality < 1) {
                 return Promise.reject(Constants.EquipmentFailed.QUALITY_TOO_LOW);
             }
@@ -249,7 +249,7 @@ class EquipmentHandler extends base.HandlerBase {
             eqPrefix = itemDef.type.substr(0, 5);
             return this.getGemWithDef(gemId);
         })
-        .all().spread((gem, itemDef) => {
+        .spread((gem, itemDef) => {
             if (gem.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
@@ -262,7 +262,7 @@ class EquipmentHandler extends base.HandlerBase {
             }
             return [gem, models.Item.countP({bound: eqId})];
         })
-        .all().spread((gem, _boundGemCount) => {
+        .spread((gem, _boundGemCount) => {
             boundGemCount = _boundGemCount;
             if (boundGemCount >= 3) {
                 return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
@@ -294,7 +294,7 @@ class EquipmentHandler extends base.HandlerBase {
         }
 
         this.safe(this.getGemWithDef(gemId)
-        .all().spread((gem) => {
+        .spread((gem) => {
             if (gem.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
@@ -327,7 +327,7 @@ class EquipmentHandler extends base.HandlerBase {
         .then((result) => {
             return [result, models.Role.findP(role.id)];
         })
-        .all().spread((result, role) => {
+        .spread((result, role) => {
             role.coins += result.coins;
 
             var createPieces = Promise.all(_.map(_.range(result.pieces[1]), () => {
@@ -339,7 +339,7 @@ class EquipmentHandler extends base.HandlerBase {
             var unBoundGem = models.Item.updateP({where: {bound: result.equipment.id}, update: {bound: null}});
             return [result, role.saveP(), createPieces, createStones, unBoundGem, result.equipment.destroyP()];
         })
-        .all().spread((result, roleObj, pieces, stones) => {
+        .spread((result, roleObj, pieces, stones) => {
             next(null, {
                 stateDiff: {
                     energy: roleObj.energy,
@@ -391,7 +391,7 @@ class EquipmentHandler extends base.HandlerBase {
     _genDestructMemory(eqId, role) {
         var specialItemIds = this.app.get("dataService").get("specialItemId").data;
         return this.getEquipmentWithDef(eqId)
-        .all().spread((equipment, itemDef) => {
+        .spread((equipment, itemDef) => {
             if (equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
@@ -428,7 +428,7 @@ class EquipmentHandler extends base.HandlerBase {
             }
             return [equipment, itemDef, models.Item.allP({where: {bound: equipment.id}})];
         })
-        .all().spread((equipment, itemDef, gems) => {
+        .spread((equipment, itemDef, gems) => {
             var stoneId = parseInt(specialItemIds.enpowerStone.itemId);
             return {
                 coins: itemDef.price + equipment.level * 100 * 0.3,

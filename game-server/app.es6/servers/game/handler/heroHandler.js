@@ -52,7 +52,7 @@ class HeroHandler extends base.HandlerBase {
         }
 
         this.safe(this.getEquipmentWithDef(eqId)
-        .all().spread((_equipment, _itemDef) => {
+        .spread((_equipment, _itemDef) => {
             equipment = _equipment;
             itemDef = _itemDef;
             if (_equipment.owner !== role.id) {
@@ -61,7 +61,7 @@ class HeroHandler extends base.HandlerBase {
 
             return [models.Hero.findP(heroId), models.Item.allP({where: {bound: heroId}})];
         })
-        .all().spread((_hero, equipments) => {
+        .spread((_hero, equipments) => {
             hero = _hero;
             if (!hero || hero.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
@@ -72,7 +72,7 @@ class HeroHandler extends base.HandlerBase {
             return models.HeroDef.findP(hero.heroDefId);
         })
         .then((heroDef) => {
-            if (!_.contains(heroDef.canEquip, itemDef.id)) {
+            if (!_.contains(heroDef.canEquip, itemDef.type)) {
                 return Promise.reject(Constants.HeroFailed.CANNOT_EQUIP_WEAPON_TYPE);
             }
             equipment.bound = hero.id;
@@ -101,7 +101,7 @@ class HeroHandler extends base.HandlerBase {
         var heroId;
 
         this.safe(this.getEquipmentWithDef(eqId)
-        .all().spread((equipment, _itemDef) => {
+        .spread((equipment, _itemDef) => {
             if (equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }

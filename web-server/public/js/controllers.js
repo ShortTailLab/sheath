@@ -326,7 +326,19 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
 });
 
 sheathControllers.controller('exportController', function ($scope, $http) {
+    $http.get("/api/itemDefs").success(function (data) {
+        $scope.items = data.items;
+    })
+    .error(function (err) {
+        $scope.item_error = "获取道具错误: " + (err.message || "未知错误");
+    });
 
+    $http.get("/api/heroDefs").success(function (data) {
+        $scope.heroes = data.heroes;
+    })
+    .error(function (err) {
+        $scope.hero_error = "获取武将错误: " + (err.message || "未知错误");
+    });
 });
 
 sheathControllers.controller('storeController', function ($scope, $http) {

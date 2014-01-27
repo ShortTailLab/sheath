@@ -230,8 +230,8 @@ exports.getRole = function (req, res) {
         return res.send(400, {message: "没有修改用户数据的权限"});
 
     var uid = req.body.uid;
-    appModels.Role.findP(uid)
-    .then(function (role) {
+    Promise.join(appModels.Role.findP(uid), appModels.Hero.allP({where: {owner: uid}}), appModels.Item.allP({where: {owner: uid}}))
+    .spread(function (role, heroes, items) {
         res.json(roleToJson(role, true));
     })
     .catch(function (err) {
@@ -512,6 +512,30 @@ exports.export = function (req, res) {
     else if (data.tag === "stage") {
 
     }
+};
+
+exports.heroDefs = function (req, res) {
+    appModels.HeroDef.allP()
+    .then(function (data) {
+        res.json({
+            heroes: _.map(data, function (h) { return h.toObject(true); })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.itemDefs = function (req, res) {
+    appModels.ItemDef.allP()
+    .then(function (data) {
+        res.json({
+            items: _.map(data, function (h) { return h.toObject(true); })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
 };
 
 // debug handlers

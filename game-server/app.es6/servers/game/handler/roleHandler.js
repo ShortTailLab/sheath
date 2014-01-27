@@ -88,7 +88,7 @@ class RoleHandler extends base.HandlerBase {
 
                 return [roleObj, roleObj.saveP(), session.push("role")];
             })
-            .all().spread((roleObj) => {
+            .spread((roleObj) => {
                 var rewardDict = {
                     energy: roleObj.energy,
                     coins: roleObj.coins,
@@ -131,7 +131,7 @@ class RoleHandler extends base.HandlerBase {
 
                 return [roleObj, roleObj.saveP(), session.push("role")];
             })
-            .all().spread((roleObj) => {
+            .spread((roleObj) => {
                 var rewardDict = {
                     energy: roleObj.energy,
                     coins: roleObj.coins,
@@ -173,7 +173,7 @@ class RoleHandler extends base.HandlerBase {
             session.set("role", roleObj.toSessionObj());
             return [roleObj.saveP(), session.push("role")];
         })
-        .all().spread((roleObj) => {
+        .spread((roleObj) => {
             next(null, {
                 role: roleObj.toClientObj()
             });

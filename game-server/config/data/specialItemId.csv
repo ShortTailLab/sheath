@@ -1,5 +1,5 @@
 #特殊道具配置表
 id,itemId
-enpowerStone,100
-ARP, 112
-WEP, 111
+enpowerStone,1000
+ARP, 1012
+WEP, 1011

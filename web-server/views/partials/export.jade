@@ -14,3 +14,45 @@ include ../mixins/block
             pre: form(method="post", action="/api/export")
                 input(type="submit", value="关卡数据").submit
                 input(type="hidden", name="tag", value="stage")
+
++block("所有武将")
+    div(class="message errormsg", ng-show="error")
+        p {{hero_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th ID
+            th 武将名
+            th 男性
+            th 星级
+            th 最高等级
+            th 可装配武器
+        tbody: tr(ng-repeat="h in heroes | orderBy:'id'")
+            td {{h.id}}
+            td {{h.name}}
+            td {{h.male}}
+            td {{h.stars}}
+            td {{h.maxLevel}}
+            td {{h.canEquip}}
+
++block("所有道具")
+    div(class="message errormsg", ng-show="error")
+        p {{item_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th ID
+            th 类型
+            th 道具名
+            th 售价
+            th 武将等级
+            th 品质
+            th 堆叠数量
+            th 分解参数
+        tbody: tr(ng-repeat="item in items | orderBy:'id'")
+            td {{item.id}}
+            td {{item.type}}
+            td {{item.name}}
+            td {{item.price}}
+            td {{item.levelReq}}
+            td {{item.quality}}
+            td {{item.stackSize}}
+            td {{item.destructCoeff}}

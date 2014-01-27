@@ -105,6 +105,8 @@ app.get('/', restrict, routes.index);
 app.get('/partials/:name', routes.partials);
 app.get('/templates/:name', routes.templates);
 
+app.get("/download", routes.logRedirect);
+
 // JSON API
 app.get('/api/nodeInfo', restrictAPI, api.nodeInfo);
 app.get('/api/basicStats', restrictAPI, api.basicStats);
@@ -122,6 +124,8 @@ app.post('/api/addAdmin', restrictAPI, api.addAdmin);
 
 app.post('/api/import', restrictAPI, api.import);
 app.post('/api/export', restrictAPI, api.export);
+app.get('/api/itemDefs', restrictAPI, api.itemDefs);
+app.get('/api/heroDefs', restrictAPI, api.heroDefs);
 
 app.post('/api/findUsers', restrictAPI, api.findUsers);
 app.post('/api/findRoles', restrictAPI, api.findRoles);

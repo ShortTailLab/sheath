@@ -127,6 +127,7 @@ exports.init = function (dbConfig) {
 
     var Log = exports.Log = schema.define("log", {
         severity: String,
+        type: String,
         time: Date,
         server: String,
         msg: Object

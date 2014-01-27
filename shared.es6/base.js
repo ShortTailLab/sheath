@@ -30,7 +30,7 @@ class HandlerBase {
     }
 
     getItemWithPrefixDef(itemId, prefix) {
-        return this.getItemWithDef(itemId).all().spread((equipment, itemDef) => {
+        return this.getItemWithDef(itemId).spread((equipment, itemDef) => {
             if (!itemDef || !itemDef.type.startsWith(prefix)) {
                 return Promise.reject(Constants.InvalidRequest);
             }
@@ -39,7 +39,7 @@ class HandlerBase {
     }
 
     getEquipmentWithDef(equipmentId) {
-        return this.getItemWithDef(equipmentId).all().spread((equipment, itemDef) => {
+        return this.getItemWithDef(equipmentId).spread((equipment, itemDef) => {
             if (!itemDef || !(itemDef.type.startsWith("WE_") || itemDef.type.startsWith("AR_"))) {
                 return Promise.reject(Constants.InvalidRequest);
             }
@@ -58,7 +58,7 @@ class HandlerBase {
             var itemDefs = models.ItemDef.allP({where: {id: {inq: _.map(_.values(itemGroups), function (g) {return g[0].itemDefId;})}}});
             return [itemGroups, itemDefs];
         })
-        .all().spread((itemGroups, itemDefs) => {
+        .spread((itemGroups, itemDefs) => {
             itemDefs = _.groupBy(itemDefs, "id");
             var stack = 0;
             for (let itemId of itemGroups) {
