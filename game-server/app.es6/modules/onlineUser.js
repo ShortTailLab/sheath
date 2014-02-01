@@ -1,9 +1,5 @@
-/*!
- * Pomelo -- consoleModule onlineUser 
- * Copyright(c) 2012 fantasyni <fantasyni@163.com>
- * MIT Licensed
- */
 var logger = require('pomelo-logger').getLogger(__filename);
+var _ = require('underscore');
 
 module.exports = function(opts) {
 	return new Module(opts);
@@ -20,11 +16,20 @@ var Module = function(opts) {
 
 Module.prototype.monitorHandler = function(agent, msg) {
 	var connectionService = this.app.components.__connection__;
-	if(!connectionService) {
+    var sessionService = this.app.components.__session__;
+	if(!connectionService || !sessionService) {
 		logger.error('not support connection: %j', agent.id);
 		return;
 	}
-	agent.notify(module.exports.moduleId, connectionService.getStatisticsInfo());
+    var stats = connectionService.getStatisticsInfo();
+    for (let user of stats.loginedList) {
+        var sessions = sessionService.getByUid(user.uid);
+        if (sessions.length) {
+            user.role = _.pick(sessions[0].get("role"), "id", "name", "team", "level", "title");
+        }
+    }
+
+	agent.notify(module.exports.moduleId, stats);
 };
 
 Module.prototype.masterHandler = function(agent, msg) {

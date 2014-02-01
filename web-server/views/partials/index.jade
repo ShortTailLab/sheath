@@ -1,19 +1,20 @@
 include ../mixins/block
 
 +block("统计信息")
-    table
-        tr
-            td 在线用户数：
-            td: span.count(count-to="{{userStats.onlineUsers}}", value="{{userStats._onlineUsers}}", duration="{{refreshInterval}}")
-            td 客户端连接数：
-            td: span.count(count-to="{{userStats.clients}}", value="{{userStats._clients}}", duration="{{refreshInterval}}")
-            td 用户数：
-            td: span.count(count-to="{{userStats.totalUsers}}", value="{{userStats._totalUsers}}", duration="{{refreshInterval}}")
-            td 角色数：
-            td: span.count(count-to="{{userStats.totalRoles}}", value="{{userStats._totalRoles}}", duration="{{refreshInterval}}")
-    p(ng-repeat="uid in onlineUser.loginedList | limitTo:50")
-        | {{uid}}
+    table: tr
+        td 在线用户数：
+        td: span.count(count-to="{{userStats.onlineUsers}}", value="{{userStats._onlineUsers}}", duration="{{refreshInterval}}")
+        td 客户端连接数：
+        td: span.count(count-to="{{userStats.clients}}", value="{{userStats._clients}}", duration="{{refreshInterval}}")
+        td 用户数：
+        td: span.count(count-to="{{userStats.totalUsers}}", value="{{userStats._totalUsers}}", duration="{{refreshInterval}}")
+        td 角色数：
+        td: span.count(count-to="{{userStats.totalRoles}}", value="{{userStats._totalRoles}}", duration="{{refreshInterval}}")
+    table: tr(ng-repeat="row in userStats.onlineUsers | limitTo:50")
+        td(ng-repeat="user in row"): a(href="/user/detail/{{user.role.id}}", tooltip-html-unsafe="{{getToolTip(user)}}") {{user.role.name}}
 
++block("充值")
+    span
 
 +block("服务器状态")
     table(cellpadding="0", cellspacing="0", width="100%")
@@ -22,12 +23,16 @@ include ../mixins/block
             th 节点类型
             th CPU占用%
             th 内存占用
+            th 堆大小
+            th 堆占用
             th 在线时间
             th 服务器
         tbody: tr(ng-repeat="node in nodes | orderBy:'serverId'")
             td {{node.serverId}}
             td {{node.serverType}}
             td {{node.cpuAvg}}
+            td {{node.rss}}MB
+            td {{node.heapTotal}}MB
             td {{node.heapUsed}}MB
             td {{humanizeUpTime(node.uptime)}}
             td {{node.hostname}}

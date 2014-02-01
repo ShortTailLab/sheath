@@ -1,52 +1,76 @@
 var sheathControllers = angular.module('sheath.controllers', []);
 
+Array.prototype.chunk = function(chunkSize) {
+    var array=this;
+    return [].concat.apply([],
+        array.map(function(elem,i) {
+            return i%chunkSize ? [] : [array.slice(i,i+chunkSize)];
+        })
+    );
+};
+
 sheathControllers.controller('basicStatsController', function ($scope, $http, $window) {
-    var refreshInterval = 10000;
+    var refreshInterval = 8000;
     $scope.refreshInterval = refreshInterval;
 
-    function fetch() {
+    function fetch120() {
         $http.get("/api/nodeInfo").
-            success(function (data) {
-                $scope.nodes = _.values(data.nodes);
-            });
+        success(function (data) {
+            $scope.nodes = _.values(data.nodes);
+        });
+    }
+
+    function fetch5() {
         $http.get("/api/basicStats").
-            success(function (data) {
-                if ($scope.userStats === undefined) {
-                    $scope.userStats = {
-                        _clients: data.onlineUser.totalConnCount,
-                        _onlineUsers: data.onlineUser.loginedCount,
-                        _totalUsers: data.totalUsers,
-                        _totalRoles: data.totalRoles
-                    };
-                }
-                else {
-                    $scope.userStats._clients = $scope.userStats.clients;
-                    $scope.userStats._onlineUsers = $scope.userStats.onlineUsers;
-                    $scope.userStats._totalUsers = $scope.userStats.totalUsers;
-                    $scope.userStats._totalRoles = $scope.userStats.totalRoles;
-                }
-                $scope.userStats.clients = data.onlineUser.totalConnCount;
-                $scope.userStats.onlineUsers = data.onlineUser.loginedCount;
-                $scope.userStats.totalUsers = data.totalUsers;
-                $scope.userStats.totalRoles = data.totalRoles;
-            });
+        success(function (data) {
+            if ($scope.userStats === undefined) {
+                $scope.userStats = {
+                    _clients: data.onlineUser.totalConnCount,
+                    _onlineUsers: data.onlineUser.loginedCount,
+                    _totalUsers: data.totalUsers,
+                    _totalRoles: data.totalRoles
+                };
+            }
+            else {
+                $scope.userStats._clients = $scope.userStats.clients;
+                $scope.userStats._onlineUsers = $scope.userStats.onlineUsers;
+                $scope.userStats._totalUsers = $scope.userStats.totalUsers;
+                $scope.userStats._totalRoles = $scope.userStats.totalRoles;
+            }
+            $scope.userStats.clients = data.onlineUser.totalConnCount;
+            $scope.userStats.onlineUsers = data.onlineUser.loginedList.chunk(10);
+            $scope.userStats.totalUsers = data.totalUsers;
+            $scope.userStats.totalRoles = data.totalRoles;
+        });
     }
 
     $scope.humanizeUpTime = function (minute) {
         return moment.duration(-minute, "minutes").humanize();
     };
+    $scope.getToolTip = function (user) {
+        return "<table>" +
+            "<tr><td><b>等级</b></td><td>" + user.role.level +"</td>" + "</tr>" +
+            "<tr><td><b>登陆时间</b></td><td>" + moment(user.loginTime).fromNow() +"</td>" + "</tr>" +
+            "<tr><td><b>IP地址</b></td><td>" + user.address +"</td>" + "</tr>" +
+            "</table>";
+    };
 
-    $scope.intervalID = $window.setInterval(function () {
-        $scope.$apply(fetch);
-    }, refreshInterval);
+    $scope.intervalID5 = $window.setInterval(function () {$scope.$apply(fetch5);}, refreshInterval);
+    $scope.intervalID120 = $window.setInterval(function () {$scope.$apply(fetch120);}, 120 * 1000);
+
     $scope.$on('$destroy', function () {
-        if ($scope.intervalID) {
-            $window.clearInterval($scope.intervalID);
-            delete $scope.intervalID;
+        if ($scope.intervalID5) {
+            $window.clearInterval($scope.intervalID5);
+            delete $scope.intervalID5;
+        }
+        if ($scope.intervalID120) {
+            $window.clearInterval($scope.intervalID120);
+            delete $scope.intervalID120;
         }
     });
 
-    fetch();
+    fetch5();
+    fetch120();
 });
 
 sheathControllers.controller('userListController', function ($scope, $http, ngTableParams) {

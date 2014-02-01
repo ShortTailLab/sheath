@@ -135,6 +135,8 @@ app.post('/api/kickAll', restrictAPI, api.kickAll);
 app.post('/api/broadcast', restrictAPI, api.broadcast);
 app.post('/api/chat', restrictAPI, api.chat);
 
+app.post('/api/getStatInfo', restrictAPI, api.getStatInfo);
+
 app.get('*', restrict, routes.index);
 
 /**

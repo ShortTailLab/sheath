@@ -559,3 +559,6 @@ exports.chat = function (req, res) {
     pomeloConn.client.request("debugCommand", {command: "chat"});
     res.send(200);
 };
+
+exports.getStatInfo = function (req, res) {
+};
