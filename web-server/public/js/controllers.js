@@ -9,6 +9,15 @@ Array.prototype.chunk = function(chunkSize) {
     );
 };
 
+Array.prototype.toMap = function(key) {
+    var ret = {};
+    for (var i=0;i<this.length;i++) {
+        var obj = this[i];
+        ret[obj[key]] = obj;
+    }
+    return ret;
+};
+
 sheathControllers.controller('basicStatsController', function ($scope, $http, $window) {
     var refreshInterval = 8000;
     $scope.refreshInterval = refreshInterval;
@@ -73,12 +82,13 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
     fetch120();
 });
 
-sheathControllers.controller('userListController', function ($scope, $http, ngTableParams) {
+sheathControllers.controller('userListController', function ($scope, $http, ngTableParams, $routeParams) {
     $scope.query = null;
+    var partitionId = $routeParams.partId;
 
     $http.get("/api/partitions").success(function (data) {
         $scope.partitions = data.partitions;
-        _.each($scope.partitions, function (p) { p.selected = true; });
+        _.each($scope.partitions, function (p) { p.selected = !partitionId || (partitionId === p.id); });
 
         $scope.tableParams = new ngTableParams({
             page: 1,
@@ -88,6 +98,7 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
             groupBy: "partitionName",
             getData: function($defer, params) {
                 var partitions = _.pluck(_.filter($scope.partitions, function (p) {return p.selected;}), "id");
+                console.log(partitions);
                 $http.post("/api/userList", {pageSize: params.count(), page: params.page(), hint:$scope.query, partitions: partitions})
                 .success(function (data) {
                     params.total(data.totalRoles);
@@ -107,9 +118,6 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
         });
     });
 
-    $scope.humanize = function (date) {
-        return moment(date).format("YYYY-MM-DD HH:mm:ss");
-    };
     $scope.submit = function () {
         $scope.tableParams.reload();
     };
@@ -140,7 +148,7 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
     };
 });
 
-sheathControllers.controller('userDetailController', function ($scope, $http, $routeParams, $timeout) {
+sheathControllers.controller('userDetailController', function ($scope, $http, $routeParams, $timeout, $q) {
     $scope.uid = $routeParams.uid;
     $scope.editorParams = {
         useWrapMode : false,
@@ -170,12 +178,29 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
             });
         }
     };
+    $scope.boundHeroName = function (item) {
+        if (item.bound) {
+            var hero = _.findWhere($scope.heroes, {id: item.bound});
+            if (hero) {
+                return $scope.heroDefs[hero.heroDefId].name;
+            }
+        }
+        return "无";
+    };
 
-    $http.post("/api/getRole", {uid: $scope.uid}).success(function (data) {
-        $scope.roleData = data;
-        $scope.roleJson = angular.toJson(data, true);
+    $q.all([$http.post("/api/getRole", {uid: $scope.uid}), $http.get("/api/itemDefs"), $http.get("/api/heroDefs")])
+    .then(function (results) {
+        $scope.itemDefs = results[1].data.items.toMap("id");
+        $scope.heroDefs = results[2].data.heroes.toMap("id");
+
+        var roleData = results[0].data;
+        $scope.roleData = roleData.role;
+        $scope.roleJson = angular.toJson(roleData.role, true);
+        $scope.heroes = roleData.heroes;
+        $scope.items = roleData.items;
     })
-    .error(function (data) {
+    .catch(function (data) {
+        data = data.data || data;
         $scope.error = "查看用户失败，" + (data.message || "未知错误");
     });
 });
@@ -192,10 +217,6 @@ sheathControllers.controller('partitionListController', function ($scope, $modal
     $http.get("/api/partitions").success(function (data) {
         $scope.partitions = data.partitions;
     });
-
-    $scope.humanize = function (date) {
-        return moment(date).format("YYYY-MM-DD HH:mm");
-    };
 
     $scope.openAdd = function () {
         var modalInstance = $modal.open({

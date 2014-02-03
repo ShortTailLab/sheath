@@ -11,6 +11,7 @@ var sheath = angular.module('sheath', [
     'angular-loading-bar',
     'angularFileUpload',
     'ngTable',
+    'angularMoment',
     'sheath.controllers',
     'sheath.services'
 ]);

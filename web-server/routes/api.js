@@ -70,8 +70,17 @@ function partitionRoleCount() {
 }
 
 exports.partitions = function (req, res) {
-    Promise.join(appModels.Partition.allP(), partitionRoleCount())
-    .spread(function (parts, roleCounts) {
+    Promise.join(appModels.Partition.allP(), partitionRoleCount(), pomeloConn.client.request('onlineUser', null))
+    .spread(function (parts, roleCounts, onlineUsers) {
+        onlineUsers = _.reduce(_.values(onlineUsers), function (memo, stat) {
+            return {
+                totalConnCount: memo.totalConnCount + stat.totalConnCount,
+                loginedCount: memo.loginedCount + stat.loginedCount,
+                loginedList: memo.loginedList.concat(stat.loginedList)
+            };
+        });
+        var partUsers = _.groupBy(onlineUsers.loginedList, function (u) {return u.role.partition;});
+
         for (var i=0;i<parts.length;i++) {
             var p = parts[i] = _.pick(parts[i], ["id", "name", "public", "openSince"]);
             var countObj = _.find(roleCounts, function (red) {
@@ -81,6 +90,11 @@ exports.partitions = function (req, res) {
                 p.roleCount = countObj.reduction;
             else
                 p.roleCount = 0;
+            var partU = partUsers[p.id];
+            if (partU)
+                p.onlineRoles = partU.length;
+            else
+                p.onlineRoles = 0;
         }
 
         res.json({
@@ -232,7 +246,11 @@ exports.getRole = function (req, res) {
     var uid = req.body.uid;
     Promise.join(appModels.Role.findP(uid), appModels.Hero.allP({where: {owner: uid}}), appModels.Item.allP({where: {owner: uid}}))
     .spread(function (role, heroes, items) {
-        res.json(roleToJson(role, true));
+        res.json({
+            role: roleToJson(role, true),
+            heroes: _.map(heroes, function (h) {return heroToJson(h);}),
+            items: _.map(items, function (item) {return itemToJson(item);})
+        });
     })
     .catch(function (err) {
         res.send(400);
@@ -315,6 +333,18 @@ var roleToJson = function (role, rawObject) {
     }
     ret.createTime = +role.createTime;
 
+    return ret;
+};
+
+var heroToJson = function (hero) {
+    var ret = hero.toObject(true);
+    ret.createTime = +ret.createTime;
+    return ret;
+};
+
+var itemToJson = function (item) {
+    var ret = item.toObject(true);
+    ret.createTime = +ret.createTime;
     return ret;
 };
 

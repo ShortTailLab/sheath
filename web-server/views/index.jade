@@ -4,9 +4,10 @@ block menu
     ul#nav
         li: a(href='/') 首页
         li: a(href='user') 角色
+            ul
+                li: a(href='reward') 奖励
         li: a(href='partition') 分服
         li: a(href='store') 商店
-        li: a(href='event') 活动
         li: a(href='control') 设置
             ul
                 li: a(href='import') 导入
@@ -27,12 +28,12 @@ block script
     script(src='/js/lib/jquery.img.preload.js')
     //<script src="/static/js/jquery.filestyle.mini.js"></script>
     //<script src="/static/js/jquery.wysiwyg.js"></script>
-    //script(src='/js/lib/codemirror.js')
     script(src='/js/lib/jquery.lazyload.min.js')
     script(src='/js/lib/select2.min.js')
     script(src='/js/lib/select2_locale_zh-CN.js')
     script(src='/js/lib/ui-select2.js')
     script(src='/js/lib/moment-with-langs.min.js')
+    script(src='/js/lib/angular-moment.min.js')
     script(src='/js/lib/underscore-min.js')
     script(src='/js/lib/ui-grid.min.js')
     script(src='/js/lib/loading-bar.min.js')

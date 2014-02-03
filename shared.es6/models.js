@@ -153,7 +153,7 @@ exports.init = function (dbConfig) {
     };
 
     Role.prototype.toSessionObj = function () {
-        return _.pick(this, "id", "name", "team", "level", "exp", "title", "storageRoom", "dailyRefreshData", "manualRefreshData");
+        return _.pick(this, "id", "name", "team", "level", "exp", "title", "storageRoom", "dailyRefreshData", "manualRefreshData", "partition");
     };
 
     Role.prototype.toClientObj = function () {

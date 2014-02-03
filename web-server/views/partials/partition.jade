@@ -38,13 +38,15 @@ script(type="text/ng-template", id="modalAddPartition.html").
                 th 公开区
                 th 开放时间
                 th 角色数
+                th 在线
                 th 操作
         tbody
             tr(ng-repeat="p in partitions | orderBy:'name'")
                 td {{p.name}}
                 td
                     input(type="checkbox", ng-checked="{{p.public}}", disabled="true")
-                td {{humanize(p.openSince)}}
-                td {{p.roleCount}}
+                td {{p.openSince | amDateFormat:"YYYY-MM-DD HH:mm"}}
+                td: a(href="/user?partId={{p.id}}") {{p.roleCount}}
+                td {{p.onlineRoles}}
                 td
                     a(ng-if="p.roleCount===0", ng-click="removePartition(p)", href="") 删

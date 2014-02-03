@@ -25,7 +25,7 @@ Module.prototype.monitorHandler = function(agent, msg) {
     for (let user of stats.loginedList) {
         var sessions = sessionService.getByUid(user.uid);
         if (sessions.length) {
-            user.role = _.pick(sessions[0].get("role"), "id", "name", "team", "level", "title");
+            user.role = _.pick(sessions[0].get("role"), "id", "name", "team", "level", "title", "partition");
         }
     }
 

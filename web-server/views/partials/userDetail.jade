@@ -10,5 +10,35 @@ include ../mixins/block
     form: input.submit(type="submit", value="修改", ng-click="update()")
 
 +block("武将")
+    table.table
+        thead: tr
+            td: b ID
+            td: b 武将名
+            td: b 等级
+            td: b 经验值
+            td: b 创建时间
+        tbody: tr(ng-repeat="h in heroes")
+            td {{h.id}}
+            td {{heroDefs[h.heroDefId].name}}
+            td {{h.level}}
+            td {{h.exp}}
+            td {{h.createTime | amCalendar}}
 
 +block("道具")
+    table.table
+        thead: tr
+            td: b ID
+            td: b 道具名
+            td: b 装备武将
+            td: b 等级
+            td: b 精炼等级
+            td: b 精炼进度
+            td: b 创建时间
+        tr(ng-repeat="it in items")
+            td {{it.id}}
+            td {{itemDefs[it.itemDefId].name}}
+            td {{boundHeroName(it)}}
+            td {{it.level}}
+            td {{it.refinement}}
+            td {{it.refineProgress}}
+            td {{it.createTime | amCalendar}}
