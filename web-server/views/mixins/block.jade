@@ -7,7 +7,7 @@ mixin block(title, tabs)
             if tabs
                 ul.tabs
                     - each t in tabs
-                        li: a(ng-click="#{t[0]}") #{t[1]}
+                        li: a(href="", ng-click="#{t[0]}") #{t[1]}
         .block_content
             block
         .bendl

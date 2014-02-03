@@ -30,6 +30,7 @@ exports.init = function (dbConfig) {
 
     var Partition = exports.Partition = schema.define("partition", {
         name: {type: String, default: ""},
+        distro: {type: String, default: "All"},
         public: {type: Boolean, default: true},
         openSince: {type: Date, default: function () { return new Date(); }},
 

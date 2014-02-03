@@ -27,13 +27,13 @@ include ../mixins/block
 +block("道具")
     table.table
         thead: tr
-            td: b ID
-            td: b 道具名
-            td: b 装备武将
-            td: b 等级
-            td: b 精炼等级
-            td: b 精炼进度
-            td: b 创建时间
+            th ID
+            th 道具名
+            th 装备武将
+            th 等级
+            th 精炼等级
+            th 精炼进度
+            th 创建时间
         tr(ng-repeat="it in items")
             td {{it.id}}
             td {{itemDefs[it.itemDefId].name}}

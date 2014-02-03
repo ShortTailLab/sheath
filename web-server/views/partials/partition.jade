@@ -1,33 +1,5 @@
 include ../mixins/block
 
-script(type="text/ng-template", id="modalAddPartition.html").
-    <div class="modal-header">
-        <h3>添加分区</h3
-    </div>
-    <div class="modal-body form-group">
-        <input type="text" class="form-control" placeholder="分区名" ng-model="newPartition.name" /><br/>
-        开放时间：
-        <div class="row">
-            <div class="col-md-6">
-                <p class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="yyyy-MM-dd" ng-model="newPartition.openSince" is-open="dpOpened" min="2014-01-01" max="'2016-01-01'" date-disabled="disabled(date, mode)" show-weeks="false" ng-required="true" close-text="Close" />
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" ng-click="openDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-                    </span>
-                </p>
-                <timepicker ng-model="newPartition.openSince" hour-step="1" minute-step="30" show-meridian="false"></timepicker>
-                <label class="checkbox">
-                    <input type="checkbox" ng-model="newPartition.public" />
-                    公开区
-                </label>
-            </div>
-        </div><br>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">OK</button>
-        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-    </div>
-
 +block("分区表", [["openAdd()", "添加分区"]])
     div(class="message errormsg", ng-show="error")
         p {{error}}
@@ -36,6 +8,7 @@ script(type="text/ng-template", id="modalAddPartition.html").
             tr
                 th 区名
                 th 公开区
+                th 渠道
                 th 开放时间
                 th 角色数
                 th 在线
@@ -43,8 +16,8 @@ script(type="text/ng-template", id="modalAddPartition.html").
         tbody
             tr(ng-repeat="p in partitions | orderBy:'name'")
                 td {{p.name}}
-                td
-                    input(type="checkbox", ng-checked="{{p.public}}", disabled="true")
+                td: input(type="checkbox", ng-checked="{{p.public}}", disabled="true")
+                td {{p.distro}}
                 td {{p.openSince | amDateFormat:"YYYY-MM-DD HH:mm"}}
                 td: a(href="/user?partId={{p.id}}") {{p.roleCount}}
                 td {{p.onlineRoles}}

@@ -82,7 +82,7 @@ exports.partitions = function (req, res) {
         var partUsers = _.groupBy(onlineUsers.loginedList, function (u) {return u.role.partition;});
 
         for (var i=0;i<parts.length;i++) {
-            var p = parts[i] = _.pick(parts[i], ["id", "name", "public", "openSince"]);
+            var p = parts[i] = _.pick(parts[i], ["id", "name", "public", "openSince", "distro"]);
             var countObj = _.find(roleCounts, function (red) {
                 return red.group.partition === p.id;
             });
@@ -117,13 +117,15 @@ exports.addPartition = function (req, res) {
     },{
         name: newPart.name,
         public: newPart.public,
+        distro: newPart.distro,
         openSince: newPart.openSince,
         createTime: createTime
     })
     .then(function (p) {
         if (p.createTime.getTime() === createTime.getTime()) {
-            var ret = _.pick(p, ["id", "name", "public", "openSince"]);
+            var ret = _.pick(p, ["id", "name", "public", "openSince", "distro"]);
             ret.roleCount = 0;
+            ret.onlineRoles = 0;
             res.send(ret);
         }
         else {

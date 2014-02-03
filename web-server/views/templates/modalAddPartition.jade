@@ -1,0 +1,21 @@
+.modal-header: h3 添加分区
+div(class="modal-body"): form.form-horizontal(role="form")
+    .form-group
+        label(for="partName", class="control-label col-md-2") 分区名
+        .col-md-8: input#partName(type="text", placeholder="分区名", ng-model="newPartition.name").form-control
+    .form-group
+        label(for="partDistro", class="control-label col-md-2") 渠道
+        .col-md-8: input(type="text", placeholder="渠道", ng-model="newPartition.distro").form-control
+    .form-group
+        label(for="datePicker", class="control-label col-md-2") 开放时间
+        .col-md-6: p.input-group
+            input#datePicker(type="text", datepicker-popup="yyyy-MM-dd", ng-model="newPartition.openSince", is-open="dpOpened", min="'2014-01-01'", max="'2020-01-01'", show-weeks="false", ng-required="true", close-text="关闭", current-text="今天", toggle-weeks-text="显示周数").form-control
+            span.input-group-btn: button(class="btn btn-default", ng-click="openDate($event)"): i(class="glyphicon glyphicon-calendar")
+        .col-md-4: timepicker#timePicker1(ng-model="newPartition.openSince", hour-step="1", minute-step="30", show-meridian="false")
+    .form-group
+        div(class="col-md-offset-2 col-md-10"): label.checkbox
+            input(type="checkbox", ng-model="newPartition.public")
+            | 公开区
+.modal-footer
+    button(class="btn btn-primary", ng-click="ok()") OK
+    button(class="btn btn-warning", ng-click="cancel()") Cancel

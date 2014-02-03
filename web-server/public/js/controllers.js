@@ -220,7 +220,7 @@ sheathControllers.controller('partitionListController', function ($scope, $modal
 
     $scope.openAdd = function () {
         var modalInstance = $modal.open({
-            templateUrl: 'modalAddPartition.html',
+            templateUrl: '/templates/modalAddPartition',
             controller: 'addPartitionController',
             backdrop: "static"
         });
@@ -248,14 +248,15 @@ sheathControllers.controller('partitionListController', function ($scope, $modal
 });
 
 sheathControllers.controller('addPartitionController', function ($scope, $modalInstance) {
-    var openTime = moment(new Date());
-    openTime.seconds(0);
     $scope.newPartition = {
-        openSince: openTime,
+        openSince: new Date(),
+        distro: "All",
         public: true
     };
 
     $scope.ok = function () {
+        $scope.newPartition.openSince = moment($scope.newPartition.openSince);
+        $scope.newPartition.openSince.seconds(0);
         $modalInstance.close($scope.newPartition);
     };
 
