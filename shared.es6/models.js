@@ -129,9 +129,24 @@ exports.init = function (dbConfig) {
     var Log = exports.Log = schema.define("log", {
         severity: String,
         type: String,
-        time: Date,
+        time: {type: Date, index: true},
         server: String,
         msg: Object
+    }, {
+        type_time: {index: true, indexFunction: function (stat) {
+            return [stat("type"), stat("time")];
+        }}
+    });
+
+    var Stat = exports.Stat = schema.define("stat", {
+        cycle: String,
+        type: String,
+        time: {type: Date, index: true},
+        value: Number
+    }, {
+        cycle_type: {index: true, indexFunction: function (stat) {
+            return [stat("cycle"), stat("type")];
+        }}
     });
 
     // relations should be used mostly in web server

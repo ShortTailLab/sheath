@@ -46,7 +46,9 @@ class EntryHandler extends base.HandlerBase {
         .spread((__, partStats, partitions) => {
             session.on('closed', onUserLeave.bind(null, this.app));
 
-            logger.logInfo("user.login", {
+            var logType = "user.login";
+            if (user.isNew) logType = "user.register";
+            logger.logInfo(logType, {
                 "user": user.id
             });
 
@@ -79,6 +81,8 @@ class EntryHandler extends base.HandlerBase {
 
     enterPartition(msg, session, next) {
         var part;
+        var logType = "role.login";
+
         this.safe(models.Partition.findP(msg.partId).bind(this)
         .then((p) => {
             part = p;
@@ -108,6 +112,7 @@ class EntryHandler extends base.HandlerBase {
 
                     isNew: true
                 };
+                logType = "role.register";
 
                 return models.Role.createP(newData).then((role) => {
                     var initialHeroes = JSON.parse(newRoleConf.heroes.value);
@@ -147,15 +152,13 @@ class EntryHandler extends base.HandlerBase {
             next(null, {
                 role: role.toClientObj()
             });
-            logger.logInfo("user.enterPartition", {
+            logger.logInfo(logType, {
                 user: session.uid,
                 role: role.toLogObj(),
                 partition: part.toLogObj()
             });
         }), next);
     }
-
-    // handler calls for initial role setup
 }
 
 var onUserLeave = function (app, session, reason) {
@@ -165,6 +168,11 @@ var onUserLeave = function (app, session, reason) {
         var role = session.get("role");
         if (role) {
             app.rpc.chat.chatRemote.kick(session, session.uid, role.name, app.get('serverId'), partId, null);
+            logger.logInfo("role.logout", {
+                user: session.uid,
+                role: _.pick(role, "id", "name", "level", "title", "coins", "golds"),
+                partition: role.partition
+            });
         }
     }
     logger.logInfo("user.logout", {
