@@ -42,6 +42,10 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
             templateUrl: 'partials/event',
             controller: 'eventController'
         }).
+        when('/stats', {
+            templateUrl: 'partials/stats',
+            controller: 'statsController'
+        }).
         when('/partition', {
             templateUrl: 'partials/partition',
             controller: 'partitionListController'

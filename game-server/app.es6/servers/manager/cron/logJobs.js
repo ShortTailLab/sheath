@@ -48,10 +48,11 @@ exports.dailyActiveUser = function (conn, db, start, end) {
 function retentionOfDays(conn, db, start, end, days) {
     return new Promise(function (resolve) {
         var log = db.table("log");
-        var prevDay = moment(start).subtract(days, "d").toDate();
+        var regStart = moment(start).subtract(days, "d");
+        var regEnd = regStart.add(1, "d");
 
         var loginLogs = log.between(["user.login", start], ["user.login", end], {index: "type_time"}).groupBy({msg: "user"}, r.count);
-        var regLogs = log.between(["user.register", prevDay], ["user.register", start], {index: "type_time"});
+        var regLogs = log.between(["user.register", regStart.toDate()], ["user.register", regEnd.toDate()], {index: "type_time"});
 
         regLogs.innerJoin(loginLogs, function (reg, login) {
             return reg("msg")("user").eq(login("group")("msg")("user"));

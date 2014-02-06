@@ -393,6 +393,21 @@ sheathControllers.controller('storeController', function ($scope, $http) {
 sheathControllers.controller('eventController', function ($scope, $http) {
 });
 
+sheathControllers.controller('statsController', function ($scope, $http) {
+    $scope.retentionChartConfig = {
+        title: {text: "留存"},
+        options: {
+            tooltip: {
+                style: {
+                    padding: 10,
+                    fontWeight: 'bold'
+                }
+            }
+        },
+        loading: true
+    };
+});
+
 sheathControllers.controller('settingsController', function ($scope, $http) {
     $scope.kickAll = function () {
         $http.post("/api/kickAll");
