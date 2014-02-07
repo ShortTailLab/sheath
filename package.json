@@ -20,6 +20,7 @@
         "traceur": "latest",
         "iweibo": "latest",
         "express": "latest",
+        "spdy": "latest",
         "ws": "latest",
         "jade": "latest",
         "socket.io-client": "latest",

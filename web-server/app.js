@@ -4,7 +4,9 @@
 
 var express = require('express'),
     http = require('http'),
+    spdy = require('spdy'),
     ws = require("ws"),
+    fs = require("fs"),
     traceur = require("traceur"),
     path = require('path'),
     Promise = require("bluebird"),
@@ -74,7 +76,7 @@ app.configure('production', function () {
     app.use(express.errorHandler());
 
     Patcher.wrapModel();
-    appModels.connect({
+    appModels.init({
         host: dbConfig.production.host,
         port: dbConfig.production.port,
         database: dbConfig.production.database,
@@ -139,10 +141,15 @@ app.post('/api/getStatInfo', restrictAPI, api.getStatInfo);
 
 app.get('*', restrict, routes.index);
 
+var server = spdy.createServer({
+    key: fs.readFileSync(__dirname + '/keys/server.key'),
+    cert: fs.readFileSync(__dirname + '/keys/server.crt'),
+    ca: fs.readFileSync(__dirname + '/keys/server.csr')
+}, app);
+
 /**
  * websocket connection
  */
-var server = http.createServer(app);
 var wss = new ws.Server({server: server});
 wsLive(wss);
 
@@ -154,6 +161,9 @@ pomeloConn.client.request = Promise.promisify(pomeloConn.client.request);
 pomeloConn.connect();
 
 server.listen(app.get('port'));
+http.createServer(function (req, res) {
+    res.redirect("https://"+ req.headers.host + req.url);
+}).listen(80);
 console.log('Express server listening on port ' + app.get('port'));
 
 // Uncaught exception handler
