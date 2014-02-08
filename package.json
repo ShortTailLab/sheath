@@ -10,7 +10,7 @@
         "moment": "latest",
         "bluebird": "latest",
         "underscore": "latest",
-        "generic-pool": "latest",
+        "async": "latest",
         "bcrypt": "latest",
         "pomelo-logger": "latest",
         "pomelo-data-plugin": "latest",

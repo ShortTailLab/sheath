@@ -3,6 +3,7 @@ var cwd = process.cwd();
 var pomelo = require(cwd + "/app/script/pomelo-client");
 var envConfig = require(cwd + '/app/config/env.json');
 var config = require(cwd + '/app/config/' + envConfig.env + '/config');
+var async = require("async");
 var _ = require("underscore");
 
 var ActFlagType = {
@@ -142,20 +143,32 @@ var timePomeloRequest = function (conf, msg, cb) {
             console.log(conf.name + ' failed!' + (data.error.message || data.error.code));
         }
         else {
-            console.log(data);
+//            console.log(data);
         }
         cb(data);
     });
 };
 
-var connected = false;
+var toKeyedObject = function (list) {
+    var ret = {};
+    for (var i=0;i<list.length;i++) {
+        var item = list[i];
+        ret[item.id] = item;
+    }
+    return ret;
+};
+
 var offset = (typeof actor !== 'undefined') ? actor.id : 1;
 
 if (typeof actor !== 'undefined') {
     console.log(offset + ' ' + actor.id);
 }
 
-function entry(host, port, accType, username, password) {
+var Role = function () {
+};
+
+Role.prototype.entry = function entry(host, port, accType, username, password) {
+    var self = this;
     var entryFunc = function () {
         var request = {
             accType: accType,
@@ -176,130 +189,200 @@ function entry(host, port, accType, username, password) {
         };
 
         timePomeloRequest(ActFlagType.ENTRY, request, function (data) {
-            pomelo.user = data.user;
+            self.user = data.user;
 
             timePomeloRequest(ActFlagType.ENTER_PARTITION, {partId: data.partitions[0].id}, function (data) {
-                timePomeloRequest(ActFlagType.LIST_ITEM_DEF, {}, function (data) {
-                    pomelo.itemDefs = data.defs;
-                    timePomeloRequest(ActFlagType.LIST_HERO_DEF, {}, function (data) {
-                        pomelo.heroDefs = data.defs;
-                        timePomeloRequest(ActFlagType.LIST_HERO, {}, function (data) {
-                            pomelo.heroes = data.heroes;
-                            afterLogin(pomelo, data);
-                        });
-                    });
-                });
+                self.role = data.role;
+                self.afterLogin(pomelo);
             });
         });
     };
 
-    if (!connected) {
-        // 初始化socketClient
-        pomelo.init({host: host, port: port, log: true}, entryFunc);
-    } else {
-        entryFunc();
-    }
-}
+    // 初始化socketClient
+    pomelo.init({host: host, port: port, log: true}, entryFunc);
+};
 
-var afterLogin = function (pomelo, data) {
-    pomelo.role = data.role;
+Role.prototype.afterLogin = function (pomelo) {
+    var self = this;
 
     pomelo.on('onKick', function (data) {
         console.log('You have been kicked offline.');
+    });
+
+    pomelo.on('onChat', function (data) {
+        console.log('Recv chat message.' + JSON.stringify(data));
     });
 
     pomelo.on('disconnect', function (reason) {
         console.log('disconnect invoke!' + reason);
     });
 
-    timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
-        timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
-            upgradeWeapon(pomelo, data);
-        });
-    });
-};
+    timePomeloRequest(ActFlagType.LIST_ITEM_DEF, {}, function (data) {
+        self.itemDefs = data.defs;
+        timePomeloRequest(ActFlagType.LIST_HERO_DEF, {}, function (data) {
+            self.heroDefs = data.defs;
+            timePomeloRequest(ActFlagType.LIST_HERO, {}, function (data) {
+                self.heroes = data.heroes;
+                timePomeloRequest(ActFlagType.LIST_ITEM, {}, function (data) {
+                    self.items = toKeyedObject(data.items);
 
-var upgradeWeapon = function (pomelo, data) {
-    timePomeloRequest(ActFlagType.LIST_ITEM, {}, function (data) {
-        var weaponId = _.findWhere(data.items, {defId: 1001}).id;
-        pomelo.items = toKeyedObject(data.items);
-
-        timePomeloRequest(ActFlagType.UPGRADE_EQUIPMENT, {equipmentId: weaponId}, function (data) {
-            delete pomelo.items[data.destroyed];
-            pomelo.items[data.equipment.id] = data.equipment;
-            compositeEquipment(pomelo);
-        });
-    });
-};
-
-var compositeEquipment = function (pomelo) {
-    timePomeloRequest(ActFlagType.COMPOSITE_EQUIPMENT, {matType: 1011}, function (data) {
-        delete pomelo.items[data.destroyed[0]];
-        delete pomelo.items[data.destroyed[1]];
-        pomelo.items[data.newItem.id] = data.newItem;
-
-        refineWeapon(pomelo);
-    });
-};
-
-var refineWeapon = function (pomelo) {
-    var weaponId = _.findWhere(_.values(pomelo.items), {defId: 1001}).id;
-    timePomeloRequest(ActFlagType.REFINE_EQUIPMENT, {equipmentId: weaponId}, function (data) {
-        timePomeloRequest(ActFlagType.REFINE_EQUIPMENT, {equipmentId: weaponId}, function (data) {
-            refineGem(pomelo);
-        });
-    });
-};
-
-var refineGem = function (pomelo) {
-    timePomeloRequest(ActFlagType.REFINE_GEM, {gemType: 1022, gemLevel: 0}, function (data) {
-        pomelo.items[data.gem.id] = data.gem;
-        var weaponId = _.findWhere(pomelo.items, {defId: 1001}).id;
-        timePomeloRequest(ActFlagType.SET_GEM, {gemId: data.gem.id, equipmentId: weaponId}, function (data) {
-            timePomeloRequest(ActFlagType.REMOVE_GEM, {gemId: data.gem.id}, function (data) {
-                equip(pomelo);
+                    timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
+                        timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
+                            self.randomActions(pomelo);
+                        });
+                    });
+                });
             });
         });
     });
 };
 
-var equip = function (pomelo) {
-    var weaponId = _.findWhere(pomelo.items, {defId: 1001}).id;
-    var heroId = _.findWhere(pomelo.heroes, {defId: 101}).id;
-    timePomeloRequest(ActFlagType.EQUIP, {equipmentId: weaponId, heroId: heroId}, function (data) {
-        // should fail
-        timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: weaponId}, function (data) {
-            timePomeloRequest(ActFlagType.UNEQUIP, {equipmentId: weaponId}, function (data) {
-                destroyEquipment(pomelo);
-            });
-        });
-    });
-};
-
-var destroyEquipment = function (pomelo) {
-    var weaponId = _.findWhere(pomelo.items, {defId: 1001}).id;
-    timePomeloRequest(ActFlagType.DESTRUCT_CHECK, {equipmentId: weaponId}, function (data) {
-        timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: weaponId}, function (data) {
+Role.prototype.randomActions = function (pomelo) {
+    var actions = [
+        this.upgradeWeapon, this.compositeEquipment, this.refineWeapon, this.refineGem, this.equip, this.unEquip,
+        this.setGem
+    ];
+    var count  = 20;
+    var self = this;
+    async.whilst(
+        function () { return count > 0; },
+        function (cb) {
+            var index = _.random(0, actions.length - 1);
+            count--;
+            actions[index].call(self, pomelo, cb);
+        },
+        function (err) {
             process.exit(0);
+        }
+    );
+};
+
+Role.prototype.upgradeWeapon = function (pomelo, cb) {
+    var self = this;
+    var weapon = _.findWhere(_.values(self.items), {defId: 1001});
+    if (weapon) {
+        timePomeloRequest(ActFlagType.UPGRADE_EQUIPMENT, {equipmentId: weapon.id}, function (data) {
+            if (!data.error) {
+                delete self.items[data.destroyed];
+                self.items[data.equipment.id] = data.equipment;
+            }
+            cb();
         });
+    }
+    else {
+        cb();
+    }
+};
+
+Role.prototype.compositeEquipment = function (pomelo, cb) {
+    var self = this;
+    timePomeloRequest(ActFlagType.COMPOSITE_EQUIPMENT, {matType: 1011}, function (data) {
+        if (!data.error) {
+            delete self.items[data.destroyed[0]];
+            delete self.items[data.destroyed[1]];
+            self.items[data.newItem.id] = data.newItem;
+        }
+        cb();
     });
 };
 
-var setTeam = function (pomelo) {
+Role.prototype.refineWeapon = function (pomelo, cb) {
+    var self = this;
+    var weapon = _.findWhere(_.values(self.items), {defId: 1001});
+    if (weapon) {
+        timePomeloRequest(ActFlagType.REFINE_EQUIPMENT, {equipmentId: weapon.id}, function (data) {
+            cb();
+        });
+    }
+    else {
+        cb();
+    }
+};
+
+Role.prototype.refineGem = function (pomelo, cb) {
+    var self = this;
+    timePomeloRequest(ActFlagType.REFINE_GEM, {gemType: 1022, gemLevel: 0}, function (data) {
+        if (!data.error) {
+            self.items[data.gem.id] = data.gem;
+        }
+        cb();
+    });
+};
+
+Role.prototype.setGem = function (pomelo, cb) {
+    var self = this;
+    var weapon = _.findWhere(_.values(self.items), {defId: 1001});
+    var gem = _.findWhere(_.values(self.items), {defId: 1022});
+    if (weapon && gem) {
+        timePomeloRequest(ActFlagType.SET_GEM, {gemId: gem.id, equipmentId: weapon.id}, function (data) {
+            if (!data.error) {
+                timePomeloRequest(ActFlagType.REMOVE_GEM, {gemId: gem.id}, function (data) {
+                    cb();
+                });
+            }
+            else {
+                cb();
+            }
+        });
+    }
+    else {
+        cb();
+    }
+};
+
+Role.prototype.equip = function (pomelo, cb) {
+    var self = this;
+    var weapon = _.findWhere(_.values(self.items), {defId: 1001});
+    var hero = _.findWhere(self.heroes, {defId: 101});
+
+    if (hero && weapon) {
+        timePomeloRequest(ActFlagType.EQUIP, {equipmentId: weapon.id, heroId: hero.id}, function (data) {
+            cb();
+        });
+    }
+    else {
+        cb();
+    }
+};
+
+Role.prototype.unEquip = function (pomelo, cb) {
+    var self = this;
+    var weapon = _.findWhere(_.values(self.items), {defId: 1001});
+
+    if (weapon) {
+        timePomeloRequest(ActFlagType.UNEQUIP, {equipmentId: weapon.id}, function (data) {
+            cb();
+        });
+    }
+    else {
+        cb();
+    }
+};
+
+Role.prototype.destroyEquipment = function (pomelo, cb) {
+    var self = this;
+    var weapon = _.findWhere(self.items, {defId: 1001});
+    if (weapon) {
+        timePomeloRequest(ActFlagType.DESTRUCT_CHECK, {equipmentId: weapon.id}, function (data) {
+            timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: weapon.id}, function (data) {
+                cb();
+            });
+        });
+    }
+    else {
+        cb();
+    }
+};
+
+Role.prototype.setTeam = function (pomelo, cb) {
     timePomeloRequest(ActFlagType.SET_TEAM, {heroes: ["", "", ""]}, function (data) {
         process.exit(0);
     });
 };
 
-var toKeyedObject = function (list) {
-    var ret = {};
-    for (var i=0;i<list.length;i++) {
-        var item = list[i];
-        ret[item.id] = item;
-    }
-    return ret;
-};
-
 setTimeout(function () {
-    entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
+    var role = new Role();
+    var uname = "test" + _.random(100, 999);
+    role.entry("sh-test.shorttaillab.com", 3010, "main", uname, uname);
+//    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
 }, Math.random() * 2000);

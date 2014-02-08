@@ -99,7 +99,6 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
             groupBy: "partitionName",
             getData: function($defer, params) {
                 var partitions = _.pluck(_.filter($scope.partitions, function (p) {return p.selected;}), "id");
-                console.log(partitions);
                 $http.post("/api/userList", {pageSize: params.count(), page: params.page(), hint:$scope.query, partitions: partitions})
                 .success(function (data) {
                     params.total(data.totalRoles);

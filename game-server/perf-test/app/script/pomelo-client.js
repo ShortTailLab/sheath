@@ -64,7 +64,7 @@ var heartbeatTimeoutId = null;
 
 var handshakeCallback = null;
 
-var decod = null;
+var decode = null;
 var encode = null;
 
 var useCrypto;
