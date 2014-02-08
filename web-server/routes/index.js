@@ -36,7 +36,7 @@ exports.login = function (req, res) {
 };
 
 exports.postLogin = function (req, res) {
-    var uname = req.param("name");
+    var uname = req.param("name").toLowerCase();
     var pwd = req.param("password");
 
     var shasum = crypto.createHash("sha1");

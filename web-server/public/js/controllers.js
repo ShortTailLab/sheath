@@ -47,9 +47,10 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
                 $scope.userStats._totalRoles = $scope.userStats.totalRoles;
             }
             $scope.userStats.clients = data.onlineUser.totalConnCount;
-            $scope.userStats.onlineUsers = data.onlineUser.loginedList.chunk(10);
+            $scope.userStats.onlineUsers = data.onlineUser.loginedCount;
             $scope.userStats.totalUsers = data.totalUsers;
             $scope.userStats.totalRoles = data.totalRoles;
+            $scope.userStats.loginList = data.onlineUser.loginedList.chunk(10);
         });
     }
 
@@ -92,7 +93,7 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
 
         $scope.tableParams = new ngTableParams({
             page: 1,
-            count: 50
+            count: 25
         }, {
             counts: [],
             groupBy: "partitionName",

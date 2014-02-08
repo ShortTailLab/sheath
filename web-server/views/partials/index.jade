@@ -10,7 +10,7 @@ include ../mixins/block
         td: span.count(count-to="{{userStats.totalUsers}}", value="{{userStats._totalUsers}}", duration="{{refreshInterval}}")
         td 角色数：
         td: span.count(count-to="{{userStats.totalRoles}}", value="{{userStats._totalRoles}}", duration="{{refreshInterval}}")
-    table.table: tr(ng-repeat="row in userStats.onlineUsers | limitTo:50")
+    table.table: tr(ng-repeat="row in userStats.loginList | limitTo:50")
         td(ng-repeat="user in row"): a(href="/user/detail/{{user.role.id}}", tooltip-html-unsafe="{{getToolTip(user)}}") {{user.role.name}}
 
 +block("充值")

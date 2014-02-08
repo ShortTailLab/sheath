@@ -22,7 +22,7 @@ class EntryHandler extends base.HandlerBase {
         wrapSession(session);
 
         var user;
-        this.app.rpc.auth.authRemote.authenticateAsync(session, msg.accType, msg.username, msg.password).bind(this)
+        this.app.rpc.auth.authRemote.authenticateAsync(session, msg.accType, msg.username.toLowerCase(), msg.password).bind(this)
         .then((u) => {
             user = u;
             if (!user) {

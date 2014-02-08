@@ -31,7 +31,6 @@ class UserHelper {
 
     getUserByAuth(accType, uname, password) {
         var self = this;
-        uname = uname.toLowerCase();
         return models.User.allP({
             where: {
                 auth: [accType, uname]
