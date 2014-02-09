@@ -8,18 +8,7 @@ var _app;
 var logger = {};
 var logModel = null;
 
-logger.log = function (severity, type, msg) {
-    if (logModel === null) {
-        logModel = new models.Log();
-    }
-
-    var entry = {
-        severity: severity,
-        time: new Date(),
-        server: _app.getServerId(),
-        type: type,
-        msg: msg
-    };
+function _log(entry) {
     try {
         var adapter = logModel._adapter();
         adapter.pool.acquire(function(error, client) {
@@ -32,6 +21,20 @@ logger.log = function (severity, type, msg) {
     catch (err) {
         pLogger.warn("error writing log to database." + err);
     }
+}
+
+logger.log = function (severity, type, msg) {
+    if (logModel === null) {
+        logModel = new models.Log();
+    }
+
+    _log({
+        severity: severity,
+        time: new Date(),
+        server: _app.getServerId(),
+        type: type,
+        msg: msg
+    });
 };
 
 logger.logInfo = function (type, msg) {

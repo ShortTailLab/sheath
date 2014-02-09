@@ -1,6 +1,7 @@
 var Constants = require("./constants");
 var models = require("./models");
 var Promise = require("bluebird");
+var r = require("rethinkdb");
 var _ = require("underscore");
 
 
@@ -21,29 +22,50 @@ class HandlerBase {
     }
 
     getItemWithDef(itemId) {
-        return models.Item.findP(itemId).then((equipment) => {
-            if (!equipment) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
-            }
-            return [equipment, models.ItemDef.findP(equipment.itemDefId)];
-        }).bind(this);
+        return new Promise(function (resolve, reject) {
+            var equipment = new models.Item();
+            var adapter = equipment._adapter();
+            adapter.pool.acquire(function(error, client) {
+                r.db(adapter.database).table("item").getAll(itemId).eqJoin("itemDefId", r.db(adapter.database).table("itemdef")).run(client, function(err, data) {
+                    if (err || data.length === 0) {
+                        reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+                    }
+                    else {
+                        var eq = data[0].left;
+                        var def = data[0].right;
+                        var itemDef = new models.ItemDef();
+
+                        eq = models.Item._fromDB(eq);
+                        def = models.ItemDef._fromDB(def);
+
+                        equipment._initProperties(eq, false);
+                        itemDef._initProperties(def, false);
+
+                        resolve([equipment, itemDef]);
+                    }
+                    adapter.pool.release(client);
+                });
+            });
+        });
     }
 
     getItemWithPrefixDef(itemId, prefix) {
-        return this.getItemWithDef(itemId).spread((equipment, itemDef) => {
+        return this.getItemWithDef(itemId).then((results) => {
+            var itemDef = results[1];
             if (!itemDef || !itemDef.type.startsWith(prefix)) {
                 return Promise.reject(Constants.InvalidRequest);
             }
-            return [equipment, itemDef];
+            return results;
         });
     }
 
     getEquipmentWithDef(equipmentId) {
-        return this.getItemWithDef(equipmentId).spread((equipment, itemDef) => {
+        return this.getItemWithDef(equipmentId).then((results) => {
+            var itemDef = results[1];
             if (!itemDef || !(itemDef.type.startsWith("WE_") || itemDef.type.startsWith("AR_"))) {
                 return Promise.reject(Constants.InvalidRequest);
             }
-            return [equipment, itemDef];
+            return results;
         });
     }
 
@@ -58,8 +80,9 @@ class HandlerBase {
             var itemDefs = models.ItemDef.allP({where: {id: {inq: _.map(_.values(itemGroups), function (g) {return g[0].itemDefId;})}}});
             return [itemGroups, itemDefs];
         })
-        .spread((itemGroups, itemDefs) => {
-            itemDefs = _.groupBy(itemDefs, "id");
+        .then((results) => {
+            var itemGroups = results[0];
+            var itemDefs = _.groupBy(results[1], "id");
             var stack = 0;
             for (let itemId of itemGroups) {
                 let stackSize = itemDefs[itemId][0].stackSize;
