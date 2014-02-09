@@ -242,7 +242,7 @@ Role.prototype.randomActions = function (pomelo) {
         this.upgradeWeapon, this.compositeEquipment, this.refineWeapon, this.refineGem, this.equip, this.unEquip,
         this.setGem
     ];
-    var count  = 20;
+    var count  = 50;
     var self = this;
     async.whilst(
         function () { return count > 0; },

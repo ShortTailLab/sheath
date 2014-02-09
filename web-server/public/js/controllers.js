@@ -93,7 +93,7 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
 
         $scope.tableParams = new ngTableParams({
             page: 1,
-            count: 25
+            count: 20
         }, {
             counts: [],
             groupBy: "partitionName",

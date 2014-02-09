@@ -1,3 +1,4 @@
+//var profiler = require("nodetime");
 require("traceur");
 var pomelo = require('pomelo');
 var dataPlugin = require('pomelo-data-plugin');
@@ -15,6 +16,18 @@ app.set('name', 'sheath');
 app.loadConfig("rethinkdb", app.getBase() + "/config/rethinkdb.json");
 app.enable('systemMonitor');
 app.before(pomelo.filters.toobusy(80));
+
+app.set('remoteConfig', {
+    acceptorFactory: {create: function(opts, cb) {
+        return require("pomelo/node_modules/pomelo-rpc").server.TcpAcceptor.create(opts, cb);
+    }}
+});
+
+app.set('proxyConfig', {
+    mailboxFactory: {create: function(opts, cb) {
+        return require("pomelo/node_modules/pomelo-rpc/lib/rpc-client/mailboxes/tcp-mailbox").create(opts, cb);
+    }}
+});
 
 // app configuration
 app.configure("development|production|test", 'connector', function () {
@@ -43,6 +56,13 @@ app.configure("development|production|test", 'auth|connector|game|manager', func
 app.configure('development', function () {
     app.filter(pomelo.filters.time());
 });
+
+//app.configure('development|production|test', "game", function () {
+//    profiler.profile({
+//        accountKey: 'a09978fff59621ddf3fada92a8048789d0ca3ade',
+//        appName: 'Sheath-Game'
+//    });
+//});
 
 app.configure(function () {
     app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));

@@ -15,6 +15,7 @@
         "pomelo-logger": "latest",
         "pomelo-data-plugin": "latest",
         "rethinkdb": "latest",
+        "node-protobuf": "latest",
         "jugglingdb": "latest",
         "jugglingdb-rethink": "colprog/jugglingdb-rethink",
         "traceur": "latest",
