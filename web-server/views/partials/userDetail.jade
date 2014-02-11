@@ -9,36 +9,46 @@ include ../mixins/block
     hr
     form: input.submit(type="submit", value="修改", ng-click="update()")
 
-+block("武将")
-    table.table
-        thead: tr
-            td: b ID
-            td: b 武将名
-            td: b 等级
-            td: b 经验值
-            td: b 创建时间
-        tbody: tr(ng-repeat="h in heroes")
-            td {{h.id}}
-            td {{heroDefs[h.heroDefId].name}}
-            td {{h.level}}
-            td {{h.exp}}
-            td {{h.createTime | amCalendar}}
++block("武将", [["openAddHero()", "添加武将"]])
+    div(class="message errormsg", ng-show="hero_error")
+        p {{hero_error}}
+    table(ng-table="heroTableParams").table
+        tr(ng-repeat="h in $data")
+            td(data-title="'ID'", sortable="'id'") {{h.id}}
+            td(data-title="'武将名'", sortable="'heroDefId'") {{heroDefs[h.heroDefId].name}}
+            td(data-title="'等级'", sortable="'level'")
+                span(ng-if="!h.editable") {{h.level}}
+                div(ng-if="h.editable"): input(type="number", ng-model="h.editable.level", style="width: 45px")
+            td(data-title="'经验值'", sortable="'exp'")
+                span(ng-if="!h.editable") {{h.exp}}
+                div(ng-if="h.editable"): input(type="number", ng-model="h.editable.exp", style="width: 45px")
+            td(data-title="'创建时间'", sortable="'createTime'") {{h.createTime | amCalendar}}
+            td(data-title="'操作'", width=100)
+                a(ng-if="!h.editable", href="", class="btn btn-default btn-xs", ng-click="edit(h)") 编辑
+                a(ng-if="h.editable", href="", class="btn btn-primary btn-xs", ng-click="saveHero(h)") 保存
+                a(href="", class="btn btn-default btn-xs", ng-click="remove(h)") 删除
 
-+block("道具")
-    table.table
-        thead: tr
-            th ID
-            th 道具名
-            th 装备武将
-            th 等级
-            th 精炼等级
-            th 精炼进度
-            th 创建时间
-        tr(ng-repeat="it in items")
-            td {{it.id}}
-            td {{itemDefs[it.itemDefId].name}}
-            td {{boundHeroName(it)}}
-            td {{it.level}}
-            td {{it.refinement}}
-            td {{it.refineProgress}}
-            td {{it.createTime | amCalendar}}
++block("道具", [["openAddItem()", "添加道具"]])
+    div(class="message errormsg", ng-show="item_error")
+        p {{item_error}}
+    table(ng-table="itemTableParams").table
+        tr(ng-repeat="it in $data")
+            td(data-title="'ID'", sortable="'id'"): span(ng-bind="it.id")
+            td(data-title="'道具名'", sortable="'itemDefId'") {{itemDefs[it.itemDefId].name}}
+            td(data-title="'装备武将'", sortable="'bound'")
+                span(ng-if="!it.editable") {{boundHeroName(it)}}
+                div(ng-if="it.editable"): input(type="text", ng-model="it.editable.bound")
+            td(data-title="'等级'", sortable="'level'")
+                span(ng-if="!it.editable") {{it.level}}
+                div(ng-if="it.editable"): input(type="number", ng-model="it.editable.level", style="width: 45px")
+            td(data-title="'精炼等级'", sortable="'refinement'")
+                span(ng-if="!it.editable") {{it.refinement}}
+                div(ng-if="it.editable"): input(type="number", ng-model="it.editable.refinement", style="width: 45px")
+            td(data-title="'精炼进度'", sortable="'refineProgress'")
+                span(ng-if="!it.editable") {{it.refineProgress}}
+                div(ng-if="it.editable"): input(type="number", ng-model="it.editable.refineProgress", style="width: 45px")
+            td(data-title="'创建时间'", sortable="'createTime'") {{it.createTime | amCalendar}}
+            td(data-title="'操作'", width=100)
+                a(ng-if="!it.editable", href="", class="btn btn-default btn-xs", ng-click="edit(it)") 编辑
+                a(ng-if="it.editable", href="", class="btn btn-primary btn-xs", ng-click="saveItem(it)") 保存
+                a(href="", class="btn btn-default btn-xs", ng-click="remove(it)") 删除

@@ -214,6 +214,154 @@ exports.updateRole = function (req, res) {
     });
 };
 
+exports.updateHero = function (req, res) {
+    if (!req.session.user.manRole.editUser)
+        return res.send(400, {message: "没有修改用户数据的权限"});
+
+    var diff = req.body;
+
+    appModels.Hero.findP(diff.id).then(function (h) {
+        if (!h) {
+            return Promise.reject();
+        }
+        delete diff.id;
+        return h.updateAttributesP(diff);
+    })
+    .then(function (h) {
+        res.json(heroToJson(h));
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.updateItem = function (req, res) {
+    if (!req.session.user.manRole.editUser)
+        return res.send(400, {message: "没有修改用户数据的权限"});
+
+    var diff = req.body;
+
+    appModels.Item.findP(diff.id).then(function (it) {
+        if (!it) {
+            return Promise.reject();
+        }
+        delete diff.id;
+        return it.updateAttributesP(diff);
+    })
+    .then(function (it) {
+        res.json(itemToJson(it));
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.addHero = function (req, res) {
+    if (!req.session.user.manRole.editUser)
+        return res.send(400, {message: "没有修改用户数据的权限"});
+
+    var newHeroes = req.body.heroes;
+    var roleId = req.body.role;
+
+    appModels.Role.existsP(roleId)
+    .then(function (exists) {
+        if (exists) {
+            var heroes = _.map(newHeroes, function (heroId) {
+                return {
+                    heroDefId: heroId,
+                    owner: roleId
+                };
+            });
+            return appModels.Hero.createP(heroes);
+        }
+        else {
+            return Promise.reject();
+        }
+    })
+    .then(function (heroes) {
+        res.json({
+            heroes: _.map(heroes, function (h) {return heroToJson(h);})
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.addItem = function (req, res) {
+    if (!req.session.user.manRole.editUser)
+        return res.send(400, {message: "没有修改用户数据的权限"});
+
+    var newItems = req.body.items;
+    var roleId = req.body.role;
+
+    appModels.Role.existsP(roleId)
+        .then(function (exists) {
+            if (exists) {
+                var items = _.map(newItems, function (itemId) {
+                    return {
+                        itemDefId: itemId,
+                        owner: roleId
+                    };
+                });
+                return appModels.Item.createP(items);
+            }
+            else {
+                return Promise.reject();
+            }
+        })
+        .then(function (items) {
+            res.json({
+                items: _.map(items, function (h) {return itemToJson(h);})
+            });
+        })
+        .catch(function (err) {
+            res.send(400);
+        });
+};
+
+exports.removeHero = function (req, res) {
+    if (!req.session.user.manRole.editUser)
+        return res.send(400, {message: "没有修改用户数据的权限"});
+
+    var hid = req.body.hero;
+    appModels.Hero.findP(hid)
+    .then(function (hero) {
+        if (hero) {
+            var unbound = appModels.Item.updateP({where: {bound: hid}, update: {bound: null}});
+            return [hero.destroyP(), unbound];
+        }
+        return null;
+    })
+    .spread(function () {
+        res.send(200);
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.removeItem = function (req, res) {
+    if (!req.session.user.manRole.editUser)
+        return res.send(400, {message: "没有修改用户数据的权限"});
+
+    var itemId = req.body.item;
+    appModels.Item.findP(itemId)
+    .then(function (item) {
+        if (item) {
+            var unbound = appModels.Item.updateP({where: {bound: itemId}, update: {bound: null}});
+            return [item.destroyP(), unbound];
+        }
+        return null;
+    })
+    .spread(function () {
+        res.send(200);
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
 exports.findRoles = function (req, res) {
     var hint = req.body.hint;
     var queries = [];

@@ -18,6 +18,17 @@ Array.prototype.toMap = function(key) {
     return ret;
 };
 
+function diffModel(m1, m2, fields) {
+    var diff = {id: m1.id};
+    for (var i=0;i<fields.length;i++) {
+        var field = fields[i];
+        if (m1[field] !== m2[field]) {
+            diff[field] = m2[field];
+        }
+    }
+    return diff;
+}
+
 sheathControllers.controller('basicStatsController', function ($scope, $http, $window) {
     var refreshInterval = 8000;
     $scope.refreshInterval = refreshInterval;
@@ -127,15 +138,7 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
     $scope.save = function (role) {
         var editable = role.editable;
         delete role.editable;
-
-        var diff = {id: role.id};
-        var fields = ["level", "energy", "golds", "coins", "contribs"];
-        for (var i=0;i<fields.length;i++) {
-            var field = fields[i];
-            if (role[field] !== editable[field]) {
-                diff[field] = editable[field];
-            }
-        }
+        var diff = diffModel(role, editable, ["level", "energy", "golds", "coins", "contribs"]);
 
         if (_.size(diff) > 1) {
             $http.post("/api/updateRole", diff).success(function (data) {
@@ -148,7 +151,7 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
     };
 });
 
-sheathControllers.controller('userDetailController', function ($scope, $http, $routeParams, $timeout, $q) {
+sheathControllers.controller('userDetailController', function ($scope, $http, $routeParams, $timeout, $q, $modal, $filter, ngTableParams) {
     $scope.uid = $routeParams.uid;
     $scope.editorParams = {
         useWrapMode : false,
@@ -156,6 +159,104 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
         theme:'xcode',
         mode: 'json'
     };
+    $scope.heroTableParams = new ngTableParams({
+        page: 1,
+        count: 20,
+        sorting: {id: "asc"}
+    }, {
+        counts: [],
+        getData: function ($defer, params) {
+            if ($scope.heroes) {
+                var orderedData = params.sorting() ?
+                    $filter('orderBy')($scope.heroes, params.orderBy()) :
+                    $scope.heroes;
+                $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+            }
+            else {
+                $defer.resolve([]);
+            }
+        }
+    });
+    $scope.itemTableParams = new ngTableParams({
+        page: 1,
+        count: 20,
+        sorting: {id: "asc"}
+    }, {
+        counts: [],
+        getData: function ($defer, params) {
+            if ($scope.items) {
+                var orderedData = params.sorting() ?
+                    $filter('orderBy')($scope.items, params.orderBy()) :
+                    $scope.items;
+                $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+            }
+            else {
+                $defer.resolve([]);
+            }
+        }
+    });
+    $scope.edit = function (item) {
+        item.editable = angular.copy(item);
+    };
+    $scope.saveItem = function (item) {
+        var editable = item.editable;
+        delete item.editable;
+        var diff = diffModel(item, editable, ["bound", "level", "refinement", "refineProgress"]);
+        if (_.has(diff, "bound") && !diff.bound) {
+            diff.bound = null;
+        }
+        if (_.size(diff) > 1) {
+            $http.post("/api/updateItem", diff).success(function (data) {
+                _.extend(item, data);
+            })
+            .error(function (err) {
+                $scope.error = "更新用户数据失败: " + (err.message || "未知错误");
+            });
+        }
+    };
+    $scope.saveHero = function (hero) {
+        var editable = hero.editable;
+        delete hero.editable;
+        var diff = diffModel(hero, editable, ["level", "exp"]);
+        if (_.size(diff) > 1) {
+            $http.post("/api/updateHero", diff).success(function (data) {
+                _.extend(hero, data);
+            })
+            .error(function (err) {
+                $scope.error = "更新用户数据失败: " + (err.message || "未知错误");
+            });
+        }
+    };
+    $scope.remove = function (item) {
+        var req;
+        if (item.itemDefId) {
+            req = $http.post("/api/removeItem", {item: item.id}).error(function (data) {
+                $scope.item_error = "删除道具失败，" + (data.message || "未知错误");
+            });
+        }
+        else {
+            req = $http.post("/api/removeHero", {hero: item.id}).error(function (data) {
+                $scope.hero_error = "删除武将失败，" + (data.message || "未知错误");
+            });
+        }
+        req.success(function (data) {
+            var index = $scope.heroes.indexOf(item);
+            if (index !== -1) {
+                $scope.heroes.splice(index, 1);
+                $scope.heroTableParams.total($scope.heroes.length);
+                $scope.heroTableParams.reload();
+                $scope.hero_error = null;
+            }
+            else {
+                index = $scope.items.indexOf(item);
+                $scope.items.splice(index, 1);
+                $scope.itemTableParams.total($scope.heroes.length);
+                $scope.itemTableParams.reload();
+                $scope.item_error = null;
+            }
+        });
+    };
+
     $scope.update = function () {
         var modified = angular.fromJson($scope.roleJson);
         var oldDataFields = _.keys($scope.roleData);
@@ -184,8 +285,56 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
             if (hero) {
                 return $scope.heroDefs[hero.heroDefId].name;
             }
+            else {
+                var it = _.findWhere($scope.items, {id: item.bound});
+                if (it) {
+                    return "道具: " + $scope.itemDefs[it.itemDefId].name;
+                }
+            }
         }
         return "无";
+    };
+    $scope.openAddHero = function () {
+        var modalIns = $modal.open({
+            templateUrl: '/templates/modalAddHero',
+            controller: 'addHeroController',
+            backdrop: "static",
+            resolve: {
+                heroDefs: function () {return $scope.heroDefs;}
+            }
+        });
+        modalIns.result.then(function (newHeroes) {
+            $http.post("/api/addHero", {role: $scope.uid, heroes: newHeroes}).success(function (data) {
+                $scope.heroes = $scope.heroes.concat(data.heroes);
+                $scope.heroTableParams.total($scope.heroes.length);
+                $scope.heroTableParams.reload();
+                $scope.hero_error = null;
+            })
+            .error(function (data) {
+                $scope.hero_error = "添加武将失败，" + (data.message || "未知错误");
+            });
+        });
+    };
+    $scope.openAddItem = function () {
+        var modalIns = $modal.open({
+            templateUrl: '/templates/modalAddItem',
+            controller: 'addItemController',
+            backdrop: "static",
+            resolve: {
+                itemDefs: function () {return $scope.itemDefs;}
+            }
+        });
+        modalIns.result.then(function (newItems) {
+            $http.post("/api/addItem", {role: $scope.uid, items: newItems}).success(function (data) {
+                $scope.items = $scope.items.concat(data.items);
+                $scope.itemTableParams.total($scope.items.length);
+                $scope.itemTableParams.reload();
+                $scope.item_error = null;
+            })
+            .error(function (data) {
+                $scope.item_error = "添加道具失败，" + (data.message || "未知错误");
+            });
+        });
     };
 
     $q.all([$http.post("/api/getRole", {uid: $scope.uid}), $http.get("/api/itemDefs"), $http.get("/api/heroDefs")])
@@ -198,11 +347,59 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
         $scope.roleJson = angular.toJson(roleData.role, true);
         $scope.heroes = roleData.heroes;
         $scope.items = roleData.items;
+        $scope.itemTableParams.total($scope.items.length);
+        $scope.heroTableParams.total($scope.heroes.length);
+        $scope.itemTableParams.reload();
+        $scope.heroTableParams.reload();
     })
     .catch(function (data) {
         data = data.data || data;
         $scope.error = "查看用户失败，" + (data.message || "未知错误");
     });
+});
+
+sheathControllers.controller('addHeroController', function ($scope, $modalInstance, heroDefs) {
+    var format = function (item) {return item.name;};
+
+    $scope.selectOptions = {
+        width: "100%",
+        multiple: true,
+        tokenSeparators: [",", " "],
+        data: {results: _.values(heroDefs), text: "name"},
+        formatSelection: format,
+        formatResult: format,
+        allowDuplicates: true
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close(_.pluck($scope.newHeroes, "id"));
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});
+
+sheathControllers.controller('addItemController', function ($scope, $modalInstance, itemDefs) {
+    var format = function (item) {return item.name;};
+
+    $scope.selectOptions = {
+        width: "100%",
+        multiple: true,
+        tokenSeparators: [",", " "],
+        data: {results: _.values(itemDefs), text: "name"},
+        formatSelection: format,
+        formatResult: format,
+        allowDuplicates: true
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close(_.pluck($scope.newItems, "id"));
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 });
 
 sheathControllers.controller('rewardController', function ($scope, $http) {

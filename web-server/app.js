@@ -118,6 +118,8 @@ app.post('/api/removePartition', restrictAPI, api.removePartition);
 
 app.post('/api/userList', restrictAPI, api.userList);
 app.post('/api/updateRole', restrictAPI, api.updateRole);
+app.post('/api/updateItem', restrictAPI, api.updateItem);
+app.post('/api/updateHero', restrictAPI, api.updateHero);
 
 app.post('/api/adminList', restrictAPI, api.adminList);
 app.post('/api/modifyAdmin', restrictAPI, api.modifyAdmin);
@@ -132,6 +134,10 @@ app.get('/api/heroDefs', restrictAPI, api.heroDefs);
 app.post('/api/findUsers', restrictAPI, api.findUsers);
 app.post('/api/findRoles', restrictAPI, api.findRoles);
 app.post('/api/getRole', restrictAPI, api.getRole);
+app.post('/api/addHero', restrictAPI, api.addHero);
+app.post('/api/addItem', restrictAPI, api.addItem);
+app.post('/api/removeHero', restrictAPI, api.removeHero);
+app.post('/api/removeItem', restrictAPI, api.removeItem);
 
 app.post('/api/kickAll', restrictAPI, api.kickAll);
 app.post('/api/broadcast', restrictAPI, api.broadcast);

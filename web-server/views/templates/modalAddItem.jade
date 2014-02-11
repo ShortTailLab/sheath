@@ -1,0 +1,7 @@
+.modal-header: h3 添加道具
+.modal-body: form.form-horizontal(role="form")
+    .form-group
+        input(type="hidden", ui-select2="selectOptions", ng-model="$parent.newItems", data-placeholder="输入添加道具类型")
+.modal-footer
+    button(class="btn btn-primary", ng-click="ok()") OK
+    button(class="btn btn-warning", ng-click="cancel()") Cancel
