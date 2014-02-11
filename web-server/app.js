@@ -57,8 +57,9 @@ app.configure('development', function () {
 });
 
 app.configure('test', function () {
+    var oneYear = 31557600000;
     app.use(express.logger('dev'));
-    app.use(express.static(pub));
+    app.use(express.static(pub, {maxAge: oneYear}));
     app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 
     Patcher.wrapModel();
