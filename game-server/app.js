@@ -41,7 +41,7 @@ app.configure("development|production|test", 'connector', function () {
         });
 });
 
-app.configure("development|production|test", 'auth|connector|game|manager', function () {
+app.configure("development|production|test", 'auth|connector|game|manager|mail', function () {
     Patcher.wrapModel();
 
     var rethinkConfig = app.get("rethinkdb");
@@ -69,7 +69,6 @@ app.configure(function () {
     app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
     app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
     app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
-    app.route('main', mailRoute);
 
     app.use(dataPlugin, {
         watcher: {
@@ -88,19 +87,6 @@ function patchRPC(app) {
             patchRPC(app);
     });
 }
-
-var mailRoute = function (session, msg, app, cb) {
-    var chatServers = app.getServersByType('chat');
-
-    if(!chatServers || chatServers.length === 0) {
-        cb(new Error('can not find chat servers.'));
-        return;
-    }
-
-    var res = dispatcher.dispatch(session.uid, chatServers);
-
-    cb(null, res.id);
-};
 
 app.event.on(pomelo.events.ADD_SERVERS, function () {
     if (["connector", "auth", "game"].indexOf(app.settings.serverType) !== -1) {

@@ -1,23 +1,24 @@
 var Constants = require("../../../../../shared/constants");
 var models = require("../../../../../shared/models");
+var base = require("../../../../../shared/base");
 
 module.exports = function (app) {
     return new MailRemote(app);
 };
 
-class MailRemote {
+class MailRemote extends base.HandlerBase {
     constructor(app) {
         this.app = app;
     }
 
     sendTreasureMail(sender, target, content, cb) {
-        var mail = new models.Mail({
+        this.safe(models.Mail.createP({
             sender: sender,
             target: target,
             text: content
-        });
-        this.safe(mail.saveP().then(function (m) {
-            cb(null, mail.id);
+        })
+        .then(function (m) {
+            cb(null, m.id);
         }), cb);
     }
 }

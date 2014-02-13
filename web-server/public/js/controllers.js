@@ -611,10 +611,14 @@ sheathControllers.controller('settingsController', function ($scope, $http) {
     };
 
     $scope.broadcast = function () {
-        $http.post("/api/broadcast");
+        $http.post("/api/broadcast", {content: $scope.bdConent});
     };
 
     $scope.chat = function () {
-        $http.post("/api/chat");
+        $http.post("/api/chat", {content: $scope.chatContent});
+    };
+
+    $scope.sendMail = function () {
+        $http.post("/api/sendMail", {role: $scope.mailRoleId, content: $scope.mailContent});
     };
 });

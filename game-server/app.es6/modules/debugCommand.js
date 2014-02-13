@@ -23,9 +23,12 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
             break;
         case "broadcast":
             var cs = this.app.get("channelService");
-            cs.broadcast("connector", "onBroadcast", {});
+            cs.broadcast("connector", "onBroadcast", {message: msg.msg.content});
             break;
         case "chat":
+            break;
+        case "mail":
+            this.app.rpc.mail.mailRemote.sendTreasureMail.toServer(this.app.getServerId(), null, msg.msg.target, msg.msg.content, function (err, result) {});
             break;
     }
 };
@@ -43,6 +46,9 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
             break;
         case "chat":
             chat(this.app, agent, msg, cb);
+            break;
+        case 'mail':
+            mail(this.app, agent, msg, cb);
             break;
     }
 };
@@ -63,7 +69,7 @@ function broadcast(app, agent, msg, cb) {
     for (let server of servers) {
         agent.request(server.id, module.exports.moduleId, {
             command: "broadcast",
-            msg: msg.message || "Test msg."
+            msg: msg.content || "Test msg."
         });
     }
 
@@ -74,7 +80,17 @@ function chat(app, agent, msg, cb) {
     var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "connector"; });
 
     for (let server of servers) {
-        agent.request(server.id, module.exports.moduleId, {command: "chat", msg: msg.message || "Test msg."});
+        agent.request(server.id, module.exports.moduleId, {command: "chat", msg: msg.content || "Test msg."});
+    }
+
+    cb();
+}
+
+function mail(app, agent, msg, cb) {
+    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "mail"; });
+
+    if (servers.length) {
+        agent.request(servers[0].id, module.exports.moduleId, {command: "mail", msg: msg});
     }
 
     cb();

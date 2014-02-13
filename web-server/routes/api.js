@@ -730,14 +730,21 @@ exports.kickAll = function (req, res) {
 exports.broadcast = function (req, res) {
     if (!req.session.user.manRole.debug)
         return res.send(400, {message: "没有执行调试命令的权限"});
-    pomeloConn.client.request("debugCommand", {command: "broadcast", msg: "测试消息."});
+    pomeloConn.client.request("debugCommand", {command: "broadcast", msg: req.body.content || "测试消息."});
     res.send(200);
 };
 
 exports.chat = function (req, res) {
     if (!req.session.user.manRole.debug)
         return res.send(400, {message: "没有执行调试命令的权限"});
-    pomeloConn.client.request("debugCommand", {command: "chat"});
+    pomeloConn.client.request("debugCommand", {command: "chat", content: req.body.content});
+    res.send(200);
+};
+
+exports.sendMail = function (req, res) {
+    if (!req.session.user.manRole.debug)
+        return res.send(400, {message: "没有执行调试命令的权限"});
+    pomeloConn.client.request("debugCommand", {command: "mail", target: req.body.role, content: req.body.content});
     res.send(200);
 };
 
