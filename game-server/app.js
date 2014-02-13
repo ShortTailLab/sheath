@@ -7,7 +7,6 @@ var logger = require('pomelo-logger').getLogger('sheath', __filename);
 var Constants = require("../shared/constants");
 var authFilter = require("./app/filters/authFilter");
 var Patcher = require("./app/utils/monkeyPatch");
-var dispatcher = require("./app/utils/dispatcher");
 
 /**
  * Init app for client.

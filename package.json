@@ -7,7 +7,6 @@
     "dependencies": {
         "commander": "latest",
         "csv": "latest",
-        "crc": "latest",
         "moment": "latest",
         "bluebird": "latest",
         "underscore": "latest",

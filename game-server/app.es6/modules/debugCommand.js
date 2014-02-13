@@ -22,11 +22,22 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
             });
             break;
         case "broadcast":
-            var cs = this.app.get("channelService");
-            cs.broadcast("connector", "onBroadcast", {message: msg.msg.content});
+            this.app.get("channelService").broadcast("connector", "onBroadcast", {message: msg.msg.content});
             break;
         case "chat":
+        {
+            let param = {
+                msg: msg.content,
+                from: {
+                    id: "",
+                    name: "后台测试"
+                },
+                target: msg.target,
+                targetName: msg.targetName
+            };
+            this.app.get("channelService").broadcast("connector", "onChat", param);
             break;
+        }
         case "mail":
             this.app.rpc.mail.mailRemote.sendTreasureMail.toServer(this.app.getServerId(), null, msg.msg.target, msg.msg.content, function (err, result) {});
             break;

@@ -1,6 +1,5 @@
-var crc = require("crc");
+var _ = require("underscore");
 
 module.exports.dispatch = function(key, list) {
-    var index = Math.abs(crc.crc32(key)) % list.length;
-    return list[index];
+    return _.sample(list, 1);
 };

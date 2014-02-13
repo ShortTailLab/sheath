@@ -155,6 +155,13 @@ var server = spdy.createServer({
     ca: fs.readFileSync(__dirname + '/keys/server.csr')
 }, app);
 
+http.createServer(function (req, res) {
+    res.writeHead(302, {Location: "https://"+ req.headers.host + req.url});
+    res.end();
+}).listen(80);
+
+//var server = http.createServer(app);
+
 /**
  * websocket connection
  */
@@ -169,10 +176,6 @@ pomeloConn.client.request = Promise.promisify(pomeloConn.client.request);
 pomeloConn.connect();
 
 server.listen(app.get('port'));
-http.createServer(function (req, res) {
-    res.writeHead(302, {Location: "https://"+ req.headers.host + req.url});
-    res.end();
-}).listen(80);
 console.log('Express server listening on port ' + app.get('port'));
 
 // Uncaught exception handler
