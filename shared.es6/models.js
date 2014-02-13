@@ -126,6 +126,18 @@ exports.init = function (dbConfig) {
         public: {type: Boolean, default: true}
     });
 
+    var Treasure = exports.Treasure = schema.define("treasure", {
+    });
+
+    var Mail = exports.Mail = schema.define("mail", {
+        sender: {type: String, index: true},
+        target: {type: String, index: true},
+        text: {type: String, default: ""},
+        time: {type: Date, index: true, default: function () { return new Date(); }},
+        read: {type: Boolean, default: false},
+        treasure: Number
+    });
+
     var Log = exports.Log = schema.define("log", {
         severity: String,
         type: String,
@@ -237,6 +249,12 @@ exports.init = function (dbConfig) {
 
     Hero.prototype.toLogObj = function () {
         return _.pick(this, "id", "heroDefId", "level", "exp");
+    };
+
+    Mail.prototype.toClientObj = function () {
+        var ret = this.toObject(true);
+        ret.time = +ret.time;
+        return ret;
     };
 
     return schema;

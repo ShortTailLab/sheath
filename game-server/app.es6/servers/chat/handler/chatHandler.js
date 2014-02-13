@@ -16,8 +16,8 @@ class ChatHandler {
      *
      */
     send(msg, session, next) {
-        var parId = session.get('parId');
-        var username = session.get("user").name;
+        var parId = session.get('partId');
+        var username = session.get("role").name;
         var channelService = this.app.get('channelService');
         var param = {
             msg: msg.content,

@@ -7,6 +7,7 @@ var logger = require('pomelo-logger').getLogger('sheath', __filename);
 var Constants = require("../shared/constants");
 var authFilter = require("./app/filters/authFilter");
 var Patcher = require("./app/utils/monkeyPatch");
+var dispatcher = require("./app/utils/dispatcher");
 
 /**
  * Init app for client.
@@ -17,17 +18,17 @@ app.loadConfig("rethinkdb", app.getBase() + "/config/rethinkdb.json");
 app.enable('systemMonitor');
 app.before(pomelo.filters.toobusy(80));
 
-app.set('remoteConfig', {
-    acceptorFactory: {create: function(opts, cb) {
-        return require("pomelo/node_modules/pomelo-rpc").server.TcpAcceptor.create(opts, cb);
-    }}
-});
-
-app.set('proxyConfig', {
-    mailboxFactory: {create: function(opts, cb) {
-        return require("pomelo/node_modules/pomelo-rpc/lib/rpc-client/mailboxes/tcp-mailbox").create(opts, cb);
-    }}
-});
+//app.set('remoteConfig', {
+//    acceptorFactory: {create: function(opts, cb) {
+//        return require("pomelo/node_modules/pomelo-rpc").server.TcpAcceptor.create(opts, cb);
+//    }}
+//});
+//
+//app.set('proxyConfig', {
+//    mailboxFactory: {create: function(opts, cb) {
+//        return require("pomelo/node_modules/pomelo-rpc/lib/rpc-client/mailboxes/tcp-mailbox").create(opts, cb);
+//    }}
+//});
 
 // app configuration
 app.configure("development|production|test", 'connector', function () {
@@ -68,6 +69,7 @@ app.configure(function () {
     app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
     app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
     app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
+    app.route('main', mailRoute);
 
     app.use(dataPlugin, {
         watcher: {
@@ -79,13 +81,26 @@ app.configure(function () {
 });
 
 function patchRPC(app) {
-    process.nextTick(function () {
+    setImmediate(function () {
         if (app.rpc)
             Patcher.patchRPC(app);
         else
             patchRPC(app);
     });
 }
+
+var mailRoute = function (session, msg, app, cb) {
+    var chatServers = app.getServersByType('chat');
+
+    if(!chatServers || chatServers.length === 0) {
+        cb(new Error('can not find chat servers.'));
+        return;
+    }
+
+    var res = dispatcher.dispatch(session.uid, chatServers);
+
+    cb(null, res.id);
+};
 
 app.event.on(pomelo.events.ADD_SERVERS, function () {
     if (["connector", "auth", "game"].indexOf(app.settings.serverType) !== -1) {
