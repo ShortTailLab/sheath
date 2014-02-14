@@ -2,6 +2,7 @@
 require("traceur");
 var pomelo = require('pomelo');
 var dataPlugin = require('pomelo-data-plugin');
+var statusPlugin = require('pomelo-status-plugin');
 var appModels = require("../shared/models");
 var logger = require('pomelo-logger').getLogger('sheath', __filename);
 var Constants = require("../shared/constants");
@@ -14,6 +15,7 @@ var Patcher = require("./app/utils/monkeyPatch");
 var app = pomelo.createApp();
 app.set('name', 'sheath');
 app.loadConfig("rethinkdb", app.getBase() + "/config/rethinkdb.json");
+app.loadConfig("redis", app.getBase() + "/config/redis.json");
 app.enable('systemMonitor');
 app.before(pomelo.filters.toobusy(80));
 
@@ -74,6 +76,18 @@ app.configure(function () {
             dir: __dirname + "/config/data",
             idx: "id",
             interval: 5000
+        }
+    });
+
+    var redisConfig = app.get("redis");
+    app.use(statusPlugin, {
+        status: {
+            host: redisConfig.host,
+            port: redisConfig.port,
+            prefix: "SHEATH:STATUS:" + app.settings.env,
+            cleanOnStartUp: true,
+
+            parser: "hiredis"
         }
     });
 });

@@ -8,6 +8,8 @@ module.exports = {
     LEVEL_TOO_LOW: 106,
     NO_COINS: 107,
     NO_GOLDS: 108,
+    Role_Do_Not_Exist: 109,
+    Mail_Do_Not_Exist: 110,
 
 
     LoginFailed: {

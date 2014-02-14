@@ -14,6 +14,8 @@
         "bcrypt": "latest",
         "pomelo-logger": "latest",
         "pomelo-data-plugin": "latest",
+        "pomelo-status-plugin": "latest",
+        "hiredis": "latest",
         "rethinkdb": "latest",
         "node-protobuf": "latest",
         "jugglingdb": "latest",

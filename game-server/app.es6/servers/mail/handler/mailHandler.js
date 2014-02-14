@@ -44,15 +44,34 @@ class MailHandler extends base.HandlerBase {
 
         var mailId = msg.mailId;
         if (!mailId) {
-            return this.errorNext(Constants.InvalidRequest, next);
+            return this.errorNext(Constants.Mail_Do_Not_Exist, next);
         }
 
         this.safe(models.Mail.findP(mailId)
         .then(function (mail) {
+            if (!mail || mail.target !== session.get("role").id) {
+                return Promise.reject(Constants.Mail_Do_Not_Exist);
+            }
             return mail.updateAttributeP("read", true);
         })
         .then(function (m) {
             next(null, {ok: true});
         }), next);
+    }
+
+    claimMailTreasure(msg, session, next) {
+        wrapSession(session);
+
+        var mailId = msg.mailId;
+        if (!mailId) {
+            return this.errorNext(Constants.Mail_Do_Not_Exist, next);
+        }
+
+        this.safe(models.Mail.findP(mailId).bind(this)
+        .then(function (mail) {
+            if (!mail || mail.target !== session.get("role").id) {
+                return Promise.reject(Constants.Mail_Do_Not_Exist);
+            }
+        }));
     }
 }

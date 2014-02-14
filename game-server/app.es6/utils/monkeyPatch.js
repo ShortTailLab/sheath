@@ -15,6 +15,10 @@ module.exports.patchRPC = function (app) {
         Promise.promisifyAll(app.rpc.mail.mailRemote);
     if (app.get('sessionService'))
         Patcher.wrapModule(app.get('sessionService'), ["kick", "kickBySessionId"]);
+    if (app.get('channelService'))
+        Patcher.wrapModule(app.get('channelService'), ["pushMessageByUids"]);
+    if (app.get('statusService'))
+        Patcher.wrapModule(app.get('statusService'), ["getSidsByUid", "pushByUids"]);
 };
 
 module.exports.wrapModule = function (m, functions, suffix="") {

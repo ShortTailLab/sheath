@@ -135,6 +135,7 @@ exports.init = function (dbConfig) {
         text: {type: String, default: ""},
         time: {type: Date, index: true, default: function () { return new Date(); }},
         read: {type: Boolean, default: false},
+        claimed: {type: Boolean, default: false},
         treasure: Number
     });
 
