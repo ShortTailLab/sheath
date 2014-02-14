@@ -14,9 +14,13 @@ include ../mixins/block
             pre: form(method="post", action="/api/export")
                 input(type="submit", value="关卡数据").submit
                 input(type="hidden", name="tag", value="stage")
+        .col-md-2
+            pre: form(method="post", action="/api/export")
+                input(type="submit", value="奖励数据").submit
+                input(type="hidden", name="tag", value="treasure")
 
 +block("所有武将")
-    div(class="message errormsg", ng-show="error")
+    div(class="message errormsg", ng-show="hero_error")
         p {{hero_error}}
     table(cellpadding="0", cellspacing="0", width="100%")
         thead: tr
@@ -35,7 +39,7 @@ include ../mixins/block
             td {{h.canEquip}}
 
 +block("所有道具")
-    div(class="message errormsg", ng-show="error")
+    div(class="message errormsg", ng-show="item_error")
         p {{item_error}}
     table(cellpadding="0", cellspacing="0", width="100%")
         thead: tr
@@ -56,3 +60,20 @@ include ../mixins/block
             td {{item.quality}}
             td {{item.stackSize}}
             td {{item.destructCoeff}}
+
++block("所有奖励")
+    div(class="message errormsg", ng-show="trea_error")
+        p {{trea_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th ID
+            th 类型
+            th 数量
+            th 选择
+            th 权重
+        tbody: tr(ng-repeat="tr in treasures | orderBy:'id'")
+            td {{tr.id}}
+            td {{tr.type}}
+            td {{tr.count}}
+            td {{tr.candidates}}
+            td {{tr.weights}}

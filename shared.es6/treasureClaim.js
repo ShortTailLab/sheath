@@ -40,56 +40,59 @@ class TreasureHelper {
     }
 
     makeClaimPromise(role, treasure) {
-        var it = this.sampleWithWeight(treasure.candidates, treasure.weights);
-        var promise, gain;
-        switch (treasure.type) {
-            case "Gold":
-                role.golds += treasure.count;
-                promise = role;
-                gain = {coins: treasure.count};
-                break;
-            case "Coin":
-                role.coins += treasure.count;
-                promise = role;
-                gain = {coins: treasure.count};
-                break;
-            case "Contrib":
-                role.contribs += treasure.count;
-                promise = role;
-                gain = {contribs: treasure.count};
-                break;
-            case "Hero":
-                var hData = _(treasure.count).times(function () { return {owner: role.id, heroDefId: it}; });
-                promise = models.Hero.createP(hData);
-                gain = {heroes: 1};
-                break;
-            case "Equipment":
-                var itemData = _(treasure.count).times(function () { return {owner: role.id, itemDefId: it}; });
-                promise = models.Item.createP(itemData);
-                gain = {items: 1};
-                break;
-            case "Piece":
-                break;
-        }
-        if (promise) {
-            return promise.then(function (entry) {
-                if (gain.items) {
-                    gain.items = _.invoke(entry, "toClientObj");
-                }
-                else if (gain.heroes) {
-                    gain.heroes = _.invoke(entry, "toClientObj");
-                }
-                return gain;
-            });
-        }
-        else {
-            return {};
-        }
+        var gain = {};
+        return models.Treasure.findP(treasure).bind(this)
+        .then(function (treasure) {
+            if (!treasure) {
+                return {};
+            }
+            var it = this.sampleWithWeight(treasure.candidates, treasure.weights);
+            var promise = {};
+            switch (treasure.type) {
+                case "Gold":
+                    role.golds += treasure.count;
+                    promise = role.saveP();
+                    gain.golds = treasure.count;
+                    break;
+                case "Coin":
+                    role.coins += treasure.count;
+                    promise = role.saveP();
+                    gain.coins = treasure.count;
+                    break;
+                case "Contrib":
+                    role.contribs += treasure.count;
+                    promise = role.saveP();
+                    gain.contribs = treasure.count;
+                    break;
+                case "Hero":
+                    var hData = _(treasure.count).times(function () { return {owner: role.id, heroDefId: it}; });
+                    promise = models.Hero.createP(hData);
+                    gain.heroes = 1;
+                    break;
+                case "Equipment":
+                    var itemData = _(treasure.count).times(function () { return {owner: role.id, itemDefId: it}; });
+                    promise = models.Item.createP(itemData);
+                    gain.items = 1;
+                    break;
+                case "Piece":
+                    break;
+            }
+            return promise;
+        })
+        .then(function (entry) {
+            if (gain.items) {
+                gain.items = _.invoke(entry, "toClientObj");
+            }
+            else if (gain.heroes) {
+                gain.heroes = _.invoke(entry, "toClientObj");
+            }
+            return gain;
+        });
     }
 
     claim(role, treasure) {
         if (_.isArray(treasure)) {
-            return Promise.all(_.map(treasure, this.claimTreasure.bind(this)))
+            return Promise.all(_.map(treasure, this.claim.bind(this, role)))
             .then(function (gains) {
                 return _.reduce(gains, function (a, b) {
                     return {

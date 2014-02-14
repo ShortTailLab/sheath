@@ -583,7 +583,8 @@ exports.addAdmin = function (req, res) {
 // data import / data export
 var dataColumns = {
     heroDef: ["id", "name", "stars", "resKey", "maxLevel", "male", "canEquip"],
-    itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"]
+    itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"],
+    treasure: ["id", "type", "count", "candidates", "weights"]
 };
 
 var transformHeroDef = function (row) {
@@ -602,6 +603,13 @@ var transformItemDef = function (row) {
     row.destructCoeff = JSON.parse(row.destructCoeff);
 };
 
+var transformTreasure = function (row) {
+    row.id = parseInt(row.id);
+    row.count = parseInt(row.count);
+    row.candidates = JSON.parse(row.candidates || "[]");
+    row.weights = JSON.parse(row.weights || "[]");
+};
+
 exports.import = function (req, res) {
     if (!req.session.user.manRole.data)
         return res.send(400, {message: "没有导入数据的权限"});
@@ -610,7 +618,8 @@ exports.import = function (req, res) {
     var data = req.body;
     var modelsAndTransform = {
         heroDef: [appModels.HeroDef, transformHeroDef],
-        itemDef: [appModels.ItemDef, transformItemDef]
+        itemDef: [appModels.ItemDef, transformItemDef],
+        treasure: [appModels.Treasure, transformTreasure]
     };
 
     csv().from.path(file.path, { columns: dataColumns[data.tag] }).to.array(function (newDefs) {
@@ -693,6 +702,25 @@ exports.export = function (req, res) {
     else if (data.tag === "stage") {
 
     }
+    else if (data.tag === "treasure") {
+        appModels.Treasure.allP({order: "id"}).then(function (treasures) {
+            csv().from.array(treasures, { columns: dataColumns[data.tag] }).to(res, {
+                header: true,
+                eof: true,
+                columns: {
+                    id: "id",
+                    type: "类型",
+                    count: "数量",
+                    candidates: "选择",
+                    weights: "权重"
+                }
+            });
+        }).transform(function (row) {
+            row.candidates = JSON.stringify(row.candidates);
+            row.weights = JSON.stringify(row.weights);
+            return row;
+        });
+    }
 };
 
 exports.heroDefs = function (req, res) {
@@ -700,6 +728,18 @@ exports.heroDefs = function (req, res) {
     .then(function (data) {
         res.json({
             heroes: _.map(data, function (h) { return h.toObject(true); })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.treasures = function (req, res) {
+    appModels.Treasure.allP()
+    .then(function (data) {
+        res.json({
+            treasures: _.map(data, function (h) { return h.toObject(true); })
         });
     })
     .catch(function (err) {

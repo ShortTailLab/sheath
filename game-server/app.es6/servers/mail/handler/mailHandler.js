@@ -18,7 +18,7 @@ class MailHandler extends base.HandlerBase {
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
-    listMail(msg, session, next) {
+    list(msg, session, next) {
         wrapSession(session);
 
         this.safe(models.Mail.allP({where: {target: session.get("role").id}, order: "time DESC"})

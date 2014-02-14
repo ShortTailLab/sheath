@@ -582,6 +582,13 @@ sheathControllers.controller('exportController', function ($scope, $http) {
     .error(function (err) {
         $scope.hero_error = "获取武将错误: " + (err.message || "未知错误");
     });
+
+    $http.get("/api/treasures").success(function (data) {
+        $scope.treasures = data.treasures;
+    })
+    .error(function (err) {
+        $scope.trea_error = "获取奖励错误: " + (err.message || "未知错误");
+    });
 });
 
 sheathControllers.controller('storeController', function ($scope, $http) {

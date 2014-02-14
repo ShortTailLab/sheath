@@ -121,6 +121,18 @@ var ActFlagType = {
         name: "listHeroes",
         route: "game.heroHandler.list"
     },
+    LIST_MAIL: {
+        desc: "获取所有邮件",
+        reqId: 19,
+        name: "listMail",
+        route: "mail.mailHandler.list"
+    },
+    CLAIM_MAIL: {
+        desc: "获取邮件奖励",
+        reqId: 20,
+        name: "claimMail",
+        route: "mail.mailHandler.claimTreasure"
+    },
 
 
     ACT_END: null

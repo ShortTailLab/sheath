@@ -27,7 +27,7 @@ module.exports.wrapModule = function (m, functions, suffix="") {
     }
 };
 
-module.exports.wrapModel = function (sessionIns) {
+module.exports.wrapModel = function () {
     Patcher.wrapModule(jugglingdb.AbstractClass, ["update", "create", "upsert", "findOrCreate", "exists", "find", "all", "iterate", "findOne", "destroyAll", "count", "include"], "P");
     Patcher.wrapModule(jugglingdb.AbstractClass.prototype, ["save", "destroy", "updateAttribute", "updateAttributes", "reload"], "P");
 };
