@@ -10,6 +10,7 @@ module.exports = {
     NO_GOLDS: 108,
     Role_Do_Not_Exist: 109,
     Mail_Do_Not_Exist: 110,
+    Already_Claimed: 111,
 
 
     LoginFailed: {

@@ -127,6 +127,10 @@ exports.init = function (dbConfig) {
     });
 
     var Treasure = exports.Treasure = schema.define("treasure", {
+        type: String,
+        count: Number,
+        candidates: {type: db.Schema.JSON, default: function () { return []; }},
+        weights: {type: db.Schema.JSON, default: function () { return []; }}
     });
 
     var Mail = exports.Mail = schema.define("mail", {
@@ -136,7 +140,7 @@ exports.init = function (dbConfig) {
         time: {type: Date, index: true, default: function () { return new Date(); }},
         read: {type: Boolean, default: false},
         claimed: {type: Boolean, default: false},
-        treasure: Number
+        treasures: {type: db.Schema.JSON, default: function () { return []; }}
     });
 
     var Log = exports.Log = schema.define("log", {
@@ -256,6 +260,10 @@ exports.init = function (dbConfig) {
         var ret = this.toObject(true);
         ret.time = +ret.time;
         return ret;
+    };
+
+    Mail.prototype.toLogObj = function () {
+        return _.pick(this, "id");
     };
 
     return schema;
