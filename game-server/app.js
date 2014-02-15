@@ -53,23 +53,6 @@ app.configure("development|production|test", 'auth|connector|game|manager|mail',
         poolMin: 10,
         poolMax: 100
     }).connect();
-});
-
-app.configure('development', function () {
-    app.filter(pomelo.filters.time());
-});
-
-//app.configure('development|production|test', "game", function () {
-//    profiler.profile({
-//        accountKey: 'a09978fff59621ddf3fada92a8048789d0ca3ade',
-//        appName: 'Sheath-Game'
-//    });
-//});
-
-app.configure(function () {
-    app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
-    app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
-    app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
 
     app.use(dataPlugin, {
         watcher: {
@@ -90,6 +73,23 @@ app.configure(function () {
             parser: "hiredis"
         }
     });
+});
+
+app.configure('development', function () {
+    app.filter(pomelo.filters.time());
+});
+
+//app.configure('development|production|test', "game", function () {
+//    profiler.profile({
+//        accountKey: 'a09978fff59621ddf3fada92a8048789d0ca3ade',
+//        appName: 'Sheath-Game'
+//    });
+//});
+
+app.configure(function () {
+    app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
+    app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
+    app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
 });
 
 function patchRPC(app) {

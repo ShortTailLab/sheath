@@ -11,6 +11,8 @@ module.exports.patchRPC = function (app) {
         Promise.promisifyAll(app.rpc.chat.chatRemote);
     if (app.rpc.manager)
         Promise.promisifyAll(app.rpc.manager.partitionStatsRemote);
+    if (app.rpc.game)
+        Promise.promisifyAll(app.rpc.game.taskRemote);
     if (app.rpc.mail)
         Promise.promisifyAll(app.rpc.mail.mailRemote);
     if (app.get('sessionService'))

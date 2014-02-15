@@ -80,7 +80,7 @@ class EntryHandler extends base.HandlerBase {
     }
 
     enterPartition(msg, session, next) {
-        var part;
+        var part, role;
         var logType = "role.login";
 
         this.safe(models.Partition.findP(msg.partId).bind(this)
@@ -138,17 +138,14 @@ class EntryHandler extends base.HandlerBase {
                 return [role.saveP()];
             }
         })
-        .spread((role) => {
-            var promises = [role, null, null];
-            if (!role.isNew) {
-                promises[1] = this.app.rpc.chat.chatRemote.addP(session, session.uid, role.name, this.app.get('serverId'), part.id);
-            }
+        .spread((_role) => {
+            role = _role;
+            this.app.rpc.chat.chatRemote.add(session, role.id, role.name, this.app.get('serverId'), part.id, null);
             session.set("role", role.toSessionObj());
             session.set("partId", part.id);
-            promises[2] = session.pushAll();
-            return promises;
+            return session.pushAll();
         })
-        .spread((role) => {
+        .then(() => {
             next(null, {
                 role: role.toClientObj()
             });
@@ -167,7 +164,7 @@ var onUserLeave = function (app, session, reason) {
         app.rpc.manager.partitionStatsRemote.leavePartition(session, partId, null);
         var role = session.get("role");
         if (role) {
-            app.rpc.chat.chatRemote.kick(session, session.uid, role.name, app.get('serverId'), partId, null);
+            app.rpc.chat.chatRemote.kick(session, role.id, app.get('serverId'), partId, null);
             logger.logInfo("role.logout", {
                 user: session.uid,
                 role: _.pick(role, "id", "name", "level", "title", "coins", "golds"),

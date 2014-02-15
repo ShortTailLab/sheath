@@ -584,7 +584,7 @@ exports.addAdmin = function (req, res) {
 var dataColumns = {
     heroDef: ["id", "name", "stars", "resKey", "maxLevel", "male", "canEquip"],
     itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"],
-    treasure: ["id", "type", "count", "candidates", "weights"]
+    treasure: ["id", "type", "count", "desc", "candidates", "weights"]
 };
 
 var transformHeroDef = function (row) {
@@ -711,6 +711,7 @@ exports.export = function (req, res) {
                     id: "id",
                     type: "类型",
                     count: "数量",
+                    desc: "说明",
                     candidates: "选择",
                     weights: "权重"
                 }

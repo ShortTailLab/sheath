@@ -31,7 +31,7 @@ function diffModel(m1, m2, fields) {
 
 sheathControllers.controller('basicStatsController', function ($scope, $http, $window) {
     var refreshInterval = 8000;
-    $scope.refreshInterval = refreshInterval;
+    $scope.refreshInterval = refreshInterval / 1000;
 
     function fetch120() {
         $http.get("/api/nodeInfo").

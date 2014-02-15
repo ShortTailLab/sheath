@@ -10,35 +10,28 @@ var ChatRemote = function(app) {
 /**
  * Add user into chat channel.
  *
- * @param {string} uid unique id for user
+ * @param {string} id unique id for role
  * @param {string} username user name
  * @param {string} sid server id
  * @param {string} name channel name
  * @param {function} cb next process
  *
  */
-ChatRemote.prototype.add = function(uid, username, sid, name, cb) {
+ChatRemote.prototype.add = function(id, username, sid, name, cb) {
     var channel = this.channelService.getChannel(name, true);
     var param = {
         route: 'onAdd',
         user: {
             name: username,
-            id: uid
+            id: id
         }
     };
     var users = [];
     channel.pushMessage(param);
 
     if( !!channel ) {
-        channel.add(uid + "*" + username, sid);
+        channel.add(id);
         users = channel.getMembers();
-        for(var i = 0; i < users.length; i++) {
-            var idName = users[i].split('*', 1);
-            users[i] = {
-                id: idName[0],
-                name: idName[1]
-            };
-        }
     }
 
     cb(users);
@@ -47,22 +40,22 @@ ChatRemote.prototype.add = function(uid, username, sid, name, cb) {
 /**
  * Kick user out chat channel.
  *
- * @param {string} uid unique id for user
- * @param {string} username user name
+ * @param {string} id unique id for role
  * @param {string} sid server id
  * @param {string} name channel name
+ * @param {function} cb next process
  *
  */
-ChatRemote.prototype.kick = function(uid, username, sid, name, cb) {
+ChatRemote.prototype.kick = function(id, sid, name, cb) {
     var channel = this.channelService.getChannel(name, false);
     // leave channel
     if( !!channel ) {
-        channel.leave(uid + "*" + username, sid);
+        channel.leave(id, sid);
         var param = {
             route: 'onLeave',
             user: {
                 name: username,
-                id: uid
+                id: id
             }
         };
         channel.pushMessage(param);

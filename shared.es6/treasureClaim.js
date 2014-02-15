@@ -1,6 +1,5 @@
 var r = require("rethinkdb");
 var models = require("./models");
-var constants = require("./constants");
 var _ = require("underscore");
 var Promise = require("bluebird");
 
@@ -13,6 +12,12 @@ class TreasureHelper {
 
     sampleWithWeight(list, weights, count=1, distinct=false) {
         if (list.length <= count) {
+            if (count === 1) {
+                if (list.length)
+                    return list[0];
+                else
+                    return null;
+            }
             return list;
         }
         var cumDist = _.clone(weights);

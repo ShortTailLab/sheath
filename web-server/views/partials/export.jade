@@ -2,22 +2,18 @@ include ../mixins/block
 
 +block("导出数据")
     .row
-        .col-md-2
-            pre: form(method="post", action="/api/export")
-                input(type="submit", value="侠客数据").submit
-                input(type="hidden", name="tag", value="heroDef")
-        .col-md-2
-            pre: form(method="post", action="/api/export")
-                input(type="submit", value="道具数据").submit
-                input(type="hidden", name="tag", value="itemDef")
-        .col-md-2
-            pre: form(method="post", action="/api/export")
-                input(type="submit", value="关卡数据").submit
-                input(type="hidden", name="tag", value="stage")
-        .col-md-2
-            pre: form(method="post", action="/api/export")
-                input(type="submit", value="奖励数据").submit
-                input(type="hidden", name="tag", value="treasure")
+        .col-md-1: pre: form(method="post", action="/api/export")
+            input(type="submit", value="侠客数据").submit
+            input(type="hidden", name="tag", value="heroDef")
+        .col-md-1: pre: form(method="post", action="/api/export")
+            input(type="submit", value="道具数据").submit
+            input(type="hidden", name="tag", value="itemDef")
+        .col-md-1: pre: form(method="post", action="/api/export")
+            input(type="submit", value="关卡数据").submit
+            input(type="hidden", name="tag", value="stage")
+        .col-md-1: pre: form(method="post", action="/api/export")
+            input(type="submit", value="奖励数据").submit
+            input(type="hidden", name="tag", value="treasure")
 
 +block("所有武将")
     div(class="message errormsg", ng-show="hero_error")
@@ -69,11 +65,13 @@ include ../mixins/block
             th ID
             th 类型
             th 数量
+            th 说明
             th 选择
             th 权重
         tbody: tr(ng-repeat="tr in treasures | orderBy:'id'")
             td {{tr.id}}
             td {{tr.type}}
             td {{tr.count}}
+            td {{tr.desc}}
             td {{tr.candidates}}
             td {{tr.weights}}

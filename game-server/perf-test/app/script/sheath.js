@@ -1,6 +1,5 @@
 /////////////////////////////////////////////////////////////
 var cwd = process.cwd();
-var pomelo = require(cwd + "/app/script/pomelo-client");
 var envConfig = require(cwd + '/app/config/env.json');
 var config = require(cwd + '/app/config/' + envConfig.env + '/config');
 var async = require("async");
@@ -137,6 +136,12 @@ var ActFlagType = {
 
     ACT_END: null
 };
+
+var requireUnCached = function (module) {
+    delete require.cache[require.resolve(module)];
+    return require(module);
+};
+var pomelo = requireUnCached(cwd + "/app/script/pomelo-client");
 
 var monitor = function (type, name, reqId) {
     if (typeof actor !== 'undefined') {

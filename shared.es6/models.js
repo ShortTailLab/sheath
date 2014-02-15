@@ -129,6 +129,7 @@ exports.init = function (dbConfig) {
     var Treasure = exports.Treasure = schema.define("treasure", {
         type: String,
         count: Number,
+        desc: {type: String, default: ""},
         candidates: {type: db.Schema.JSON, default: function () { return []; }},
         weights: {type: db.Schema.JSON, default: function () { return []; }}
     });
