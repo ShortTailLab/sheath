@@ -18,6 +18,9 @@ app.loadConfig("rethinkdb", app.getBase() + "/config/rethinkdb.json");
 app.loadConfig("redis", app.getBase() + "/config/redis.json");
 app.enable('systemMonitor');
 app.before(pomelo.filters.toobusy(80));
+app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
+app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
+app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
 
 //app.set('remoteConfig', {
 //    acceptorFactory: {create: function(opts, cb) {
@@ -31,50 +34,45 @@ app.before(pomelo.filters.toobusy(80));
 //    }}
 //});
 
+app.set('connectorConfig', {
+    connector: pomelo.connectors.hybridconnector,
+    heartbeat: 5,
+    useDict: true,
+    useProtobuf: true
+});
+
+Patcher.wrapModel();
+
+var rethinkConfig = app.get("rethinkdb");
+appModels.init({
+    host: rethinkConfig.host,
+    port: rethinkConfig.port,
+    database: rethinkConfig.database,
+    poolMin: 10,
+    poolMax: 100
+}).connect();
+
+app.use(dataPlugin, {
+    watcher: {
+        dir: __dirname + "/config/data",
+        idx: "id",
+        interval: 5000
+    }
+});
+
+var redisConfig = app.get("redis");
+app.use(statusPlugin, {
+    status: {
+        host: redisConfig.host,
+        port: redisConfig.port,
+        prefix: "SHEATH:STATUS:" + app.settings.env,
+        cleanOnStartUp: true,
+
+        parser: "hiredis"
+    }
+});
+
 // app configuration
-app.configure("development|production|test", 'connector', function () {
-    app.set('connectorConfig',
-        {
-            connector: pomelo.connectors.hybridconnector,
-            heartbeat: 5,
-            useDict: true,
-            useProtobuf: true
-        });
-});
-
-app.configure("development|production|test", 'auth|connector|game|manager|mail', function () {
-    Patcher.wrapModel();
-
-    var rethinkConfig = app.get("rethinkdb");
-    appModels.init({
-        host: rethinkConfig.host,
-        port: rethinkConfig.port,
-        database: rethinkConfig.database,
-        poolMin: 10,
-        poolMax: 100
-    }).connect();
-
-    app.use(dataPlugin, {
-        watcher: {
-            dir: __dirname + "/config/data",
-            idx: "id",
-            interval: 5000
-        }
-    });
-
-    var redisConfig = app.get("redis");
-    app.use(statusPlugin, {
-        status: {
-            host: redisConfig.host,
-            port: redisConfig.port,
-            prefix: "SHEATH:STATUS:" + app.settings.env,
-            cleanOnStartUp: true,
-
-            parser: "hiredis"
-        }
-    });
-});
-
 app.configure('development', function () {
     app.filter(pomelo.filters.time());
 });
@@ -85,12 +83,6 @@ app.configure('development', function () {
 //        appName: 'Sheath-Game'
 //    });
 //});
-
-app.configure(function () {
-    app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
-    app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
-    app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
-});
 
 function patchRPC(app) {
     setImmediate(function () {

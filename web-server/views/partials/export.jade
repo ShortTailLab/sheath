@@ -2,16 +2,16 @@ include ../mixins/block
 
 +block("导出数据")
     .row
-        .col-md-1: pre: form(method="post", action="/api/export")
+        .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="侠客数据").submit
             input(type="hidden", name="tag", value="heroDef")
-        .col-md-1: pre: form(method="post", action="/api/export")
+        .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="道具数据").submit
             input(type="hidden", name="tag", value="itemDef")
-        .col-md-1: pre: form(method="post", action="/api/export")
+        .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="关卡数据").submit
             input(type="hidden", name="tag", value="stage")
-        .col-md-1: pre: form(method="post", action="/api/export")
+        .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="奖励数据").submit
             input(type="hidden", name="tag", value="treasure")
 

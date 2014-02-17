@@ -1,64 +1,67 @@
 var Constants = require("../../../../../shared/constants");
 var models = require("../../../../../shared/models");
 var fs = require("fs");
+var _ = require("underscore");
 
 module.exports = function (app) {
     return new TaskRemote(app);
 };
 
-var requireUnCached = function (module) {
-    delete require.cache[require.resolve(module)];
-    return require(module);
+var Always = function () { return true; };
+var Nothing = function () {};
+
+var genTaskDef = function (pathBase, task) {
+    var preCond = Always, script = Nothing;
+    if (task.preCond) preCond = require(pathBase + task.preCond)(task.preCondParams);
+    if (task.script) script = require(pathBase + task.script)(task.params);
+    return {
+        pre: preCond,
+        script: script
+    };
 };
 
-var checkFileType = function(fn, suffix) {
-    if(suffix.charAt(0) !== '.') {
-        suffix = '.' + suffix;
+var unloadAllTasks = function (pathBase) {
+    var files = fs.readdirSync(pathBase);
+    for(var i=0, l=files.length; i<l; i++) {
+        var path = pathBase + files[i];
+        delete require.cache[require.resolve(path)];
     }
-
-    if(fn.length <= suffix.length) {
-        return false;
-    }
-
-    var str = fn.substring(fn.length - suffix.length).toLowerCase();
-    suffix = suffix.toLowerCase();
-    return str === suffix;
-};
-
-var isFile = function(path) {
-    return fs.statSync(path).isFile();
 };
 
 class TaskRemote {
     constructor(app) {
         this.app = app;
+        this.taskPath = this.app.base + "/task/";
+        this.tasks = {};
+
+        this.reloadAllTasks(() => {});
+    }
+
+    reloadAllTasks(cb) {
+        unloadAllTasks(this.taskPath);
+        models.Task.allP().bind(this)
+        .then((tasks) => {
+            var taskDefs = {};
+            for (var i=0;i<tasks.length;i++) {
+                taskDefs[tasks[i].id] = genTaskDef(this.taskPath, tasks[i]);
+            }
+
+            this.tasks = taskDefs;
+        })
+        .finally(() => {
+            cb();
+        });
     }
 
     notify(eventName, roleId, params, cb) {
     }
 
-    queryTaskStatus(roleId) {
-    }
-
-    loadFile() {
-        try {
-            var path = this.app.base + "/task/";
-            var files = fs.readdirSync(path);
-
-            for(var i=0, l=files.length; i<l; i++) {
-                var fn = files[i];
-                var fp = path + fn;
-
-                if(!isFile(fp) || !checkFileType(fn, '.js')) {
-                    // only load js file type
-                    continue;
-                }
-
-                requireUnCached(fp);
-            }
+    queryTaskStatus(roleId, cb) {
+        var tids = _.keys(this.tasks);
+        if (tids.length === 0) {
+            return cb({});
         }
-        catch (err) {
-            console.warn(err);
-        }
+
+        models.Task.allP().bind(this);
     }
 }

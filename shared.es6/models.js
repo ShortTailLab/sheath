@@ -58,6 +58,8 @@ exports.init = function (dbConfig) {
         energyRefreshTime: {type: Date, default: function () { return new Date(); }},
         dailyRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
 
+        taskData: {type: db.Schema.JSON, default: function () {return {};}},
+
         createTime: {type: Date, default: function () { return new Date(); }},
         isNew: Boolean
     });
@@ -132,6 +134,16 @@ exports.init = function (dbConfig) {
         desc: {type: String, default: ""},
         candidates: {type: db.Schema.JSON, default: function () { return []; }},
         weights: {type: db.Schema.JSON, default: function () { return []; }}
+    });
+
+    var Task = exports.Task = schema.define("task", {
+        name: {type: String, default: ""},
+
+        preCond: {type: String, default: ""},
+        script: {type: String, default: ""},
+        params: {type: db.Schema.JSON, default: function () { return {}; }},
+
+        reward: Number
     });
 
     var Mail = exports.Mail = schema.define("mail", {

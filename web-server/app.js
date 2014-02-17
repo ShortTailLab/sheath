@@ -150,18 +150,18 @@ app.post('/api/getStatInfo', restrictAPI, api.getStatInfo);
 
 app.get('*', restrict, routes.index);
 
-var server = spdy.createServer({
-    key: fs.readFileSync(__dirname + '/keys/server.key'),
-    cert: fs.readFileSync(__dirname + '/keys/server.crt'),
-    ca: fs.readFileSync(__dirname + '/keys/server.csr')
-}, app);
+//var server = spdy.createServer({
+//    key: fs.readFileSync(__dirname + '/keys/server.key'),
+//    cert: fs.readFileSync(__dirname + '/keys/server.crt'),
+//    ca: fs.readFileSync(__dirname + '/keys/server.csr')
+//}, app);
+//
+//http.createServer(function (req, res) {
+//    res.writeHead(302, {Location: "https://"+ req.headers.host + req.url});
+//    res.end();
+//}).listen(80);
 
-http.createServer(function (req, res) {
-    res.writeHead(302, {Location: "https://"+ req.headers.host + req.url});
-    res.end();
-}).listen(80);
-
-//var server = http.createServer(app);
+var server = http.createServer(app);
 
 /**
  * websocket connection
