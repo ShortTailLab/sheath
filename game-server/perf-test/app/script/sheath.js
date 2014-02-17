@@ -132,6 +132,12 @@ var ActFlagType = {
         name: "claimMail",
         route: "mail.mailHandler.claimTreasure"
     },
+    CHAT: {
+        desc: "发送",
+        reqId: 21,
+        name: "sendChat",
+        route: "chat.chatHandler.send"
+    },
 
 
     ACT_END: null

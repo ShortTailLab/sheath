@@ -29,11 +29,11 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
             let param = {
                 msg: msg.content,
                 from: {
+                    uid: "",
                     id: "",
                     name: "后台测试"
                 },
-                target: msg.target,
-                targetName: msg.targetName
+                target: msg.target
             };
             this.app.get("channelService").broadcast("connector", "onChat", param);
             break;

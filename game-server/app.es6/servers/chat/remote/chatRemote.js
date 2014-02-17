@@ -10,7 +10,7 @@ var ChatRemote = function(app) {
 /**
  * Add user into chat channel.
  *
- * @param {string} id unique id for role
+ * @param {string} id unique id for user
  * @param {string} username user name
  * @param {string} sid server id
  * @param {string} name channel name
@@ -30,7 +30,7 @@ ChatRemote.prototype.add = function(id, username, sid, name, cb) {
     channel.pushMessage(param);
 
     if( !!channel ) {
-        channel.add(id);
+        channel.add(id, sid);
         users = channel.getMembers();
     }
 
@@ -40,7 +40,7 @@ ChatRemote.prototype.add = function(id, username, sid, name, cb) {
 /**
  * Kick user out chat channel.
  *
- * @param {string} id unique id for role
+ * @param {string} id unique id for user
  * @param {string} sid server id
  * @param {string} name channel name
  * @param {function} cb next process
@@ -54,7 +54,6 @@ ChatRemote.prototype.kick = function(id, sid, name, cb) {
         var param = {
             route: 'onLeave',
             user: {
-                name: username,
                 id: id
             }
         };

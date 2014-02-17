@@ -25,13 +25,11 @@ class ChatHandler extends base.HandlerBase {
         var param = {
             msg: msg.content,
             from: {
+                uid: session.uid,
                 id: role.id,
                 name: role.name
             },
-            target: {
-                id: msg.target,
-                name: msg.targetName
-            }
+            target: msg.target
         };
         var channel = channelService.getChannel(parId, false);
         if (!channel) {
@@ -45,13 +43,16 @@ class ChatHandler extends base.HandlerBase {
         //the target is specific user
         else {
             var tuid = msg.target;
-            var tsid = channel.getMember(tuid).sid;
-            channelService.pushMessageByUids('onChat', param, [
-                {
-                    uid: tuid,
-                    sid: tsid
-                }
-            ]);
+            var member = channel.getMember(tuid);
+            if (member) {
+                var tsid = channel.getMember(tuid).sid;
+                channelService.pushMessageByUids('onChat', param, [
+                    {
+                        uid: tuid,
+                        sid: tsid
+                    }
+                ]);
+            }
         }
         next(null, {
             ok: true

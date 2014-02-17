@@ -140,12 +140,12 @@ class EntryHandler extends base.HandlerBase {
         })
         .spread((_role) => {
             role = _role;
-            this.app.rpc.chat.chatRemote.add(session, role.id, role.name, this.app.get('serverId'), part.id, null);
             session.set("role", role.toSessionObj());
             session.set("partId", part.id);
             return session.pushAll();
         })
         .then(() => {
+            this.app.rpc.chat.chatRemote.add(session, session.uid, role.name, this.app.get('serverId'), part.id, null);
             next(null, {
                 role: role.toClientObj()
             });
@@ -164,7 +164,7 @@ var onUserLeave = function (app, session, reason) {
         app.rpc.manager.partitionStatsRemote.leavePartition(session, partId, null);
         var role = session.get("role");
         if (role) {
-            app.rpc.chat.chatRemote.kick(session, role.id, app.get('serverId'), partId, null);
+            app.rpc.chat.chatRemote.kick(session, session.uid, app.get('serverId'), partId, null);
             logger.logInfo("role.logout", {
                 user: session.uid,
                 role: _.pick(role, "id", "name", "level", "title", "coins", "golds"),
