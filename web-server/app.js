@@ -5,6 +5,7 @@
 var express = require('express'),
     http = require('http'),
     spdy = require('spdy'),
+    buffet = require('buffet'),
     ws = require("ws"),
     fs = require("fs"),
     traceur = require("traceur"),
@@ -44,7 +45,7 @@ function restrictAPI(req, res, next) {
 app.use(express.compress());
 app.configure('development', function () {
     app.use(express.logger('dev'));
-    app.use(express.static(pub));
+    app.use(buffet());
     app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 
     Patcher.wrapModel();
@@ -59,7 +60,7 @@ app.configure('development', function () {
 app.configure('test', function () {
     var oneYear = 31557600000;
     app.use(express.logger('dev'));
-    app.use(express.static(pub, {maxAge: oneYear}));
+    app.use(buffet({maxAge: oneYear}));
     app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 
     Patcher.wrapModel();
@@ -73,7 +74,7 @@ app.configure('test', function () {
 
 app.configure('production', function () {
     var oneYear = 31557600000;
-    app.use(express.static(pub, {maxAge: oneYear}));
+    app.use(buffet({maxAge: oneYear}));
     app.use(express.errorHandler());
 
     Patcher.wrapModel();

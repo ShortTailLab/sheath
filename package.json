@@ -23,6 +23,7 @@
         "traceur": "latest",
         "iweibo": "latest",
         "express": "latest",
+        "buffet": "latest",
         "spdy": "latest",
         "ws": "latest",
         "jade": "latest",
