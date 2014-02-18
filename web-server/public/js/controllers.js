@@ -589,6 +589,13 @@ sheathControllers.controller('exportController', function ($scope, $http) {
     .error(function (err) {
         $scope.trea_error = "获取奖励错误: " + (err.message || "未知错误");
     });
+
+    $http.get("/api/balls").success(function (data) {
+        $scope.balls = data.balls;
+    })
+    .error(function (err) {
+        $scope.ball_error = "获取弹道错误: " + (err.message || "未知错误");
+    });
 });
 
 sheathControllers.controller('storeController', function ($scope, $http) {

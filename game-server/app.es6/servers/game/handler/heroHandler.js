@@ -18,7 +18,7 @@ class HeroHandler extends base.HandlerBase {
     }
 
     listDef(msg, session, next) {
-        this.safe(models.HeroDef.allP().bind(this)
+        this.safe(models.HeroDef.allP()
         .then((defs) => {
             next(null, {
                 defs: _.map(defs, (hd) => { return hd.toClientObj(); })
@@ -26,9 +26,16 @@ class HeroHandler extends base.HandlerBase {
         }), next);
     }
 
+    listBallistic(msg, session, next) {
+        this.safe(models.Ballistic.allP()
+        .then(function (data) {
+            next(null, _.indexBy(data, "id"));
+        }), next);
+    }
+
     list(msg, session, next) {
         var roleId = session.get("role").id;
-        this.safe(models.Hero.allP({where: {owner: roleId}}).bind(this)
+        this.safe(models.Hero.allP({where: {owner: roleId}})
         .then((heroes) => {
             next(null, {
                 heroes: _.map(heroes, (h) => { return h.toClientObj(); })

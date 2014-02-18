@@ -584,7 +584,8 @@ exports.addAdmin = function (req, res) {
 var dataColumns = {
     heroDef: ["id", "name", "stars", "resKey", "maxLevel", "male", "canEquip"],
     itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"],
-    treasure: ["id", "type", "count", "desc", "candidates", "weights"]
+    treasure: ["id", "type", "count", "desc", "candidates", "weights"],
+    ballistic: ["id", "value"]
 };
 
 var transformHeroDef = function (row) {
@@ -610,6 +611,13 @@ var transformTreasure = function (row) {
     row.weights = JSON.parse(row.weights || "[]");
 };
 
+var transformBallistic = function (row) {
+    if (row.id === "") return;
+    var ins = new appModels.Ballistic();
+    var adapter = ins._adapter();
+    return Promise.promisify(adapter.save, adapter)("ballistic", row);
+};
+
 exports.import = function (req, res) {
     if (!req.session.user.manRole.data)
         return res.send(400, {message: "没有导入数据的权限"});
@@ -619,15 +627,24 @@ exports.import = function (req, res) {
     var modelsAndTransform = {
         heroDef: [appModels.HeroDef, transformHeroDef],
         itemDef: [appModels.ItemDef, transformItemDef],
-        treasure: [appModels.Treasure, transformTreasure]
+        treasure: [appModels.Treasure, transformTreasure],
+        ballistic: [appModels.Ballistic, transformBallistic]
     };
 
     csv().from.path(file.path, { columns: dataColumns[data.tag] }).to.array(function (newDefs) {
-        if (newDefs[0].id === "id") {
+        if (newDefs[0].id === "id" || newDefs[0].id === "key") {
             newDefs.shift();
         }
         var updates = _.map(newDefs, function (d) {
-            return modelsAndTransform[data.tag][0].upsertP(d);
+            if (d && d.id !== null && d.id !== undefined && d.id !== "")
+            {
+                if (Promise.is(d)) {
+                    return d;
+                }
+                else {
+                    return modelsAndTransform[data.tag][0].upsertP(d);
+                }
+            }
         });
 
         Promise.all(updates).then(function () {
@@ -637,8 +654,9 @@ exports.import = function (req, res) {
             res.send(400, {message: ""+err});
         });
     }).transform(function (row) {
-        if (row.id !== "id") {
-            modelsAndTransform[data.tag][1](row);
+        if (row.id !== "id" && row.id !== "id") {
+            var newRow = modelsAndTransform[data.tag][1](row);
+            if (newRow) return newRow;
         }
         return row;
     });
@@ -722,6 +740,18 @@ exports.export = function (req, res) {
             return row;
         });
     }
+    else if (data.tag === "ballistic") {
+        appModels.Ballistic.allP({order: "id"}).then(function (treasures) {
+            csv().from.array(treasures, { columns: dataColumns[data.tag] }).to(res, {
+                header: true,
+                eof: true,
+                columns: {
+                    id: "key",
+                    value: "value"
+                }
+            });
+        });
+    }
 };
 
 exports.heroDefs = function (req, res) {
@@ -753,6 +783,18 @@ exports.itemDefs = function (req, res) {
     .then(function (data) {
         res.json({
             items: _.map(data, function (h) { return h.toObject(true); })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.balls = function (req, res) {
+    appModels.Ballistic.allP()
+    .then(function (data) {
+        res.json({
+            balls: _.map(data, function (h) { return h.toObject(true); })
         });
     })
     .catch(function (err) {

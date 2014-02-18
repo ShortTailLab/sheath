@@ -14,6 +14,9 @@ include ../mixins/block
         .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="奖励数据").submit
             input(type="hidden", name="tag", value="treasure")
+        .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="弹道数据").submit
+            input(type="hidden", name="tag", value="ballistic")
 
 +block("所有武将")
     div(class="message errormsg", ng-show="hero_error")
@@ -75,3 +78,14 @@ include ../mixins/block
             td {{tr.desc}}
             td {{tr.candidates}}
             td {{tr.weights}}
+
++block("所有弹道")
+    div(class="message errormsg", ng-show="ball_error")
+        p {{ball_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th key
+            th value
+        tbody: tr(ng-repeat="b in balls | orderBy:'id'")
+            td {{b.id}}
+            td {{b.value}}

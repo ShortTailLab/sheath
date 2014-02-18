@@ -93,6 +93,10 @@ exports.init = function (dbConfig) {
         props: {type: db.Schema.JSON, default: function () {return [];}}
     });
 
+    var Ballistic = exports.Ballistic = schema.define("ballistic", {
+        value: String
+    });
+
     var Hero = exports.Hero = schema.define("hero", {
         heroDefId: {type: Number, index: true},
 
