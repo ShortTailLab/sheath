@@ -29,7 +29,11 @@ class HeroHandler extends base.HandlerBase {
     listBallistic(msg, session, next) {
         this.safe(models.Ballistic.allP()
         .then(function (data) {
-            next(null, _.indexBy(data, "id"));
+            var dict = {};
+            for (let b of data) {
+                dict[b.id] = b.value;
+            }
+            next(null, dict);
         }), next);
     }
 
