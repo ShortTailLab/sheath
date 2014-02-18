@@ -7,7 +7,8 @@ var Promise = require("bluebird");
 class UserHelper {
     isUserAuthMatch(user, accType, uname, password) {
         if (user) {
-            for (let auth of user.auth) {
+            for (var i=0;i<user.auth.length;i++) {
+                var auth = user.auth[i];
                 if (auth.type === accType && auth.id === uname && bcrypt.compareSync(password, auth.password)) {
                     return true;
                 }
@@ -59,7 +60,8 @@ class UserHelper {
     changePassword(uid, accType, oldPassword, newPassword) {
         return models.User.findP(uid).bind(this)
         .then((user) => {
-            for (let auth of user.auth) {
+            for (var i=0;i<user.auth.length;i++) {
+                var auth = user.auth[i];
                 if (auth.type === accType){
                     if (bcrypt.compareSync(oldPassword, auth.password)) {
                         auth.password = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(5));

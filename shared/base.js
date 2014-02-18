@@ -84,8 +84,9 @@ class HandlerBase {
             var itemGroups = results[0];
             var itemDefs = _.groupBy(results[1], "id");
             var stack = 0;
-            for (let itemId of itemGroups) {
-                let stackSize = itemDefs[itemId][0].stackSize;
+            for (var i=0;i<itemGroups.length;i++) {
+                var itemId = itemGroups[i];
+                var stackSize = itemDefs[itemId][0].stackSize;
                 stack += Math.ceil(itemGroups[itemId].length/stackSize);
             }
             return stack;

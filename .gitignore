@@ -9,5 +9,3 @@ web-server/views/partials/*.html
 web-server/views/templates/*.html
 npm-debug.log
 tmp
-/shared
-/game-server/app

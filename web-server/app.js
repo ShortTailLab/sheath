@@ -1,7 +1,7 @@
 /**
  * Module dependencies
  */
-
+require("../shared/traceurBootstrap");
 var express = require('express'),
     http = require('http'),
     spdy = require('spdy'),

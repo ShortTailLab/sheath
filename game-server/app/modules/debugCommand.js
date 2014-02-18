@@ -26,7 +26,7 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
             break;
         case "chat":
         {
-            let param = {
+            var param = {
                 msg: msg.content,
                 from: {
                     uid: "",
@@ -67,7 +67,8 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
 function kickAll(app, agent, msg, cb) {
     var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "connector"; });
 
-    for (let server of servers) {
+    for (var i =0;i<servers.length;i++) {
+        var server = servers[i];
         agent.request(server.id, module.exports.moduleId, {command: "kickAll"});
     }
 
@@ -77,7 +78,8 @@ function kickAll(app, agent, msg, cb) {
 function broadcast(app, agent, msg, cb) {
     var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "connector"; });
 
-    for (let server of servers) {
+    for (var i =0;i<servers.length;i++) {
+        var server = servers[i];
         agent.request(server.id, module.exports.moduleId, {
             command: "broadcast",
             msg: msg.content || "Test msg."
@@ -90,7 +92,8 @@ function broadcast(app, agent, msg, cb) {
 function chat(app, agent, msg, cb) {
     var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "connector"; });
 
-    for (let server of servers) {
+    for (var i =0;i<servers.length;i++) {
+        var server = servers[i];
         agent.request(server.id, module.exports.moduleId, {command: "chat", msg: msg.content || "Test msg."});
     }
 

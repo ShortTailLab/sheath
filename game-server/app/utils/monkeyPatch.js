@@ -24,8 +24,9 @@ module.exports.patchRPC = function (app) {
 };
 
 module.exports.wrapModule = function (m, functions, suffix="") {
-    for (let f of functions) {
-        m[f + suffix] = Promise.promisify(m[f]);
+    for (var i=0;i<functions.length;i++) {
+        var name = functions[i];
+        m[name + suffix] = Promise.promisify(m[name]);
     }
 };
 

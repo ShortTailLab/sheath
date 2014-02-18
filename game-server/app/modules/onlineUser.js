@@ -22,7 +22,8 @@ Module.prototype.monitorHandler = function(agent, msg) {
 		return;
 	}
     var stats = connectionService.getStatisticsInfo();
-    for (let user of stats.loginedList) {
+    for (var i=0;i<stats.loginedList.length;i++) {
+        var user = stats.loginedList[i];
         var sessions = sessionService.getByUid(user.uid);
         if (sessions.length && sessions[0].get("role")) {
             user.role = _.pick(sessions[0].get("role"), "id", "name", "team", "level", "title", "partition");

@@ -3,6 +3,7 @@ var base = require("../../../../../shared/base");
 var Constants = require("../../../../../shared/constants");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var Promise = require("bluebird");
+var _ = require("underscore");
 var logger;
 
 
@@ -41,7 +42,7 @@ class RoleHandler extends base.HandlerBase {
             this.errorNext(Constants.InvalidRequest, next);
         }
         else {
-            for (let i=0;i<3;i++) {
+            for (var i=0;i<3;i++) {
                 msg.heroes[i] = msg.heroes[i] || null;
             }
 
@@ -52,8 +53,9 @@ class RoleHandler extends base.HandlerBase {
                 return models.Hero.allP({where: {owner: role.id}});
             })
             .then((heroes) => {
-                const heroIds = _.pluck(heroes, "id");
-                for (let hid of msg.heroes) {
+                var heroIds = _.pluck(heroes, "id");
+                for (var i=0;i<msg.heroes.length;i++) {
+                    var hid = msg.heroes[i];
                     if (hid !== null && !_.contains(heroIds, hid)) {
                         return Promise.reject(Constants.InvalidRequest);
                     }

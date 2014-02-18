@@ -30,8 +30,8 @@ class HeroHandler extends base.HandlerBase {
         this.safe(models.Ballistic.allP()
         .then(function (data) {
             var dict = {};
-            for (let b of data) {
-                dict[b.id] = b.value;
+            for (var i=0;i<data.length;i++) {
+                dict[data[i].id] = data[i].value;
             }
             next(null, dict);
         }), next);

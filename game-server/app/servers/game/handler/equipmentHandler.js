@@ -408,10 +408,10 @@ class EquipmentHandler extends base.HandlerBase {
                 }
                 var matCount = [0, 2, 6, 12][equipment.refinement] + equipment.refineProgress + 1;
                 var pieceCount = 0;
-                for (let i=0, m=Math.min(matCount, itemDef.destructCoeff.length);i<m;i++) {
-                    let coeff = itemDef.destructCoeff[i];
+                for (var i=0, m=Math.min(matCount, itemDef.destructCoeff.length);i<m;i++) {
+                    var coeff = itemDef.destructCoeff[i];
                     if (coeff) {
-                        let randValue = Math.random();
+                        var randValue = Math.random();
                         if (randValue > coeff)
                             pieceCount += 2;
                         else

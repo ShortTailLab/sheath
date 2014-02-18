@@ -1,5 +1,5 @@
 //var profiler = require("nodetime");
-require("traceur");
+require("../shared/traceurBootstrap");
 var pomelo = require('pomelo');
 var dataPlugin = require('pomelo-data-plugin');
 var statusPlugin = require('pomelo-status-plugin');
