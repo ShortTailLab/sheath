@@ -1,5 +1,7 @@
 var Constants = require("../../../../../shared/constants");
 var models = require("../../../../../shared/models");
+var task = require("../../../../task/tasks");
+var Promise = require("bluebird");
 var fs = require("fs");
 var _ = require("underscore");
 
@@ -46,6 +48,9 @@ class TaskRemote {
                 taskDefs[tasks[i].id] = genTaskDef(this.taskPath, tasks[i]);
             }
 
+            return Promise.props(taskDefs);
+        })
+        .then(function (taskDefs) {
             this.tasks = taskDefs;
         })
         .finally(() => {

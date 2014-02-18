@@ -17,3 +17,8 @@ find app.es6 -name "*.js" | xargs traceur --experimental --out tmp
 mv tmp/app.es6 app
 rm -rf tmp
 
+rm -rf tmp
+rm -rf task
+find task.es6 -name "*.js" | xargs traceur --experimental --out tmp
+mv tmp/task.es6 task
+rm -rf tmp
