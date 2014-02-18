@@ -150,6 +150,7 @@ app.post('/api/sendMail', restrictAPI, api.sendMail);
 
 app.post('/api/getStatInfo', restrictAPI, api.getStatInfo);
 
+app.get('/js/lib/*.map', function (req, res) { res.send(404); });
 app.get('*', restrict, routes.index);
 
 var server = spdy.createServer({

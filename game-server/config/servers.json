@@ -6,9 +6,6 @@
         "chat": [
             {"id": "chat-1", "host": "127.0.0.1", "port": 3310, "args": " --debug=13250 "}
         ],
-        "mail": [
-            {"id": "mail-1", "host": "127.0.0.1", "port": 3610, "args": " --debug=13400 "}
-        ],
         "game": [
             {"id": "game-1", "host": "127.0.0.1", "port": 3510, "args": " --debug=13350 "}
         ],
@@ -26,9 +23,6 @@
         "chat": [
             {"id": "chat-1", "host": "127.0.0.1", "port": 3310}
         ],
-        "mail": [
-            {"id": "mail-1", "host": "127.0.0.1", "port": 3610, "args": " --debug=13400 "}
-        ],
         "game": [
             {"id": "game-1", "host": "127.0.0.1", "port": 3510}
         ],
@@ -45,9 +39,6 @@
         ],
         "chat": [
             {"host": "127.0.0.1", "port": "3300++", "clusterCount": 1}
-        ],
-        "mail": [
-            {"host": "127.0.0.1", "port": "3600++", "clusterCount": 1}
         ],
         "game": [
             {"host": "127.0.0.1", "port": "3500++", "clusterCount": 1}
