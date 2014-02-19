@@ -689,6 +689,9 @@ exports.export = function (req, res) {
                 header: true,
                 eof: true,
                 columns: dataColumns.heroDef
+            }).transform(function (row) {
+                row.attackDelta = JSON.stringify(row.attackDelta);
+                return row;
             });
         });
     }
