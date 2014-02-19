@@ -641,7 +641,7 @@ exports.import = function (req, res) {
     };
 
     csv().from.path(file.path, { columns: dataColumns[data.tag] }).to.array(function (newDefs) {
-        if (typeof newDefs[0].id === "string" && (newDefs[0].id.toLowerCase() === "id" || newDefs[0].id.toLowerCase() === "key")) {
+        while (newDefs[0].id === "[SKIP]") {
             newDefs.shift();
         }
         var updates = _.map(newDefs, function (d) {
@@ -662,8 +662,11 @@ exports.import = function (req, res) {
         .catch(function (err) {
             res.send(400, {message: ""+err});
         });
-    }).transform(function (row) {
-        if (row.id.toLowerCase() !== "id" && row.id.toLowerCase() !== "key") {
+    }).transform(function (row, index) {
+        if (index < 2) {
+            row.id = "[SKIP]";
+        }
+        else {
             var newRow = modelsAndTransform[data.tag][1](row);
             if (newRow) return newRow;
         }
