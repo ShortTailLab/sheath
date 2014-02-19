@@ -39,7 +39,7 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
             break;
         }
         case "mail":
-            this.app.rpc.mail.mailRemote.sendTreasureMail.toServer(this.app.getServerId(), null, msg.msg.target, msg.msg.content, function (err, result) {});
+            this.app.rpc.chat.mailRemote.sendTreasureMail.toServer(this.app.getServerId(), null, msg.msg.target, msg.msg.content, function (err, result) {});
             break;
     }
 };
@@ -101,7 +101,7 @@ function chat(app, agent, msg, cb) {
 }
 
 function mail(app, agent, msg, cb) {
-    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "mail"; });
+    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "chat"; });
 
     if (servers.length) {
         agent.request(servers[0].id, module.exports.moduleId, {command: "mail", msg: msg});

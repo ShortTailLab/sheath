@@ -53,6 +53,8 @@ include ../mixins/block
             th 伤害减少
             th 物理抗性
             th 法术抗性
+            th 常量表攻击常数
+            th 常量表防御常数
             th 技能
             th 资源
         tbody: tr(ng-repeat="h in heroes | orderBy:'id'")
@@ -86,6 +88,8 @@ include ../mixins/block
             td {{h.damageRedFactor}}
             td {{h.physicalResist}}
             td {{h.magicResist}}
+            td {{h.attackFactor}}
+            td {{h.defenseFactor}}
             td {{h.skill}}
             td {{h.resKey}}
 

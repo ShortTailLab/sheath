@@ -36,7 +36,10 @@ class TaskRemote {
         .then((tasks) => {
             var taskDefs = {};
             for (var i=0;i<tasks.length;i++) {
-                taskDefs[tasks[i].id] = task.create(this.app, tasks);
+                var task = task.create(this.app, tasks);
+                if (task) {
+                    taskDefs[tasks[i].id] = task;
+                }
             }
 
             return Promise.props(taskDefs);

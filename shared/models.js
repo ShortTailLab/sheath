@@ -165,9 +165,9 @@ exports.init = function (dbConfig) {
 
     var Task = exports.Task = schema.define("task", {
         name: {type: String, default: ""},
+        type: {type: String, default: ""},
 
-        preCond: {type: String, default: ""},
-        script: {type: String, default: ""},
+        preCondition: {type: String, default: ""},
         params: {type: db.Schema.JSON, default: function () { return {}; }},
 
         reward: Number

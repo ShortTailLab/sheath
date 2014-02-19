@@ -2,8 +2,8 @@
 id,value
 coins,100
 golds,20
-heroes,"[100,101]"
-items,"[1000,1000,1000,1001,1001,1011,1011,1012,1012,1022,1022]"
+heroes,"[]"
+items,"[]"
 energy,5
 contribs,0
 name,玩家
