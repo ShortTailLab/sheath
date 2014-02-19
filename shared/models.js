@@ -69,7 +69,7 @@ exports.init = function (dbConfig) {
         type: {type: Number, default: 1},
         resKey: {type: String, default: ""},
         stars: {type: Number, default: 1},
-        skill: {type: db.Schema.JSON, default: function () {return [];}},
+        skill: {type: Number, default: 0},
 
         vitality: {type: Number, default: 0},
         strength: {type: Number, default: 0},
