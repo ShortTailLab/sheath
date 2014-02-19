@@ -66,7 +66,7 @@ exports.init = function (dbConfig) {
 
     var HeroDef = exports.HeroDef = schema.define("herodef", {
         name: {type: String, default: ""},
-        type: {type: Number, default: 1},
+        type: {type: String, default: ""},
         resKey: {type: String, default: ""},
         stars: {type: Number, default: 1},
         skill: {type: Number, default: 0},

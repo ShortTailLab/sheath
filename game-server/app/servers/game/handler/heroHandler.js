@@ -11,8 +11,6 @@ module.exports = function (app) {
     return new HeroHandler(app);
 };
 
-var typeCanEquipMap = [""];
-
 class HeroHandler extends base.HandlerBase {
     constructor(app) {
         this.app = app;
@@ -85,10 +83,7 @@ class HeroHandler extends base.HandlerBase {
             return models.HeroDef.findP(hero.heroDefId);
         })
         .then((heroDef) => {
-            var canEquip = "";
-            if (heroDef.type < typeCanEquipMap.length)
-                canEquip = typeCanEquipMap[heroDef.type];
-            if (canEquip === "" || canEquip === itemDef.type) {
+            if (itemDef.type.startsWith("WE_") && heroDef.type !== itemDef.type) {
                 return Promise.reject(Constants.HeroFailed.CANNOT_EQUIP_WEAPON_TYPE);
             }
             equipment.bound = hero.id;

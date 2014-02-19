@@ -54,7 +54,7 @@
         "required int32 id":         1,
         "required string name":      2,
         "required string resKey":    3,
-        "required int32 type":       4,
+        "required string type":      4,
         "required int32 stars":      5,
         "required int32 skill":      6,
 

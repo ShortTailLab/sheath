@@ -596,8 +596,9 @@ var transformHeroDef = function (row) {
     row.id = parseInt(row.id);
     row.name = row.name || "";
     row.resKey = row.resKey || "";
+    row.type = row.type || "";
 
-    _.each(["type", "stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense",
+    _.each(["stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense",
         "resist", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev",
         "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor", "damageRedFactor",
         "physicalResist", "magicResist", "skill", "attackFactor", "defenseFactor"], function (f) {
@@ -687,24 +688,7 @@ exports.export = function (req, res) {
             csv().from.array(hDefs, { columns: dataColumns[data.tag] }).to(res, {
                 header: true,
                 eof: true,
-                columns: {
-                    id: "id",
-                    name: "武将名",
-                    stars: "星级",
-                    resKey: "拼音",
-                    maxLevel: "最大等级",
-                    male: "性别",
-                    canEquip: "可装备武器类型"
-                }
-            }).transform(function (row) {
-                if (row.male) {
-                    row.male = 1;
-                }
-                else {
-                    row.male = 0;
-                }
-                row.canEquip = JSON.stringify(row.canEquip);
-                return row;
+                columns: dataColumns.heroDef
             });
         });
     }
