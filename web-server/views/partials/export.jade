@@ -25,10 +25,9 @@ include ../mixins/block
         thead: tr
             th ID
             th 武将名
-            th 男性
-            th 星级
-            th 最高等级
-            th 可装配武器
+            th 职业
+            th 资质
+            th 体质
         tbody: tr(ng-repeat="h in heroes | orderBy:'id'")
             td {{h.id}}
             td {{h.name}}

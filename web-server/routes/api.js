@@ -582,18 +582,24 @@ exports.addAdmin = function (req, res) {
 
 // data import / data export
 var dataColumns = {
-    heroDef: ["id", "name", "stars", "resKey", "maxLevel", "male", "canEquip"],
+    heroDef: ["id", "name", "type", "stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense",
+        "resist", "attackDelta", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev",
+        "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor", "damageRedFactor",
+        "physicalResist", "magicResist", "skill", "resKey"],
     itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     ballistic: ["id", "value"]
 };
 
 var transformHeroDef = function (row) {
-    row.id = parseInt(row.id);
-    row.stars = parseInt(row.stars);
-    row.maxLevel = parseInt(row.maxLevel);
-    row.male = Boolean(parseInt(row.male));
-    row.canEquip = JSON.parse(row.canEquip);
+    row.attackDelta = JSON.parse(row.attackDelta || "[]");
+
+    _.each(["id", "type", "stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense",
+        "resist", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev",
+        "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor", "damageRedFactor",
+        "physicalResist", "magicResist", "skill"], function (f) {
+        row[f] = parseFloat(row[f]);
+    });
 };
 
 var transformItemDef = function (row) {
@@ -632,11 +638,11 @@ exports.import = function (req, res) {
     };
 
     csv().from.path(file.path, { columns: dataColumns[data.tag] }).to.array(function (newDefs) {
-        if (newDefs[0].id === "id" || newDefs[0].id === "key") {
+        if (typeof newDefs[0].id === "string" && (newDefs[0].id.toLowerCase() === "id" || newDefs[0].id.toLowerCase() === "key")) {
             newDefs.shift();
         }
         var updates = _.map(newDefs, function (d) {
-            if (d && d.id !== null && d.id !== undefined && d.id !== "")
+            if (d && d.id !== null && d.id !== undefined && d.id !== "" && !_.isNaN(d.id))
             {
                 if (Promise.is(d)) {
                     return d;
@@ -654,7 +660,7 @@ exports.import = function (req, res) {
             res.send(400, {message: ""+err});
         });
     }).transform(function (row) {
-        if (row.id !== "id" && row.id !== "id") {
+        if (row.id.toLowerCase() !== "id" && row.id.toLowerCase() !== "key") {
             var newRow = modelsAndTransform[data.tag][1](row);
             if (newRow) return newRow;
         }

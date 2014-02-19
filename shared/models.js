@@ -66,16 +66,39 @@ exports.init = function (dbConfig) {
 
     var HeroDef = exports.HeroDef = schema.define("herodef", {
         name: {type: String, default: ""},
+        type: {type: Number, default: 1},
         resKey: {type: String, default: ""},
-        male: {type: Boolean, default: false},
         stars: {type: Number, default: 1},
-        maxLevel: {type: Number, default: 90},
-        face: {type: String, default: ""},
         skill: {type: db.Schema.JSON, default: function () {return [];}},
 
-        canEquip: {type: db.Schema.JSON, default: function () {return [];}},
+        vitality: {type: Number, default: 0},
+        strength: {type: Number, default: 0},
+        intelligence: {type: Number, default: 0},
+        hp: {type: Number, default: 0},
+        attack: {type: Number, default: 0},
+        magic: {type: Number, default: 0},
+        defense: {type: Number, default: 0},
+        resist: {type: Number, default: 0},
+        attackDelta: {type: db.Schema.JSON, default: function () {return {};}},
+        vitGrowth: {type: Number, default: 0},
+        strGrowth: {type: Number, default: 0},
+        intelGrowth: {type: Number, default: 0},
+        critical: {type: Number, default: 0},
+        attackSpeed: {type: Number, default: 0},
+        speed: {type: Number, default: 0},
+        ballLev: {type: Number, default: 0},
+        ice: {type: Number, default: 0},
+        fire: {type: Number, default: 0},
+        slow: {type: Number, default: 0},
+        weak: {type: Number, default: 0},
+        damage: {type: Number, default: 0},
+        damageReduction: {type: Number, default: 0},
+        damageFactor: {type: Number, default: 0},
+        damageRedFactor: {type: Number, default: 0},
+        physicalResist: {type: Number, default: 0},
+        magicResist: {type: Number, default: 0}
 
-        props: {type: db.Schema.JSON, default: function () {return [];}}
+//        canEquip: {type: db.Schema.JSON, default: function () {return [];}},
     });
 
     var ItemDef = exports.ItemDef = schema.define("itemdef", {
@@ -234,15 +257,7 @@ exports.init = function (dbConfig) {
     };
 
     HeroDef.prototype.toClientObj = function () {
-        var ret = _.pick(this, "id", "name", "resKey", "stars", "maxLevel");
-        if (this.male) {
-            ret.male = 1;
-        }
-        else {
-            ret.male = 0;
-        }
-
-        return ret;
+        return this.toObject(true);
     };
 
     Item.prototype.toClientObj = function () {
