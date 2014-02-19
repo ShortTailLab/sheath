@@ -582,10 +582,10 @@ exports.addAdmin = function (req, res) {
 
 // data import / data export
 var dataColumns = {
-    heroDef: ["id", "name", "type", "stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense",
-        "resist", "attackDelta", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev",
-        "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor", "damageRedFactor",
-        "physicalResist", "magicResist", "skill", "resKey"],
+    heroDef: ["id", "name", "resKey", "type", "stars", "vitality", "strength", "intelligence", "vitGrowth", "strGrowth", "intelGrowth",
+        "hp", "attack", "magic", "defense", "resist", "critical", "attackSpeed", "speed", "ballLev", "skill",
+        "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor",
+        "physicalResist", "magicResist", "attackFactor", "defenseFactor"],
     itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     ballistic: ["id", "value"]
@@ -600,7 +600,7 @@ var transformHeroDef = function (row) {
     _.each(["type", "stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense",
         "resist", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev",
         "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor", "damageRedFactor",
-        "physicalResist", "magicResist", "skill"], function (f) {
+        "physicalResist", "magicResist", "skill", "attackFactor", "defenseFactor"], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
 };

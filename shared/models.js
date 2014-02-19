@@ -96,7 +96,9 @@ exports.init = function (dbConfig) {
         damageFactor: {type: Number, default: 0},
         damageRedFactor: {type: Number, default: 0},
         physicalResist: {type: Number, default: 0},
-        magicResist: {type: Number, default: 0}
+        magicResist: {type: Number, default: 0},
+        attackFactor: {type: Number, default: 0},
+        defenseFactor: {type: Number, default: 0}
     });
 
     var ItemDef = exports.ItemDef = schema.define("itemdef", {

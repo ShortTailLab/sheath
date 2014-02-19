@@ -87,7 +87,9 @@
         "required float damageFactor":          30,
         "required float damageRedFactor":       31,
         "required float physicalResist":        32,
-        "required float magicResist":           33
+        "required float magicResist":           33,
+        "required float attackFactor":          34,
+        "required float defenseFactor":         35
     },
     "message Item": {
         "required string id":        1,
