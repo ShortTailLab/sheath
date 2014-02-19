@@ -593,12 +593,15 @@ var dataColumns = {
 
 var transformHeroDef = function (row) {
     row.attackDelta = JSON.parse(row.attackDelta || "[]");
+    row.id = parseInt(row.id);
+    row.name = row.name || "";
+    row.resKey = row.resKey || "";
 
-    _.each(["id", "type", "stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense",
+    _.each(["type", "stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense",
         "resist", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev",
         "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor", "damageRedFactor",
         "physicalResist", "magicResist", "skill"], function (f) {
-        row[f] = parseFloat(row[f]);
+        row[f] = parseFloat(row[f]) || 0;
     });
 };
 
