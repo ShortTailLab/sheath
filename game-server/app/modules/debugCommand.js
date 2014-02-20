@@ -13,7 +13,7 @@ var Module = function(opts) {
     this.interval = opts.interval || 5;
 };
 
-Module.prototype.monitorHandler = function(agent, msg, cb) {
+Module.prototype.monitorHandler = function(agent, msg) {
     switch (msg.command) {
         case "kickAll":
             var ss = this.app.get("sessionService");
@@ -41,6 +41,10 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
         case "mail":
             this.app.rpc.chat.mailRemote.sendTreasureMail.toServer(this.app.getServerId(), null, msg.msg.target, msg.msg.content, function (err, result) {});
             break;
+        case "reloadTask":
+//            this.app.rpc.game.taskRemote.notify.toServer(this.app.getServerId(), "levelUp", "f107392c-a5c6-4ffe-89f2-83a4c7a9ec60", {}, function (err, result) {});
+            this.app.rpc.game.taskRemote.reloadAllTasks.toServer(this.app.getServerId(), function (err, result) {});
+            break;
     }
 };
 
@@ -60,6 +64,9 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
             break;
         case 'mail':
             mail(this.app, agent, msg, cb);
+            break;
+        case "reloadTask":
+            reloadTask(this.app, agent, msg, cb);
             break;
     }
 };
@@ -105,6 +112,16 @@ function mail(app, agent, msg, cb) {
 
     if (servers.length) {
         agent.request(servers[0].id, module.exports.moduleId, {command: "mail", msg: msg});
+    }
+
+    cb();
+}
+
+function reloadTask(app, agent, msg, cb) {
+    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "game"; });
+
+    if (servers.length) {
+        agent.request(servers[0].id, module.exports.moduleId, {command: "reloadTask", msg: msg});
     }
 
     cb();

@@ -18,6 +18,8 @@ class HeroHandler extends base.HandlerBase {
     }
 
     listDef(msg, session, next) {
+        wrapSession(session);
+
         this.safe(models.HeroDef.allP()
         .then((defs) => {
             next(null, {
@@ -27,6 +29,8 @@ class HeroHandler extends base.HandlerBase {
     }
 
     listBallistic(msg, session, next) {
+        wrapSession(session);
+
         this.safe(models.Ballistic.allP()
         .then(function (data) {
             var dict = {};
@@ -38,6 +42,8 @@ class HeroHandler extends base.HandlerBase {
     }
 
     list(msg, session, next) {
+        wrapSession(session);
+
         var roleId = session.get("role").id;
         this.safe(models.Hero.allP({where: {owner: roleId}})
         .then((heroes) => {
@@ -52,6 +58,8 @@ class HeroHandler extends base.HandlerBase {
     }
 
     equip(msg, session, next) {
+        wrapSession(session);
+
         var eqId = msg.equipmentId;
         var heroId = msg.heroId;
         var role = session.get("role");
@@ -102,6 +110,8 @@ class HeroHandler extends base.HandlerBase {
     }
 
     unEquip(msg, session, next) {
+        wrapSession(session);
+
         var eqId = msg.equipmentId;
         var role = session.get("role");
 

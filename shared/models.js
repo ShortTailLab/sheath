@@ -59,6 +59,8 @@ exports.init = function (dbConfig) {
         dailyRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
 
         taskData: {type: db.Schema.JSON, default: function () {return {};}},
+        taskDone: {type: db.Schema.JSON, default: function () {return [];}},
+        taskClaimed: {type: db.Schema.JSON, default: function () {return [];}},
 
         createTime: {type: Date, default: function () { return new Date(); }},
         isNew: Boolean
@@ -164,11 +166,17 @@ exports.init = function (dbConfig) {
     });
 
     var Task = exports.Task = schema.define("task", {
+        type: {type: Number, default: 0},
+        level: {type: Number, default: 0},
         name: {type: String, default: ""},
-        type: {type: String, default: ""},
+        desc: {type: String, default: ""},
+        weight: {type: Number, default: 0},
 
-        preCondition: {type: String, default: ""},
-        params: {type: db.Schema.JSON, default: function () { return {}; }},
+        start: {type: Date, default: function () { return new Date(); }},
+        end: {type: Date, default: function () { return new Date(); }},
+
+        preCondition: {type: db.Schema.JSON, default: function () { return []; }},
+        condition: {type: db.Schema.JSON, default: function () { return []; }},
 
         reward: Number
     });
@@ -247,7 +255,7 @@ exports.init = function (dbConfig) {
         var lastCheck = moment(this.energyRefreshTime);
         var energyGain = Math.floor(moment.duration(now - lastCheck).asMinutes()/15);
         if (energyGain > 0) {
-            this.energy = Math.max(this.energy + energyGain, 50);
+            this.energy = Math.min(this.energy + energyGain, 50);
             this.energyRefreshTime = lastCheck.add(energyGain*15, "minutes").toDate();
         }
     };
@@ -296,6 +304,17 @@ exports.init = function (dbConfig) {
 
     Mail.prototype.toLogObj = function () {
         return _.pick(this, "id");
+    };
+
+    Task.prototype.toClientObj = function () {
+        var ret = {
+            id: this.id,
+            name: this.name,
+            description: this.desc
+        };
+        if (this.start) ret.start = +this.start;
+        if (this.end) ret.end = +this.end;
+        return ret;
     };
 
     return schema;

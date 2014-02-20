@@ -4,6 +4,9 @@ var Promise = require("bluebird");
 var appModels = require("../../shared/models");
 var r = require("rethinkdb");
 var csv = require("csv");
+var fs = require("fs");
+var Iconv  = require('iconv').Iconv;
+var GB2UTF8 = new Iconv("GB18030", "UTF-8");
 
 exports.nodeInfo = function (req, res) {
     Promise.all([
@@ -161,6 +164,7 @@ exports.removePartition = function (req, res) {
 
 exports.userList = function (req, res) {
     var listOptions = req.body;
+    var ownerPromise = [[], 0];
 
     var query = {
         where: {},
@@ -173,13 +177,24 @@ exports.userList = function (req, res) {
     }
     if (listOptions.hint) {
         query.where.name = {match: listOptions.hint};
+
+        var userQuery = {where: {authId: {between: [listOptions.hint, listOptions.hint + "\uffff"]}}};
+        ownerPromise = appModels.User.allP(userQuery)
+        .then(function (users) {
+            if (users.length === 0)
+                return [[], 0];
+            else {
+                var q = {owner: {inq: _.pluck(users, "id")}};
+                return Promise.join(appModels.Role.allP({where: q}), appModels.Role.countP(q));
+            }
+        });
     }
 
-    Promise.join(appModels.Role.allP(query), appModels.Role.countP(query.where))
-    .spread(function (roles, roleCount) {
+    Promise.join(appModels.Role.allP(query), appModels.Role.countP(query.where), ownerPromise)
+    .spread(function (roles, roleCount, rolesByUser) {
         res.json({
-            roles: _.map(roles, roleToJson),
-            totalRoles: roleCount
+            roles: _.map(roles.concat(rolesByUser[0]), roleToJson),
+            totalRoles: roleCount + rolesByUser[1]
         });
     })
     .catch(function (err) {
@@ -204,7 +219,13 @@ exports.updateRole = function (req, res) {
             return Promise.reject();
         }
         delete diff.id;
+        if (diff.taskData) {
+            diff.taskData = r.literal(diff.taskData);
+        }
         return role.updateAttributesP(diff);
+    })
+    .then(function (role) {
+        return appModels.Role.findP(role.id);
     })
     .then(function (role) {
         res.json(roleToJson(role, rawObject));
@@ -588,6 +609,7 @@ var dataColumns = {
         "physicalResist", "magicResist", "attackFactor", "defenseFactor"],
     itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
+    task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
     ballistic: ["id", "value"]
 };
 
@@ -621,6 +643,28 @@ var transformTreasure = function (row) {
     row.weights = JSON.parse(row.weights || "[]");
 };
 
+var transformTask = function (row) {
+    row.id = parseInt(row.id);
+    row.level = parseInt(row.level) || 0;
+    row.weight = parseFloat(row.weight) || 1;
+    row.reward = parseInt(row.reward) || 0;
+    row.condition = JSON.parse(row.condition || "[]");
+    row.start = row.start ? moment(row.start).toDate() : null;
+    row.end = row.end ? moment(row.end).toDate() : null;
+
+    switch (row.type) {
+        case "活动":
+            row.type = 0;
+            break;
+        case "随机":
+            row.type = 1;
+            break;
+        case "每日":
+            row.type = 2;
+            break;
+    }
+};
+
 var transformBallistic = function (row) {
     if (row.id === "") return;
     var ins = new appModels.Ballistic();
@@ -633,45 +677,52 @@ exports.import = function (req, res) {
         return res.send(400, {message: "没有导入数据的权限"});
 
     var file = req.files.file;
-    var data = req.body;
+    var body = req.body;
     var modelsAndTransform = {
         heroDef: [appModels.HeroDef, transformHeroDef],
         itemDef: [appModels.ItemDef, transformItemDef],
         treasure: [appModels.Treasure, transformTreasure],
+        task: [appModels.Task, transformTask],
         ballistic: [appModels.Ballistic, transformBallistic]
     };
 
-    csv().from.path(file.path, { columns: dataColumns[data.tag] }).to.array(function (newDefs) {
-        while (newDefs[0].id === "[SKIP]") {
-            newDefs.shift();
+    fs.readFile(file.path, function (err, data) {
+        try {
+            data = GB2UTF8.convert(data);
         }
-        var updates = _.map(newDefs, function (d) {
-            if (d && d.id !== null && d.id !== undefined && d.id !== "" && !_.isNaN(d.id))
-            {
-                if (Promise.is(d)) {
-                    return d;
-                }
-                else {
-                    return modelsAndTransform[data.tag][0].upsertP(d);
-                }
+        catch (err) {}
+        csv().from.string(data, { columns: dataColumns[data.tag] }).to.array(function (newDefs) {
+            while (newDefs[0].id === "[SKIP]") {
+                newDefs.shift();
             }
-        });
+            var updates = _.map(newDefs, function (d) {
+                if (d && d.id !== null && d.id !== undefined && d.id !== "" && !_.isNaN(d.id))
+                {
+                    if (Promise.is(d)) {
+                        return d;
+                    }
+                    else {
+                        return modelsAndTransform[body.tag][0].upsertP(d);
+                    }
+                }
+            });
 
-        Promise.all(updates).then(function () {
-            res.send(200);
-        })
-        .catch(function (err) {
-            res.send(400, {message: ""+err});
+            Promise.all(updates).then(function () {
+                res.send(200);
+            })
+            .catch(function (err) {
+                res.send(400, {message: ""+err});
+            });
+        }).transform(function (row, index) {
+            if (index < 2) {
+                row.id = "[SKIP]";
+            }
+            else {
+                var newRow = modelsAndTransform[body.tag][1](row);
+                if (newRow) return newRow;
+            }
+            return row;
         });
-    }).transform(function (row, index) {
-        if (index < 2) {
-            row.id = "[SKIP]";
-        }
-        else {
-            var newRow = modelsAndTransform[data.tag][1](row);
-            if (newRow) return newRow;
-        }
-        return row;
     });
 };
 
@@ -751,6 +802,21 @@ exports.export = function (req, res) {
             });
         });
     }
+    else if (data.tag === "task") {
+        appModels.Task.allP({order: "id"}).then(function (tasks) {
+            csv().from.array(tasks, { columns: dataColumns[data.tag] }).to(res, {
+                header: true,
+                eof: true,
+                columns: dataColumns.task
+            }).transform(function (row) {
+                row.condition = JSON.stringify(row.condition);
+                row.type = ["活动", "随机", "每日"][row.type];
+                if (row.start) row.start = +row.start;
+                if (row.end) row.end = +row.end;
+                return row;
+            });
+        });
+    }
 };
 
 exports.heroDefs = function (req, res) {
@@ -801,11 +867,30 @@ exports.balls = function (req, res) {
     });
 };
 
+exports.tasks = function (req, res) {
+    appModels.Task.allP()
+    .then(function (data) {
+        res.json({
+            tasks: _.map(data, function (h) { return h.toClientObj(); })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
 // debug handlers
 exports.kickAll = function (req, res) {
     if (!req.session.user.manRole.debug)
         return res.send(400, {message: "没有执行调试命令的权限"});
     pomeloConn.client.request("debugCommand", {command: "kickAll"});
+    res.send(200);
+};
+
+exports.reloadTask = function (req, res) {
+    if (!req.session.user.manRole.debug)
+        return res.send(400, {message: "没有执行调试命令的权限"});
+    pomeloConn.client.request("debugCommand", {command: "reloadTask"});
     res.send(200);
 };
 

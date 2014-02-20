@@ -18,6 +18,8 @@ class ItemHandler extends base.HandlerBase {
     }
 
     listDef(msg, session, next) {
+        wrapSession(session);
+
         this.safe(models.ItemDef.allP().bind(this)
         .then((defs) => {
             next(null, {
@@ -27,6 +29,8 @@ class ItemHandler extends base.HandlerBase {
     }
 
     list(msg, session, next) {
+        wrapSession(session);
+
         var roleId = session.get("role").id;
         this.safe(models.Item.allP({where: {owner: roleId}}).bind(this)
         .then((items) => {

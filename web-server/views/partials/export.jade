@@ -17,6 +17,9 @@ include ../mixins/block
         .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="弹道数据").submit
             input(type="hidden", name="tag", value="ballistic")
+        .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="任务数据").submit
+            input(type="hidden", name="tag", value="task")
 
 +block("所有武将")
     div(class="message errormsg", ng-show="hero_error")
@@ -134,6 +137,33 @@ include ../mixins/block
             td {{tr.desc}}
             td {{tr.candidates}}
             td {{tr.weights}}
+
++block("所有任务")
+    div(class="message errormsg", ng-show="task_error")
+        p {{task_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th ID
+            th 等级
+            th 类型
+            th 权重
+            th 名称
+            th 描述
+            th 行为
+            th 奖励
+            th 开始时间
+            th 结束时间
+        tbody: tr(ng-repeat="t in tasks | orderBy:'id'")
+            td {{t.id}}
+            td {{t.level}}
+            td {{["活动", "随机", "每日"][t.type]}}
+            td {{t.weight}}
+            td {{t.name}}
+            td {{t.desc}}
+            td {{t.condition}}
+            td {{t.reward}}
+            td {{t.start | amDateFormat:"YYYY-MM-DD HH:mm"}}
+            td {{t.end | amDateFormat:"YYYY-MM-DD HH:mm"}}
 
 +block("所有弹道")
     div(class="message errormsg", ng-show="ball_error")

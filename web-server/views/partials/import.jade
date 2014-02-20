@@ -12,7 +12,13 @@ mixin uploadBox(title, func, tag)
     div(class="message success", ng-show="info")
         p {{info}}
     +uploadBox("武将数据:", "upload", "heroDef")
+    hr
     +uploadBox("道具数据:", "upload", "itemDef")
+    hr
     +uploadBox("奖励数据:", "upload", "treasure")
+    hr
     +uploadBox("关卡数据:", "upload", "stage")
+    hr
     +uploadBox("弹道数据:", "upload", "ballistic")
+    hr
+    +uploadBox("任务数据:", "upload", "task")

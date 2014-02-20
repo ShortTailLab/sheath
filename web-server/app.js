@@ -133,6 +133,7 @@ app.get('/api/itemDefs', restrictAPI, api.itemDefs);
 app.get('/api/heroDefs', restrictAPI, api.heroDefs);
 app.get('/api/treasures', restrictAPI, api.treasures);
 app.get('/api/balls', restrictAPI, api.balls);
+app.get('/api/tasks', restrictAPI, api.tasks);
 
 app.post('/api/findUsers', restrictAPI, api.findUsers);
 app.post('/api/findRoles', restrictAPI, api.findRoles);
@@ -143,6 +144,7 @@ app.post('/api/removeHero', restrictAPI, api.removeHero);
 app.post('/api/removeItem', restrictAPI, api.removeItem);
 
 app.post('/api/kickAll', restrictAPI, api.kickAll);
+app.post('/api/reloadTask', restrictAPI, api.reloadTask);
 app.post('/api/broadcast', restrictAPI, api.broadcast);
 app.post('/api/chat', restrictAPI, api.chat);
 app.post('/api/sendMail', restrictAPI, api.sendMail);

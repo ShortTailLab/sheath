@@ -7,6 +7,7 @@ div(ng-show="#{show_debug}")
     +block("调试"): .form-horizontal(role="form")
         .form-group
             .col-sm-1: button(class="btn btn-default", type="submit", ng-click="kickAll()") 全部踢下线
+            .col-sm-1: button(class="btn btn-default", type="submit", ng-click="reloadTask()") 重新加载任务
         .form-group
             .col-sm-10: input(type="text", placeholder="消息内容", ng-model="bdContent").form-control
             .col-sm-1: button(class="btn btn-default", type="submit", ng-click="broadcast()") 广播

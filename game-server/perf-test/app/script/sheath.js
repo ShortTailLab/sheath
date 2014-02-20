@@ -124,19 +124,31 @@ var ActFlagType = {
         desc: "获取所有邮件",
         reqId: 19,
         name: "listMail",
-        route: "mail.mailHandler.list"
+        route: "chat.mailHandler.list"
     },
     CLAIM_MAIL: {
         desc: "获取邮件奖励",
         reqId: 20,
         name: "claimMail",
-        route: "mail.mailHandler.claimTreasure"
+        route: "chat.mailHandler.claimTreasure"
     },
     CHAT: {
         desc: "发送",
         reqId: 21,
         name: "sendChat",
         route: "chat.chatHandler.send"
+    },
+    LIST_TASK: {
+        desc: "获取任务",
+        reqId: 22,
+        name: "listTask",
+        route: "game.taskHandler.list"
+    },
+    CLAIM_TASK: {
+        desc: "获取任务奖励",
+        reqId: 23,
+        name: "claimTask",
+        route: "game.taskHandler.claim"
     },
 
 
@@ -251,7 +263,9 @@ Role.prototype.afterLogin = function (pomelo) {
 
                     timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
                         timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
-                            self.randomActions(pomelo);
+                            timePomeloRequest(ActFlagType.LIST_TASK, {}, function (data) {
+                                self.randomActions(pomelo);
+                            });
                         });
                     });
                 });

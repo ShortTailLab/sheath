@@ -39,6 +39,10 @@ module.exports = {
         CANNOT_EQUIP_WEAPON_TYPE: 62,
         STORAGE_MAX: 63
     },
+    TaskFailed: {
+        NO_TASK: 90,
+        TASK_NOT_DONE: 91
+    },
 
 
     InternalServerError: 500

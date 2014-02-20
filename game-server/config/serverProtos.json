@@ -105,6 +105,15 @@
         "required int32 level":      3,
         "required int32 exp":        4
     },
+    "message Task": {
+        "required int32 id":            1,
+        "required string name":         2,
+        "required string description":  3,
+        "optional int32 start":         4,
+        "optional int32 end":           5,
+        "required int32 curProgress":   6,
+        "required int32 needProgress":  7
+    },
 
     "connector.entryHandler.enter": {
         "optional Error error":      1,
@@ -194,5 +203,19 @@
         "optional ProfileChange stateDiff": 2,
         "repeated Item newItems":    3,
         "repeated string removeGems":4
+    },
+
+    "game.taskHandler.list": {
+        "optional Error error":      1,
+        "repeated Task tasks":       2,
+        "repeated Task newTasks":    3
+    },
+    "game.taskHandler.claim": {
+        "optional Error error":      1,
+        "required int32 golds":      2,
+        "required int32 coins":      3,
+        "required int32 contribs":   4,
+        "repeated Hero heroes":      5,
+        "repeated Item items":       6
     }
 }

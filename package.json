@@ -8,6 +8,7 @@
         "commander": "latest",
         "csv": "latest",
         "moment": "latest",
+        "iconv": "latest",
         "bluebird": "latest",
         "underscore": "latest",
         "async": "latest",
