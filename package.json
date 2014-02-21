@@ -9,6 +9,7 @@
         "csv": "latest",
         "moment": "latest",
         "iconv": "latest",
+        "node-schedule": "latest",
         "bluebird": "latest",
         "underscore": "latest",
         "async": "latest",

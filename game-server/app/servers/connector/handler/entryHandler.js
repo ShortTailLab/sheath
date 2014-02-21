@@ -146,6 +146,7 @@ class EntryHandler extends base.HandlerBase {
         })
         .then(() => {
             this.app.rpc.chat.chatRemote.add(session, session.uid, role.name, this.app.get('serverId'), part.id, null);
+            this.app.rpc.chat.announcementRemote.userJoined(session, session.uid, part.id, null);
             next(null, {
                 role: role.toClientObj()
             });

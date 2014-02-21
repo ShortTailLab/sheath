@@ -45,6 +45,10 @@ Module.prototype.monitorHandler = function(agent, msg) {
 //            this.app.rpc.game.taskRemote.notify.toServer(this.app.getServerId(), "levelUp", "f107392c-a5c6-4ffe-89f2-83a4c7a9ec60", {}, function (err, result) {});
             this.app.rpc.game.taskRemote.reloadAllTasks.toServer(this.app.getServerId(), function (err, result) {});
             break;
+        case "addAnn":
+            break;
+        case "delAnn":
+            break;
     }
 };
 
@@ -67,6 +71,10 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
             break;
         case "reloadTask":
             reloadTask(this.app, agent, msg, cb);
+            break;
+        case "addAnn":
+            break;
+        case "delAnn":
             break;
     }
 };

@@ -248,6 +248,14 @@ Role.prototype.afterLogin = function (pomelo) {
         console.log('Recv chat message.' + JSON.stringify(data));
     });
 
+    pomelo.on('onAnnouncement', function (data) {
+        console.log('Recv Announcement.' + JSON.stringify(data));
+    });
+
+    pomelo.on('onEndAnnouncement', function (data) {
+        console.log('Recv EndAnnouncement.' + JSON.stringify(data));
+    });
+
     pomelo.on('disconnect', function (reason) {
         console.log('disconnect invoke!' + reason);
     });

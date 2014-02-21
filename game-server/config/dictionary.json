@@ -1,4 +1,7 @@
 [
+    "onAnnounce",
+    "onEndAnnounce",
+    "onMail",
     "onAdd",
     "onChat",
     "onLeave"

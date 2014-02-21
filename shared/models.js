@@ -191,6 +191,14 @@ exports.init = function (dbConfig) {
         treasures: {type: db.Schema.JSON, default: function () { return []; }}
     });
 
+    var Announcement = exports.Announcement = schema.define("announcement", {
+        name: String,
+        content: String,
+        partitions: {type: db.Schema.JSON, default: function () { return []; }},
+        start: {type: Date, default: function () { return new Date(); }},
+        end: {type: Date, default: function () { return new Date(); }}
+    });
+
     var Log = exports.Log = schema.define("log", {
         severity: String,
         type: String,
@@ -241,7 +249,7 @@ exports.init = function (dbConfig) {
         var ret = _.pick(this, "id", "name", "level", "exp", "title", "storageRoom", "energy", "coins", "golds", "contribs");
         if (this.isNew) ret.isNew = 1;
 
-        ret.team = _.map(this.team, (t) => { return t || ""; });
+        ret.team = _.map(this.team, function (t) { return t || ""; });
 
         return ret;
     };
@@ -314,6 +322,13 @@ exports.init = function (dbConfig) {
         };
         if (this.start) ret.start = +this.start;
         if (this.end) ret.end = +this.end;
+        return ret;
+    };
+
+    Announcement.prototype.toClientObj = function () {
+        var ret = _.pick(this, "id", "name", "content", "start", "end");
+        ret.start = +ret.start;
+        ret.end = +ret.end;
         return ret;
     };
 
