@@ -40,3 +40,12 @@ export function sampleWithWeight(list, weights, count=1, distinct=false) {
         return ret;
     }
 }
+
+var initOnceMap = {};
+export function initOnce(key) {
+    if (!initOnceMap[key]) {
+        initOnceMap[key] = true;
+        return true;
+    }
+    return false;
+}

@@ -1,6 +1,6 @@
 var Constants = require("../../../../../shared/constants");
 var models = require("../../../../../shared/models");
-var annService = require("../../../services/annService");
+var utils = require("../../../../../shared/utils");
 var schedule = require("node-schedule");
 var _ = require("underscore");
 
@@ -14,7 +14,7 @@ class AnnouncementRemote {
         this.inEffectAnnouncemeents = {all: []};
         this.allAnns = {};
 
-        if (this.app.serverType === "chat" && annService.initOnce()) {
+        if (this.app.serverType === "chat" && utils.initOnce("AnnRemote")) {
             models.Announcement.allP({where: {end: {gt: new Date()}}}).bind(this)
             .then(function (anns) {
                 for (var i=0;i<anns.length;i++) {
