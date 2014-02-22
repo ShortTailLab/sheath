@@ -46,8 +46,10 @@ Module.prototype.monitorHandler = function(agent, msg) {
             this.app.rpc.game.taskRemote.reloadAllTasks.toServer(this.app.getServerId(), function (err, result) {});
             break;
         case "addAnn":
+            this.app.rpc.chat.announcementRemote.addAnn.toServer(this.app.getServerId(), msg.annId, function (err, result) {});
             break;
         case "delAnn":
+            this.app.rpc.chat.announcementRemote.deleteAnn.toServer(this.app.getServerId(), msg.annId, function (err, result) {});
             break;
     }
 };
@@ -58,78 +60,35 @@ Module.prototype.masterHandler = function(agent, msg) {
 Module.prototype.clientHandler = function(agent, msg, cb) {
     switch (msg.command) {
         case "kickAll":
-            kickAll(this.app, agent, msg, cb);
+            forward(agent, "connector", "kickAll", null, cb);
             break;
         case "broadcast":
-            broadcast(this.app, agent, msg, cb);
+            forward(agent, "connector", "broadcast", msg.content || "Test msg.", cb);
             break;
         case "chat":
-            chat(this.app, agent, msg, cb);
+            forward(agent, "connector", "chat", msg.content || "Test msg.", cb);
             break;
         case 'mail':
-            mail(this.app, agent, msg, cb);
+            forward(agent, "chat", "mail", msg, cb);
             break;
         case "reloadTask":
-            reloadTask(this.app, agent, msg, cb);
+            forward(agent, "game", "reloadTask", msg, cb);
             break;
         case "addAnn":
+            forward(agent, "chat", "addAnn", msg, cb);
             break;
         case "delAnn":
+            forward(agent, "chat", "delAnn", msg, cb);
             break;
     }
 };
 
-function kickAll(app, agent, msg, cb) {
-    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "connector"; });
+function forward(agent, serverType, command, msg, cb) {
+    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === serverType; });
 
     for (var i =0;i<servers.length;i++) {
         var server = servers[i];
-        agent.request(server.id, module.exports.moduleId, {command: "kickAll"});
-    }
-
-    cb();
-}
-
-function broadcast(app, agent, msg, cb) {
-    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "connector"; });
-
-    for (var i =0;i<servers.length;i++) {
-        var server = servers[i];
-        agent.request(server.id, module.exports.moduleId, {
-            command: "broadcast",
-            msg: msg.content || "Test msg."
-        });
-    }
-
-    cb();
-}
-
-function chat(app, agent, msg, cb) {
-    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "connector"; });
-
-    for (var i =0;i<servers.length;i++) {
-        var server = servers[i];
-        agent.request(server.id, module.exports.moduleId, {command: "chat", msg: msg.content || "Test msg."});
-    }
-
-    cb();
-}
-
-function mail(app, agent, msg, cb) {
-    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "chat"; });
-
-    if (servers.length) {
-        agent.request(servers[0].id, module.exports.moduleId, {command: "mail", msg: msg});
-    }
-
-    cb();
-}
-
-function reloadTask(app, agent, msg, cb) {
-    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "game"; });
-
-    if (servers.length) {
-        agent.request(servers[0].id, module.exports.moduleId, {command: "reloadTask", msg: msg});
+        agent.request(server.id, module.exports.moduleId, {command: command, msg: msg});
     }
 
     cb();
