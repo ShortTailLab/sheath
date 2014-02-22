@@ -2,6 +2,7 @@ var Constants = require("../../../../../shared/constants");
 var models = require("../../../../../shared/models");
 var utils = require("../../../../../shared/utils");
 var Task = require("../../../../task/tasks");
+var taskService = require("../../../services/taskService");
 var Promise = require("bluebird");
 var events = require('events');
 var fs = require("fs");
@@ -39,7 +40,7 @@ class TaskRemote {
         this.app = app;
         logger = require('../../../utils/rethinkLogger').getLogger(app);
 
-        if (this.app.serverType === "game") {
+        if (this.app.serverType === "game" && taskService.initOnce()) {
             this.taskPath = this.app.base + "/task/";
             this.tasks = {};
             this.dailyTasks = [];
