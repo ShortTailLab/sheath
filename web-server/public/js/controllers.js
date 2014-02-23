@@ -611,6 +611,9 @@ sheathControllers.controller('storeController', function ($scope, $http) {
 sheathControllers.controller('eventController', function ($scope, $http) {
 });
 
+sheathControllers.controller('announcementController', function ($scope, $http) {
+});
+
 sheathControllers.controller('statsController', function ($scope, $http) {
     $scope.retentionChartConfig = {
         title: {text: "留存"},

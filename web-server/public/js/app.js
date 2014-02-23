@@ -66,6 +66,10 @@ sheath.config(['$routeProvider', '$locationProvider', "$httpProvider", function 
             templateUrl: 'partials/import',
             controller: 'importController'
         }).
+        when('/announcement', {
+            templateUrl: 'partials/announcement',
+            controller: 'announcementController'
+        }).
         when('/logout', {
             redirectTo: function () {window.location = "/logout";}
         }).

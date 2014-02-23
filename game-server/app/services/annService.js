@@ -28,7 +28,7 @@ AnnService.prototype.initOnce = function(app) {
 AnnService.prototype.startAnn = function(ann) {
     var channelService = this.app.get("channelService");
     var message = ann.toClientObj();
-    if (ann.partitions.length === 1 && ann.partitions[0] === "*") {
+    if (ann.partitions.length === 0 || ann.partitions[0] === "*") {
         this.inEffectAnnouncemeents.all.push(ann);
         channelService.broadcast("connector", "onAnnounce", message);
     }
@@ -49,7 +49,7 @@ AnnService.prototype.endAnn = function(ann) {
     var channelService = this.app.get("channelService");
     delete this.allAnns[ann.id];
     var message = {id: ann.id};
-    if (ann.partitions.length === 1 && ann.partitions[0] === "*") {
+    if (ann.partitions.length === 0 || ann.partitions[0] === "*") {
         this.inEffectAnnouncemeents.all = _.without(this.inEffectAnnouncemeents.all, ann);
         channelService.broadcast("connector", "onEndAnnounce", message);
     }

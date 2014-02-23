@@ -15,10 +15,10 @@ block body
                 p
                     label 密码:
                     input(name='password', type='password', id='password').text
-                p
-                    input(value="登陆", type='submit').submit
-                    label(type="checkbox")
-                        input(type='checkbox', name='rememberme', checked).checkbox
+                .form-horizontal: .form-group
+                    .col-sm-3: input(value="登陆", type='submit').submit
+                    .col-sm-3: label.checkbox
+                        input(type='checkbox', name='rememberme', checked)
                         | 记住我
 
         .bendl
