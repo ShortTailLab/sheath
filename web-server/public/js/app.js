@@ -7,6 +7,7 @@ var sheath = angular.module('sheath', [
     'ui.grid.edit',
     'ui.select2',
     'ui.bootstrap',
+    'ui.bootstrap.datetimepicker',
     'ui.ace',
     'angular-loading-bar',
     'angularFileUpload',
