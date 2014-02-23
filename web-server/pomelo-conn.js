@@ -10,17 +10,22 @@ function PomeloConn() {
         password: config.password,
         md5: false
     });
-    this.client.on("close", pro.connect.bind(this));
+    this.client.on("close", pro.reconnect.bind(this));
+    this.client.on("error", pro.reconnect.bind(this));
 }
 
 var pro = PomeloConn.prototype;
 
+pro.reconnect = function () {
+    var self = this;
+    setTimeout(function () {
+        self.connect();
+    }, 1000);
+};
+
 pro.connect = function () {
     this.client.connect('adminPortal-' + Date.now(), config.host, config.port, function (err) {
-        if (err && err !== "ok") {
-            console.error('fail to connect to admin console server:');
-            console.error(err);
-        } else {
+        if (!err) {
             console.info('admin console connected.');
         }
     });
