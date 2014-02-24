@@ -26,6 +26,7 @@ angular.module('ui.bootstrap.datetimepicker', ["ui.bootstrap"])
                     currentText: "@",
                     clearText: "@",
                     toggleWeeksText: "@",
+                    datepickerAppendToBody: "@",
                     minDate: "=",
                     maxDate: "=",
                     dateOptions: "=",
@@ -95,6 +96,7 @@ angular.module('ui.bootstrap.datetimepicker', ["ui.bootstrap"])
                         createEvalAttr("currentText", "currentText") +
                         createEvalAttr("toggleWeeksText", "toggleWeeksText") +
                         createEvalAttr("clearText", "clearText") +
+                        createEvalAttr("datepickerAppendToBody", "datepickerAppendToBody") +
                         "/>\n" +
                         "</div>\n" +
                         "<div class=\"datetimepicker-wrapper\" ng-model=\"time\" ng-change=\"time_change()\" style=\"display:inline-block\">\n" +

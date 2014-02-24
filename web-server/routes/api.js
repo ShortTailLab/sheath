@@ -871,7 +871,29 @@ exports.tasks = function (req, res) {
     appModels.Task.allP()
     .then(function (data) {
         res.json({
-            tasks: _.map(data, function (h) { return h.toClientObj(); })
+            tasks: _.map(data, function (t) {
+                var ret = t.toObject(true);
+                t.start = +t.start;
+                t.end = +t.end;
+                return ret;
+            })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.anns = function (req, res) {
+    appModels.Announcement.allP()
+    .then(function (data) {
+        res.json({
+            anns: _.map(data, function (h) {
+                var ret =  h.toObject(true);
+                ret.start = +ret.start;
+                ret.end = +ret.end;
+                return ret;
+            })
         });
     })
     .catch(function (err) {

@@ -134,6 +134,7 @@ app.get('/api/heroDefs', restrictAPI, api.heroDefs);
 app.get('/api/treasures', restrictAPI, api.treasures);
 app.get('/api/balls', restrictAPI, api.balls);
 app.get('/api/tasks', restrictAPI, api.tasks);
+app.get('/api/anns', restrictAPI, api.anns);
 
 app.post('/api/findUsers', restrictAPI, api.findUsers);
 app.post('/api/findRoles', restrictAPI, api.findRoles);

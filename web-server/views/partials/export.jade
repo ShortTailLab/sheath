@@ -165,6 +165,25 @@ include ../mixins/block
             td {{t.start | amDateFormat:"YYYY-MM-DD HH:mm"}}
             td {{t.end | amDateFormat:"YYYY-MM-DD HH:mm"}}
 
++block("所有公告")
+    div(class="message errormsg", ng-show="ann_error")
+        p {{ann_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th ID
+            th 可见区
+            th 名称
+            th 内容
+            th 开始时间
+            th 结束时间
+        tbody: tr(ng-repeat="a in anns | orderBy:'id'")
+            td {{a.id}}
+            td {{a.partitions}}
+            td {{a.name}}
+            td: a(href="", ng-click="preview(a)") [预览]
+            td {{a.start | amDateFormat:"YYYY-MM-DD HH:mm"}}
+            td {{a.end | amDateFormat:"YYYY-MM-DD HH:mm"}}
+
 +block("所有弹道")
     div(class="message errormsg", ng-show="ball_error")
         p {{ball_error}}

@@ -460,13 +460,6 @@ sheathControllers.controller('addPartitionController', function ($scope, $modalI
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
-
-    $scope.openDate = function($event) {
-        $event.preventDefault();
-        $event.stopPropagation();
-
-        $scope.dpOpened = true;
-    };
 });
 
 sheathControllers.controller('adminController', function ($scope, $http, $timeout, $modal) {
@@ -568,7 +561,7 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
     };
 });
 
-sheathControllers.controller('exportController', function ($scope, $http) {
+sheathControllers.controller('exportController', function ($scope, $http, $modal) {
     $http.get("/api/itemDefs").success(function (data) {
         $scope.items = data.items;
     })
@@ -603,6 +596,27 @@ sheathControllers.controller('exportController', function ($scope, $http) {
     .error(function (err) {
         $scope.task_error = "获取任务错误: " + (err.message || "未知错误");
     });
+
+    $http.get("/api/anns").success(function (data) {
+        $scope.anns = data.anns;
+    })
+    .error(function (err) {
+        $scope.ann_error = "获取公告错误: " + (err.message || "未知错误");
+    });
+
+    $scope.preview = function(ann) {
+        var modalInstance = $modal.open({
+            templateUrl: 'templates/modalPreviewAnn',
+            controller: 'previewAnnController',
+            resolve: {
+                ann: function () {return ann;}
+            }
+        });
+    };
+});
+
+sheathControllers.controller('previewAnnController', function ($scope, $http, ann) {
+    $scope.ann = ann;
 });
 
 sheathControllers.controller('storeController', function ($scope, $http) {
@@ -612,6 +626,42 @@ sheathControllers.controller('eventController', function ($scope, $http) {
 });
 
 sheathControllers.controller('announcementController', function ($scope, $http) {
+    $http.get("/api/anns").success(function (data) {
+        $scope.items = data.anns;
+        if ($scope.items.length > 0) {
+            $scope.select($scope.items[0]);
+        }
+    })
+    .error(function (data) {
+        $scope.error = data.message || "未知错误";
+    });
+
+    $scope.select = function (data) {
+        $scope.selected = data;
+        $scope.editable = angular.copy(data);
+    };
+
+    $scope.addAnn = function () {
+        $scope.items.push({
+            isNew: true,
+            name: "新公告",
+            start: new Date(),
+            end: new Date()
+        });
+        $scope.select($scope.items[$scope.items.length-1]);
+    };
+
+    $scope.modify = function (ann) {
+
+    };
+
+    $scope.save = function (ann) {
+
+    };
+
+    $scope.remove = function (ann) {
+
+    };
 });
 
 sheathControllers.controller('statsController', function ($scope, $http) {

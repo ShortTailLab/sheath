@@ -23,3 +23,11 @@
 .datetimepicker-wrapper [ng-model=hours], [ng-model=minutes] {
     width: 46px !important;
 }
+
+.ta-editor {
+    min-height: 400px;
+    height: auto;
+    overflow: auto;
+    font-family: inherit;
+    font-size: 100%;
+}

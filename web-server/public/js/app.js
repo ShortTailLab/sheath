@@ -13,6 +13,7 @@ var sheath = angular.module('sheath', [
     'angularFileUpload',
     'ngTable',
     'angularMoment',
+    'textAngular',
     'sheath.controllers',
     'sheath.services'
 ]);
