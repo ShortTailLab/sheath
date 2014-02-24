@@ -7,6 +7,7 @@ var csv = require("csv");
 var fs = require("fs");
 var Iconv  = require('iconv').Iconv;
 var GB2UTF8 = new Iconv("GB18030", "UTF-8");
+var UTF82GB = new Iconv("UTF-8", "GB18030");
 
 exports.nodeInfo = function (req, res) {
     Promise.all([
@@ -764,44 +765,51 @@ exports.import = function (req, res) {
         ballistic: [appModels.Ballistic, transformBallistic]
     };
 
-    fs.readFile(file.path, function (err, data) {
-        try {
-            data = GB2UTF8.convert(data);
-        }
-        catch (err) {}
-        csv().from.string(data, { columns: dataColumns[data.tag] }).to.array(function (newDefs) {
-            while (newDefs[0].id === "[SKIP]") {
-                newDefs.shift();
+    if (file) {
+        fs.readFile(file.path, function (err, data) {
+            try {
+                data = GB2UTF8.convert(data);
             }
-            var updates = _.map(newDefs, function (d) {
-                if (d && d.id !== null && d.id !== undefined && d.id !== "" && !_.isNaN(d.id))
-                {
-                    if (Promise.is(d)) {
-                        return d;
-                    }
-                    else {
-                        return modelsAndTransform[body.tag][0].upsertP(d);
-                    }
+            catch (err) {}
+            csv().from.string(data, { columns: dataColumns[body.tag] }).to.array(function (newDefs) {
+                while (newDefs[0].id === "[SKIP]") {
+                    newDefs.shift();
                 }
-            });
+                var updates = _.map(newDefs, function (d) {
+                    if (d && d.id !== null && d.id !== undefined && d.id !== "" && !_.isNaN(d.id))
+                    {
+                        if (Promise.is(d)) {
+                            return d;
+                        }
+                        else {
+                            return modelsAndTransform[body.tag][0].upsertP(d);
+                        }
+                    }
+                });
 
-            Promise.all(updates).then(function () {
-                res.send(200);
-            })
-            .catch(function (err) {
-                res.send(400, {message: ""+err});
+                Promise.all(updates).then(function () {
+                    res.send(200);
+                })
+                .catch(function (err) {
+                    res.send(400, {message: ""+err});
+                });
+            }).transform(function (row, index) {
+                if (index < 2) {
+                    row.id = "[SKIP]";
+                }
+                else {
+                    var newRow = modelsAndTransform[body.tag][1](row);
+                    if (newRow) return newRow;
+                }
+                return row;
             });
-        }).transform(function (row, index) {
-            if (index < 2) {
-                row.id = "[SKIP]";
-            }
-            else {
-                var newRow = modelsAndTransform[body.tag][1](row);
-                if (newRow) return newRow;
-            }
-            return row;
         });
-    });
+    }
+    else if (body.confirm) {
+    }
+    else {
+        res.send(400);
+    }
 };
 
 exports.export = function (req, res) {
