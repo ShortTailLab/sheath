@@ -154,6 +154,8 @@ app.post('/api/broadcast', restrictAPI, api.broadcast);
 app.post('/api/chat', restrictAPI, api.chat);
 app.post('/api/sendMail', restrictAPI, api.sendMail);
 
+app.post('/api/inGameReward', api.importInGameReward);
+
 app.post('/api/getStatInfo', restrictAPI, api.getStatInfo);
 
 app.get('/js/lib/*.map', function (req, res) { res.send(404); });

@@ -114,6 +114,11 @@
         "required int32 curProgress":   6,
         "required int32 needProgress":  7
     },
+    "message ETypeWeight": {
+        "required int32 type":          1,
+        "required int32 weight":        2,
+        "required int32 seed":          3
+    },
 
     "connector.entryHandler.enter": {
         "optional Error error":      1,
@@ -199,10 +204,17 @@
         "repeated string gems":      7
     },
     "game.equipmentHandler.destruct": {
-        "optional Error error":      1,
-        "optional ProfileChange stateDiff": 2,
-        "repeated Item newItems":    3,
-        "repeated string removeGems":4
+        "optional Error error":                 1,
+        "optional ProfileChange stateDiff":     2,
+        "repeated Item newItems":               3,
+        "repeated string removeGems":           4
+    },
+
+    "game.levelHandler.start": {
+        "optional Error error":             1,
+        "optional int32 levelId":           2,
+        "optional string path":             3,
+        "repeated ETypeWeight enemies":     4
     },
 
     "game.taskHandler.list": {

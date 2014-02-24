@@ -62,6 +62,9 @@ exports.init = function (dbConfig) {
         taskDone: {type: db.Schema.JSON, default: function () {return [];}},
         taskClaimed: {type: db.Schema.JSON, default: function () {return [];}},
 
+        levelCleared: {type: db.Schema.JSON, default: function () {return [];}},
+        levelGain: {type: db.Schema.JSON, default: function () {return {};}},
+
         createTime: {type: Date, default: function () { return new Date(); }},
         isNew: Boolean
     });
@@ -147,14 +150,15 @@ exports.init = function (dbConfig) {
     });
 
     var Stage = exports.Stage = schema.define("stage", {
-        name: {type: String, default: ""}
+        name: {type: String, default: ""},
+
+        public: {type: Boolean, default: true}
     });
 
     var Level = exports.Level = schema.define("level", {
         name: {type: String, default: ""},
-        resKey: {type: String, default: ""},
-
-        public: {type: Boolean, default: true}
+        path: {type: String, default: ""},
+        enemies: {type: db.Schema.JSON, default: function () { return {}; }}
     });
 
     var Treasure = exports.Treasure = schema.define("treasure", {

@@ -979,6 +979,18 @@ exports.anns = function (req, res) {
     });
 };
 
+exports.importInGameReward = function (req, res) {
+    if (req.body.key !== "nimei123.J$p1ter") {
+        return res.send(401);
+    }
+
+    var level = req.body;
+    level.id = level.level;
+    appModels.upsertP(level).then(function () {
+        res.send(200);
+    });
+};
+
 // debug handlers
 exports.kickAll = function (req, res) {
     if (!req.session.user.manRole.debug)
