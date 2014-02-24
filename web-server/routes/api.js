@@ -545,7 +545,7 @@ exports.modifyAdmin = function (req, res) {
         if (admin.manRole === null) {
             return res.send(400, {message: "用户不是管理员"});
         }
-        admin.manRole = _.pick(newAdminRole.manRole, "admin", "editUser", "data", "debug");
+        admin.manRole = _.pick(newAdminRole.manRole, "admin", "editUser", "data", "debug", "announce");
         return admin.saveP();
     })
     .then(function (admin) {
@@ -598,6 +598,84 @@ exports.addAdmin = function (req, res) {
     })
     .catch(function (err) {
         res.send(400, {message: ""+err});
+    });
+};
+
+exports.updateAnn = function (req, res) {
+    if (!req.session.user.manRole.announce)
+        return res.send(400, {message: "没有修改公告的权限"});
+
+    var diff = req.body;
+
+    appModels.Announcement.findP(diff.id).then(function (ann) {
+        if (!ann) {
+            return Promise.reject();
+        }
+        delete diff.id;
+        return ann.updateAttributesP(diff);
+    })
+    .then(function (ann) {
+        pomeloConn.client.request("debugCommand", {command: "delAnn", annId: ann.id}, function () {
+            pomeloConn.client.request("debugCommand", {command: "addAnn", annId: ann.id});
+        });
+        var ret =  ann.toObject(true);
+        ret.start = +ret.start;
+        ret.end = +ret.end;
+        res.send(200, ret);
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.saveAnn = function (req, res) {
+    if (!req.session.user.manRole.announce)
+        return res.send(400, {message: "没有发公告的权限"});
+
+    var newAnn = req.body;
+    appModels.Announcement.upsertP(newAnn)
+    .then(function (ann) {
+        if (ann) {
+            pomeloConn.client.request("debugCommand", {command: "addAnn", annId: ann.id});
+            var ret =  ann.toObject(true);
+            ret.start = +ret.start;
+            ret.end = +ret.end;
+            res.send(200, ret);
+        }
+        else {
+            return Promise.reject();
+        }
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.removeAnn = function (req, res) {
+    if (!req.session.user.manRole.announce)
+        return res.send(400, {message: "没有删除公告的权限"});
+
+    var annId = req.body.annId;
+    appModels.Announcement.findP(annId)
+    .then(function (ann) {
+        if (ann) {
+            return ann.destroyP();
+        }
+        else {
+            return Promise.reject(404);
+        }
+    })
+    .then(function () {
+        pomeloConn.client.request("debugCommand", {command: "delAnn", annId: annId});
+        res.send(200);
+    })
+    .catch(function (err) {
+        if (err === 404) {
+            res.send(404);
+        }
+        else {
+            res.send(400);
+        }
     });
 };
 

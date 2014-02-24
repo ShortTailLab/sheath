@@ -45,7 +45,21 @@ AnnService.prototype.startAnn = function(ann) {
     }
 };
 
-AnnService.prototype.endAnn = function(ann) {
+AnnService.prototype.endAnn = function(annId) {
+    var ann = this.allAnns[annId];
+    if (!ann) {
+        return;
+    }
+
+    if (ann.startJob) {
+        schedule.cancelJob(ann.startJob);
+        ann.startJob = undefined;
+    }
+    if (ann.endJob) {
+        schedule.cancelJob(ann.endJob);
+        ann.endJob = undefined;
+    }
+
     var channelService = this.app.get("channelService");
     delete this.allAnns[ann.id];
     var message = {id: ann.id};
@@ -79,10 +93,10 @@ AnnService.prototype.addAnnAux = function(ann) {
         this.startAnn(ann);
     }
     else {
-        schedule.scheduleJob({start: ann.start}, this.startAnn.bind(this, ann));
+        ann.startJob = schedule.scheduleJob({start: ann.start}, this.startAnn.bind(this, ann));
     }
 
-    schedule.scheduleJob({start: ann.end}, this.endAnn.bind(this, ann));
+    ann.endJob = schedule.scheduleJob({start: ann.end}, this.endAnn.bind(this, ann));
 };
 
 AnnService.prototype.getAnnsByPartId = function(partId) {

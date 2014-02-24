@@ -136,6 +136,10 @@ app.get('/api/balls', restrictAPI, api.balls);
 app.get('/api/tasks', restrictAPI, api.tasks);
 app.get('/api/anns', restrictAPI, api.anns);
 
+app.post('/api/updateAnn', restrictAPI, api.updateAnn);
+app.post('/api/saveAnn', restrictAPI, api.saveAnn);
+app.post('/api/removeAnn', restrictAPI, api.removeAnn);
+
 app.post('/api/findUsers', restrictAPI, api.findUsers);
 app.post('/api/findRoles', restrictAPI, api.findRoles);
 app.post('/api/getRole', restrictAPI, api.getRole);

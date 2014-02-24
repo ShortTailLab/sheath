@@ -13,7 +13,7 @@ var Module = function(opts) {
     this.interval = opts.interval || 5;
 };
 
-Module.prototype.monitorHandler = function(agent, msg) {
+Module.prototype.monitorHandler = function(agent, msg, cb) {
     switch (msg.command) {
         case "kickAll":
             var ss = this.app.get("sessionService");
@@ -22,12 +22,12 @@ Module.prototype.monitorHandler = function(agent, msg) {
             });
             break;
         case "broadcast":
-            this.app.get("channelService").broadcast("connector", "onBroadcast", {message: msg.msg.content});
+            this.app.get("channelService").broadcast("connector", "onBroadcast", {message: msg.msg});
             break;
         case "chat":
         {
             var param = {
-                msg: msg.content,
+                msg: msg.msg,
                 from: {
                     uid: "",
                     id: "",
@@ -42,14 +42,14 @@ Module.prototype.monitorHandler = function(agent, msg) {
             this.app.rpc.chat.mailRemote.sendTreasureMail.toServer(this.app.getServerId(), null, msg.msg.target, msg.msg.content, function (err, result) {});
             break;
         case "reloadTask":
-//            this.app.rpc.game.taskRemote.notify.toServer(this.app.getServerId(), "levelUp", "f107392c-a5c6-4ffe-89f2-83a4c7a9ec60", {}, function (err, result) {});
-            this.app.rpc.game.taskRemote.reloadAllTasks.toServer(this.app.getServerId(), function (err, result) {});
+//            this.app.rpc.game.taskRemote.notify.toServer(this.app.getServerId(), "levelUp", "f107392c-a5c6-4ffe-89f2-83a4c7a9ec60", {}, cb);
+            this.app.rpc.game.taskRemote.reloadAllTasks.toServer(this.app.getServerId(), cb);
             break;
         case "addAnn":
-            this.app.rpc.chat.announcementRemote.addAnn.toServer(this.app.getServerId(), msg.annId, function (err, result) {});
+            this.app.rpc.chat.announcementRemote.addAnn.toServer(this.app.getServerId(), msg.msg.annId, cb);
             break;
         case "delAnn":
-            this.app.rpc.chat.announcementRemote.deleteAnn.toServer(this.app.getServerId(), msg.annId, function (err, result) {});
+            this.app.rpc.chat.announcementRemote.deleteAnn.toServer(this.app.getServerId(), msg.msg.annId, cb);
             break;
     }
 };
@@ -84,12 +84,14 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
 };
 
 function forward(agent, serverType, command, msg, cb) {
+    if (!cb) {
+        cb = function () {};
+    }
+
     var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === serverType; });
 
     for (var i =0;i<servers.length;i++) {
         var server = servers[i];
-        agent.request(server.id, module.exports.moduleId, {command: command, msg: msg});
+        agent.request(server.id, module.exports.moduleId, {command: command, msg: msg}, cb);
     }
-
-    cb();
 }

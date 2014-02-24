@@ -29,10 +29,9 @@ class AnnouncementRemote {
     }
 
     deleteAnn(annId, cb) {
-        var ann = this.allAnns[annId];
-        if (ann) {
-            annService.endAnn(ann);
-        }
+        console.log(annId);
+        annService.endAnn(annId);
+        cb();
     }
 
     userJoined(userId, partId, cb) {

@@ -18,6 +18,9 @@ include ../mixins/block
             .checkbox: label
                 input(type="checkbox", ng-model="editable.manRole.data")
                 | 导入导出数据
+            .checkbox: label
+                input(type="checkbox", ng-model="editable.manRole.announce")
+                | 公告
             .checkbox(ng-show="#{show_debug}"): label
                 input(type="checkbox", ng-model="editable.manRole.debug")
                 | 调试

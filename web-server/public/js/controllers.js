@@ -22,7 +22,20 @@ function diffModel(m1, m2, fields) {
     var diff = {id: m1.id};
     for (var i=0;i<fields.length;i++) {
         var field = fields[i];
-        if (m1[field] !== m2[field]) {
+        if (_.isArray(m1[field])) {
+            if (m1[field].length !== m2[field].length) {
+                diff[field] = m2[field];
+            }
+            else {
+                for (var j=0;j<m1[field].length;j++) {
+                    if (m1[field][j] !== m2[field][j]) {
+                        diff[field] = m2[field];
+                        break;
+                    }
+                }
+            }
+        }
+        else if (m1[field] !== m2[field]) {
             diff[field] = m2[field];
         }
     }
@@ -625,7 +638,7 @@ sheathControllers.controller('storeController', function ($scope, $http) {
 sheathControllers.controller('eventController', function ($scope, $http) {
 });
 
-sheathControllers.controller('announcementController', function ($scope, $http) {
+sheathControllers.controller('announcementController', function ($scope, $http, $timeout) {
     $http.get("/api/anns").success(function (data) {
         $scope.items = data.anns;
         if ($scope.items.length > 0) {
@@ -651,16 +664,60 @@ sheathControllers.controller('announcementController', function ($scope, $http) 
         $scope.select($scope.items[$scope.items.length-1]);
     };
 
-    $scope.modify = function (ann) {
+    function updateModel(dest, source) {
+        _.each(source, function (value, key) {
+            dest[key] = value;
+        });
+    }
 
+    $scope.modify = function (ann) {
+        var diff = diffModel($scope.selected, ann, ["name", "content", "partitions", "start", "end"]);
+        if (_.size(diff) > 1) {
+            $http.post("/api/updateAnn", diff).success(function (data) {
+                updateModel($scope.selected, data);
+                $scope.select($scope.selected);
+                $scope.info = "修改成功";
+                $timeout(function () {$scope.info = null;}, 2000);
+            })
+            .error(function (data) {
+                $scope.error = data.message || "未知错误";
+            });
+        }
     };
 
     $scope.save = function (ann) {
-
+        $http.post("/api/saveAnn", ann).success(function (data) {
+            updateModel($scope.selected, data);
+            $scope.selected.isNew = undefined;
+            $scope.select($scope.selected);
+            $scope.info = "保存成功";
+            $timeout(function () {$scope.info = null;}, 2000);
+        })
+        .error(function (data) {
+            $scope.error = data.message || "未知错误";
+        });
     };
 
     $scope.remove = function (ann) {
+        if (!ann.id) {
+            $scope.items = _.without($scope.items, $scope.selected);
+            $scope.editable = undefined;
+            if ($scope.items.length) {
+                $scope.select($scope.items[0]);
+            }
+            return;
+        }
 
+        $http.post("/api/removeAnn", {annId: ann.id}).success(function (data) {
+            $scope.items = _.without($scope.items, $scope.selected);
+            $scope.editable = undefined;
+            if ($scope.items.length) {
+                $scope.select($scope.items[0]);
+            }
+        })
+        .error(function (data) {
+            $scope.error = data.message || "未知错误";
+        });
     };
 });
 
