@@ -640,6 +640,10 @@ sheathControllers.controller('eventController', function ($scope, $http) {
 
 sheathControllers.controller('announcementController', function ($scope, $http, $timeout) {
     $http.get("/api/anns").success(function (data) {
+        for (var i=0;i<data.anns.length;i++) {
+            data.anns[i].start = moment(data.anns[i].start).toDate();
+            data.anns[i].end = moment(data.anns[i].end).toDate();
+        }
         $scope.items = data.anns;
         if ($scope.items.length > 0) {
             $scope.select($scope.items[0]);
@@ -668,6 +672,8 @@ sheathControllers.controller('announcementController', function ($scope, $http, 
         _.each(source, function (value, key) {
             dest[key] = value;
         });
+        dest.start = moment(dest.start).toDate();
+        dest.end = moment(dest.end).toDate();
     }
 
     $scope.modify = function (ann) {
