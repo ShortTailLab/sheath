@@ -29,7 +29,6 @@ class AnnouncementRemote {
     }
 
     deleteAnn(annId, cb) {
-        console.log(annId);
         annService.endAnn(annId);
         cb();
     }

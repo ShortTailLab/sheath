@@ -993,7 +993,6 @@ exports.importInGameReward = function (req, res) {
     }
 
     var level = req.body;
-    level.id = level.level;
     appModels.upsertP(level).then(function () {
         res.send(200);
     });
