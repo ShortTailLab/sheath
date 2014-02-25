@@ -6,19 +6,55 @@ mixin uploadBox(title, func, tag)
         input(type="file", value="上传", ng-file-select="#{func}($files, '#{tag}')")
         | 或将文件拖拽至此
 
-+block("导入数据")
-    div(class="message errormsg", ng-show="error")
-        p {{error}}
-    div(class="message success", ng-show="info")
-        p {{info}}
-    +uploadBox("武将数据:", "upload", "heroDef")
-    hr
-    +uploadBox("道具数据:", "upload", "itemDef")
-    hr
-    +uploadBox("奖励数据:", "upload", "treasure")
-    hr
-    +uploadBox("关卡数据:", "upload", "stage")
-    hr
-    +uploadBox("弹道数据:", "upload", "ballistic")
-    hr
-    +uploadBox("任务数据:", "upload", "task")
+div(ng-show="!toConfirm")
+    +block("导入数据")
+        div(class="message errormsg", ng-show="error")
+            p {{error}}
+        div(class="message success", ng-show="info")
+            p {{info}}
+        label.checkbox
+            input(type='checkbox', ng-model="isUTF8")
+            | UTF8
+        +uploadBox("武将数据:", "upload", "heroDef")
+        hr
+        +uploadBox("道具数据:", "upload", "itemDef")
+        hr
+        +uploadBox("奖励数据:", "upload", "treasure")
+        hr
+        +uploadBox("关卡数据:", "upload", "stage")
+        hr
+        +uploadBox("任务数据:", "upload", "task")
+        hr
+        +uploadBox("弹道数据:", "upload", "ballistic")
+
+div(ng-show="toConfirm")
+    +block("确认")
+        div(ng-show="toConfirm.news")
+            h2 新条目
+            pre(ng-repeat="n in toConfirm.news"): table.table
+                thead
+                    th key
+                    th value
+                tr(ng-repeat="(key, value) in n")
+                    td: | {{key}}
+                    td: | {{value}}
+        div(ng-show="toConfirm.mods")
+            h2 修改条目
+            pre(ng-repeat="n in toConfirm.mods"): table.table
+                thead
+                    th key
+                    th 原值
+                    th
+                    th 新值
+                tr(ng-repeat="(key, value) in n")
+                    td: | {{key}}
+                    td(ng-show="value.new !== undefined && value.old !== undefined"): | {{value.old}}
+                    td(ng-show="value.new !== undefined && value.old !== undefined"): |  ==>
+                    td(ng-show="value.new !== undefined && value.old !== undefined"): | {{value.new}}
+                    td(ng-show="!(value.new !== undefined && value.old !== undefined)")
+                    td(ng-show="!(value.new !== undefined && value.old !== undefined)")
+                    td(ng-show="!(value.new !== undefined && value.old !== undefined)"): | {{value}}
+        hr
+        .row
+            button.col-md-1.col-md-offset-9(type="submit", class="btn btn-primary", ng-click="confirm()") 确认
+            button.col-md-1.col-md-offset-1(type="submit", class="btn btn-danger", ng-click="cancel()") 取消

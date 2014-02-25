@@ -9,6 +9,36 @@ var Iconv  = require('iconv').Iconv;
 var GB2UTF8 = new Iconv("GB18030", "UTF-8");
 var UTF82GB = new Iconv("UTF-8", "GB18030");
 
+function diffModel(m1, m2, fields) {
+    var diff = {id: m1.id};
+    for (var i=0;i<fields.length;i++) {
+        var field = fields[i];
+        if (_.isArray(m1[field])) {
+            if (m1[field].length !== m2[field].length) {
+                diff[field] = m2[field];
+            }
+            else {
+                for (var j=0;j<m1[field].length;j++) {
+                    if (m1[field][j] !== m2[field][j]) {
+                        diff[field] ={
+                            old: m1[field],
+                            new: m2[field]
+                        };
+                        break;
+                    }
+                }
+            }
+        }
+        else if (m1[field] !== m2[field]) {
+            diff[field] = {
+                old: m1[field],
+                new: m2[field]
+            };
+        }
+    }
+    return diff;
+}
+
 exports.nodeInfo = function (req, res) {
     Promise.all([
         pomeloConn.client.request('nodeInfo', null),
@@ -755,7 +785,6 @@ exports.import = function (req, res) {
     if (!req.session.user.manRole.data)
         return res.send(400, {message: "没有导入数据的权限"});
 
-    var file = req.files.file;
     var body = req.body;
     var modelsAndTransform = {
         heroDef: [appModels.HeroDef, transformHeroDef],
@@ -765,30 +794,52 @@ exports.import = function (req, res) {
         ballistic: [appModels.Ballistic, transformBallistic]
     };
 
-    if (file) {
-        fs.readFile(file.path, function (err, data) {
-            try {
-                data = GB2UTF8.convert(data);
+    if (req.files) {
+        fs.readFile(req.files.file.path, function (err, data) {
+            if (body.encoding !== "utf8") {
+                try {
+                    data = GB2UTF8.convert(data);
+                }
+                catch (err) {}
             }
-            catch (err) {}
             csv().from.string(data, { columns: dataColumns[body.tag] }).to.array(function (newDefs) {
-                while (newDefs[0].id === "[SKIP]") {
+                while (newDefs.length > 0 && newDefs[0].id === "[SKIP]") {
                     newDefs.shift();
                 }
-                var updates = _.map(newDefs, function (d) {
-                    if (d && d.id !== null && d.id !== undefined && d.id !== "" && !_.isNaN(d.id))
-                    {
-                        if (Promise.is(d)) {
-                            return d;
+                if (newDefs.length === 0) {
+                    return res.send({news: [], mods: [], updates: [], tag: body.tag});
+                }
+
+                var ids = _.pick(newDefs, "id");
+                modelsAndTransform[body.tag][0].allP()
+                .then(function (stock) {
+                    stock = _.indexBy(stock, "id");
+                    newDefs = _.indexBy(newDefs, "id");
+                    var compareCols = _.without(dataColumns[body.tag], "id");
+                    var diffCol = {news: [], mods: [], updates: [], tag: body.tag};
+                    _.each(newDefs, function (value, key) {
+                        if (stock[key] === undefined) {
+                            diffCol.news.push(value);
+                            diffCol.updates.push(value);
                         }
                         else {
-                            return modelsAndTransform[body.tag][0].upsertP(d);
+                            var diff = diffModel(stock[key], value, compareCols);
+                            if (_.size(diff) > 1) {
+                                diffCol.mods.push(diff);
+                                var update = {};
+                                _.each(diff, function (value, key) {
+                                    if (value.new !== undefined && value.old !== undefined) {
+                                        update[key] = value.new;
+                                    }
+                                    else {
+                                        update[key] = value;
+                                    }
+                                });
+                                diffCol.updates.push(update);
+                            }
                         }
-                    }
-                });
-
-                Promise.all(updates).then(function () {
-                    res.send(200);
+                    });
+                    res.send(diffCol);
                 })
                 .catch(function (err) {
                     res.send(400, {message: ""+err});
@@ -797,7 +848,7 @@ exports.import = function (req, res) {
                 if (index < 2) {
                     row.id = "[SKIP]";
                 }
-                else {
+                else if (body.tag !== "ballistic") {
                     var newRow = modelsAndTransform[body.tag][1](row);
                     if (newRow) return newRow;
                 }
@@ -806,6 +857,20 @@ exports.import = function (req, res) {
         });
     }
     else if (body.confirm) {
+        var updates = _.map(body.updates, function (d) {
+            if (body.tag === "ballistic")
+                return transformBallistic(d);
+            else {
+                var model = modelsAndTransform[body.tag][0];
+                if (!d.id) return model.createP(d);
+                else return model.updateP({where: {id: d.id}, update: d});
+            }
+                return modelsAndTransform[body.tag][0].upsertP(d);
+        });
+
+        Promise.all(updates).then(function () {
+            res.send(200);
+        });
     }
     else {
         res.send(400);
@@ -993,7 +1058,7 @@ exports.importInGameReward = function (req, res) {
     }
 
     var level = req.body;
-    appModels.upsertP(level).then(function () {
+    appModels.Level.upsertP(level).then(function () {
         res.send(200);
     });
 };

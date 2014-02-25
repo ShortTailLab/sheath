@@ -560,17 +560,44 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
         var file = $files[0];
         $upload.upload({
             url: "/api/import",
-            data: {tag: tag},
+            data: {encoding: $scope.isUTF8 ? "utf8" : "", tag: tag},
             file: file
         })
         .success(function (data) {
+            if (data.updates.length === 0) {
+                $scope.info = "无更新";
+                $timeout(function () {$scope.info = null;}, 2000);
+            }
+            else {
+                $scope.error = null;
+                $scope.toConfirm = data;
+            }
+        })
+        .error(function (err) {
+            $scope.error = "上传文件失败: " + (err.message || "未知错误");
+        });
+    };
+
+    $scope.confirm = function () {
+        var req = {
+            confirm: true,
+            tag: $scope.toConfirm.tag,
+            updates: $scope.toConfirm.updates
+        };
+        $http.post("/api/import", req)
+        .success(function (data){
+            $scope.toConfirm = null;
             $scope.error = null;
             $scope.info = "导入成功";
             $timeout(function () {$scope.info = null;}, 2000);
         })
         .error(function (err) {
-            $scope.error = "上传文件失败: " + (err.message || "未知错误");
+            $scope.error = "导入数据失败: " + (err.message || "未知错误");
         });
+    };
+
+    $scope.cancel = function () {
+        $scope.toConfirm = null;
     };
 });
 
@@ -682,6 +709,7 @@ sheathControllers.controller('announcementController', function ($scope, $http, 
             $http.post("/api/updateAnn", diff).success(function (data) {
                 updateModel($scope.selected, data);
                 $scope.select($scope.selected);
+                $scope.error = null;
                 $scope.info = "修改成功";
                 $timeout(function () {$scope.info = null;}, 2000);
             })
@@ -696,6 +724,7 @@ sheathControllers.controller('announcementController', function ($scope, $http, 
             updateModel($scope.selected, data);
             $scope.selected.isNew = undefined;
             $scope.select($scope.selected);
+            $scope.error = null;
             $scope.info = "保存成功";
             $timeout(function () {$scope.info = null;}, 2000);
         })
