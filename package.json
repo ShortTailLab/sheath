@@ -13,6 +13,8 @@
         "underscore": "latest",
         "async": "latest",
         "bcrypt": "latest",
+        "pomelo-rpc-zeromq": "latest",
+        "pomelo-protobuf-plugin": "latest",
         "pomelo-logger": "latest",
         "pomelo-data-plugin": "latest",
         "pomelo-status-plugin": "latest",

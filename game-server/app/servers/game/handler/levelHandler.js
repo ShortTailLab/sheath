@@ -18,8 +18,10 @@ class LevelHandler extends base.HandlerBase {
     }
 
     start(msg, session, next) {
+        wrapSession(session);
     }
 
     end(msg, session, next) {
+        wrapSession(session);
     }
 }

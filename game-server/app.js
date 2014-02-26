@@ -3,6 +3,8 @@ require("../shared/traceurBootstrap");
 var pomelo = require('pomelo');
 var dataPlugin = require('pomelo-data-plugin');
 var statusPlugin = require('pomelo-status-plugin');
+var protobufPlugin = require('pomelo-protobuf-plugin');
+var zmqRPC = require('pomelo-rpc-zeromq');
 var appModels = require("../shared/models");
 var logger = require('pomelo-logger').getLogger('sheath', __filename);
 var Constants = require("../shared/constants");
@@ -22,23 +24,18 @@ app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandle
 app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
 app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
 
-//app.set('remoteConfig', {
-//    acceptorFactory: {create: function(opts, cb) {
-//        return require("pomelo/node_modules/pomelo-rpc").server.TcpAcceptor.create(opts, cb);
-//    }}
-//});
-//
-//app.set('proxyConfig', {
-//    mailboxFactory: {create: function(opts, cb) {
-//        return require("pomelo/node_modules/pomelo-rpc/lib/rpc-client/mailboxes/tcp-mailbox").create(opts, cb);
-//    }}
-//});
+app.set('remoteConfig', {
+    rpcServer: zmqRPC.server
+});
+
+app.set('proxyConfig', {
+    rpcClient: zmqRPC.client
+});
 
 app.set('connectorConfig', {
     connector: pomelo.connectors.hybridconnector,
     heartbeat: 5,
-    useDict: true,
-    useProtobuf: true
+    useDict: true
 });
 
 Patcher.wrapModel();
@@ -71,6 +68,8 @@ app.use(statusPlugin, {
         parser: "hiredis"
     }
 });
+
+app.use(protobufPlugin, {});
 
 // app configuration
 app.configure('development', function () {
