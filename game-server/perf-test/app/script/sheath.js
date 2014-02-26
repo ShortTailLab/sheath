@@ -3,7 +3,7 @@ var cwd = process.cwd();
 var envConfig = require(cwd + '/app/config/env.json');
 var config = require(cwd + '/app/config/' + envConfig.env + '/config');
 var async = require("async");
-var _ = require("underscore");
+var _ = require(cwd + "/node_modules/underscore");
 
 var ActFlagType = {
     ENTRY: {
