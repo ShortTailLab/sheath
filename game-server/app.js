@@ -3,7 +3,7 @@ require("../shared/traceurBootstrap");
 var pomelo = require('pomelo');
 var dataPlugin = require('pomelo-data-plugin');
 var statusPlugin = require('pomelo-status-plugin');
-//var protobufPlugin = require('pomelo-protobuf-plugin');
+var protobufPlugin = require('pomelo-protobuf-plugin');
 var zmqRPC = require('pomelo-rpc-zeromq');
 var appModels = require("../shared/models");
 var logger = require('pomelo-logger').getLogger('sheath', __filename);
@@ -35,7 +35,7 @@ app.set('proxyConfig', {
 app.set('connectorConfig', {
     connector: pomelo.connectors.hybridconnector,
     heartbeat: 5,
-    useProtobuf: true,
+//    useProtobuf: true,
     useDict: true
 });
 
@@ -70,7 +70,7 @@ app.use(statusPlugin, {
     }
 });
 
-//app.use(protobufPlugin, {});
+app.use(protobufPlugin, {});
 
 // app configuration
 app.configure('development', function () {

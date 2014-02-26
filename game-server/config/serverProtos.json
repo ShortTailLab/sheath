@@ -1,234 +1,1329 @@
 {
-    "message Player": {
-        "required string id":        1
-    },
-    "message Role": {
-        "required string id":        1,
-        "required string name":      2,
-        "required int32 level":      3,
-        "optional int32 exp":        4,
-        "optional string title":     5,
-
-        "required int32 formation": 13,
-        "repeated string team":     11,
-        "required int32 storageRoom":12,
-
-        "optional int32 energy":     6,
-        "optional int32 coins":      7,
-        "optional int32 golds":      8,
-        "optional int32 contribs":   9,
-
-        "optional int32 isNew":      10
-    },
-    "message Error": {
-        "required int32 code":       1,
-        "optional string message":   2
-    },
-    "message Partition": {
-        "required string id":        1,
-        "required int32 status":     2,
-        "required string name":      3,
-        "required int32 openSince":  4
-    },
-    "message ProfileChange": {
-        "required int32 energyDiff":     1,
-        "required int32 coinsDiff":      2,
-        "required int32 goldsDiff":      3,
-        "required int32 contribsDiff":   4,
-
-        "required int32 energy":     5,
-        "required int32 coins":      6,
-        "required int32 golds":      7,
-        "required int32 contribs":   8
-    },
-    "message ItemDef": {
-        "required int32 id":         1,
-        "required string type":      8,
-        "required string name":      2,
-        "required string resKey":    3,
-        "required int32 price":      4,
-        "required int32 levelReq":   5,
-        "required int32 quality":    6,
-        "required int32 stackSize":  7
-    },
-    "message HeroDef": {
-        "required int32 id":         1,
-        "required string name":      2,
-        "required string resKey":    3,
-        "required string type":      4,
-        "required int32 stars":      5,
-        "required int32 skill":      6,
-
-        "required float vitality":       7,
-        "required float strength":       8,
-        "required float intelligence":   9,
-        "required float hp":            11,
-        "required float attack":        12,
-        "required float magic":         13,
-        "required float defense":       14,
-        "required float resist":        15,
-        "repeated float attackDelta":   16,
-
-        "required float vitGrowth":     17,
-        "required float strGrowth":     18,
-        "required float intelGrowth":   19,
-
-        "required float critical":      20,
-        "required float attackSpeed":   21,
-        "required float speed":         22,
-        "required float ballLev":       23,
-
-        "required float ice":           24,
-        "required float fire":          25,
-        "required float slow":          26,
-        "required float weak":          27,
-
-        "required float damage":        28,
-        "required float damageReduction":       29,
-        "required float damageFactor":          30,
-        "required float damageRedFactor":       31,
-        "required float physicalResist":        32,
-        "required float magicResist":           33,
-        "required float attackFactor":          34,
-        "required float defenseFactor":         35
-    },
-    "message Item": {
-        "required string id":        1,
-        "required int32 defId":      2,
-        "required int32 level":      3,
-        "required int32 refinement": 4,
-        "required int32 refineProgress": 5,
-        "optional string bound":     6
-    },
-    "message Hero": {
-        "required string id":        1,
-        "required int32 defId":      2,
-        "required int32 level":      3,
-        "required int32 exp":        4
-    },
-    "message Task": {
-        "required int32 id":            1,
-        "required string name":         2,
-        "required string description":  3,
-        "optional int32 start":         4,
-        "optional int32 end":           5,
-        "required int32 curProgress":   6,
-        "required int32 needProgress":  7
-    },
-    "message ETypeWeight": {
-        "required int32 type":          1,
-        "required int32 weight":        2,
-        "required int32 seed":          3
-    },
-
-    "connector.entryHandler.enter": {
-        "optional Error error":      1,
-        "optional Player user":      2,
-        "repeated Partition partitions": 3
-    },
-    "connector.entryHandler.enterPartition": {
-        "optional Error error":      1,
-        "optional Role role":        2
-    },
-
-    "game.roleHandler.claimDailyReward": {
-        "optional Error error":      1,
-        "optional ProfileChange reward": 2
-    },
-    "game.roleHandler.claimQuarterHourlyReward": {
-        "optional Error error":      1,
-        "optional ProfileChange reward": 2
-    },
-
-    "game.itemHandler.listDef": {
-        "optional Error error":      1,
-        "repeated ItemDef defs":     2
-    },
-    "game.itemHandler.list": {
-        "optional Error error":      1,
-        "repeated Item items":       2
-    },
-
-    "game.heroHandler.listDef": {
-        "optional Error error":      1,
-        "repeated HeroDef defs":     2
-    },
-    "game.heroHandler.list": {
-        "optional Error error":      1,
-        "repeated Hero heroes":      2
-    },
-    "game.heroHandler.equip": {
-        "optional Error error":      1,
-        "optional Item equipment":   2
-    },
-    "game.heroHandler.unEquip": {
-        "optional Error error":      1,
-        "optional Item equipment":   2
-    },
-
-    "game.equipmentHandler.refineGem": {
-        "optional Error error":      1,
-        "optional string destroyed": 2,
-        "optional Item gem":         3
-    },
-    "game.equipmentHandler.setGem": {
-        "optional Error error":      1,
-        "optional Item gem":         2
-    },
-    "game.equipmentHandler.removeGem": {
-        "optional Error error":      1,
-        "optional Item gem":         2
-    },
-    "game.equipmentHandler.composite": {
-        "optional Error error":      1,
-        "repeated string destroyed": 2,
-        "optional Item newItem":     3
-    },
-    "game.equipmentHandler.refine": {
-        "optional Error error":      1,
-        "optional string destroyed": 2,
-        "optional Item equipment":   3
-    },
-    "game.equipmentHandler.upgrade": {
-        "optional Error error":      1,
-        "repeated string destroyed": 2,
-        "optional Item equipment":   3,
-        "optional ProfileChange stateDiff": 4
-    },
-    "game.equipmentHandler.destructCheck": {
-        "optional Error error":      1,
-        "optional int32 coins":      2,
-        "optional int32 pieceId":    3,
-        "optional int32 pieceCount": 4,
-        "optional int32 stoneId":    5,
-        "optional int32 stoneCount": 6,
-        "repeated string gems":      7
-    },
-    "game.equipmentHandler.destruct": {
-        "optional Error error":                 1,
-        "optional ProfileChange stateDiff":     2,
-        "repeated Item newItems":               3,
-        "repeated string removeGems":           4
-    },
-
-    "game.levelHandler.start": {
-        "optional Error error":             1,
-        "optional int32 levelId":           2,
-        "optional string path":             3,
-        "repeated ETypeWeight enemies":     4
-    },
-
-    "game.taskHandler.list": {
-        "optional Error error":      1,
-        "repeated Task tasks":       2,
-        "repeated Task newTasks":    3
-    },
-    "game.taskHandler.claim": {
-        "optional Error error":      1,
-        "required int32 golds":      2,
-        "required int32 coins":      3,
-        "required int32 contribs":   4,
-        "repeated Hero heroes":      5,
-        "repeated Item items":       6
-    }
+    "package": null,
+    "messages": [
+        {
+            "name": "Player",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "id",
+                    "id": 1,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "Role",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "id",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "name",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "level",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "exp",
+                    "id": 4,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "string",
+                    "name": "title",
+                    "id": 5,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "formation",
+                    "id": 13,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "string",
+                    "name": "team",
+                    "id": 11,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "storageRoom",
+                    "id": 12,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "energy",
+                    "id": 6,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "coins",
+                    "id": 7,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "golds",
+                    "id": 8,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "contribs",
+                    "id": 9,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "isNew",
+                    "id": 10,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "Error",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "code",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "string",
+                    "name": "message",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "Partition",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "id",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "status",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "name",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "openSince",
+                    "id": 4,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "ProfileChange",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "energyDiff",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "coinsDiff",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "goldsDiff",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "contribsDiff",
+                    "id": 4,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "energy",
+                    "id": 5,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "coins",
+                    "id": 6,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "golds",
+                    "id": 7,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "contribs",
+                    "id": 8,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "ItemDef",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "id",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "type",
+                    "id": 8,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "name",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "resKey",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "price",
+                    "id": 4,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "levelReq",
+                    "id": 5,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "quality",
+                    "id": 6,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "stackSize",
+                    "id": 7,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "HeroDef",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "id",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "name",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "resKey",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "type",
+                    "id": 4,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "stars",
+                    "id": 5,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "skill",
+                    "id": 6,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "vitality",
+                    "id": 7,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "strength",
+                    "id": 8,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "intelligence",
+                    "id": 9,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "hp",
+                    "id": 11,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "attack",
+                    "id": 12,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "magic",
+                    "id": 13,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "defense",
+                    "id": 14,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "resist",
+                    "id": 15,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "float",
+                    "name": "attackDelta",
+                    "id": 16,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "vitGrowth",
+                    "id": 17,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "strGrowth",
+                    "id": 18,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "intelGrowth",
+                    "id": 19,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "critical",
+                    "id": 20,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "attackSpeed",
+                    "id": 21,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "speed",
+                    "id": 22,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "ballLev",
+                    "id": 23,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "ice",
+                    "id": 24,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "fire",
+                    "id": 25,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "slow",
+                    "id": 26,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "weak",
+                    "id": 27,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "damage",
+                    "id": 28,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "damageReduction",
+                    "id": 29,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "damageFactor",
+                    "id": 30,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "damageRedFactor",
+                    "id": 31,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "physicalResist",
+                    "id": 32,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "magicResist",
+                    "id": 33,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "attackFactor",
+                    "id": 34,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "defenseFactor",
+                    "id": 35,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "Item",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "id",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "defId",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "level",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "refinement",
+                    "id": 4,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "refineProgress",
+                    "id": 5,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "string",
+                    "name": "bound",
+                    "id": 6,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "Hero",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "id",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "defId",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "level",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "exp",
+                    "id": 4,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "Task",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "id",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "name",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "description",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "start",
+                    "id": 4,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "end",
+                    "id": 5,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "curProgress",
+                    "id": 6,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "needProgress",
+                    "id": 7,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "ETypeWeight",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "type",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "weight",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "seed",
+                    "id": 3,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "connector_entryHandler_enter",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Player",
+                    "name": "user",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "Partition",
+                    "name": "partitions",
+                    "id": 3,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "connector_entryHandler_enterPartition",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Role",
+                    "name": "role",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_roleHandler_claimDailyReward",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "ProfileChange",
+                    "name": "reward",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_roleHandler_claimQuarterHourlyReward",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "ProfileChange",
+                    "name": "reward",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_itemHandler_listDef",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "ItemDef",
+                    "name": "defs",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_itemHandler_list",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "Item",
+                    "name": "items",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_heroHandler_listDef",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "HeroDef",
+                    "name": "defs",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_heroHandler_list",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "Hero",
+                    "name": "heroes",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_heroHandler_equip",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Item",
+                    "name": "equipment",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_heroHandler_unEquip",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Item",
+                    "name": "equipment",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_equipmentHandler_refineGem",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "string",
+                    "name": "destroyed",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Item",
+                    "name": "gem",
+                    "id": 3,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_equipmentHandler_setGem",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Item",
+                    "name": "gem",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_equipmentHandler_removeGem",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Item",
+                    "name": "gem",
+                    "id": 2,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_equipmentHandler_composite",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "string",
+                    "name": "destroyed",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Item",
+                    "name": "newItem",
+                    "id": 3,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_equipmentHandler_refine",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "string",
+                    "name": "destroyed",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Item",
+                    "name": "equipment",
+                    "id": 3,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_equipmentHandler_upgrade",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "string",
+                    "name": "destroyed",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "Item",
+                    "name": "equipment",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "ProfileChange",
+                    "name": "stateDiff",
+                    "id": 4,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_equipmentHandler_destructCheck",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "coins",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "pieceId",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "pieceCount",
+                    "id": 4,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "stoneId",
+                    "id": 5,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "stoneCount",
+                    "id": 6,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "string",
+                    "name": "gems",
+                    "id": 7,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_equipmentHandler_destruct",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "ProfileChange",
+                    "name": "stateDiff",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "Item",
+                    "name": "newItems",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "string",
+                    "name": "removeGems",
+                    "id": 4,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_levelHandler_start",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "int32",
+                    "name": "levelId",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "optional",
+                    "type": "string",
+                    "name": "path",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "ETypeWeight",
+                    "name": "enemies",
+                    "id": 4,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_taskHandler_list",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "Task",
+                    "name": "tasks",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "Task",
+                    "name": "newTasks",
+                    "id": 3,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "game_taskHandler_claim",
+            "fields": [
+                {
+                    "rule": "optional",
+                    "type": "Error",
+                    "name": "error",
+                    "id": 1,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "golds",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "coins",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "contribs",
+                    "id": 4,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "Hero",
+                    "name": "heroes",
+                    "id": 5,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "Item",
+                    "name": "items",
+                    "id": 6,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        }
+    ],
+    "enums": [],
+    "imports": [],
+    "options": {},
+    "services": []
 }

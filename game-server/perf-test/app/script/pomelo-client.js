@@ -48,7 +48,7 @@ else if (typeof sys !== "undefined")
 }
 
 
-var decodeIO_protobuf = null;//tryRequire('./pomelo-decodeIO-protobuf/ProtoBuf.js');
+var decodeIO_protobuf = tryRequire('./pomelo-decodeIO-protobuf/ProtoBuf.js');
 var decodeIO_encoder = null;
 var decodeIO_decoder = null;
 var protobuf = null;
@@ -162,10 +162,11 @@ var defaultEncode = pomelo.encode = function(reqId, route, msg) {
     var type = reqId ? Message.TYPE_REQUEST : Message.TYPE_NOTIFY;
 
     //compress message by protobuf
+    var escapedRoute = route.replace(/\./g, "_");
     if(protobuf && clientProtos[route]){
         msg = protobuf.encode(route, msg);
-    } else if(decodeIO_encoder && decodeIO_encoder.lookup(route)){
-        var Builder = decodeIO_encoder.build(route);
+    } else if(decodeIO_encoder && decodeIO_encoder.lookup(escapedRoute)){
+        var Builder = decodeIO_encoder.build(escapedRoute);
         msg = new Builder(msg).encodeNB();
     } else {
         msg = Protocol.strencode(JSON.stringify(msg));
@@ -439,10 +440,12 @@ var deCompose = function(msg){
 
         route = msg.route = abbrs[route];
     }
+    var escapedRoute = route.replace(/\./g, "_");
+
     if(protobuf && serverProtos[route]){
         return protobuf.decode(route, msg.body);
-    } else if(decodeIO_decoder && decodeIO_decoder.lookup(route)){
-        return decodeIO_decoder.build(route).decode(msg.body);
+    } else if(decodeIO_decoder && decodeIO_decoder.lookup(escapedRoute)){
+        return decodeIO_decoder.build(escapedRoute).decode(msg.body);
     } else {
         return JSON.parse(Protocol.strdecode(msg.body));
     }

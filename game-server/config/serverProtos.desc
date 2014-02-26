@@ -1,0 +1,204 @@
+
+ÿ
+serverProtos.proto"
+Player
+
+id (	"Ð
+Role
+
+id (	
+name (	
+level (
+exp (
+title (	
+	formation (
+team (	
+storageRoom (
+energy (
+coins (
+golds (
+contribs	 (
+isNew
+ ("&
+Error
+code (
+message (	"H
+	Partition
+
+id (	
+status (
+name (	
+	openSince ("Ÿ
+ProfileChange
+
+energyDiff (
+	coinsDiff (
+	goldsDiff (
+contribsDiff (
+energy (
+coins (
+golds (
+contribs ("†
+ItemDef
+
+id (
+type (	
+name (	
+resKey (	
+price (
+levelReq (
+quality (
+	stackSize ("å
+HeroDef
+
+id (
+name (	
+resKey (	
+type (	
+stars (
+skill (
+vitality (
+strength (
+intelligence	 (
+
+hp (
+attack (
+magic (
+defense (
+resist (
+attackDelta (
+	vitGrowth (
+	strGrowth (
+intelGrowth (
+critical (
+attackSpeed (
+speed (
+ballLev (
+ice (
+fire (
+slow (
+weak (
+damage (
+damageReduction (
+damageFactor (
+damageRedFactor (
+physicalResist  (
+magicResist! (
+attackFactor" (
+defenseFactor# ("k
+Item
+
+id (	
+defId (
+level (
+
+refinement (
+refineProgress (
+bound (	"=
+Hero
+
+id (	
+defId (
+level (
+exp ("|
+Task
+
+id (
+name (	
+description (	
+start (
+end (
+curProgress (
+needProgress ("9
+ETypeWeight
+type (
+weight (
+seed ("l
+connector_entryHandler_enter
+error (2.Error
+user (2.Player
+
+partitions (2
+.Partition"S
+%connector_entryHandler_enterPartition
+error (2.Error
+role (2.Role"Z
+!game_roleHandler_claimDailyReward
+error (2.Error
+reward (2.ProfileChange"b
+)game_roleHandler_claimQuarterHourlyReward
+error (2.Error
+reward (2.ProfileChange"I
+game_itemHandler_listDef
+error (2.Error
+defs (2.ItemDef"D
+game_itemHandler_list
+error (2.Error
+items (2.Item"I
+game_heroHandler_listDef
+error (2.Error
+defs (2.HeroDef"E
+game_heroHandler_list
+error (2.Error
+heroes (2.Hero"I
+game_heroHandler_equip
+error (2.Error
+	equipment (2.Item"K
+game_heroHandler_unEquip
+error (2.Error
+	equipment (2.Item"_
+game_equipmentHandler_refineGem
+error (2.Error
+	destroyed (	
+gem (2.Item"I
+game_equipmentHandler_setGem
+error (2.Error
+gem (2.Item"L
+game_equipmentHandler_removeGem
+error (2.Error
+gem (2.Item"c
+game_equipmentHandler_composite
+error (2.Error
+	destroyed (	
+newItem (2.Item"b
+game_equipmentHandler_refine
+error (2.Error
+	destroyed (	
+	equipment (2.Item"†
+game_equipmentHandler_upgrade
+error (2.Error
+	destroyed (	
+	equipment (2.Item!
+	stateDiff (2.ProfileChange"£
+#game_equipmentHandler_destructCheck
+error (2.Error
+coins (
+pieceId (
+
+pieceCount (
+stoneId (
+
+stoneCount (
+gems (	"‡
+game_equipmentHandler_destruct
+error (2.Error!
+	stateDiff (2.ProfileChange
+newItems (2.Item
+
+removeGems (	"n
+game_levelHandler_start
+error (2.Error
+levelId (
+path (	
+enemies (2.ETypeWeight"]
+game_taskHandler_list
+error (2.Error
+tasks (2.Task
+newTasks (2.Task"Œ
+game_taskHandler_claim
+error (2.Error
+golds (
+coins (
+contribs (
+heroes (2.Hero
+items (2.Item

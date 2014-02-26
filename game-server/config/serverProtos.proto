@@ -1,0 +1,232 @@
+message Player {
+    required string id          =   1;
+}
+message Role {
+    required string id          =   1;
+    required string name        =   2;
+    required int32 level        =   3;
+    optional int32 exp          =   4;
+    optional string title       =   5;
+
+    required int32 formation    =   13;
+    repeated string team        =   11;
+    required int32 storageRoom  =   12;
+
+    optional int32 energy       =   6;
+    optional int32 coins        =   7;
+    optional int32 golds        =   8;
+    optional int32 contribs     =   9;
+
+    optional int32 isNew        =   10;
+}
+message Error {
+    required int32 code         =   1;
+    optional string message     =   2;
+}
+message Partition {
+    required string id          =   1;
+    required int32 status       =   2;
+    required string name        =   3;
+    required int32 openSince    =   4;
+}
+message ProfileChange {
+    required int32 energyDiff   =   1;
+    required int32 coinsDiff    =   2;
+    required int32 goldsDiff    =   3;
+    required int32 contribsDiff =   4;
+
+    required int32 energy       =   5;
+    required int32 coins        =   6;
+    required int32 golds        =   7;
+    required int32 contribs     =   8;
+}
+message ItemDef {
+    required int32 id           =   1;
+    required string type        =   8;
+    required string name        =   2;
+    required string resKey      =   3;
+    required int32 price        =   4;
+    required int32 levelReq     =   5;
+    required int32 quality      =   6;
+    required int32 stackSize    =   7;
+}
+message HeroDef {
+    required int32 id           =   1;
+    required string name        =   2;
+    required string resKey      =   3;
+    required string type        =   4;
+    required int32 stars        =   5;
+    required int32 skill        =   6;
+
+    required float vitality     =   7;
+    required float strength     =   8;
+    required float intelligence =   9;
+    required float hp           =   11;
+    required float attack       =   12;
+    required float magic        =   13;
+    required float defense      =   14;
+    required float resist       =   15;
+    repeated float attackDelta  =   16;
+
+    required float vitGrowth    =   17;
+    required float strGrowth    =   18;
+    required float intelGrowth  =   19;
+
+    required float critical     =   20;
+    required float attackSpeed  =   21;
+    required float speed        =   22;
+    required float ballLev      =   23;
+
+    required float ice          =   24;
+    required float fire         =   25;
+    required float slow         =   26;
+    required float weak         =   27;
+
+    required float damage       =   28;
+    required float damageReduction  =   29;
+    required float damageFactor     =   30;
+    required float damageRedFactor  =   31;
+    required float physicalResist   =   32;
+    required float magicResist      =   33;
+    required float attackFactor     =   34;
+    required float defenseFactor    =   35;
+}
+message Item {
+    required string id          =   1;
+    required int32 defId        =   2;
+    required int32 level        =   3;
+    required int32 refinement   =   4;
+    required int32 refineProgress = 5;
+    optional string bound       =   6;
+}
+message Hero {
+    required string id          =   1;
+    required int32 defId        =   2;
+    required int32 level        =   3;
+    required int32 exp          =   4;
+}
+message Task {
+    required int32 id           =   1;
+    required string name        =   2;
+    required string description =   3;
+    optional int32 start        =   4;
+    optional int32 end          =   5;
+    required int32 curProgress  =   6;
+    required int32 needProgress =   7;
+}
+message ETypeWeight {
+    required int32 type         =   1;
+    required int32 weight       =   2;
+    required int32 seed         =   3;
+}
+
+message connector_entryHandler_enter {
+    optional Error error        =   1;
+    optional Player user        =   2;
+    repeated Partition partitions = 3;
+}
+message connector_entryHandler_enterPartition {
+    optional Error error        =   1;
+    optional Role role          =   2;
+}
+
+message game_roleHandler_claimDailyReward {
+    optional Error error        =   1;
+    optional ProfileChange reward = 2;
+}
+message game_roleHandler_claimQuarterHourlyReward {
+    optional Error error        =   1;
+    optional ProfileChange reward = 2;
+}
+
+message game_itemHandler_listDef {
+    optional Error error        =   1;
+    repeated ItemDef defs       =   2;
+}
+message game_itemHandler_list {
+    optional Error error        =   1;
+    repeated Item items         =   2;
+}
+
+message game_heroHandler_listDef {
+    optional Error error        =   1;
+    repeated HeroDef defs       =   2;
+}
+message game_heroHandler_list {
+    optional Error error        =   1;
+    repeated Hero heroes        =   2;
+}
+message game_heroHandler_equip {
+    optional Error error        =   1;
+    optional Item equipment     =   2;
+}
+message game_heroHandler_unEquip {
+    optional Error error        =   1;
+    optional Item equipment     =   2;
+}
+
+message game_equipmentHandler_refineGem {
+    optional Error error        =   1;
+    optional string destroyed   =   2;
+    optional Item gem           =   3;
+}
+message game_equipmentHandler_setGem {
+    optional Error error        =   1;
+    optional Item gem           =   2;
+}
+message game_equipmentHandler_removeGem {
+    optional Error error        =   1;
+    optional Item gem           =   2;
+}
+message game_equipmentHandler_composite {
+    optional Error error        =   1;
+    repeated string destroyed   =   2;
+    optional Item newItem       =   3;
+}
+message game_equipmentHandler_refine {
+    optional Error error        =   1;
+    optional string destroyed   =   2;
+    optional Item equipment     =   3;
+}
+message game_equipmentHandler_upgrade {
+    optional Error error        =   1;
+    repeated string destroyed   =   2;
+    optional Item equipment     =   3;
+    optional ProfileChange stateDiff = 4;
+}
+message game_equipmentHandler_destructCheck {
+    optional Error error        =   1;
+    optional int32 coins        =   2;
+    optional int32 pieceId      =   3;
+    optional int32 pieceCount   =   4;
+    optional int32 stoneId      =   5;
+    optional int32 stoneCount   =   6;
+    repeated string gems        =   7;
+}
+message game_equipmentHandler_destruct {
+    optional Error error                =   1;
+    optional ProfileChange stateDiff    =   2;
+    repeated Item newItems              =   3;
+    repeated string removeGems          =   4;
+}
+
+message game_levelHandler_start {
+    optional Error error            =   1;
+    optional int32 levelId          =   2;
+    optional string path            =   3;
+    repeated ETypeWeight enemies    =   4;
+}
+
+message game_taskHandler_list {
+    optional Error error        =   1;
+    repeated Task tasks         =   2;
+    repeated Task newTasks      =   3;
+}
+message game_taskHandler_claim {
+    optional Error error        =   1;
+    required int32 golds        =   2;
+    required int32 coins        =   3;
+    required int32 contribs     =   4;
+    repeated Hero heroes        =   5;
+    repeated Item items         =   6;
+}
