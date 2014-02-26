@@ -48,7 +48,7 @@ else if (typeof sys !== "undefined")
 }
 
 
-var decodeIO_protobuf = tryRequire('./pomelo-decodeIO-protobuf/ProtoBuf.js');
+var decodeIO_protobuf = null;//tryRequire('./pomelo-decodeIO-protobuf/ProtoBuf.js');
 var decodeIO_encoder = null;
 var decodeIO_decoder = null;
 var protobuf = null;
