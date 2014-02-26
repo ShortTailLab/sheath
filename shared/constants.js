@@ -43,6 +43,11 @@ module.exports = {
         NO_TASK: 90,
         TASK_NOT_DONE: 91
     },
+    RoleFailed: {
+        DO_NOT_OWN_HERO: 100,
+        FORMATION_LEVEL_MAX: 101,
+        NO_BOOK: 102
+    },
 
 
     InternalServerError: 500

@@ -38,38 +38,46 @@ class RoleHandler extends base.HandlerBase {
     setTeam(msg, session, next) {
         wrapSession(session);
 
-        if (msg.heroes.length !== 3 || !msg.heroes[0]) {
+        var heroList = msg.heroes;
+        var formation = msg.formation;
+
+        if (heroList.length !== 5 || !heroList[0]) {
             this.errorNext(Constants.InvalidRequest, next);
         }
         else {
-            for (var i=0;i<3;i++) {
-                msg.heroes[i] = msg.heroes[i] || null;
+            for (var i=0;i<5;i++) {
+                heroList[i] = heroList[i] || null;
             }
 
-            var role;
-            this.safe(models.Role.findP(session.get("role").id).bind(this)
-            .then((r) => {
+            var role = session.get("role");
+            var reqHeroes = _.compact(heroList);
+            this.safe(Promise.join(models.Role.findP(role.id), models.Hero.countP({id: {inq: reqHeroes}, owner: role.id})).bind(this)
+            .spread(function(r, heroCount) {
                 role = r;
-                return models.Hero.allP({where: {owner: role.id}});
-            })
-            .then((heroes) => {
-                var heroIds = _.pluck(heroes, "id");
-                for (var i=0;i<msg.heroes.length;i++) {
-                    var hid = msg.heroes[i];
-                    if (hid !== null && !_.contains(heroIds, hid)) {
-                        return Promise.reject(Constants.InvalidRequest);
-                    }
+                if (reqHeroes.length !== heroCount) {
+                    return Promise.reject(Constants.RoleFailed.DO_NOT_OWN_HERO);
                 }
 
-                role.team = msg.heroes;
-                return [role.updateAttributeP("team", msg.heroes), session.push("role")];
+                role.team = heroList;
+                role.formation = formation;
+                session.set("role", role.toSessionObj());
+                return [role.updateAttributesP({team: heroList, formation: formation}), session.push("role")];
             })
             .all().then(() => {
                 next(null, {
                     role: role.toClientObj()
                 });
+                logger.logInfo("role.setTeam", {
+                    role: role.toLogObj(),
+                    team: heroList,
+                    formation: formation
+                });
             }), next);
         }
+    }
+
+    upgradeFormation(msg, session, next) {
+        wrapSession(session);
     }
 
     claimDailyReward(msg, session, next) {

@@ -150,6 +150,12 @@ var ActFlagType = {
         name: "claimTask",
         route: "game.taskHandler.claim"
     },
+    UPGRADE_FORMATION: {
+        desc: "升级编队",
+        reqId: 24,
+        name: "upgradeFormation",
+        route: "game.roleHandler.upgradeFormation"
+    },
 
 
     ACT_END: null
@@ -285,7 +291,7 @@ Role.prototype.afterLogin = function (pomelo) {
 Role.prototype.randomActions = function (pomelo) {
     var actions = [
         this.upgradeWeapon, this.compositeEquipment, this.refineWeapon, this.refineGem, this.equip, this.unEquip,
-        this.setGem
+        this.setGem, this.setTeam
     ];
     var count  = 50;
     var self = this;
@@ -420,8 +426,14 @@ Role.prototype.destroyEquipment = function (pomelo, cb) {
 };
 
 Role.prototype.setTeam = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.SET_TEAM, {heroes: ["", "", ""]}, function (data) {
-        process.exit(0);
+    var self = this;
+    var randomHeroes = _.pluck(_.sample(self.heroes, 3), "id");
+    while (randomHeroes.length < 5) {
+        randomHeroes.push(null);
+    }
+
+    timePomeloRequest(ActFlagType.SET_TEAM, {heroes: randomHeroes, formation: 2}, function (data) {
+        cb();
     });
 };
 
