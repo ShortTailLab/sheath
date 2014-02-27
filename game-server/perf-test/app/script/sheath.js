@@ -293,14 +293,16 @@ Role.prototype.randomActions = function (pomelo) {
         this.upgradeWeapon, this.compositeEquipment, this.refineWeapon, this.refineGem, this.equip, this.unEquip,
         this.setGem, this.setTeam
     ];
-    var count  = 50;
+    var count  = 500;
     var self = this;
     async.whilst(
         function () { return count > 0; },
         function (cb) {
             var index = _.random(0, actions.length - 1);
             count--;
-            actions[index].call(self, pomelo, cb);
+            actions[index].call(self, pomelo, function () {
+                setTimeout(cb, Math.random() * 10);
+            });
         },
         function (err) {
             process.exit(0);

@@ -3,7 +3,6 @@ require("../shared/traceurBootstrap");
 var pomelo = require('pomelo');
 var dataPlugin = require('pomelo-data-plugin');
 var statusPlugin = require('pomelo-status-plugin');
-var protobufPlugin = require('pomelo-protobuf-plugin');
 var zmqRPC = require('pomelo-rpc-zeromq');
 var appModels = require("../shared/models");
 var logger = require('pomelo-logger').getLogger('sheath', __filename);
@@ -70,11 +69,13 @@ app.use(statusPlugin, {
     }
 });
 
-app.use(protobufPlugin, {});
-
 // app configuration
 app.configure('development', function () {
     app.filter(pomelo.filters.time());
+});
+
+app.configure('development|production|test', "connector", function () {
+    app.use(require('pomelo-protobuf-plugin'), {});
 });
 
 //app.configure('development|production|test', "game", function () {
@@ -94,7 +95,7 @@ function patchRPC(app) {
 }
 
 app.event.on(pomelo.events.ADD_SERVERS, function () {
-    if (["connector", "auth", "game"].indexOf(app.settings.serverType) !== -1) {
+    if (["connector", "game"].indexOf(app.settings.serverType) !== -1) {
         patchRPC(app);
     }
 });

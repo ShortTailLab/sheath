@@ -9,6 +9,7 @@ message Role {
     optional string title       =   5;
 
     required int32 formation    =   13;
+    repeated int32 formationLevel = 14;
     repeated string team        =   11;
     required int32 storageRoom  =   12;
 
@@ -17,7 +18,7 @@ message Role {
     optional int32 golds        =   8;
     optional int32 contribs     =   9;
 
-    optional int32 isNew        =   10;
+    optional bool isNew        =   10;
 }
 message Error {
     required int32 code         =   1;

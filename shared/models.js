@@ -47,6 +47,7 @@ exports.init = function (dbConfig) {
         spent: {type: Number, default: 0},
 
         formation: {type: Number, default: 0},
+        formationLevel: {type: db.Schema.JSON, default: function () {return [0];}},
         team: {type: db.Schema.JSON, default: function () {return [null, null, null, null, null];}},
 
         storageRoom: {type: Number, default: 25},
@@ -252,9 +253,8 @@ exports.init = function (dbConfig) {
     };
 
     Role.prototype.toClientObj = function () {
-        var ret = _.pick(this, "id", "name", "level", "exp", "title", "storageRoom", "energy", "coins", "golds", "contribs", "formation");
-        if (this.isNew) ret.isNew = 1;
-
+        var ret = _.pick(this, "id", "name", "level", "exp", "title", "storageRoom", "energy", "coins", "golds", "contribs", "formation", "formationLevel");
+        if (this.isNew) ret.isNew = true;
         ret.team = _.map(this.team, function (t) { return t || ""; });
 
         return ret;

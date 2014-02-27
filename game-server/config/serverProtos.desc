@@ -1,9 +1,9 @@
 
-ÿ
+—
 serverProtos.proto"
 Player
 
-id (	"Ð
+id (	"è
 Role
 
 id (	
@@ -11,7 +11,8 @@
 level (
 exp (
 title (	
-	formation (
+	formation (
+formationLevel (
 team (	
 storageRoom (
 energy (
@@ -19,7 +20,7 @@
 golds (
 contribs	 (
 isNew
- ("&
+ ("&
 Error
 code (
 message (	"H

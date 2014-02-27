@@ -98,7 +98,7 @@ class HandlerBase {
             return role.toLogObj();
         }
         else {
-            return _.pick(this, "id", "name", "level", "title");
+            return _.pick(role, "id", "name", "level", "title");
         }
     }
 }
