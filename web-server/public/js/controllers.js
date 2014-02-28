@@ -164,7 +164,7 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
     };
 });
 
-sheathControllers.controller('userDetailController', function ($scope, $http, $routeParams, $timeout, $q, $modal, $filter, ngTableParams) {
+sheathControllers.controller('userDetailController', function ($scope, $http, $routeParams, $timeout, $q, $modal, $filter, ngTableParams, $location) {
     $scope.uid = $routeParams.uid;
     $scope.editorParams = {
         useWrapMode : false,
@@ -317,15 +317,13 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
                 partitions: function () {return $http.get("/api/partitions");}
             }
         });
-        modalIns.result.then(function (newHeroes) {
-            $http.post("/api/addHero", {role: $scope.uid, heroes: newHeroes}).success(function (data) {
-                $scope.heroes = $scope.heroes.concat(data.heroes);
-                $scope.heroTableParams.total($scope.heroes.length);
-                $scope.heroTableParams.reload();
-                $scope.hero_error = null;
+        modalIns.result.then(function (clone) {
+            clone.role = $scope.uid;
+            $http.post("/api/cloneRole", clone).success(function (data) {
+                $location.path("/user/detail/" + data.id)
             })
             .error(function (data) {
-                $scope.hero_error = "添加武将失败，" + (data.message || "未知错误");
+                $scope.error = "复制角色失败，" + (data.message || "未知错误");
             });
         });
     };
@@ -393,9 +391,15 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
     });
 });
 
-sheathControllers.controller('cloneRoleController', function ($scope, $modalInstance, partitions) {
+sheathControllers.controller('cloneRoleController', function ($scope, $modalInstance, $http, partitions) {
     partitions = partitions.data.partitions;
     var format = function (item) {return item.name;};
+
+    $scope.getUserByHint = function (val) {
+        return $http.post("/api/findUsers", {hint: val}).then(function (res) {
+            return res.data.users;
+        });
+    };
 
     $scope.selectOptions = {
         width: "100%",
@@ -405,8 +409,11 @@ sheathControllers.controller('cloneRoleController', function ($scope, $modalInst
         formatResult: format
     };
 
-    $scope.ok = function () {
-        $modalInstance.close();
+    $scope.ok = function (userId) {
+        $modalInstance.close({
+            user: userId,
+            partition: $scope.partition.id
+        });
     };
 
     $scope.cancel = function () {

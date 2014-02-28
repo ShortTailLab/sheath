@@ -234,6 +234,46 @@ exports.userList = function (req, res) {
 };
 
 exports.cloneRole = function (req, res) {
+    if (!req.session.user.manRole.editUser)
+        return res.send(400, {message: "没有修改用户数据的权限"});
+
+    var targetPart = req.body.partition;
+    var sourceRole = req.body.role;
+    var targetUser = req.body.user;
+    var newRole;
+
+    if (!targetPart || !sourceRole || !targetUser) {
+        return res.send(400);
+    }
+
+    appModels.Role.findP(sourceRole)
+    .then(function (role) {
+        var newRole = role.toObject(true);
+        delete newRole.id;
+        delete newRole.createTime;
+        newRole.owner = targetUser;
+        newRole.partition = targetPart;
+        return [appModels.Role.createP(newRole), appModels.Item.allP({where: {owner: sourceRole}}), appModels.Hero.allP({where: {owner: sourceRole}})];
+    })
+    .spread(function (role, items, heroes) {
+        var mapper = function (entry) {
+            var ret = entry.toObject();
+            ret.owner = role.id;
+            delete ret.id;
+            return ret;
+        };
+        newRole = role;
+
+        var newItems = _.map(items, mapper);
+        var newHeroes = _.map(heroes, mapper);
+        return [appModels.Item.createP(newItems), appModels.Hero.createP(newHeroes)];
+    })
+    .all().then(function () {
+        res.send({id: newRole.id});
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
 };
 
 exports.updateRole = function (req, res) {
@@ -483,7 +523,8 @@ exports.findUsers = function (req, res) {
             users.unshift(u);
         }
 
-        var owner = appModels.User.allP({where: {id: {inq: _.pluck(roles, "owner")}, manRole: null}});
+        var owner = _.pluck(roles, "owner");
+        owner = owner.length > 0 ? appModels.User.allP({where: {id: {inq: owner}, manRole: null}}) : null;
         var ownerRole = Promise.all(_.map(users, function (u) { return appModels.Role.findOneP({where: {owner: u.id}}); }));
 
         return [users, owner, roles, ownerRole, partitions];

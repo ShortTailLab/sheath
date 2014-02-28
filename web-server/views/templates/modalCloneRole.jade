@@ -1,7 +1,22 @@
+script(type="text/ng-template")#taCustomTemplate.
+    <a>
+        <span color="gray">
+        登陆ID: {{match.model.name}} | {{match.model.partName}}: {{match.model.roleName}}
+        </span>
+    </a>
+
+
+
 .modal-header: h3 复制角色
 .modal-body: form.form-horizontal(role="form")
     .form-group
         input(type="hidden", ui-select2="selectOptions", ng-model="$parent.partition", data-placeholder="目的渠道")
+    .form-group
+        input(type="text", class="form-control", placeholder="角色名|用户ID|登陆名", ng-model="userId",
+            typeahead="user.id for user in getUserByHint($viewValue)", typeahead-loading="loading",
+            typeahead-template-url="taCustomTemplate"
+        )
+        i(ng-show="loading", class="glyphicon glyphicon-refresh")
 .modal-footer
-    button(class="btn btn-primary", ng-click="ok()") OK
+    button(class="btn btn-primary", ng-click="ok(userId)") OK
     button(class="btn btn-warning", ng-click="cancel()") Cancel
