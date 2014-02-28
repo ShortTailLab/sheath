@@ -1,5 +1,6 @@
 var models = require("../../../../../shared/models");
 var base = require("../../../../../shared/base");
+var ItemDAO = require("../../../../../shared/dao/item");
 var Constants = require("../../../../../shared/constants");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var Promise = require("bluebird");
@@ -27,6 +28,7 @@ class RoleHandler extends base.HandlerBase {
         }
         else {
             role.name = newName;
+            session.set("role", role.toSessionObj());
             this.safe(Promise.all(models.User.updateAttributeP("name", newName), session.push("role")).bind(this)
             .then(() => {
                 next(null, {
@@ -78,6 +80,23 @@ class RoleHandler extends base.HandlerBase {
 
     upgradeFormation(msg, session, next) {
         wrapSession(session);
+
+        var formationId = msg.formId;
+        var role = session.get("role");
+        var specialItemIds = this.app.get("dataService").get("specialItemId").data;
+
+        if (formationId < 0  || formationId >= 7) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        this.safe(Promise.join(models.Role.findP(role.id), ItemDAO.getFormationBook(formationId)).bind(this)
+        .spread(function(r, books) {
+            role = r;
+            var curFormationLevel = role.formationLevel.length > formationId ? role.formationLevel.length[formationId] : 0;
+            if (curFormationLevel > Math.floor(role.level / 5)) {
+                return Promise.reject(Constants.RoleFailed.FORMATION_LEVEL_MAX);
+            }
+        }), next);
     }
 
     claimDailyReward(msg, session, next) {

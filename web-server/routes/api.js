@@ -233,6 +233,9 @@ exports.userList = function (req, res) {
     });
 };
 
+exports.cloneRole = function (req, res) {
+};
+
 exports.updateRole = function (req, res) {
     if (!req.session.user.manRole.editUser)
         return res.send(400, {message: "没有修改用户数据的权限"});
@@ -774,13 +777,6 @@ var transformTask = function (row) {
     }
 };
 
-var transformBallistic = function (row) {
-    if (row.id === "") return;
-    var ins = new appModels.Ballistic();
-    var adapter = ins._adapter();
-    return Promise.promisify(adapter.save, adapter)("ballistic", row);
-};
-
 exports.import = function (req, res) {
     if (!req.session.user.manRole.data)
         return res.send(400, {message: "没有导入数据的权限"});
@@ -790,8 +786,7 @@ exports.import = function (req, res) {
         heroDef: [appModels.HeroDef, transformHeroDef],
         itemDef: [appModels.ItemDef, transformItemDef],
         treasure: [appModels.Treasure, transformTreasure],
-        task: [appModels.Task, transformTask],
-        ballistic: [appModels.Ballistic, transformBallistic]
+        task: [appModels.Task, transformTask]
     };
 
     if (req.files) {
@@ -858,14 +853,9 @@ exports.import = function (req, res) {
     }
     else if (body.confirm) {
         var updates = _.map(body.updates, function (d) {
-            if (body.tag === "ballistic")
-                return transformBallistic(d);
-            else {
-                var model = modelsAndTransform[body.tag][0];
-                if (!d.id) return model.createP(d);
-                else return model.updateP({where: {id: d.id}, update: d});
-            }
-                return modelsAndTransform[body.tag][0].upsertP(d);
+            var model = modelsAndTransform[body.tag][0];
+            if (!d.id) return model.createP(d);
+            else return model.updateP({where: {id: d.id}, update: d});
         });
 
         Promise.all(updates).then(function () {
@@ -941,18 +931,6 @@ exports.export = function (req, res) {
             return row;
         });
     }
-    else if (data.tag === "ballistic") {
-        appModels.Ballistic.allP({order: "id"}).then(function (treasures) {
-            csv().from.array(treasures, { columns: dataColumns[data.tag] }).to(res, {
-                header: true,
-                eof: true,
-                columns: {
-                    id: "key",
-                    value: "value"
-                }
-            });
-        });
-    }
     else if (data.tag === "task") {
         appModels.Task.allP({order: "id"}).then(function (tasks) {
             csv().from.array(tasks, { columns: dataColumns[data.tag] }).to(res, {
@@ -999,18 +977,6 @@ exports.itemDefs = function (req, res) {
     .then(function (data) {
         res.json({
             items: _.map(data, function (h) { return h.toObject(true); })
-        });
-    })
-    .catch(function (err) {
-        res.send(400);
-    });
-};
-
-exports.balls = function (req, res) {
-    appModels.Ballistic.allP()
-    .then(function (data) {
-        res.json({
-            balls: _.map(data, function (h) { return h.toObject(true); })
         });
     })
     .catch(function (err) {

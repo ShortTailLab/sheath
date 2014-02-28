@@ -284,6 +284,7 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
             $http.post("/api/updateRole", {diff: modified, rawObject: true}).success(function (data) {
                 _.extend($scope.roleData, data);
                 $scope.roleJson = angular.toJson($scope.roleData, true);
+                $scope.error = null;
                 $scope.info = "更新成功";
                 $timeout(function () {$scope.info = null;}, 2000);
             })
@@ -306,6 +307,27 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
             }
         }
         return "无";
+    };
+    $scope.cloneRole = function () {
+        var modalIns = $modal.open({
+            templateUrl: '/templates/modalCloneRole',
+            controller: 'cloneRoleController',
+            backdrop: "static",
+            resolve: {
+                partitions: function () {return $http.get("/api/partitions");}
+            }
+        });
+        modalIns.result.then(function (newHeroes) {
+            $http.post("/api/addHero", {role: $scope.uid, heroes: newHeroes}).success(function (data) {
+                $scope.heroes = $scope.heroes.concat(data.heroes);
+                $scope.heroTableParams.total($scope.heroes.length);
+                $scope.heroTableParams.reload();
+                $scope.hero_error = null;
+            })
+            .error(function (data) {
+                $scope.hero_error = "添加武将失败，" + (data.message || "未知错误");
+            });
+        });
     };
     $scope.openAddHero = function () {
         var modalIns = $modal.open({
@@ -369,6 +391,27 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
         data = data.data || data;
         $scope.error = "查看用户失败，" + (data.message || "未知错误");
     });
+});
+
+sheathControllers.controller('cloneRoleController', function ($scope, $modalInstance, partitions) {
+    partitions = partitions.data.partitions;
+    var format = function (item) {return item.name;};
+
+    $scope.selectOptions = {
+        width: "100%",
+        tokenSeparators: [",", " "],
+        data: {results: _.values(partitions), text: "name"},
+        formatSelection: format,
+        formatResult: format
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close();
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 });
 
 sheathControllers.controller('addHeroController', function ($scope, $modalInstance, heroDefs) {
@@ -621,13 +664,6 @@ sheathControllers.controller('exportController', function ($scope, $http, $modal
     })
     .error(function (err) {
         $scope.trea_error = "获取奖励错误: " + (err.message || "未知错误");
-    });
-
-    $http.get("/api/balls").success(function (data) {
-        $scope.balls = data.balls;
-    })
-    .error(function (err) {
-        $scope.ball_error = "获取弹道错误: " + (err.message || "未知错误");
     });
 
     $http.get("/api/tasks").success(function (data) {

@@ -1,0 +1,7 @@
+.modal-header: h3 复制角色
+.modal-body: form.form-horizontal(role="form")
+    .form-group
+        input(type="hidden", ui-select2="selectOptions", ng-model="$parent.partition", data-placeholder="目的渠道")
+.modal-footer
+    button(class="btn btn-primary", ng-click="ok()") OK
+    button(class="btn btn-warning", ng-click="cancel()") Cancel

@@ -28,19 +28,6 @@ class HeroHandler extends base.HandlerBase {
         }), next);
     }
 
-    listBallistic(msg, session, next) {
-        wrapSession(session);
-
-        this.safe(models.Ballistic.allP()
-        .then(function (data) {
-            var dict = {};
-            for (var i=0;i<data.length;i++) {
-                dict[data[i].id] = data[i].value;
-            }
-            next(null, dict);
-        }), next);
-    }
-
     list(msg, session, next) {
         wrapSession(session);
 

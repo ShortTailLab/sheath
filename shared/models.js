@@ -47,7 +47,7 @@ exports.init = function (dbConfig) {
         spent: {type: Number, default: 0},
 
         formation: {type: Number, default: 0},
-        formationLevel: {type: db.Schema.JSON, default: function () {return [0];}},
+        formationLevel: {type: db.Schema.JSON, default: function () {return [0, 0, 0, 0, 0, 0];}},
         team: {type: db.Schema.JSON, default: function () {return [null, null, null, null, null];}},
 
         storageRoom: {type: Number, default: 25},
@@ -122,10 +122,6 @@ exports.init = function (dbConfig) {
 
         destructCoeff: {type: db.Schema.JSON, default: function () {return [];}},
         props: {type: db.Schema.JSON, default: function () {return [];}}
-    });
-
-    var Ballistic = exports.Ballistic = schema.define("ballistic", {
-        value: String
     });
 
     var Hero = exports.Hero = schema.define("hero", {
