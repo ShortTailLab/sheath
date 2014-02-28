@@ -159,7 +159,7 @@ exports.init = function (dbConfig) {
     var Level = exports.Level = schema.define("level", {
         name: {type: String, default: ""},
         path: {type: String, default: ""},
-        enemies: {type: db.Schema.JSON, default: function () { return {}; }}
+        enemies: {type: db.Schema.JSON, default: function () { return []; }}
     });
 
     var Treasure = exports.Treasure = schema.define("treasure", {

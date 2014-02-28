@@ -119,8 +119,8 @@ message Task {
 }
 message ETypeWeight {
     required int32 type         =   1;
-    required int32 weight       =   2;
-    required int32 seed         =   3;
+    required int32 itemSeed     =   2;
+    required int32 coinSeed     =   3;
 }
 
 message connector_entryHandler_enter {
@@ -215,9 +215,8 @@ message game_equipmentHandler_destruct {
 
 message game_levelHandler_start {
     optional Error error            =   1;
-    optional int32 levelId          =   2;
-    optional string path            =   3;
-    repeated ETypeWeight enemies    =   4;
+    optional string path            =   2;
+    repeated ETypeWeight enemies    =   3;
 }
 
 message game_taskHandler_list {

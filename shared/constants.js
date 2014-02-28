@@ -48,6 +48,9 @@ module.exports = {
         FORMATION_LEVEL_MAX: 101,
         NO_BOOK: 102
     },
+    StageFailed: {
+        NO_LEVEL: 120
+    },
 
 
     InternalServerError: 500

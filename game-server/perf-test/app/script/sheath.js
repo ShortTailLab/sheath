@@ -156,6 +156,18 @@ var ActFlagType = {
         name: "upgradeFormation",
         route: "game.roleHandler.upgradeFormation"
     },
+    START: {
+        desc: "开始关卡",
+        reqId: 25,
+        name: "startLevel",
+        route: "game.levelHandler.start"
+    },
+    END: {
+        desc: "结束关卡",
+        reqId: 26,
+        name: "endLevel",
+        route: "game.levelHandler.end"
+    },
 
 
     ACT_END: null
@@ -435,6 +447,18 @@ Role.prototype.setTeam = function (pomelo, cb) {
     }
 
     timePomeloRequest(ActFlagType.SET_TEAM, {heroes: randomHeroes, formation: 2}, function (data) {
+        cb();
+    });
+};
+
+Role.prototype.start = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.START, {level: 10101}, function (data) {
+        cb();
+    });
+};
+
+Role.prototype.end = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.END, {level: 10101}, function (data) {
         cb();
     });
 };

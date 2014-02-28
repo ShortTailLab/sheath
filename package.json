@@ -8,6 +8,7 @@
         "commander": "latest",
         "csv": "latest",
         "moment": "latest",
+        "seed-random": "latest",
         "iconv": "latest",
         "bluebird": "latest",
         "underscore": "latest",

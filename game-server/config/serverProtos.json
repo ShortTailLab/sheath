@@ -724,14 +724,14 @@
                 {
                     "rule": "required",
                     "type": "int32",
-                    "name": "weight",
+                    "name": "itemSeed",
                     "id": 2,
                     "options": {}
                 },
                 {
                     "rule": "required",
                     "type": "int32",
-                    "name": "seed",
+                    "name": "coinSeed",
                     "id": 3,
                     "options": {}
                 }
@@ -1239,23 +1239,16 @@
                 },
                 {
                     "rule": "optional",
-                    "type": "int32",
-                    "name": "levelId",
-                    "id": 2,
-                    "options": {}
-                },
-                {
-                    "rule": "optional",
                     "type": "string",
                     "name": "path",
-                    "id": 3,
+                    "id": 2,
                     "options": {}
                 },
                 {
                     "rule": "repeated",
                     "type": "ETypeWeight",
                     "name": "enemies",
-                    "id": 4,
+                    "id": 3,
                     "options": {}
                 }
             ],
