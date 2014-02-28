@@ -447,6 +447,13 @@
                 {
                     "rule": "required",
                     "type": "float",
+                    "name": "interval",
+                    "id": 36,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
                     "name": "attackSpeed",
                     "id": 21,
                     "options": {}
@@ -460,9 +467,16 @@
                 },
                 {
                     "rule": "required",
-                    "type": "float",
+                    "type": "int32",
                     "name": "ballLev",
                     "id": 23,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "secBallLev",
+                    "id": 37,
                     "options": {}
                 },
                 {

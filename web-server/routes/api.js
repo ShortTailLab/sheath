@@ -757,9 +757,9 @@ exports.removeAnn = function (req, res) {
 // data import / data export
 var dataColumns = {
     heroDef: ["id", "name", "resKey", "type", "stars", "vitality", "strength", "intelligence", "vitGrowth", "strGrowth", "intelGrowth",
-        "hp", "attack", "magic", "defense", "resist", "critical", "attackSpeed", "speed", "ballLev", "skill",
-        "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor",
-        "physicalResist", "magicResist", "attackFactor", "defenseFactor"],
+        "hp", "attack", "magic", "defense", "resist", "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev",
+        "skill", "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor",
+        "damageRedFactor", "physicalResist", "magicResist", "attackFactor", "defenseFactor"],
     itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
@@ -773,8 +773,8 @@ var transformHeroDef = function (row) {
     row.resKey = row.resKey || "";
     row.type = row.type || "";
 
-    _.each(["stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense",
-        "resist", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev",
+    _.each(["stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense", "interval",
+        "resist", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev", "secBallLev",
         "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor", "damageRedFactor",
         "physicalResist", "magicResist", "skill", "attackFactor", "defenseFactor"], function (f) {
         row[f] = parseFloat(row[f]) || 0;

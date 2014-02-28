@@ -1,5 +1,5 @@
 
-—
+½
 serverProtos.proto"
 Player
 
@@ -49,7 +49,7 @@ energyDiff (
 price (
 levelReq (
 quality (
-	stackSize ("å
+	stackSize ("‹
 HeroDef
 
 id (
@@ -71,10 +71,13 @@ energyDiff (
 	vitGrowth (
 	strGrowth (
 intelGrowth (
-critical (
+critical (
+interval$ (
 attackSpeed (
 speed (
-ballLev (
+ballLev (
+
+secBallLev% (
 ice (
 fire (
 slow (

@@ -74,9 +74,11 @@ message HeroDef {
     required float intelGrowth  =   19;
 
     required float critical     =   20;
+    required float interval     =   36;
     required float attackSpeed  =   21;
     required float speed        =   22;
-    required float ballLev      =   23;
+    required int32 ballLev      =   23;
+    required int32 secBallLev   =   37;
 
     required float ice          =   24;
     required float fire         =   25;
