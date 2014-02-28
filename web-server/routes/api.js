@@ -853,8 +853,8 @@ exports.import = function (req, res) {
                     var compareCols = _.without(dataColumns[body.tag], "id");
                     var diffCol = {news: [], mods: [], updates: [], tag: body.tag};
                     _.each(newDefs, function (value) {
-                        var key = value.id;
-                        if (key === null || key === undefined || _.isNaN(key)) return;
+                        if (value.id === null || value.id === undefined || _.isNaN(value.id)) return;
+                        var key = value.id.toString();
                         if (stock[key] === undefined) {
                             diffCol.news.push(value);
                             diffCol.updates.push(value);
@@ -896,8 +896,16 @@ exports.import = function (req, res) {
     else if (body.confirm) {
         var updates = _.map(body.updates, function (d) {
             var model = modelsAndTransform[body.tag][0];
-            model.schema.adapter.updateOrCreate = Promise.promisify(model.schema.adapter.updateOrCreate);
-            return model.schema.adapter.updateOrCreate(model.modelName, d);
+            if (!d.id) {
+                return model.createP(d);
+            }
+            else {
+                return model.updateP({where: {id: d.id}, update: d}).then(function (data) {
+                    if (data.replaced === 0) {
+                        return model.createP(d);
+                    }
+                });
+            }
         });
 
         Promise.all(updates).then(function () {
