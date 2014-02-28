@@ -850,10 +850,11 @@ exports.import = function (req, res) {
                 modelsAndTransform[body.tag][0].allP()
                 .then(function (stock) {
                     stock = _.indexBy(stock, "id");
-                    newDefs = _.indexBy(newDefs, "id");
                     var compareCols = _.without(dataColumns[body.tag], "id");
                     var diffCol = {news: [], mods: [], updates: [], tag: body.tag};
-                    _.each(newDefs, function (value, key) {
+                    _.each(newDefs, function (value) {
+                        var key = value.id;
+                        if (key === null || key === undefined || _.isNaN(key)) return;
                         if (stock[key] === undefined) {
                             diffCol.news.push(value);
                             diffCol.updates.push(value);
@@ -895,8 +896,8 @@ exports.import = function (req, res) {
     else if (body.confirm) {
         var updates = _.map(body.updates, function (d) {
             var model = modelsAndTransform[body.tag][0];
-            if (!d.id) return model.createP(d);
-            else return model.updateP({where: {id: d.id}, update: d});
+            model.schema.adapter.updateOrCreate = Promise.promisify(model.schema.adapter.updateOrCreate);
+            return model.schema.adapter.updateOrCreate(model.modelName, d);
         });
 
         Promise.all(updates).then(function () {
