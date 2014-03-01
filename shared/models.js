@@ -122,8 +122,7 @@ exports.init = function (dbConfig) {
 
         stackSize: {type: Number, default: 1},
 
-        destructCoeff: {type: db.Schema.JSON, default: function () {return [];}},
-        props: {type: db.Schema.JSON, default: function () {return [];}}
+        destructCoeff: {type: db.Schema.JSON, default: function () {return [];}}
     });
 
     var Hero = exports.Hero = schema.define("hero", {

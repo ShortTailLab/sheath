@@ -909,6 +909,7 @@ exports.import = function (req, res) {
         });
 
         Promise.all(updates).then(function () {
+            pomeloConn.client.request("cacheMonitor", {type: body.tag});
             res.send(200);
         });
     }

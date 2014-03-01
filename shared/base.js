@@ -22,30 +22,15 @@ class HandlerBase {
     }
 
     getItemWithDef(itemId) {
-        return new Promise(function (resolve, reject) {
-            var equipment = new models.Item();
-            var adapter = equipment._adapter();
-            adapter.pool.acquire(function(error, client) {
-                r.db(adapter.database).table("item").getAll(itemId).eqJoin("itemDefId", r.db(adapter.database).table("itemdef")).run(client, function(err, data) {
-                    if (err || data.length === 0) {
-                        reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
-                    }
-                    else {
-                        var eq = data[0].left;
-                        var def = data[0].right;
-                        var itemDef = new models.ItemDef();
-
-                        eq = models.Item._fromDB(eq);
-                        def = models.ItemDef._fromDB(def);
-
-                        equipment._initProperties(eq, false);
-                        itemDef._initProperties(def, false);
-
-                        resolve([equipment, itemDef]);
-                    }
-                    adapter.pool.release(client);
-                });
-            });
+        return models.Item.findP(itemId)
+        .then(function (item){
+            if (!item) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            }
+            else {
+                var itemDef = this.app.get("cache").itemDefById[item.itemDefId];
+                return [item, itemDef];
+            }
         });
     }
 
@@ -77,18 +62,12 @@ class HandlerBase {
         models.Item.allP({where: {owner: roleId}}).bind(this)
         .then((items) => {
             var itemGroups = _.groupBy(items, function (item) { return item.itemDefId + "_" + item.level; });
-            var itemDefs = models.ItemDef.allP({where: {id: {inq: _.map(_.values(itemGroups), function (g) {return g[0].itemDefId;})}}});
-            return [itemGroups, itemDefs];
-        })
-        .then((results) => {
-            var itemGroups = results[0];
-            var itemDefs = _.groupBy(results[1], "id");
+            var itemDefs = this.app.get("cache").itemDefById;
             var stack = 0;
-            for (var i=0;i<itemGroups.length;i++) {
-                var itemId = itemGroups[i];
-                var stackSize = itemDefs[itemId][0].stackSize;
-                stack += Math.ceil(itemGroups[itemId].length/stackSize);
-            }
+            _.each(itemGroups, function (value) {
+                var stackSize = itemDefs[value[0].itemDefId].stackSize;
+                stack += Math.ceil(value.length/stackSize);
+            });
             return stack;
         });
     }

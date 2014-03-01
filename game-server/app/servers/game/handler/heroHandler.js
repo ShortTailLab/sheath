@@ -20,12 +20,9 @@ class HeroHandler extends base.HandlerBase {
     listDef(msg, session, next) {
         wrapSession(session);
 
-        this.safe(models.HeroDef.allP()
-        .then((defs) => {
-            next(null, {
-                defs: _.map(defs, (hd) => { return hd.toClientObj(); })
-            });
-        }), next);
+        next(null, {
+            defs: this.app.get("cache").clientHeroDefs
+        });
     }
 
     list(msg, session, next) {
@@ -75,9 +72,7 @@ class HeroHandler extends base.HandlerBase {
             if (equipments.length === 4 || _.findWhere(equipments, {itemDefId: equipment.itemDefId})) {
                 return Promise.reject(Constants.HeroFailed.ALREADY_EQUIPPED);
             }
-            return models.HeroDef.findP(hero.heroDefId);
-        })
-        .then((heroDef) => {
+            var heroDef = this.app.get("cache").heroDefById[hero.heroDefId];
             if (itemDef.type.startsWith("WE_") && heroDef.type !== itemDef.type) {
                 return Promise.reject(Constants.HeroFailed.CANNOT_EQUIP_WEAPON_TYPE);
             }

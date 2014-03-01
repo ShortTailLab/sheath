@@ -74,16 +74,21 @@ app.configure('development', function () {
     app.filter(pomelo.filters.time());
 });
 
+app.configure('development|production|test', "master", function () {
+    app.registerAdmin(require('./app/components/cacheMon'), {app: app});
+});
+
 app.configure('development|production|test', "connector", function () {
     app.use(require('pomelo-protobuf-plugin'), {});
 });
 
-//app.configure('development|production|test', "game", function () {
+app.configure('development|production|test', "game", function () {
+    app.load(require('./app/components/cache'), {});
 //    profiler.profile({
 //        accountKey: 'a09978fff59621ddf3fada92a8048789d0ca3ade',
 //        appName: 'Sheath-Game'
 //    });
-//});
+});
 
 function patchRPC(app) {
     setImmediate(function () {

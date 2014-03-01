@@ -89,9 +89,16 @@ function forward(agent, serverType, command, msg, cb) {
     }
 
     var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === serverType; });
+    var pending = servers.length;
+
+    var waitAll = function () {
+        if (--pending === 0) {
+            cb();
+        }
+    };
 
     for (var i =0;i<servers.length;i++) {
         var server = servers[i];
-        agent.request(server.id, module.exports.moduleId, {command: command, msg: msg}, cb);
+        agent.request(server.id, module.exports.moduleId, {command: command, msg: msg}, waitAll);
     }
 }

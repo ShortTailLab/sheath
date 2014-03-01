@@ -20,12 +20,9 @@ class ItemHandler extends base.HandlerBase {
     listDef(msg, session, next) {
         wrapSession(session);
 
-        this.safe(models.ItemDef.allP().bind(this)
-        .then((defs) => {
-            next(null, {
-                defs: _.map(defs, (hd) => { return hd.toClientObj(); })
-            });
-        }), next);
+        next(null, {
+            defs: this.app.get("cache").clientItemDefs
+        });
     }
 
     list(msg, session, next) {

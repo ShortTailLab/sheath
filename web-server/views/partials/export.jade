@@ -3,7 +3,7 @@ include ../mixins/block
 +block("导出数据")
     .row
         .col-md-1: form(method="post", action="/api/export")
-            input(type="submit", value="侠客数据").submit
+            input(type="submit", value="武将数据").submit
             input(type="hidden", name="tag", value="heroDef")
         .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="道具数据").submit
