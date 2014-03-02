@@ -72,7 +72,7 @@ class HeroHandler extends base.HandlerBase {
             if (equipments.length === 4 || _.findWhere(equipments, {itemDefId: equipment.itemDefId})) {
                 return Promise.reject(Constants.HeroFailed.ALREADY_EQUIPPED);
             }
-            var heroDef = this.app.get("cache").heroDefById[hero.heroDefId];
+            var heroDef = this.app.get("cache").heroDefById[hero.heroDefId] || {};
             if (itemDef.type.startsWith("WE_") && heroDef.type !== itemDef.type) {
                 return Promise.reject(Constants.HeroFailed.CANNOT_EQUIP_WEAPON_TYPE);
             }

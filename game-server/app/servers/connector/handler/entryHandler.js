@@ -39,7 +39,7 @@ class EntryHandler extends base.HandlerBase {
         })
         .then(() => {
             var partUCount = this.app.rpc.manager.partitionStatsRemote.getUserCountAsync(session);
-            var allParts = models.Partition.allP({where: {public: true}, order: "openSince DESC"});
+            var allParts = models.Partition.allP({where: {public: true, openSince: {lt: new Date()}}, order: "openSince DESC"});
             session.set("userId", user.id);
             return [session.bind(user.id), partUCount, allParts, session.pushAll()];
         })

@@ -22,7 +22,7 @@ class HandlerBase {
     }
 
     getItemWithDef(itemId) {
-        return models.Item.findP(itemId)
+        return models.Item.findP(itemId).bind(this)
         .then(function (item){
             if (!item) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);

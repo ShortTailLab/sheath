@@ -26,9 +26,14 @@ class EquipmentHandler extends base.HandlerBase {
         if (!matType) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
-        var itemDef = this.app.get("cache").itemDefById[matType];
-        if (!itemDef || itemDef.type !== "WEP" && itemDef.type !== "ARP") {
+        var cache = this.app.get("cache");
+        var itemDef = cache.itemDefById[matType];
+        if (!itemDef || (itemDef.type !== "WEP" && itemDef.type !== "ARP")) {
             return this.errorNext(Constants.EquipmentFailed.DO_NOT_OWN_ITEM, next);
+        }
+        var target = cache.randomCompositeTarget(itemDef);
+        if (!target) {
+            return this.errorNext(Constants.InternalServerError, next);
         }
 
         this.safe(models.Item.allP({where: {owner: role.id, itemDefId: matType}, limit: 2}).bind(this)
@@ -37,19 +42,7 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
 
-            var matchExpr = "^" + itemDef.type.substr(0, 2) + "_";
-            var targetQuery = models.ItemDef.allP({where: {
-                quality: itemDef.quality,
-                type: {match: matchExpr}
-            }, sample: 1});
-            return [mats, targetQuery];
-        })
-        .spread((mats, targets) => {
-            if (targets.length !== 1) {
-                return Promise.reject(Constants.InternalServerError);
-            }
-
-            return [mats, models.Item.createP({owner: role.id, itemDefId: targets[0].id}), mats[0].destroyP(), mats[1].destroyP()];
+            return [mats, models.Item.createP({owner: role.id, itemDefId: target.id}), mats[0].destroyP(), mats[1].destroyP()];
         })
         .spread((mats, newItem) => {
             next(null, {
