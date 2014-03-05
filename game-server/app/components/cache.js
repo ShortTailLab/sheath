@@ -76,4 +76,8 @@ class Cache {
         }
         return null;
     }
+
+    getItemDef(itemId) {
+        return this.itemDefById[itemId] || this.equipmentDefById[itemId];
+    }
 }

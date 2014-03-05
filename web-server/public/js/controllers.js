@@ -370,10 +370,10 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
         });
     };
 
-    $q.all([$http.post("/api/getRole", {uid: $scope.uid}), $http.get("/api/itemDefs"), $http.get("/api/heroDefs")])
+    $q.all([$http.post("/api/getRole", {uid: $scope.uid}), $http.get("/api/itemDefs"), $http.get("/api/equipmentDefs"), $http.get("/api/heroDefs")])
     .then(function (results) {
-        $scope.itemDefs = results[1].data.items.toMap("id");
-        $scope.heroDefs = results[2].data.heroes.toMap("id");
+        $scope.itemDefs = results[1].data.items.concat(results[2].data.equipments).toMap("id");
+        $scope.heroDefs = results[3].data.heroes.toMap("id");
 
         var roleData = results[0].data;
         $scope.roleData = roleData.role;

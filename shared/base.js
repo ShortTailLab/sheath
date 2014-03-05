@@ -28,26 +28,17 @@ class HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
             else {
-                var itemDef = this.app.get("cache").itemDefById[item.itemDefId];
+                var itemDef = this.app.get("cache").getItemDef(item.itemDefId);
                 return [item, itemDef];
             }
-        });
-    }
-
-    getItemWithPrefixDef(itemId, prefix) {
-        return this.getItemWithDef(itemId).then((results) => {
-            var itemDef = results[1];
-            if (!itemDef || !itemDef.type.startsWith(prefix)) {
-                return Promise.reject(Constants.InvalidRequest);
-            }
-            return results;
         });
     }
 
     getEquipmentWithDef(equipmentId) {
         return this.getItemWithDef(equipmentId).then((results) => {
             var itemDef = results[1];
-            if (!itemDef || !(itemDef.type.startsWith("WE_") || itemDef.type.startsWith("AR_"))) {
+            var cache = this.app.get("cache");
+            if (!itemDef || !cache.equipmentDefById[itemDef.id]) {
                 return Promise.reject(Constants.InvalidRequest);
             }
             return results;
@@ -55,17 +46,24 @@ class HandlerBase {
     }
 
     getGemWithDef(itemId) {
-        return this.getItemWithPrefixDef(itemId, "GEM_");
+        return this.getItemWithDef(itemId).then((results) => {
+            var itemDef = results[1];
+            if (!itemDef || itemDef.type !== "宝石") {
+                return Promise.reject(Constants.InvalidRequest);
+            }
+            return results;
+        });
     }
 
     getItemStacks(roleId) {
         models.Item.allP({where: {owner: roleId}}).bind(this)
         .then((items) => {
             var itemGroups = _.groupBy(items, function (item) { return item.itemDefId + "_" + item.level; });
-            var itemDefs = this.app.get("cache").itemDefById;
+            var cache = this.app.get("cache");
             var stack = 0;
             _.each(itemGroups, function (value) {
-                var stackSize = itemDefs[value[0].itemDefId].stackSize;
+                var itemDef = cache.getItemDef(value[0].itemDefId);
+                var stackSize = itemDef.stackSize || 1;
                 stack += Math.ceil(value.length/stackSize);
             });
             return stack;
