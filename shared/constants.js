@@ -29,7 +29,6 @@ module.exports = {
         NO_ENFORCEMENT_STONE: 10,
         NO_MATERIAL: 11,
         NO_SLOT: 12,
-        QUALITY_TOO_LOW: 13,
         ALREADY_BOUND: 14,
         CANNOT_BIND_GEM_TYPE: 15
     },

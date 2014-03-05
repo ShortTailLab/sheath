@@ -70,6 +70,15 @@ class HandlerBase {
         });
     }
 
+    evalRandAtom(atom) {
+        var randValue = Math.random() * 100;
+        for (var i=0;i<atom.length;i++) {
+            if (randValue < atom[i+1])
+                return atom[i];
+        }
+        return atom[atom.length-2];
+    }
+
     toLogObj(role) {
         if (typeof role.toLogObj === "function") {
             return role.toLogObj();

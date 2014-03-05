@@ -1,5 +1,5 @@
 
-Ê#
+¤#
 serverProtos.proto"
 Player
 
@@ -225,17 +225,14 @@ equipments (2.EquipmentDef"D
 error (2.Error
 	destroyed (	
 	equipment (2.Item!
-	stateDiff (2.ProfileChange"£
+	stateDiff (2.ProfileChange"~
 #game_equipmentHandler_destructCheck
 error (2.Error
 coins (
 pieceId (
 
-pieceCount (
-stoneId (
-
-stoneCount (
-gems (	"‡
+pieceCount (
+gems (	"‡
 game_equipmentHandler_destruct
 error (2.Error!
 	stateDiff (2.ProfileChange

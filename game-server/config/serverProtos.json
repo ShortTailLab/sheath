@@ -1482,24 +1482,10 @@
                     "options": {}
                 },
                 {
-                    "rule": "optional",
-                    "type": "int32",
-                    "name": "stoneId",
-                    "id": 5,
-                    "options": {}
-                },
-                {
-                    "rule": "optional",
-                    "type": "int32",
-                    "name": "stoneCount",
-                    "id": 6,
-                    "options": {}
-                },
-                {
                     "rule": "repeated",
                     "type": "string",
                     "name": "gems",
-                    "id": 7,
+                    "id": 5,
                     "options": {}
                 }
             ],

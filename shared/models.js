@@ -324,11 +324,11 @@ exports.init = function (dbConfig) {
     };
 
     ItemDef.prototype.toClientObj = function () {
-        return _.toObject();
+        return this.toObject();
     };
 
-    EquipmentDef.prototype.roClientObj = function () {
-        return _.toObject();
+    EquipmentDef.prototype.toClientObj = function () {
+        return this.toObject();
     };
 
     HeroDef.prototype.toClientObj = function () {

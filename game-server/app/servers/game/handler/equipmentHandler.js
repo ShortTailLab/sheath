@@ -28,25 +28,26 @@ class EquipmentHandler extends base.HandlerBase {
         }
         var cache = this.app.get("cache");
         var itemDef = cache.itemDefById[matType];
-        if (!itemDef || (itemDef.type !== "WEP" && itemDef.type !== "ARP")) {
-            return this.errorNext(Constants.EquipmentFailed.DO_NOT_OWN_ITEM, next);
-        }
         var target = cache.randomCompositeTarget(itemDef);
         if (!target) {
-            return this.errorNext(Constants.InternalServerError, next);
+            return this.errorNext(Constants.EquipmentFailed.NO_MATERIAL, next);
         }
 
-        this.safe(models.Item.allP({where: {owner: role.id, itemDefId: matType}, limit: 2}).bind(this)
-        .then((mats) => {
-            if (mats.length < 2) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+        var mats;
+        this.safe(models.Item.allP({where: {owner: role.id, itemDefId: matType}, limit: itemDef.composeCount}).bind(this)
+        .then((_mats) => {
+            mats = _mats;
+            if (mats.length < itemDef.composeCount) {
+                return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
             }
+            var promises = _.invoke(mats, "destroyP");
+            promises.unshift(models.Item.createP({owner: role.id, itemDefId: target.id}));
 
-            return [mats, models.Item.createP({owner: role.id, itemDefId: target.id}), mats[0].destroyP(), mats[1].destroyP()];
+            return promises;
         })
-        .spread((mats, newItem) => {
+        .spread((newItem) => {
             next(null, {
-                destroyed: [mats[0].id, mats[1].id],
+                destroyed: _.pluck(mats, "id"),
                 newItem: newItem.toClientObj()
             });
             logger.logInfo("equipment.composite", {
@@ -75,7 +76,7 @@ class EquipmentHandler extends base.HandlerBase {
             if (equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
-            if (equipment.refinement >= 3) {
+            if (equipment.refinement >= itemDef.refineLevel) {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
             return models.Item.findOneP({where: {
@@ -92,7 +93,7 @@ class EquipmentHandler extends base.HandlerBase {
             if (!material) {
                 return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
             }
-            var progressReq = [2, 4, 6][equipment.refinement];
+            var progressReq = itemDef.refineCost[equipment.refinement];
 
             equipment.refineProgress += 1;
             if (equipment.refineProgress === progressReq) {
@@ -149,14 +150,14 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.NO_ENFORCEMENT_STONE);
             }
 
-            var coinsNeeded = 100;
+            var coinsNeeded = equipment.level * itemDef.upgradeCost;
             if (role.coins < coinsNeeded) {
                 return Promise.reject(Constants.NO_COINS);
             }
             role.coins -= coinsNeeded;
             equipment.level += 1;
 
-            var destroyAll = Promise.all(_.map(stones, (s) => {return s.destroyP();}));
+            var destroyAll = Promise.all(_.invoke(stones, "destroyP"));
             return [coinsNeeded, role.saveP(), stones,  destroyAll, equipment.saveP()];
         })
         .spread((coinsSpent, roleObj, stones) => {
@@ -226,36 +227,36 @@ class EquipmentHandler extends base.HandlerBase {
         if (!eqId || !gemId) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
-        var equipment, eqPrefix, boundGemCount;
+        var equipment, itemDef, eqPrefix, boundGemCount;
 
         this.safe(this.getEquipmentWithDef(eqId)
-        .spread((_equipment, itemDef) => {
-            if (itemDef.quality < 1) {
-                return Promise.reject(Constants.EquipmentFailed.QUALITY_TOO_LOW);
+        .spread((_equipment, _itemDef) => {
+            itemDef = _itemDef;
+            if (itemDef.slots === 0) {
+                return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
             }
-            if (_equipment.owner !== role.id) {
+            if (!_equipment || _equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
             equipment = _equipment;
             eqPrefix = itemDef.type.substr(0, 5);
             return this.getGemWithDef(gemId);
         })
-        .spread((gem, itemDef) => {
-            if (gem.owner !== role.id) {
+        .spread((gem, gemDef) => {
+            if (!gem || gem.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
-            if (gem.bound && gem.bound !== equipment.id) {
+            if (gem.bound) {
                 return Promise.reject(Constants.EquipmentFailed.ALREADY_BOUND);
             }
-            var gemEqMap = this.app.get("dataService").get("gemEqMap").data;
-            if (!gemEqMap[eqPrefix][itemDef.type]) {
+            if (itemDef.gemType.indexOf(gemDef.subType) === -1) {
                 return Promise.reject(Constants.EquipmentFailed.CANNOT_BIND_GEM_TYPE);
             }
             return [gem, models.Item.countP({bound: eqId})];
         })
         .spread((gem, _boundGemCount) => {
             boundGemCount = _boundGemCount;
-            if (boundGemCount >= 3) {
+            if (boundGemCount >= itemDef.slots) {
                 return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
             }
 
@@ -324,13 +325,10 @@ class EquipmentHandler extends base.HandlerBase {
             var createPieces = Promise.all(_.map(_.range(result.pieces[1]), () => {
                 return models.Item.createP({itemDefId: result.pieces[0], owner: role.id});
             }));
-            var createStones = Promise.all(_.map(_.range(result.stones[1]), () => {
-                return models.Item.createP({itemDefId: result.stones[0], owner: role.id});
-            }));
             var unBoundGem = models.Item.updateP({where: {bound: result.equipment.id}, update: {bound: null}});
-            return [result, role.saveP(), createPieces, createStones, unBoundGem, result.equipment.destroyP()];
+            return [result, role.saveP(), createPieces, unBoundGem, result.equipment.destroyP()];
         })
-        .spread((result, roleObj, pieces, stones) => {
+        .spread((result, roleObj, pieces) => {
             next(null, {
                 stateDiff: {
                     energy: roleObj.energy,
@@ -344,14 +342,14 @@ class EquipmentHandler extends base.HandlerBase {
                     contribsDiff: 0
                 },
                 removeGems: result.gems,
-                newItems: _.invoke(pieces, "toClientObj").concat(_.invoke(stones, "toClientObj"))
+                newItems: _.invoke(pieces, "toClientObj")
             });
             logger.logInfo("equipment.removeGem", {
                 role: this.toLogObj(roleObj),
                 equipment: result.equipment.toLogObj(),
                 equipmentCreateTime: result.equipment.createTime,
                 gemIds: result.gems,
-                newItems: _.invoke(pieces, "toLogObj").concat(_.invoke(stones, "toLogObj"))
+                newItems: _.invoke(pieces, "toLogObj")
             });
         }), next);
     }
@@ -372,15 +370,15 @@ class EquipmentHandler extends base.HandlerBase {
                 coins: result.coins,
                 pieceId: result.pieces[0],
                 pieceCount: result.pieces[1],
-                stoneId: result.stones[0],
-                stoneCount: result.stones[1],
+//                stoneId: result.stones[0],
+//                stoneCount: result.stones[1],
                 gems: result.gems
             });
         }), next);
     }
 
     _genDestructMemory(eqId, role) {
-        var specialItemIds = this.app.get("dataService").get("specialItemId").data;
+        var cache = this.app.get("cache");
         return this.getEquipmentWithDef(eqId)
         .spread((equipment, itemDef) => {
             if (equipment.owner !== role.id) {
@@ -390,24 +388,16 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.ALREADY_BOUND);
             }
             if (!equipment.destructMemory || equipment.refinement !== equipment.destructMemory.refinement || equipment.refineProgress !== equipment.destructMemory.refineProgress) {
-                var pieceId;
-                if (itemDef.type.startsWith("WE_R_")) {
-                    pieceId = parseInt(specialItemIds.WEP.itemId);
-                }
-                else {
-                    pieceId = parseInt(specialItemIds.ARP.itemId);
-                }
-                var matCount = [0, 2, 6, 12][equipment.refinement] + equipment.refineProgress + 1;
+                var pieceId = cache.getPieceId(itemDef);
+                var sumMat = [0];
+                _.each(itemDef.refineCost, function (c) {
+                    sumMat.push(sumMat[sumMat.length - 1] + c);
+                });
+                var iterCount = sumMat[equipment.refinement] + equipment.refineProgress + 1;
                 var pieceCount = 0;
-                for (var i=0, m=Math.min(matCount, itemDef.destructCoeff.length);i<m;i++) {
-                    var coeff = itemDef.destructCoeff[i];
-                    if (coeff) {
-                        var randValue = Math.random();
-                        if (randValue > coeff)
-                            pieceCount += 2;
-                        else
-                            pieceCount += 1;
-                    }
+                var pieceCoeff = itemDef.destructPiece;
+                for (var i=0;i<iterCount;i++) {
+                    pieceCount += this.evalRandAtom(pieceCoeff);
                 }
 
                 equipment.destructMemory = {
@@ -420,10 +410,10 @@ class EquipmentHandler extends base.HandlerBase {
             return [equipment, itemDef, models.Item.allP({where: {bound: equipment.id}})];
         })
         .spread((equipment, itemDef, gems) => {
-            var stoneId = parseInt(specialItemIds.enpowerStone.itemId);
+//            var stoneId = parseInt(specialItemIds.enpowerStone.itemId);
             return {
                 coins: itemDef.price + equipment.level * 100 * 0.3,
-                stones: [stoneId, Math.floor(equipment.stoneUsed * 0.8)],
+//                stones: [stoneId, Math.floor(equipment.stoneUsed * 0.8)],
                 pieces: equipment.destructMemory.pieces,
                 gems: _.pluck(gems, "id"),
 

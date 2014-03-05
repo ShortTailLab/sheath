@@ -30,7 +30,7 @@ class Cache {
     }
 
     afterStart(cb) {
-        Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadWeaponDef()).finally(cb);
+        Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef()).finally(cb);
     }
 
     stop(cb) {
@@ -38,18 +38,18 @@ class Cache {
     }
 
     loadHeroDef() {
-        models.HeroDef.allP().bind(this).then(function (hDefs) {
+        return models.HeroDef.allP().bind(this).then(function (hDefs) {
             this.clientHeroDefs = _.invoke(hDefs, "toClientObj");
             this.heroDefs = _.invoke(hDefs, "toObject");
             this.heroDefById = toMap(this.heroDefs, "id");
         })
         .catch(function (err) {
-            console.log("error loading item defs. " + err);
+            console.log("error loading hero defs. " + err);
         });
     }
 
     loadItemDef() {
-        models.ItemDef.allP().bind(this).then(function (itemDefs) {
+        return models.ItemDef.allP().bind(this).then(function (itemDefs) {
             this.clientItemDefs = _.invoke(itemDefs, "toClientObj");
             this.itemDefs = _.invoke(itemDefs, "toObject");
             this.itemDefById = toMap(this.itemDefs, "id");
@@ -59,22 +59,25 @@ class Cache {
         });
     }
 
-    loadWeaponDef() {
-        models.EquipmentDef.allP().bind(this).then(function (eqDefs) {
+    loadEquipmentDef() {
+        return models.EquipmentDef.allP().bind(this).then(function (eqDefs) {
             this.clientEquipmentDefs = _.invoke(eqDefs, "toClientObj");
             this.equipmentDefs = _.invoke(eqDefs, "toObject");
             this.equipmentDefById = toMap(this.equipmentDefs, "id");
         })
         .catch(function (err) {
-            console.log("error loading weapon defs. " + err);
+            console.log("error loading equipment defs. " + err);
         });
     }
 
     randomCompositeTarget(itemDef) {
-        if (itemDef.composeTarget) {
+        if (itemDef && itemDef.composable && itemDef.composeTarget) {
             return _.sample(itemDef.composeTarget);
         }
         return null;
+    }
+
+    getPieceId(itemDef) {
     }
 
     getItemDef(itemId) {

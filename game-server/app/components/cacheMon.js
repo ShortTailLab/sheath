@@ -21,6 +21,8 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
         case "itemDef":
             this.cacheIns.loadItemDef();
             break;
+        case "equipmentDef":
+            this.cacheIns.loadEquipmentDef();
     }
 };
 

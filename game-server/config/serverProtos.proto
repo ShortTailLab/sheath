@@ -255,9 +255,7 @@ message game_equipmentHandler_destructCheck {
     optional int32 coins        =   2;
     optional int32 pieceId      =   3;
     optional int32 pieceCount   =   4;
-    optional int32 stoneId      =   5;
-    optional int32 stoneCount   =   6;
-    repeated string gems        =   7;
+    repeated string gems        =   5;
 }
 message game_equipmentHandler_destruct {
     optional Error error                =   1;
