@@ -1,5 +1,5 @@
 
-²
+Ê#
 serverProtos.proto"
 Player
 
@@ -39,17 +39,67 @@ energyDiff (
 energy (
 coins (
 golds (
-contribs ("†
+contribs ("÷
 ItemDef
 
 id (
-type (	
-name (	
-resKey (	
-price (
-levelReq (
-quality (
-	stackSize ("‹
+name (	
+quality (
+type (	
+subType (	
+resKey (	
+levelReq (
+	stackSize (
+
+composable	 (
+composeCount
+ (
+composeTarget (
+canSell (
+price (
+desc (	"€
+EquipmentDef
+
+id (
+name (	
+quality (
+type (	
+subType (	
+levelReq (
+resKey (	
+
+hp (
+attack	 (
+magic
+ (
+defense (
+resist (
+ballLev (
+attackSpeed (
+critical (
+hpP (
+attackP (
+magicP (
+defenseP (
+resistP (
+hasOwner (
+owner (
+effect (	
+ice (
+fire (
+slow (
+weak (
+upgradeGrowth (	
+upgradeCost (
+refineGrowth (	
+refineLevel (
+
+refineCost  (
+slots! (
+gemTYpe" (	
+price# (
+destructPiece$ (
+destructRefine% ("‹
 HeroDef
 
 id (
@@ -62,11 +112,11 @@ energyDiff (
 strength (
 intelligence	 (
 
-hp (
-attack (
-magic (
-defense (
-resist (
+hp (
+attack (
+magic (
+defense (
+resist (
 attackDelta (
 	vitGrowth (
 	strGrowth (
@@ -132,10 +182,12 @@ partitions (2
 reward (2.ProfileChange"b
 )game_roleHandler_claimQuarterHourlyReward
 error (2.Error
-reward (2.ProfileChange"I
+reward (2.ProfileChange"m
 game_itemHandler_listDef
-error (2.Error
-defs (2.ItemDef"D
+error (2.Error
+items (2.ItemDef!
+
+equipments (2.EquipmentDef"D
 game_itemHandler_list
 error (2.Error
 items (2.Item"I

@@ -30,7 +30,7 @@ class Cache {
     }
 
     afterStart(cb) {
-        Promise.join(this.loadHeroDef(), this.loadItemDef()).finally(cb);
+        Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadWeaponDef()).finally(cb);
     }
 
     stop(cb) {
@@ -53,25 +53,27 @@ class Cache {
             this.clientItemDefs = _.invoke(itemDefs, "toClientObj");
             this.itemDefs = _.invoke(itemDefs, "toObject");
             this.itemDefById = toMap(this.itemDefs, "id");
-            this.itemComposite = {};
-            for (var i=0;i<this.itemDefs.length;i++) {
-                var itemDef = this.itemDefs[i];
-                var prefix = itemDef.type.substr(0, 3);
-                if (prefix === "WE_" || prefix === "AR_") {
-                    var key = prefix + itemDef.quality;
-                    if (!this.itemComposite[key]) this.itemComposite[key] = [];
-                    this.itemComposite[key].push(itemDef);
-                }
-            }
         })
         .catch(function (err) {
             console.log("error loading item defs. " + err);
         });
     }
 
+    loadWeaponDef() {
+        models.EquipmentDef.allP().bind(this).then(function (eqDefs) {
+            this.clientEquipmentDefs = _.invoke(eqDefs, "toClientObj");
+            this.equipmentDefs = _.invoke(eqDefs, "toObject");
+            this.equipmentDefById = toMap(this.equipmentDefs, "id");
+        })
+        .catch(function (err) {
+            console.log("error loading weapon defs. " + err);
+        });
+    }
+
     randomCompositeTarget(itemDef) {
-        var key = itemDef.type.substr(0, 2) + "_" + itemDef.quality;
-        var targets = this.itemComposite[key];
-        return targets ? _.sample(targets) : null;
+        if (itemDef.composeTarget) {
+            return _.sample(itemDef.composeTarget);
+        }
+        return null;
     }
 }

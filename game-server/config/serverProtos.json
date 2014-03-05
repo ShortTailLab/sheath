@@ -257,8 +257,107 @@
                 {
                     "rule": "required",
                     "type": "string",
+                    "name": "name",
+                    "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "quality",
+                    "id": 3,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
                     "name": "type",
+                    "id": 4,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "subType",
+                    "id": 5,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "resKey",
+                    "id": 6,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "levelReq",
+                    "id": 7,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "stackSize",
                     "id": 8,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "bool",
+                    "name": "composable",
+                    "id": 9,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "composeCount",
+                    "id": 10,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "int32",
+                    "name": "composeTarget",
+                    "id": 11,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "bool",
+                    "name": "canSell",
+                    "id": 12,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "price",
+                    "id": 13,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "desc",
+                    "id": 14,
+                    "options": {}
+                }
+            ],
+            "enums": [],
+            "messages": [],
+            "options": {}
+        },
+        {
+            "name": "EquipmentDef",
+            "fields": [
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "id",
+                    "id": 1,
                     "options": {}
                 },
                 {
@@ -270,37 +369,247 @@
                 },
                 {
                     "rule": "required",
-                    "type": "string",
-                    "name": "resKey",
+                    "type": "int32",
+                    "name": "quality",
                     "id": 3,
                     "options": {}
                 },
                 {
                     "rule": "required",
-                    "type": "int32",
-                    "name": "price",
+                    "type": "string",
+                    "name": "type",
                     "id": 4,
                     "options": {}
                 },
                 {
                     "rule": "required",
-                    "type": "int32",
-                    "name": "levelReq",
+                    "type": "string",
+                    "name": "subType",
                     "id": 5,
                     "options": {}
                 },
                 {
                     "rule": "required",
                     "type": "int32",
-                    "name": "quality",
+                    "name": "levelReq",
                     "id": 6,
                     "options": {}
                 },
                 {
                     "rule": "required",
-                    "type": "int32",
-                    "name": "stackSize",
+                    "type": "string",
+                    "name": "resKey",
                     "id": 7,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "hp",
+                    "id": 8,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "attack",
+                    "id": 9,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "magic",
+                    "id": 10,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "defense",
+                    "id": 11,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "resist",
+                    "id": 12,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "ballLev",
+                    "id": 13,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "attackSpeed",
+                    "id": 14,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "critical",
+                    "id": 15,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "hpP",
+                    "id": 16,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "attackP",
+                    "id": 17,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "magicP",
+                    "id": 18,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "defenseP",
+                    "id": 19,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "resistP",
+                    "id": 20,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "bool",
+                    "name": "hasOwner",
+                    "id": 21,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "owner",
+                    "id": 22,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "effect",
+                    "id": 23,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "ice",
+                    "id": 24,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "fire",
+                    "id": 25,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "slow",
+                    "id": 26,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "float",
+                    "name": "weak",
+                    "id": 27,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "upgradeGrowth",
+                    "id": 28,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "upgradeCost",
+                    "id": 29,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "string",
+                    "name": "refineGrowth",
+                    "id": 30,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "refineLevel",
+                    "id": 31,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "int32",
+                    "name": "refineCost",
+                    "id": 32,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "slots",
+                    "id": 33,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "string",
+                    "name": "gemTYpe",
+                    "id": 34,
+                    "options": {}
+                },
+                {
+                    "rule": "required",
+                    "type": "int32",
+                    "name": "price",
+                    "id": 35,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "int32",
+                    "name": "destructPiece",
+                    "id": 36,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "int32",
+                    "name": "destructRefine",
+                    "id": 37,
                     "options": {}
                 }
             ],
@@ -376,35 +685,35 @@
                 },
                 {
                     "rule": "required",
-                    "type": "float",
+                    "type": "int32",
                     "name": "hp",
                     "id": 11,
                     "options": {}
                 },
                 {
                     "rule": "required",
-                    "type": "float",
+                    "type": "int32",
                     "name": "attack",
                     "id": 12,
                     "options": {}
                 },
                 {
                     "rule": "required",
-                    "type": "float",
+                    "type": "int32",
                     "name": "magic",
                     "id": 13,
                     "options": {}
                 },
                 {
                     "rule": "required",
-                    "type": "float",
+                    "type": "int32",
                     "name": "defense",
                     "id": 14,
                     "options": {}
                 },
                 {
                     "rule": "required",
-                    "type": "float",
+                    "type": "int32",
                     "name": "resist",
                     "id": 15,
                     "options": {}
@@ -848,8 +1157,15 @@
                 {
                     "rule": "repeated",
                     "type": "ItemDef",
-                    "name": "defs",
+                    "name": "items",
                     "id": 2,
+                    "options": {}
+                },
+                {
+                    "rule": "repeated",
+                    "type": "EquipmentDef",
+                    "name": "equipments",
+                    "id": 3,
                     "options": {}
                 }
             ],

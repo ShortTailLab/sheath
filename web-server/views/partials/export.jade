@@ -9,6 +9,9 @@ include ../mixins/block
             input(type="submit", value="道具数据").submit
             input(type="hidden", name="tag", value="itemDef")
         .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="装备数据").submit
+            input(type="hidden", name="tag", value="equipmentDef")
+        .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="关卡数据").submit
             input(type="hidden", name="tag", value="stage")
         .col-md-1: form(method="post", action="/api/export")
@@ -30,7 +33,7 @@ include ../mixins/block
             th 体质
             th 武力
             th 智力
-            th 生命力
+            th HP
             th 物理攻击
             th 法术攻击
             th 物理防御
@@ -103,22 +106,115 @@ include ../mixins/block
     table(cellpadding="0", cellspacing="0", width="100%")
         thead: tr
             th ID
-            th 类型
             th 道具名
-            th 售价
-            th 武将等级
             th 品质
+            th 类型
+            th 子类型
+            th 资源
+            th 最低等级
             th 堆叠数量
-            th 分解参数
+            th 可合成
+            th 合成数量
+            th 合成目标
+            th 可售出
+            th 价格
+            th 描述
         tbody: tr(ng-repeat="item in items | orderBy:'id'")
             td {{item.id}}
-            td {{item.type}}
             td {{item.name}}
-            td {{item.price}}
-            td {{item.levelReq}}
             td {{item.quality}}
+            td {{item.type}}
+            td {{item.subType}}
+            td {{item.resKey}}
+            td {{item.levelReq}}
             td {{item.stackSize}}
-            td {{item.destructCoeff}}
+            td {{item.composable}}
+            td {{item.composeCount}}
+            td {{item.composeTarget}}
+            td {{item.canSell}}
+            td {{item.price}}
+            td {{item.desc}}
+
++block("所有装备")
+    div(class="message errormsg", ng-show="eq_error")
+        p {{eq_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th ID
+            th 道具名
+            th 品质
+            th 类型
+            th 子类型
+            th 资源
+            th 最低等级
+            th HP
+            th 物理攻击
+            th 法术攻击
+            th 物理防御
+            th 法术防御
+            th 弹道等级
+            th 攻击速度
+            th 暴击
+            th HP%
+            th 物攻%
+            th 法攻%
+            th 物防%
+            th 法防%
+            th 有专属武将
+            th 武将ID
+            th 效果
+            th 冰封附加
+            th 灼烧附加
+            th 减速附加
+            th 衰弱附加
+            th 强化提升
+            th 强化消耗
+            th 精炼提升
+            th 可精炼等级
+            th 精炼消耗
+            th 孔数
+            th 宝石类型
+            th 价格
+            th 碎片分解
+            th 精炼石分解
+        tbody: tr(ng-repeat="eq in equipments | orderBy:'id'")
+            td {{eq.id}}
+            td {{eq.name}}
+            td {{eq.quality}}
+            td {{eq.type}}
+            td {{eq.subType}}
+            td {{eq.resKey}}
+            td {{eq.levelReq}}
+            td {{eq.hp}}
+            td {{eq.attack}}
+            td {{eq.magic}}
+            td {{eq.defense}}
+            td {{eq.resist}}
+            td {{eq.ballLev}}
+            td {{eq.attackSpeed}}
+            td {{eq.critical}}
+            td {{eq.hpP}}
+            td {{eq.attackP}}
+            td {{eq.magicP}}
+            td {{eq.defenseP}}
+            td {{eq.resistP}}
+            td {{eq.hasOwner}}
+            td {{eq.owner}}
+            td {{eq.effect}}
+            td {{eq.ice}}
+            td {{eq.fire}}
+            td {{eq.slow}}
+            td {{eq.weak}}
+            td {{eq.upgradeGrowth}}
+            td {{eq.upgradeCost}}
+            td {{eq.refineGrowth}}
+            td {{eq.refineLevel}}
+            td {{eq.refineCost}}
+            td {{eq.slots}}
+            td {{eq.gemType}}
+            td {{eq.price}}
+            td {{eq.destructPiece}}
+            td {{eq.destructRefine}}
 
 +block("所有奖励")
     div(class="message errormsg", ng-show="trea_error")

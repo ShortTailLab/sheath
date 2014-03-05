@@ -760,7 +760,12 @@ var dataColumns = {
         "hp", "attack", "magic", "defense", "resist", "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev",
         "skill", "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor",
         "damageRedFactor", "physicalResist", "magicResist", "attackFactor", "defenseFactor"],
-    itemDef: ["id", "name", "type", "quality", "resKey", "levelReq", "price", "destructCoeff"],
+    itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
+        'composeTarget', 'canSell', 'price', 'desc'],
+    equipmentDef: ['id', 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'hp', 'attack', 'magic', 'defense',
+        'resist', 'ballLev', 'attackSpeed', 'critical', 'hpP', 'attackP', 'magicP', 'defenseP', 'resistP', 'hasOwner',
+        'owner', 'effect', 'ice', 'fire', 'slow', 'weak', 'upgradeGrowth', 'upgradeCost', 'refineGrowth', 'refineLevel',
+        'refineCost', 'slots', 'gemType', 'price', 'destructPiece', 'destructRefine'],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
     ballistic: ["id", "value"]
@@ -783,10 +788,33 @@ var transformHeroDef = function (row) {
 
 var transformItemDef = function (row) {
     row.id = parseInt(row.id);
-    row.quality = parseInt(row.quality);
-    row.levelReq = parseInt(row.levelReq);
-    row.price = parseInt(row.price);
-    row.destructCoeff = JSON.parse(row.destructCoeff);
+
+    _.each(["quality", "levelReq", "stackSize", "composable", "composeCount", "canSell", "price"], function (f) {
+        row[f] = parseFloat(row[f]) || 0;
+    });
+    _.each(["composeTarget"], function (f) {
+        if (row[f]) {
+            row[f] = JSON.parse(row[f]);
+        }
+    });
+    row.canSell = !!row.canSell;
+    row.composable = !!row.composable;
+};
+
+var transformEquipmentDef = function (row) {
+    row.id = parseInt(row.id);
+
+    _.each(["quality", "levelReq", "hp", "attack", "magic", "defense", "resist", "ballLev", "attackSpeed", "critical",
+        "hpP", "attackP", "magicP", "defenseP", "resistP", "hasOwner", "owner", "ice", "fire", "slow", "weak", "upgradeCost",
+        "refineLevel", "slots", "price"], function (f) {
+        row[f] = parseFloat(row[f]) || 0;
+    });
+    _.each(["refineCost", "gemType", "destructPiece", "destructRefine"], function (f) {
+        if (row[f]) {
+            row[f] = JSON.parse(row[f]);
+        }
+    });
+    row.hasOwner = !!row.hasOwner;
 };
 
 var transformTreasure = function (row) {
@@ -826,6 +854,7 @@ exports.import = function (req, res) {
     var modelsAndTransform = {
         heroDef: [appModels.HeroDef, transformHeroDef],
         itemDef: [appModels.ItemDef, transformItemDef],
+        equipmentDef: [appModels.EquipmentDef, transformEquipmentDef],
         treasure: [appModels.Treasure, transformTreasure],
         task: [appModels.Task, transformTask]
     };
@@ -943,18 +972,24 @@ exports.export = function (req, res) {
             csv().from.array(itemDefs, { columns: dataColumns[data.tag] }).to(res, {
                 header: true,
                 eof: true,
-                columns: {
-                    id: "id",
-                    name: "道具名",
-                    type: "类型",
-                    quality: "品质",
-                    resKey: "拼音",
-                    levelReq: "等级需求",
-                    price: "售价",
-                    destructCoeff: "拆解参数"
-                }
+                columns: dataColumns.itemDef
             }).transform(function (row) {
-                row.destructCoeff = JSON.stringify(row.destructCoeff);
+                row.composeTarget = JSON.stringify(row.composeTarget);
+                return row;
+            });
+        });
+    }
+    else if (data.tag === "equipmentDef") {
+        appModels.EquipmentDef.allP({order: "id"}).then(function (eqDefs) {
+            csv().from.array(eqDefs, { columns: dataColumns[data.tag] }).to(res, {
+                header: true,
+                eof: true,
+                columns: dataColumns.equipmentDef
+            }).transform(function (row) {
+                row.refineCost = JSON.stringify(row.refineCost);
+                row.gemType = JSON.stringify(row.gemType);
+                row.destructPiece = JSON.stringify(row.destructPiece);
+                row.destructRefine = JSON.stringify(row.destructRefine);
                 return row;
             });
         });
@@ -1028,6 +1063,18 @@ exports.itemDefs = function (req, res) {
     .then(function (data) {
         res.json({
             items: _.map(data, function (h) { return h.toObject(true); })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.equipmentDefs = function (req, res) {
+    appModels.EquipmentDef.allP()
+    .then(function (data) {
+        res.json({
+            equipments: _.map(data, function (h) { return h.toObject(true); })
         });
     })
     .catch(function (err) {

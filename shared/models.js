@@ -112,17 +112,69 @@ exports.init = function (dbConfig) {
     });
 
     var ItemDef = exports.ItemDef = schema.define("itemdef", {
-        type: {type: String, default: ""},
         name: {type: String, default: ""},
-        resKey: {type: String, default: ""},
-
-        price: {type: Number, default: 1000},
-        levelReq: {type: Number, default: 1},
         quality: {type: Number, default: 3},
+        type: {type: String, default: ""},
+        subType: {type: String, default: ""},
+        resKey: {type: String, default: ""},
+        levelReq: {type: Number, default: 1},
 
         stackSize: {type: Number, default: 1},
 
-        destructCoeff: {type: db.Schema.JSON, default: function () {return [];}}
+        composable: {type: Boolean, default: true},
+        composeCount: {type: Number, default: 1},
+        composeTarget: {type: db.Schema.JSON, default: function () {return [];}},
+
+        canSell: {type: Boolean, default: true},
+        price: {type: Number, default: 1000},
+
+        desc: {type: String, default: ""}
+    });
+
+    var EquipmentDef = exports.EquipmentDef = schema.define("equipmentdef", {
+        name: {type: String, default: ""},
+        quality: {type: Number, default: 3},
+        type: {type: String, default: ""},
+        subType: {type: String, default: ""},
+        resKey: {type: String, default: ""},
+        levelReq: {type: Number, default: 1},
+
+        hp: {type: Number, default: 0},
+        attack: {type: Number, default: 0},
+        magic: {type: Number, default: 0},
+        defense: {type: Number, default: 0},
+        resist: {type: Number, default: 0},
+        ballLev: {type: Number, default: 0},
+        attackSpeed: {type: Number, default: 0},
+        critical: {type: Number, default: 0},
+        hpP: {type: Number, default: 0},
+        attackP: {type: Number, default: 0},
+        magicP: {type: Number, default: 0},
+        defenseP: {type: Number, default: 0},
+        resistP: {type: Number, default: 0},
+
+        hasOwner: {type: Boolean, default: true},
+        owner: {type: Number, default: 0},
+        effect: {type: String},
+
+        ice: {type: Number, default: 0},
+        fire: {type: Number, default: 0},
+        slow: {type: Number, default: 0},
+        weak: {type: Number, default: 0},
+
+        upgradeGrowth: {type: String},
+        upgradeCost: {type:Number, default: 0},
+
+        refineGrowth: {type: String},
+        refineLevel: {type: Number, default: 0},
+        refineCost: {type: db.Schema.JSON, default: function () {return [];}},
+
+        slots: {type: Number, default: 0},
+        gemType: {type: db.Schema.JSON, default: function () {return [];}},
+
+        price: {type: Number, default: 0},
+        destructPiece: {type: db.Schema.JSON, default: function () {return [];}},
+        destructRefine: {type: db.Schema.JSON, default: function () {return [];}}
     });
 
     var Hero = exports.Hero = schema.define("hero", {
@@ -272,7 +324,11 @@ exports.init = function (dbConfig) {
     };
 
     ItemDef.prototype.toClientObj = function () {
-        return _.pick(this, "id", "type", "name", "resKey", "price", "levelReq", "quality", "stackSize");
+        return _.toObject();
+    };
+
+    EquipmentDef.prototype.roClientObj = function () {
+        return _.toObject();
     };
 
     HeroDef.prototype.toClientObj = function () {

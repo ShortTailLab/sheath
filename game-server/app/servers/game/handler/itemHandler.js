@@ -21,7 +21,8 @@ class ItemHandler extends base.HandlerBase {
         wrapSession(session);
 
         next(null, {
-            defs: this.app.get("cache").clientItemDefs
+            items: this.app.get("cache").clientItemDefs,
+            equipments: this.app.get("cache").clientEquipmentDefs
         });
     }
 

@@ -43,13 +43,65 @@ message ProfileChange {
 }
 message ItemDef {
     required int32 id           =   1;
-    required string type        =   8;
     required string name        =   2;
-    required string resKey      =   3;
-    required int32 price        =   4;
-    required int32 levelReq     =   5;
-    required int32 quality      =   6;
-    required int32 stackSize    =   7;
+    required int32 quality      =   3;
+    required string type        =   4;
+    required string subType     =   5;
+    required string resKey      =   6;
+    required int32 levelReq     =   7;
+    required int32 stackSize    =   8;
+    required bool composable    =   9;
+    required int32 composeCount =  10;
+    repeated int32 composeTarget=  11;
+    required bool canSell       =  12;
+    required int32 price        =  13;
+    required string desc        =  14;
+}
+message EquipmentDef {
+    required int32 id           =   1;
+    required string name        =   2;
+    required int32 quality      =   3;
+    required string type        =   4;
+    required string subType     =   5;
+    required int32 levelReq     =   6;
+    required string resKey      =   7;
+
+    required int32 hp           =   8;
+    required int32 attack       =   9;
+    required int32 magic        =   10;
+    required int32 defense      =   11;
+    required int32 resist       =   12;
+    required int32 ballLev      =   13;
+    required float attackSpeed  =   14;
+    required float critical     =   15;
+    required float hpP          =   16;
+    required float attackP      =   17;
+    required float magicP       =   18;
+    required float defenseP     =   19;
+    required float resistP      =   20;
+
+    required bool hasOwner      =   21;
+    required int32 owner        =   22;
+    required string effect      =   23;
+
+    required float ice          =   24;
+    required float fire         =   25;
+    required float slow         =   26;
+    required float weak         =   27;
+
+    required string upgradeGrowth = 28;
+    required int32 upgradeCost    = 29;
+
+    required string refineGrowth  = 30;
+    required int32 refineLevel    = 31;
+    repeated int32 refineCost     = 32;
+
+    required int32 slots          = 33;
+    repeated string gemTYpe       = 34;
+
+    required int32 price          = 35;
+    repeated int32 destructPiece  = 36;
+    repeated int32 destructRefine = 37;
 }
 message HeroDef {
     required int32 id           =   1;
@@ -62,11 +114,11 @@ message HeroDef {
     required float vitality     =   7;
     required float strength     =   8;
     required float intelligence =   9;
-    required float hp           =   11;
-    required float attack       =   12;
-    required float magic        =   13;
-    required float defense      =   14;
-    required float resist       =   15;
+    required int32 hp           =   11;
+    required int32 attack       =   12;
+    required int32 magic        =   13;
+    required int32 defense      =   14;
+    required int32 resist       =   15;
     repeated float attackDelta  =   16;
 
     required float vitGrowth    =   17;
@@ -144,7 +196,8 @@ message game_roleHandler_claimQuarterHourlyReward {
 
 message game_itemHandler_listDef {
     optional Error error        =   1;
-    repeated ItemDef defs       =   2;
+    repeated ItemDef items      =   2;
+    repeated EquipmentDef equipments = 3;
 }
 message game_itemHandler_list {
     optional Error error        =   1;

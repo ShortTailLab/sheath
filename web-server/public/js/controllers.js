@@ -659,6 +659,13 @@ sheathControllers.controller('exportController', function ($scope, $http, $modal
         $scope.item_error = "获取道具错误: " + (err.message || "未知错误");
     });
 
+    $http.get("/api/equipmentDefs").success(function (data) {
+        $scope.equipments = data.equipments;
+    })
+    .error(function (err) {
+        $scope.eq_error = "获取道具错误: " + (err.message || "未知错误");
+    });
+
     $http.get("/api/heroDefs").success(function (data) {
         $scope.heroes = data.heroes;
     })
