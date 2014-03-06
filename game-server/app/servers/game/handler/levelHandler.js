@@ -23,10 +23,19 @@ class LevelHandler extends base.HandlerBase {
         wrapSession(session);
 
         var levels = this.app.get("cache").clientLevels;
+        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        .then(function (role) {
+            var cleared = role.levelCleared;
+            _.each(levels, function (stage) {
+                _.each(stage.levels, function (l) {
+                    l.stars = cleared["" + l.id] || 0;
+                });
+            });
 
-        next(null, {
-            levels: this.app.get("cache").clientLevels
-        });
+            next(null, {
+                stages: levels
+            });
+        }), next);
     }
 
     start(msg, session, next) {
@@ -68,5 +77,11 @@ class LevelHandler extends base.HandlerBase {
 
     end(msg, session, next) {
         wrapSession(session);
+
+        var level = msg.level;
+        level = this.app.get("cache").levelById[level];
+        if (!level) {
+            return this.errorNext(Constants.StageFailed.NO_LEVEL, next);
+        }
     }
 }

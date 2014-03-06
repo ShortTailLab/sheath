@@ -65,7 +65,7 @@ exports.init = function (dbConfig) {
         taskDone: {type: db.Schema.JSON, default: function () {return [];}},
         taskClaimed: {type: db.Schema.JSON, default: function () {return [];}},
 
-        levelCleared: {type: db.Schema.JSON, default: function () {return [];}},
+        levelCleared: {type: db.Schema.JSON, default: function () {return {};}},
         levelGain: {type: db.Schema.JSON, default: function () {return {};}},
 
         createTime: {type: Date, default: function () { return new Date(); }},
@@ -206,6 +206,8 @@ exports.init = function (dbConfig) {
     var Level = exports.Level = schema.define("level", {
         name: {type: String, default: ""},
         path: {type: String, default: ""},
+        stageId: {type: Number, default: 0},
+        stage: {type: String, default: ""},
         enemies: {type: db.Schema.JSON, default: function () { return []; }}
     });
 

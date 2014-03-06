@@ -23,6 +23,10 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
             break;
         case "equipmentDef":
             this.cacheIns.loadEquipmentDef();
+            break;
+        case "level":
+            this.cacheIns.loadLevel();
+            break;
     }
 };
 

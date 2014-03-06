@@ -71,8 +71,14 @@ class Cache {
     }
 
     loadLevel() {
-        return models.Level.allP().bind(this).then(function (levels) {
-            this.clientLevels = _.invoke(levels, "toClientObj");
+        return models.Level.allP({order: "id"}).bind(this).then(function (levels) {
+            this.clientLevels = _.sortBy(_.map(_.groupBy(levels, "stageId"), function (slevels) {
+                return {
+                    stageId: slevels[0].stageId,
+                    stage: slevels[0].stage,
+                    levels: _.invoke(slevels, "toClientObj")
+                };
+            }), "stageId");
             this.levels = _.invoke(levels, "toObject");
             this.levelById = toMap(this.levels, "id");
         })
