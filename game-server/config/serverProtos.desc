@@ -83,8 +83,8 @@ composable	 (
 defenseP (
 resistP (
 hasOwner (
-owner (
-effect (	
+owner (
+effect (	
 ice (
 fire (
 slow (

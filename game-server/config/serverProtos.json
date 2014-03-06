@@ -501,14 +501,14 @@
                     "options": {}
                 },
                 {
-                    "rule": "required",
+                    "rule": "optional",
                     "type": "int32",
                     "name": "owner",
                     "id": 22,
                     "options": {}
                 },
                 {
-                    "rule": "required",
+                    "rule": "optional",
                     "type": "string",
                     "name": "effect",
                     "id": 23,

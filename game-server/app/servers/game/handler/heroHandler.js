@@ -77,7 +77,7 @@ class HeroHandler extends base.HandlerBase {
             // find a same type equipment to replace
             var toReplace = _.find(equipments, function (eq) {
                 var def = cache.equipmentDefById[eq.itemDefId];
-                return def ? def.subType === itemDef.subType : null;
+                return def ? def.type === itemDef.type && def.subType === itemDef.subType : null;
             });
 
             equipment.bound = hero.id;

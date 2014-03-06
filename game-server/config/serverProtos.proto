@@ -81,8 +81,8 @@ message EquipmentDef {
     required float resistP      =   20;
 
     required bool hasOwner      =   21;
-    required int32 owner        =   22;
-    required string effect      =   23;
+    optional int32 owner        =   22;
+    optional string effect      =   23;
 
     required float ice          =   24;
     required float fire         =   25;
