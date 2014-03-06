@@ -153,10 +153,6 @@ exports.init = function (dbConfig) {
         defenseP: {type: Number, default: 0},
         resistP: {type: Number, default: 0},
 
-        hasOwner: {type: Boolean, default: true},
-        owner: {type: Number, default: 0},
-        effect: {type: String},
-
         ice: {type: Number, default: 0},
         fire: {type: Number, default: 0},
         slow: {type: Number, default: 0},

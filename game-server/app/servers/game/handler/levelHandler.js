@@ -22,6 +22,8 @@ class LevelHandler extends base.HandlerBase {
     list(msg, session, next) {
         wrapSession(session);
 
+        var levels = this.app.get("cache").clientLevels;
+
         next(null, {
             levels: this.app.get("cache").clientLevels
         });

@@ -1,5 +1,5 @@
 
-¤#
+ó"
 serverProtos.proto"
 Player
 
@@ -57,7 +57,7 @@ composable	 (
 composeTarget (
 canSell (
 price (
-desc (	"€
+desc (	"Ï
 EquipmentDef
 
 id (
@@ -81,25 +81,22 @@ composable	 (
 attackP (
 magicP (
 defenseP (
-resistP (
-hasOwner (
-owner (
-effect (	
-ice (
-fire (
-slow (
-weak (
-upgradeGrowth (	
-upgradeCost (
-refineGrowth (	
-refineLevel (
+resistP (
+ice (
+fire (
+slow (
+weak (
+upgradeGrowth (	
+upgradeCost (
+refineGrowth (	
+refineLevel (
 
-refineCost  (
-slots! (
-gemTYpe" (	
-price# (
-destructPiece$ (
-destructRefine% ("‹
+refineCost (
+slots (
+gemTYpe (	
+price  (
+destructPiece! (
+destructRefine" ("‹
 HeroDef
 
 id (

@@ -70,14 +70,10 @@ class HeroHandler extends base.HandlerBase {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
             var cache = this.app.get("cache");
-            var heroDef = cache.heroDefById[hero.heroDefId] || {};
-            if (itemDef.type === "武器" && heroDef.type !== itemDef.subType) {
-                return Promise.reject(Constants.HeroFailed.CANNOT_EQUIP_WEAPON_TYPE);
-            }
             // find a same type equipment to replace
             var toReplace = _.find(equipments, function (eq) {
                 var def = cache.equipmentDefById[eq.itemDefId];
-                return def ? def.type === itemDef.type && def.subType === itemDef.subType : null;
+                return def ? def.type === itemDef.type : null;
             });
 
             equipment.bound = hero.id;

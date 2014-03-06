@@ -763,8 +763,8 @@ var dataColumns = {
     itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
         'composeTarget', 'canSell', 'price', 'desc'],
     equipmentDef: ['id', 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'hp', 'attack', 'magic', 'defense',
-        'resist', 'ballLev', 'attackSpeed', 'critical', 'hpP', 'attackP', 'magicP', 'defenseP', 'resistP', 'hasOwner',
-        'owner', 'effect', 'ice', 'fire', 'slow', 'weak', 'upgradeGrowth', 'upgradeCost', 'refineGrowth', 'refineLevel',
+        'resist', 'ballLev', 'attackSpeed', 'critical', 'hpP', 'attackP', 'magicP', 'defenseP', 'resistP', 'ice', 'fire',
+        'slow', 'weak', 'upgradeGrowth', 'upgradeCost', 'refineGrowth', 'refineLevel',
         'refineCost', 'slots', 'gemType', 'price', 'destructPiece', 'destructRefine'],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
@@ -805,7 +805,7 @@ var transformEquipmentDef = function (row) {
     row.id = parseInt(row.id);
 
     _.each(["quality", "levelReq", "hp", "attack", "magic", "defense", "resist", "ballLev", "attackSpeed", "critical",
-        "hpP", "attackP", "magicP", "defenseP", "resistP", "hasOwner", "owner", "ice", "fire", "slow", "weak", "upgradeCost",
+        "hpP", "attackP", "magicP", "defenseP", "resistP", "ice", "fire", "slow", "weak", "upgradeCost",
         "refineLevel", "slots", "price"], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
@@ -814,7 +814,6 @@ var transformEquipmentDef = function (row) {
             row[f] = JSON.parse(row[f]);
         }
     });
-    row.hasOwner = !!row.hasOwner;
 };
 
 var transformTreasure = function (row) {
