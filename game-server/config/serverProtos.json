@@ -566,7 +566,7 @@
                 {
                     "rule": "repeated",
                     "type": "string",
-                    "name": "gemTYpe",
+                    "name": "gemType",
                     "id": 31,
                     "options": {}
                 },

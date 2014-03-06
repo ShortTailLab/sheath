@@ -93,7 +93,7 @@ message EquipmentDef {
     repeated int32 refineCost     = 29;
 
     required int32 slots          = 30;
-    repeated string gemTYpe       = 31;
+    repeated string gemType       = 31;
 
     required int32 price          = 32;
     repeated int32 destructPiece  = 33;
