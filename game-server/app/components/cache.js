@@ -30,7 +30,7 @@ class Cache {
     }
 
     afterStart(cb) {
-        Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef()).finally(cb);
+        Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel()).finally(cb);
     }
 
     stop(cb) {
@@ -67,6 +67,17 @@ class Cache {
         })
         .catch(function (err) {
             console.log("error loading equipment defs. " + err);
+        });
+    }
+
+    loadLevel() {
+        return models.Level.allP().bind(this).then(function (levels) {
+            this.clientLevels = _.invoke(levels, "toClientObj");
+            this.levels = _.invoke(levels, "toObject");
+            this.levelById = toMap(this.levels, "id");
+        })
+        .catch(function (err) {
+            console.log("error loading levels. " + err);
         });
     }
 

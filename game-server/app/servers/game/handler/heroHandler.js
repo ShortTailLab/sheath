@@ -69,7 +69,8 @@ class HeroHandler extends base.HandlerBase {
             if (!hero || hero.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
-            if (equipments.length === 4 || _.findWhere(equipments, {subType: equipment.subType})) {
+            var cache = this.app.get("cache");
+            if (equipments.length === 4 || _.find(equipments, function (eq) { return (cache.equipmentDefById[eq.itemDefId] || {}).subType === itemDef.subType; })) {
                 return Promise.reject(Constants.HeroFailed.ALREADY_EQUIPPED);
             }
             var heroDef = this.app.get("cache").heroDefById[hero.heroDefId] || {};

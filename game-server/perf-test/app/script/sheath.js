@@ -279,7 +279,8 @@ Role.prototype.afterLogin = function (pomelo) {
     });
 
     timePomeloRequest(ActFlagType.LIST_ITEM_DEF, {}, function (data) {
-        self.itemDefs = data.defs;
+        self.itemDefs = data.items;
+        self.equipmentDefs = data.equipments;
         timePomeloRequest(ActFlagType.LIST_HERO_DEF, {}, function (data) {
             self.heroDefs = data.defs;
             timePomeloRequest(ActFlagType.LIST_HERO, {}, function (data) {

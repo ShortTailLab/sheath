@@ -363,6 +363,10 @@ exports.init = function (dbConfig) {
         return _.pick(this, "id", "heroDefId", "level", "exp");
     };
 
+    Level.prototype.toClientObj = function () {
+        return _.pick(this, "id", "name", "path");
+    };
+
     Mail.prototype.toClientObj = function () {
         var ret = this.toObject(true);
         ret.time = +ret.time;

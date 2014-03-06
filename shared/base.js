@@ -72,8 +72,10 @@ class HandlerBase {
 
     evalRandAtom(atom) {
         var randValue = Math.random() * 100;
+        var accum = 0;
         for (var i=0;i<atom.length;i++) {
-            if (randValue < atom[i+1])
+            accum += atom[i+1];
+            if (randValue < accum)
                 return atom[i];
         }
         return atom[atom.length-2];

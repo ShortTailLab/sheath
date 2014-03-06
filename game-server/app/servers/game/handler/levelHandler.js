@@ -20,18 +20,24 @@ class LevelHandler extends base.HandlerBase {
     }
 
     list(msg, session, next) {
+        wrapSession(session);
+
+        next(null, {
+            levels: this.app.get("cache").clientLevels
+        });
     }
 
     start(msg, session, next) {
         wrapSession(session);
 
         var level = msg.level;
-        this.safe(Promise.join(models.Role.findP(session.get("role").id) ,models.Level.findP(level)).bind(this)
-        .spread(function (role, _level) {
-            if (!_level) {
-                return Promise.reject(Constants.StageFailed.NO_LEVEL);
-            }
-            level = _level;
+        level = this.app.get("cache").levelById[level];
+        if (!level) {
+            return this.errorNext(Constants.StageFailed.NO_LEVEL, next);
+        }
+
+        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        .then(function (role) {
             var seedGen = this.seedGen;
             var seeds = _.map(level.enemies, function (e) {
                 return {
