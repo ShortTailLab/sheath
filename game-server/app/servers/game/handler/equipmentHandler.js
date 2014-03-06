@@ -252,16 +252,26 @@ class EquipmentHandler extends base.HandlerBase {
             if (itemDef.gemType.indexOf(gemDef.subType) === -1) {
                 return Promise.reject(Constants.EquipmentFailed.CANNOT_BIND_GEM_TYPE);
             }
-            return [gem, models.Item.countP({bound: eqId})];
+            return [gem, models.Item.allP({where: {bound: eqId}})];
         })
-        .spread((gem, _boundGemCount) => {
-            boundGemCount = _boundGemCount;
-            if (boundGemCount >= itemDef.slots) {
-                return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
-            }
-
+        .spread((gem, _boundGems) => {
+            boundGemCount = _boundGems.length;
+            var cache = this.app.get("cache");
+            // find a same type gem to replace
+            var toReplace = _.find(_boundGems, function (gem) {
+                var def = cache.itemDefById[gem.itemDefId];
+                return def ? def.subType === itemDef.subType : null;
+            });
             gem.bound = equipment.id;
-            return gem.saveP();
+            if (toReplace) {
+                toReplace.bound = null;
+                return toReplace.saveP().then(function () {
+                    return gem.saveP();
+                });
+            }
+            else {
+                return gem.saveP();
+            }
         })
         .then((gem) => {
             next(null, { gem: gem.toClientObj() });
