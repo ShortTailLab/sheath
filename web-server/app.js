@@ -134,6 +134,7 @@ app.post('/api/export', restrictAPI, api.export);
 app.get('/api/itemDefs', restrictAPI, api.itemDefs);
 app.get('/api/heroDefs', restrictAPI, api.heroDefs);
 app.get('/api/equipmentDefs', restrictAPI, api.equipmentDefs);
+app.get('/api/levels', restrictAPI, api.levels);
 app.get('/api/treasures', restrictAPI, api.treasures);
 app.get('/api/tasks', restrictAPI, api.tasks);
 app.get('/api/anns', restrictAPI, api.anns);

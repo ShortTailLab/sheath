@@ -673,6 +673,13 @@ sheathControllers.controller('exportController', function ($scope, $http, $modal
         $scope.hero_error = "获取武将错误: " + (err.message || "未知错误");
     });
 
+    $http.get("/api/levels").success(function (data) {
+        $scope.levels = data.levels;
+    })
+    .error(function (err) {
+        $scope.level_error = "获取关卡错误: " + (err.message || "未知错误");
+    });
+
     $http.get("/api/treasures").success(function (data) {
         $scope.treasures = data.treasures;
     })

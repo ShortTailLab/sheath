@@ -8,9 +8,12 @@ module.exports = {
     LEVEL_TOO_LOW: 106,
     NO_COINS: 107,
     NO_GOLDS: 108,
-    Role_Do_Not_Exist: 109,
-    Mail_Do_Not_Exist: 110,
+    NO_CONTRIB: 109,
+    NO_ENERGY: 110,
+
     Already_Claimed: 111,
+    Role_Do_Not_Exist: 112,
+    Mail_Do_Not_Exist: 113,
 
 
     LoginFailed: {
@@ -48,7 +51,8 @@ module.exports = {
         NO_BOOK: 102
     },
     StageFailed: {
-        NO_LEVEL: 120
+        NO_LEVEL: 120,
+        Invalid_End: 121
     },
 
 

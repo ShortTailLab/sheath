@@ -1045,6 +1045,18 @@ exports.heroDefs = function (req, res) {
     });
 };
 
+exports.levels = function (req, res) {
+    appModels.Level.allP()
+    .then(function (data) {
+        res.json({
+            levels: _.map(data, function (l) { return _.omit(l.toObject(true), "enemies"); })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
 exports.treasures = function (req, res) {
     appModels.Treasure.allP()
     .then(function (data) {

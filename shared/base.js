@@ -70,15 +70,15 @@ class HandlerBase {
         });
     }
 
-    evalRandAtom(atom) {
-        var randValue = Math.random() * 100;
+    evalRandAtom(atom, randFunc=Math.random) {
+        var randValue = randFunc() * 100;
         var accum = 0;
         for (var i=0;i<atom.length;i++) {
             accum += atom[i+1];
             if (randValue < accum)
                 return atom[i];
         }
-        return atom[atom.length-2];
+        return atom.length >=2 ? atom[atom.length-2] : 0;
     }
 
     toLogObj(role) {

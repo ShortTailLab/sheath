@@ -1,5 +1,5 @@
 
-ó"
+Ï"
 serverProtos.proto"
 Player
 
@@ -160,11 +160,10 @@ refinement (
 start (
 end (
 curProgress (
-needProgress ("?
+needProgress (")
 ETypeWeight
-type (
-itemSeed (
-coinSeed ("l
+type (
+seed ("l
 connector_entryHandler_enter
 error (2.Error
 user (2.Player
@@ -235,11 +234,10 @@ pieceCount (
 	stateDiff (2.ProfileChange
 newItems (2.Item
 
-removeGems (	"]
+removeGems (	"O
 game_levelHandler_start
-error (2.Error
-path (	
-enemies (2.ETypeWeight"]
+error (2.Error
+enemies (2.ETypeWeight"]
 game_taskHandler_list
 error (2.Error
 tasks (2.Task

@@ -1012,15 +1012,8 @@
                 {
                     "rule": "required",
                     "type": "int32",
-                    "name": "itemSeed",
+                    "name": "seed",
                     "id": 2,
-                    "options": {}
-                },
-                {
-                    "rule": "required",
-                    "type": "int32",
-                    "name": "coinSeed",
-                    "id": 3,
                     "options": {}
                 }
             ],
@@ -1519,17 +1512,10 @@
                     "options": {}
                 },
                 {
-                    "rule": "optional",
-                    "type": "string",
-                    "name": "path",
-                    "id": 2,
-                    "options": {}
-                },
-                {
                     "rule": "repeated",
                     "type": "ETypeWeight",
                     "name": "enemies",
-                    "id": 3,
+                    "id": 2,
                     "options": {}
                 }
             ],

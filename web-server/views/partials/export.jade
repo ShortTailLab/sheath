@@ -210,6 +210,25 @@ include ../mixins/block
             td {{eq.destructPiece}}
             td {{eq.destructRefine}}
 
++block("所有关卡")
+    div(class="message errormsg", ng-show="level_error")
+        p {{level_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th 章节ID
+            th 章节名
+            th 关卡ID
+            th 关卡名
+            th 体力
+            th 路径
+        tbody: tr(ng-repeat="l in levels | orderBy:['stageId', 'id']")
+            td {{l.stageId}}
+            td {{l.stage}}
+            td {{l.id}}
+            td {{l.name}}
+            td {{l.energy}}
+            td {{l.path}}
+
 +block("所有奖励")
     div(class="message errormsg", ng-show="trea_error")
         p {{trea_error}}

@@ -206,6 +206,7 @@ exports.init = function (dbConfig) {
     var Level = exports.Level = schema.define("level", {
         name: {type: String, default: ""},
         path: {type: String, default: ""},
+        energy: {type: Number, default: 0},
         stageId: {type: Number, default: 0},
         stage: {type: String, default: ""},
         enemies: {type: db.Schema.JSON, default: function () { return []; }}
@@ -362,7 +363,7 @@ exports.init = function (dbConfig) {
     };
 
     Level.prototype.toClientObj = function () {
-        return _.pick(this, "id", "name", "path");
+        return _.pick(this, "id", "name", "path", "energy");
     };
 
     Mail.prototype.toClientObj = function () {
