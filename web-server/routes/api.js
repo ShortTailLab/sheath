@@ -112,7 +112,7 @@ exports.partitions = function (req, res) {
                 loginedCount: memo.loginedCount + stat.loginedCount,
                 loginedList: memo.loginedList.concat(stat.loginedList)
             };
-        });
+        }, {totalConnCount: 0, loginedCount: 0, loginedList: 0});
         var partUsers = _.groupBy(onlineUsers.loginedList, function (u) {return u.role.partition;});
 
         for (var i=0;i<parts.length;i++) {
