@@ -291,8 +291,8 @@ Role.prototype.afterLogin = function (pomelo) {
                     timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
                         timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
                             timePomeloRequest(ActFlagType.LIST_TASK, {}, function (data) {
-//                                self.randomActions(pomelo);
-                                self.test(pomelo);
+                                self.randomActions(pomelo);
+//                                self.test(pomelo);
                             });
                         });
                     });
@@ -476,8 +476,8 @@ Role.prototype.end = function (pomelo, cb) {
 
 setTimeout(function () {
     var role = new Role();
-    var uname = "test" + _.random(2000, 2999);
-//    role.entry("127.0.0.1", 3010, "main", uname, uname);
+    var uname = "test" + _.random(10000, 11999);
+    role.entry("127.0.0.1", 3010, "main", uname, uname);
 //    role.entry("sh-test.shorttaillab.com", 3010, "main", uname, uname);
-    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
+//    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
 }, Math.random() * 2000);

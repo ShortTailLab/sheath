@@ -207,6 +207,7 @@ exports.init = function (dbConfig) {
         name: {type: String, default: ""},
         path: {type: String, default: ""},
         energy: {type: Number, default: 0},
+        exp: {type: Number, default: 0},
         stageId: {type: Number, default: 0},
         stage: {type: String, default: ""},
         enemies: {type: db.Schema.JSON, default: function () { return []; }}
@@ -363,7 +364,7 @@ exports.init = function (dbConfig) {
     };
 
     Level.prototype.toClientObj = function () {
-        return _.pick(this, "id", "name", "path", "energy");
+        return _.pick(this, "id", "name", "path", "energy", "exp");
     };
 
     Mail.prototype.toClientObj = function () {

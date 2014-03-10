@@ -1,5 +1,5 @@
 
-Ï"
+­#
 serverProtos.proto"
 Player
 
@@ -248,4 +248,8 @@ removeGems (	"O
 coins (
 contribs (
 heroes (2.Hero
-items (2.Item
+items (2.Item"\
+game_levelHandler_end
+error (2.Error
+newItems (2.Item
+role (2.Role

@@ -84,6 +84,7 @@ class LevelHandler extends base.HandlerBase {
             }));
             role.levelGain = {
                 level: level.id,
+                exp: level.exp || 0,
                 maxCoin: maxCoin,
                 items: items
             };
@@ -103,7 +104,7 @@ class LevelHandler extends base.HandlerBase {
     end(msg, session, next) {
         wrapSession(session);
 
-        var level = msg.level;
+        var level = msg.level, role;
         level = this.app.get("cache").levelById[level];
         if (!level) {
             return this.errorNext(Constants.StageFailed.NO_LEVEL, next);
@@ -111,7 +112,8 @@ class LevelHandler extends base.HandlerBase {
 
         var coins = Math.floor(msg.coins) || 0, items = msg.items || [];
         this.safe(models.Role.findP(session.get("role").id).bind(this)
-        .then(function (role) {
+        .then(function (_role) {
+            role = _role;
             var levelGain = role.levelGain;
             if (!levelGain) {
                 return Promise.reject(Constants.InvalidRequest);
@@ -128,8 +130,17 @@ class LevelHandler extends base.HandlerBase {
                 role.updateAttribute("levelGain", r.literal({}));
                 return Promise.reject(Constants.StageFailed.Invalid_End);
             }
-            role.coins += coins;
-            role.levelGain = {};
+            if (false) {
+                this.app.rpc.game.taskRemote.notify(session, "Role.LevelUp", role.id, {}, null);
+            }
+            var roleUpdateQ = {
+                where: {id: role.id},
+                update: {
+                    coins: r.row("coins").add(coins),
+                    exp: r.row("exp").add(levelGain.exp),
+                    levelGain: r.literal({})
+                }
+            };
             var newItems = [];
             _.each(itemIds, function (itemId) {
                 for (var i=0;i<items[itemId];i++) {
@@ -139,9 +150,12 @@ class LevelHandler extends base.HandlerBase {
                     });
                 }
             });
-            return [role.saveP(), models.Item.createP(newItems)];
+            return [models.Role.updateP(roleUpdateQ), models.Item.createP(newItems)];
         })
-        .spread(function (role, newItems) {
+        .spread(function (roleUpdate, newItems) {
+            role.coins = roleUpdate.new_val.coins;
+            role.exp = roleUpdate.new_val.exp;
+            this.app.rpc.game.taskRemote.notify(session, "Level.Cleared", role.id, {level: level.id}, null);
             next(null, {
                 level: level.id,
                 newItems: _.invoke(newItems, "toClientObj"),

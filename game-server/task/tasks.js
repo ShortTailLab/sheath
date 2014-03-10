@@ -93,7 +93,7 @@ class RoleLevel extends Task {
     visit(eventSource) {
         var levelUp = this.levelUp.bind(this);
         levelUp.prepare = this.needRole;
-        eventSource.on("levelUp", levelUp);
+        eventSource.on("Role.LevelUp", levelUp);
     }
 
     levelUp(context) {

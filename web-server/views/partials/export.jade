@@ -220,6 +220,7 @@ include ../mixins/block
             th 关卡ID
             th 关卡名
             th 体力
+            th 经验
             th 路径
         tbody: tr(ng-repeat="l in levels | orderBy:['stageId', 'id']")
             td {{l.stageId}}
@@ -227,6 +228,7 @@ include ../mixins/block
             td {{l.id}}
             td {{l.name}}
             td {{l.energy}}
+            td {{l.exp}}
             td {{l.path}}
 
 +block("所有奖励")

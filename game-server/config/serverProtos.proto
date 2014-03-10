@@ -277,3 +277,8 @@ message game_taskHandler_claim {
     repeated Hero heroes        =   5;
     repeated Item items         =   6;
 }
+message game_levelHandler_end {
+    optional Error error        =   1;
+    repeated Item newItems      =   2;
+    required Role role          =   3;
+}
