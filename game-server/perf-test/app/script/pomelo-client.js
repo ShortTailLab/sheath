@@ -47,6 +47,9 @@ else if (typeof sys !== "undefined")
     }
 }
 
+var node_protobuf = tryRequire("node-protobuf");
+var node_encoder = null;
+var node_decoder = null;
 
 var decodeIO_protobuf = tryRequire('./pomelo-decodeIO-protobuf/ProtoBuf.js');
 var decodeIO_encoder = null;
@@ -165,6 +168,8 @@ var defaultEncode = pomelo.encode = function(reqId, route, msg) {
     var escapedRoute = route.replace(/\./g, "_");
     if(protobuf && clientProtos[route]){
         msg = protobuf.encode(route, msg);
+    } else if(node_encoder && node_encoder.lookupMessage(escapedRoute)){
+        msg = node_encoder.Serialize(msg, escapedRoute);
     } else if(decodeIO_encoder && decodeIO_encoder.lookup(escapedRoute)){
         var Builder = decodeIO_encoder.build(escapedRoute);
         msg = new Builder(msg).encodeNB();
@@ -202,6 +207,10 @@ var connect = function(params, url, cb){
         if(!!decodeIO_protobuf){
             decodeIO_encoder = decodeIO_protobuf.loadJson(clientProtos);
             decodeIO_decoder = decodeIO_protobuf.loadJson(serverProtos);
+        }
+        if (!!node_protobuf) {
+            node_encoder = new node_protobuf.Protobuf(new Buffer(clientProtos.desc, "base64"));
+            node_decoder = new node_protobuf.Protobuf(new Buffer(serverProtos.desc, "base64"));
         }
     }
     //Set protoversion
@@ -444,6 +453,8 @@ var deCompose = function(msg){
 
     if(protobuf && serverProtos[route]){
         return protobuf.decode(route, msg.body);
+    } else if(node_decoder && node_decoder.lookupMessage(escapedRoute)){
+        return node_decoder.Parse(msg.body, escapedRoute);
     } else if(decodeIO_decoder && decodeIO_decoder.lookup(escapedRoute)){
         return decodeIO_decoder.build(escapedRoute).decode(msg.body);
     } else {
@@ -504,6 +515,10 @@ var initData = function(data){
         if(!!decodeIO_protobuf){
             decodeIO_encoder = decodeIO_protobuf.loadJson(clientProtos);
             decodeIO_decoder = decodeIO_protobuf.loadJson(serverProtos);
+        }
+        if (!!node_protobuf) {
+            node_encoder = new node_protobuf.Protobuf(new Buffer(clientProtos.desc, "base64"));
+            node_decoder = new node_protobuf.Protobuf(new Buffer(serverProtos.desc, "base64"));
         }
     }
 };
