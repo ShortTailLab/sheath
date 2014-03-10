@@ -1,5 +1,5 @@
 
-­#
+É%
 serverProtos.proto"
 Player
 
@@ -163,7 +163,12 @@ refinement (
 needProgress (")
 ETypeWeight
 type (
-seed ("l
+seed ("D
+	StoreItem
+name (	
+gold (
+price (
+desc (	"l
 connector_entryHandler_enter
 error (2.Error
 user (2.Player
@@ -186,7 +191,17 @@ partitions (2
 equipments (2.EquipmentDef"D
 game_itemHandler_list
 error (2.Error
-items (2.Item"I
+items (2.Item"Ó
+game_itemHandler_listStore
+error (2.Error
+nextCoinStore (
+nextGoldStore (
+coinPurchaseLeft (
+goldPurchaseLeft (
+	coinItems (2
+.StoreItem
+	goldItems (2
+.StoreItem"I
 game_heroHandler_listDef
 error (2.Error
 defs (2.HeroDef"E

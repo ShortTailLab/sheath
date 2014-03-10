@@ -213,6 +213,13 @@ exports.init = function (dbConfig) {
         enemies: {type: db.Schema.JSON, default: function () { return []; }}
     });
 
+    var StoreItem = exports.StoreItem = schema.define("storeitem", {
+        name: {type: String, default: ""},
+        gold: {type: Boolean, default: false},
+        price: {type: Number, default: 0},
+        desc: {type: String, default: ""},
+    });
+
     var Treasure = exports.Treasure = schema.define("treasure", {
         type: String,
         count: Number,

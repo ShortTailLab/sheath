@@ -27,6 +27,9 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
         case "level":
             this.cacheIns.loadLevel();
             break;
+        case "storeitem":
+            this.cacheIns.loadStoreItem();
+            break;
     }
 };
 

@@ -169,6 +169,12 @@ message ETypeWeight {
     required int32 type         =   1;
     required int32 seed         =   2;
 }
+message StoreItem {
+    required string name        =   1;
+    required bool gold          =   2;
+    required int32 price        =   3;
+    required string desc        =   4;
+}
 
 message connector_entryHandler_enter {
     optional Error error        =   1;
@@ -197,6 +203,15 @@ message game_itemHandler_listDef {
 message game_itemHandler_list {
     optional Error error        =   1;
     repeated Item items         =   2;
+}
+message game_itemHandler_listStore {
+    optional Error error                    =   1;
+    optional int32 nextCoinStoreRefresh     =   2;
+    optional int32 nextGoldStoreRefresh     =   3;
+    optional int32 coinPurchaseLeft         =   4;
+    optional int32 goldPurchaseLeft         =   5;
+    repeated StoreItem coinItems            =   6;
+    repeated StoreItem goldItems            =   7;
 }
 
 message game_heroHandler_listDef {

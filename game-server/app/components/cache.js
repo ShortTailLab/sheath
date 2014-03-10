@@ -30,7 +30,8 @@ class Cache {
     }
 
     afterStart(cb) {
-        Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel()).finally(cb);
+        Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel(),
+                     this.loadStoreItem()).finally(cb);
     }
 
     stop(cb) {
@@ -84,6 +85,15 @@ class Cache {
         })
         .catch(function (err) {
             console.log("error loading levels. " + err);
+        });
+    }
+
+    loadStoreItem() {
+        return models.StoreItem.allP().bind(this).then(function (items) {
+            this.storeItems = _.invoke(items, "toObject");
+        })
+        .catch(function (err) {
+            console.log("error loading StoreItems. " + err);
         });
     }
 
