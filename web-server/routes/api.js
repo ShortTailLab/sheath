@@ -850,6 +850,8 @@ var transformStoreItem = function (row) {
     row.id = parseInt(row.id);
     row.gold = !!parseInt(row.gold || "0");
     row.price = parseInt(row.price);
+    row.defId = parseInt(row.defId);
+    row.count = parseInt(row.count);
 };
 
 exports.import = function (req, res) {
