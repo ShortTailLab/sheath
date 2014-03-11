@@ -168,6 +168,18 @@ var ActFlagType = {
         name: "endLevel",
         route: "game.levelHandler.end"
     },
+    LIST_STORE: {
+        desc: "获取集市",
+        reqId: 27,
+        name: "listStore",
+        route: "game.itemHandler.listStore"
+    },
+    REFRESH_STORE: {
+        desc: "手工刷新集市",
+        reqId: 28,
+        name: "refreshStore",
+        route: "game.itemHandler.manualRefresh"
+    },
 
 
     ACT_END: null
@@ -291,8 +303,8 @@ Role.prototype.afterLogin = function (pomelo) {
                     timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
                         timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
                             timePomeloRequest(ActFlagType.LIST_TASK, {}, function (data) {
-                                self.randomActions(pomelo);
-//                                self.test(pomelo);
+//                                self.randomActions(pomelo);
+                                self.test(pomelo);
                             });
                         });
                     });
@@ -303,10 +315,10 @@ Role.prototype.afterLogin = function (pomelo) {
 };
 
 Role.prototype.test = function (pomelo) {
-    var self = this;
-    self.start(pomelo, function () {
-        self.end(pomelo, function () {
-            process.exit(0);
+    timePomeloRequest(ActFlagType.LIST_STORE, {}, function (data) {
+        console.log(data);
+        timePomeloRequest(ActFlagType.REFRESH_STORE, {isGold: 1}, function (data) {
+            console.log(data);
         });
     });
 };

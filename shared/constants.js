@@ -10,8 +10,8 @@ module.exports = {
     NO_GOLDS: 108,
     NO_CONTRIB: 109,
     NO_ENERGY: 110,
+    NO_ROOM: 111,
 
-    Already_Claimed: 111,
     Role_Do_Not_Exist: 112,
     Mail_Do_Not_Exist: 113,
 
@@ -53,6 +53,9 @@ module.exports = {
     StageFailed: {
         NO_LEVEL: 120,
         Invalid_End: 121
+    },
+    StoreFailed: {
+        NO_REFRESH: 160
     },
 
 

@@ -768,6 +768,7 @@ var dataColumns = {
         'refineCost', 'slots', 'gemType', 'price', 'destructPiece', 'destructRefine'],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
+    storeitem: ["id", "name", "gold", "price", "desc"],
     ballistic: ["id", "value"]
 };
 
@@ -845,6 +846,12 @@ var transformTask = function (row) {
     }
 };
 
+var transformStoreItem = function (row) {
+    row.id = parseInt(row.id);
+    row.gold = !!parseInt(row.gold || "0");
+    row.price = parseInt(row.price);
+};
+
 exports.import = function (req, res) {
     if (!req.session.user.manRole.data)
         return res.send(400, {message: "没有导入数据的权限"});
@@ -855,6 +862,7 @@ exports.import = function (req, res) {
         itemDef: [appModels.ItemDef, transformItemDef],
         equipmentDef: [appModels.EquipmentDef, transformEquipmentDef],
         treasure: [appModels.Treasure, transformTreasure],
+        storeitem: [appModels.StoreItem, transformStoreItem],
         task: [appModels.Task, transformTask]
     };
 
@@ -1031,6 +1039,18 @@ exports.export = function (req, res) {
             });
         });
     }
+    else if (data.tag === "storeitem") {
+        appModels.StoreItem.allP({order: "id"}).then(function (items) {
+            csv().from.array(items, { columns: dataColumns[data.tag] }).to(res, {
+                header: true,
+                eof: true,
+                columns: dataColumns.storeitem
+            }).transform(function (row) {
+                row.gold = row.gold ? 1 : 0;
+                return row;
+            });
+        });
+    }
 };
 
 exports.heroDefs = function (req, res) {
@@ -1118,6 +1138,21 @@ exports.anns = function (req, res) {
                 var ret =  h.toObject(true);
                 ret.start = +ret.start;
                 ret.end = +ret.end;
+                return ret;
+            })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.storeitems = function (req, res) {
+    appModels.StoreItem.allP()
+    .then(function (data) {
+        res.json({
+            storeItems: _.map(data, function (h) {
+                var ret =  h.toObject(true);
                 return ret;
             })
         });

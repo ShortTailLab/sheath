@@ -15,6 +15,9 @@ include ../mixins/block
             input(type="submit", value="关卡数据").submit
             input(type="hidden", name="tag", value="stage")
         .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="集市数据").submit
+            input(type="hidden", name="tag", value="storeitem")
+        .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="奖励数据").submit
             input(type="hidden", name="tag", value="treasure")
         .col-md-1: form(method="post", action="/api/export")
@@ -230,6 +233,23 @@ include ../mixins/block
             td {{l.energy}}
             td {{l.exp}}
             td {{l.path}}
+
++block("所有集市商品")
+    div(class="message errormsg", ng-show="si_error")
+        p {{si_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th 商品ID
+            th 商品名
+            th 元宝商品
+            th 价格
+            th 描述
+        tbody: tr(ng-repeat="si in storeItems | orderBy:'id'")
+            td {{si.id}}
+            td {{si.name}}
+            td {{si.gold}}
+            td {{si.price}}
+            td {{si.desc}}
 
 +block("所有奖励")
     div(class="message errormsg", ng-show="trea_error")

@@ -75,7 +75,7 @@ class MailHandler extends base.HandlerBase {
                 return Promise.reject(Constants.Mail_Do_Not_Exist);
             }
             if (_mail.claimed || _mail.treasures.length === 0) {
-                return Promise.reject(Constants.Already_Claimed);
+                return Promise.reject(Constants.ALREADY_CLAIMED);
             }
             return models.Role.findP(session.get("role").id);
         })

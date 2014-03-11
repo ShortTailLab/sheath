@@ -74,7 +74,7 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
             $scope.userStats.onlineUsers = data.onlineUser.loginedCount;
             $scope.userStats.totalUsers = data.totalUsers;
             $scope.userStats.totalRoles = data.totalRoles;
-            $scope.userStats.loginList = data.onlineUser.loginedList.chunk(10);
+            $scope.userStats.loginList = data.onlineUser.loginedList.chunk(20);
         });
     }
 
@@ -699,6 +699,13 @@ sheathControllers.controller('exportController', function ($scope, $http, $modal
     })
     .error(function (err) {
         $scope.ann_error = "获取公告错误: " + (err.message || "未知错误");
+    });
+
+    $http.get("/api/storeitems").success(function (data) {
+        $scope.storeItems = data.storeItems;
+    })
+    .error(function (err) {
+        $scope.si_error = "获取集市错误: " + (err.message || "未知错误");
     });
 
     $scope.preview = function(ann) {

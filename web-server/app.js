@@ -138,6 +138,7 @@ app.get('/api/levels', restrictAPI, api.levels);
 app.get('/api/treasures', restrictAPI, api.treasures);
 app.get('/api/tasks', restrictAPI, api.tasks);
 app.get('/api/anns', restrictAPI, api.anns);
+app.get('/api/storeitems', restrictAPI, api.storeitems);
 
 app.post('/api/updateAnn', restrictAPI, api.updateAnn);
 app.post('/api/saveAnn', restrictAPI, api.saveAnn);

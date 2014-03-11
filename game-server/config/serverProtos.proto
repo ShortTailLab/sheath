@@ -206,12 +206,22 @@ message game_itemHandler_list {
 }
 message game_itemHandler_listStore {
     optional Error error                    =   1;
-    optional int32 nextCoinStoreRefresh     =   2;
-    optional int32 nextGoldStoreRefresh     =   3;
+    optional fixed32 nextCoinStoreRefresh   =   2;
+    optional fixed32 nextGoldStoreRefresh   =   3;
     optional int32 coinPurchaseLeft         =   4;
     optional int32 goldPurchaseLeft         =   5;
-    repeated StoreItem coinItems            =   6;
-    repeated StoreItem goldItems            =   7;
+    optional int32 coinRefreshLeft          =   6;
+    optional int32 goldRefreshLeft          =   7;
+    repeated StoreItem coinItems            =   8;
+    repeated StoreItem goldItems            =   9;
+}
+message game_itemHandler_manualRefresh {
+    optional Error error                    =   1;
+    optional string destroyed               =   2;
+    optional int32 coinRefreshLeft          =   3;
+    optional int32 goldRefreshLeft          =   4;
+    repeated StoreItem coinItems            =   5;
+    repeated StoreItem goldItems            =   6;
 }
 
 message game_heroHandler_listDef {

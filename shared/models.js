@@ -65,6 +65,8 @@ exports.init = function (dbConfig) {
         taskDone: {type: db.Schema.JSON, default: function () {return [];}},
         taskClaimed: {type: db.Schema.JSON, default: function () {return [];}},
 
+        store: {type: db.Schema.JSON, default: function () {return {};}},
+
         levelCleared: {type: db.Schema.JSON, default: function () {return {};}},
         levelGain: {type: db.Schema.JSON, default: function () {return {};}},
 
@@ -217,7 +219,7 @@ exports.init = function (dbConfig) {
         name: {type: String, default: ""},
         gold: {type: Boolean, default: false},
         price: {type: Number, default: 0},
-        desc: {type: String, default: ""},
+        desc: {type: String, default: ""}
     });
 
     var Treasure = exports.Treasure = schema.define("treasure", {

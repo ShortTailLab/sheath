@@ -1,5 +1,5 @@
 
-É%
+Æ'
 serverProtos.proto"
 Player
 
@@ -191,16 +191,27 @@ partitions (2
 equipments (2.EquipmentDef"D
 game_itemHandler_list
 error (2.Error
-items (2.Item"Ó
+items (2.Item"“
 game_itemHandler_listStore
-error (2.Error
-nextCoinStore (
-nextGoldStore (
+error (2.Error
+nextCoinStoreRefresh (
+nextGoldStoreRefresh (
 coinPurchaseLeft (
-goldPurchaseLeft (
-	coinItems (2
+goldPurchaseLeft (
+coinRefreshLeft (
+goldRefreshLeft (
+	coinItems (2
 .StoreItem
-	goldItems (2
+	goldItems	 (2
+.StoreItem"º
+game_itemHandler_manualRefresh
+error (2.Error
+	destroyed (	
+coinRefreshLeft (
+goldRefreshLeft (
+	coinItems (2
+.StoreItem
+	goldItems (2
 .StoreItem"I
 game_heroHandler_listDef
 error (2.Error
