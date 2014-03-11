@@ -243,12 +243,16 @@ include ../mixins/block
             th 商品名
             th 元宝商品
             th 价格
+            th 道具ID
+            th 数量
             th 描述
         tbody: tr(ng-repeat="si in storeItems | orderBy:'id'")
             td {{si.id}}
             td {{si.name}}
             td {{si.gold}}
             td {{si.price}}
+            td {{si.defId}}
+            td {{si.count}}
             td {{si.desc}}
 
 +block("所有奖励")

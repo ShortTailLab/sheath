@@ -1,5 +1,5 @@
 
-Æ'
+¯(
 serverProtos.proto"
 Player
 
@@ -163,12 +163,14 @@ refinement (
 needProgress (")
 ETypeWeight
 type (
-seed ("D
-	StoreItem
-name (	
-gold (
-price (
-desc (	"l
+seed ("P
+	StoreItem
+
+id (
+name (	
+gold (
+price (
+desc (	"l
 connector_entryHandler_enter
 error (2.Error
 user (2.Player
@@ -212,7 +214,11 @@ equipments (2.EquipmentDef"D
 	coinItems (2
 .StoreItem
 	goldItems (2
-.StoreItem"I
+.StoreItem"[
+game_itemHandler_buy
+error (2.Error
+role (2.Role
+newItems (2.Item"I
 game_heroHandler_listDef
 error (2.Error
 defs (2.HeroDef"E

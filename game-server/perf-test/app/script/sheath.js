@@ -180,6 +180,12 @@ var ActFlagType = {
         name: "refreshStore",
         route: "game.itemHandler.manualRefresh"
     },
+    STORE_BUY: {
+        desc: "购买道具",
+        reqId: 29,
+        name: "storeBuy",
+        route: "game.itemHandler.buy"
+    },
 
 
     ACT_END: null
@@ -319,6 +325,9 @@ Role.prototype.test = function (pomelo) {
         console.log(data);
         timePomeloRequest(ActFlagType.REFRESH_STORE, {isGold: 1}, function (data) {
             console.log(data);
+            timePomeloRequest(ActFlagType.STORE_BUY, {siId: 2}, function (data) {
+                console.log(data);
+            });
         });
     });
 };

@@ -55,12 +55,22 @@ class HandlerBase {
         });
     }
 
-    getItemStacks(roleId) {
-        models.Item.allP({where: {owner: roleId}}).bind(this)
+    getItemStacks(roleId, newItemId=null, count=0) {
+        return models.Item.allP({where: {owner: roleId}}).bind(this)
         .then((items) => {
             var itemGroups = _.groupBy(items, function (item) { return item.itemDefId + "_" + item.level; });
             var cache = this.app.get("cache");
             var stack = 0;
+
+            if (newItemId !== null) {
+                var newItemKey = newItemId + "_1";
+                itemGroups[newItemKey] = itemGroups[newItemKey] || [];
+                itemGroups[newItemKey].length += count;
+                for (var i=1;i<=count;i++) {
+                    itemGroups[newItemKey][itemGroups[newItemKey].length - i] = {itemDefId: newItemId};
+                }
+            }
+
             _.each(itemGroups, function (value) {
                 var itemDef = cache.getItemDef(value[0].itemDefId);
                 var stackSize = itemDef.stackSize || 1;

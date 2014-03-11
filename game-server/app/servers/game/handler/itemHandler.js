@@ -146,8 +146,9 @@ class ItemHandler extends base.HandlerBase {
             return role.saveP();
         })
         .then(function (role) {
-            var coinRefreshLeft = this.maxDailyRefresh(role) - (role.dailyRefreshData.coinRefreshNum || 0);
-            var goldRefreshLeft = this.maxDailyRefresh(role) - (role.dailyRefreshData.goldRefreshNum || 0);
+            var maxDailyRefresh = this.maxDailyRefresh(role);
+            var coinRefreshLeft = maxDailyRefresh - (role.dailyRefreshData.coinRefreshNum || 0);
+            var goldRefreshLeft = maxDailyRefresh - (role.dailyRefreshData.goldRefreshNum || 0);
 
             var resp = {}, logParam = {role: role.toLogObj()};
             if (isGoldStore) {
@@ -171,6 +172,63 @@ class ItemHandler extends base.HandlerBase {
 
     buy(msg, session, next) {
         wrapSession(session);
+
+        var siId = msg.siId;
+        var cache = this.app.get("cache");
+        var storeItem = cache.storeItemById[siId];
+        var role = session.get("role");
+        if (!storeItem) {
+            return this.errorNext(Constants.StoreFailed.NO_ITEM, next);
+        }
+
+        this.safe(Promise.join(models.Role.findP(role.id), this.getItemStacks(role.id, storeItem.defId, storeItem.count)).bind(this)
+        .spread(function (_role, stacks) {
+            role = _role;
+            if (stacks > role.getStorageRoom()) {
+                return Promise.reject(Constants.NO_ROOM);
+            }
+
+            var maxDailyPurchase = this.maxDailyPurchase(role);
+            var coinPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData.coinPurchaseNum || 0);
+            var goldPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData.goldPurchaseNum || 0);
+            if (storeItem.gold && goldPurchaseLeft > 0) {
+                if (role.golds < storeItem.price) {
+                    return Promise.reject(Constants.NO_GOLDS);
+                }
+                role.golds -= storeItem.price;
+                role.dailyRefreshData.goldPurchaseNum = (role.dailyRefreshData.goldPurchaseNum || 0) + 1;
+            }
+            else if (!storeItem.gold && coinPurchaseLeft > 0) {
+                if (role.coins < storeItem.price) {
+                    return Promise.reject(Constants.NO_GOLDS);
+                }
+                role.coins -= storeItem.price;
+                role.dailyRefreshData.coinPurchaseNum = (role.dailyRefreshData.coinPurchaseNum || 0) + 1;
+            }
+            else {
+                return Promise.reject(Constants.StoreFailed.NO_PURCHASE);
+            }
+
+            var newItems = [];
+            for (var i=0;i<storeItem.count;i++) {
+                newItems.push({
+                    itemDefId: storeItem.defId,
+                    owner: role.id
+                });
+            }
+            return [role.saveP(), models.Item.createP(newItems)];
+        })
+        .spread(function (role, items) {
+            next(null, {
+                role: role.toClientObj(),
+                newItems: _.invoke(items, "toClientObj")
+            });
+            logger.logInfo("store.buy", {
+                role: role.toLogObj(),
+                storeItem: storeItem,
+                newItems: _.pluck(items, "id")
+            });
+        }), next);
     }
 
     sell(msg, session, next) {

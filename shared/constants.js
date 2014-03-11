@@ -55,7 +55,9 @@ module.exports = {
         Invalid_End: 121
     },
     StoreFailed: {
-        NO_REFRESH: 160
+        NO_REFRESH: 160,
+        NO_PURCHASE: 161,
+        NO_ITEM: 162
     },
 
 

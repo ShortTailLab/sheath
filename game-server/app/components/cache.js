@@ -90,9 +90,11 @@ class Cache {
 
     loadStoreItem() {
         return models.StoreItem.allP().bind(this).then(function (items) {
-            var sitems = _.partition(_.invoke(items, "toObject"), function (it) { return it.gold; });
+            items = _.invoke(items, "toObject");
+            var sitems = _.partition(items, function (it) { return it.gold; });
             this.storeItemG = sitems[0];
             this.storeItemC = sitems[1];
+            this.storeItemById = toMap(items, "id");
         })
         .catch(function (err) {
             console.log("error loading StoreItems. " + err);

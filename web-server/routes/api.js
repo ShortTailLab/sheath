@@ -768,7 +768,7 @@ var dataColumns = {
         'refineCost', 'slots', 'gemType', 'price', 'destructPiece', 'destructRefine'],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
-    storeitem: ["id", "name", "gold", "price", "desc"],
+    storeitem: ["id", "name", "gold", "price", "defId", "count", "desc"],
     ballistic: ["id", "value"]
 };
 

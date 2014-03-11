@@ -219,6 +219,8 @@ exports.init = function (dbConfig) {
         name: {type: String, default: ""},
         gold: {type: Boolean, default: false},
         price: {type: Number, default: 0},
+        defId: {type: Number, default: 0},
+        count: {type: Number, default: 1},
         desc: {type: String, default: ""}
     });
 
@@ -307,19 +309,26 @@ exports.init = function (dbConfig) {
     };
 
     Role.prototype.toSessionObj = function () {
-        return _.pick(this, "id", "name", "team", "level", "exp", "title", "storageRoom", "dailyRefreshData", "manualRefreshData", "partition");
+        var ret = _.pick(this, "id", "name", "team", "level", "exp", "title", "dailyRefreshData", "manualRefreshData", "partition");
+        ret.storageRoom = this.getStorageRoom();
+        return ret;
     };
 
     Role.prototype.toClientObj = function () {
-        var ret = _.pick(this, "id", "name", "level", "exp", "title", "storageRoom", "energy", "coins", "golds", "contribs", "formation", "formationLevel");
+        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "formation", "formationLevel");
         if (this.isNew) ret.isNew = true;
         ret.team = _.map(this.team, function (t) { return t || ""; });
+        ret.storageRoom = this.getStorageRoom();
 
         return ret;
     };
 
     Role.prototype.toLogObj = function () {
         return _.pick(this, "id", "name", "level", "title", "coins", "golds");
+    };
+
+    Role.prototype.getStorageRoom = function () {
+        return this.storageRoom;
     };
 
     Role.prototype.fillEnergy = function () {
