@@ -186,6 +186,24 @@ var ActFlagType = {
         name: "storeBuy",
         route: "game.itemHandler.buy"
     },
+    LIST_RECRUIT: {
+        desc: "购买道具",
+        reqId: 30,
+        name: "listRecruit",
+        route: "game.heroHandler.listRecruit"
+    },
+    FREE_BAR_REFRESH: {
+        desc: "聚贤庄免费刷新",
+        reqId: 31,
+        name: "barFreeRefresh",
+        route: "game.heroHandler.freeRefresh"
+    },
+    PAID_BAR_REFRESH: {
+        desc: "聚贤庄付费刷新",
+        reqId: 32,
+        name: "barPaidRefresh",
+        route: "game.heroHandler.paidRefresh"
+    },
 
 
     ACT_END: null
@@ -321,12 +339,10 @@ Role.prototype.afterLogin = function (pomelo) {
 };
 
 Role.prototype.test = function (pomelo) {
-    timePomeloRequest(ActFlagType.LIST_STORE, {}, function (data) {
-        console.log(data);
-        timePomeloRequest(ActFlagType.REFRESH_STORE, {isGold: 1}, function (data) {
-            console.log(data);
-            timePomeloRequest(ActFlagType.STORE_BUY, {siId: 2}, function (data) {
-                console.log(data);
+    var self = this;
+    self.listRecruit(pomelo, function () {
+        self.freeBarRefresh(pomelo, function () {
+            self.paidBarRefresh(pomelo, function () {
             });
         });
     });
@@ -335,7 +351,7 @@ Role.prototype.test = function (pomelo) {
 Role.prototype.randomActions = function (pomelo) {
     var actions = [
         this.upgradeWeapon, this.compositeEquipment, this.refineWeapon, this.refineGem, this.equip, this.unEquip,
-        this.setGem, this.setTeam
+        this.setGem, this.setTeam, this.listStore, this.refreshStore, this.listRecruit
     ];
     var count  = 500;
     var self = this;
@@ -491,6 +507,39 @@ Role.prototype.start = function (pomelo, cb) {
 
 Role.prototype.end = function (pomelo, cb) {
     timePomeloRequest(ActFlagType.END, {level: 10101, coins: 0, items: []}, function (data) {
+        cb();
+    });
+};
+
+Role.prototype.listStore = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.LIST_STORE, {}, function (data) {
+        cb();
+    });
+};
+
+Role.prototype.refreshStore = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.REFRESH_STORE, {isGold: true}, function (data) {
+        cb();
+    });
+};
+
+Role.prototype.listRecruit = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.LIST_RECRUIT, {}, function (data) {
+        console.log(data);
+        cb();
+    });
+};
+
+Role.prototype.freeBarRefresh = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.FREE_BAR_REFRESH, {}, function (data) {
+        console.log(data);
+        cb();
+    });
+};
+
+Role.prototype.paidBarRefresh = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.PAID_BAR_REFRESH, {}, function (data) {
+        console.log(data);
         cb();
     });
 };

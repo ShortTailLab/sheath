@@ -17,6 +17,7 @@ var app = pomelo.createApp();
 app.set('name', 'sheath');
 app.loadConfig("rethinkdb", app.getBase() + "/config/rethinkdb.json");
 app.loadConfig("redis", app.getBase() + "/config/redis.json");
+app.loadConfig("specialItemId", app.getBase() + "/config/specialItemId.json");
 app.enable('systemMonitor');
 app.before(pomelo.filters.toobusy(80));
 app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));

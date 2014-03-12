@@ -30,6 +30,9 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
         case "storeitem":
             this.cacheIns.loadStoreItem();
             break;
+        case "heronode":
+            this.cacheIns.loadHeroNode();
+            break;
     }
 };
 

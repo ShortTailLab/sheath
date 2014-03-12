@@ -66,6 +66,7 @@ exports.init = function (dbConfig) {
         taskClaimed: {type: db.Schema.JSON, default: function () {return [];}},
 
         store: {type: db.Schema.JSON, default: function () {return {};}},
+        bar: {type: db.Schema.JSON, default: function () {return {};}},
 
         levelCleared: {type: db.Schema.JSON, default: function () {return {};}},
         levelGain: {type: db.Schema.JSON, default: function () {return {};}},
@@ -80,6 +81,9 @@ exports.init = function (dbConfig) {
         resKey: {type: String, default: ""},
         stars: {type: Number, default: 1},
         skill: {type: Number, default: 0},
+
+        golds: {type: Number, default: 0},
+        contribs: {type: Number, default: 0},
 
         vitality: {type: Number, default: 0},
         strength: {type: Number, default: 0},
@@ -246,6 +250,9 @@ exports.init = function (dbConfig) {
         condition: {type: db.Schema.JSON, default: function () { return []; }},
 
         reward: Number
+    });
+
+    var HeroNode = exports.HeroNode = schema.define("heronode", {
     });
 
     var Mail = exports.Mail = schema.define("mail", {

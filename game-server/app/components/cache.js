@@ -31,7 +31,7 @@ class Cache {
 
     afterStart(cb) {
         Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel(),
-                     this.loadStoreItem()).finally(cb);
+                     this.loadStoreItem(), this.loadHeroNode()).finally(cb);
     }
 
     stop(cb) {
@@ -98,6 +98,15 @@ class Cache {
         })
         .catch(function (err) {
             console.log("error loading StoreItems. " + err);
+        });
+    }
+
+    loadHeroNode() {
+        return models.HeroNode.allP().bind(this).then(function (nodes) {
+            this.heroNodes = _.invoke(nodes, "toObject");
+        })
+        .catch(function (err) {
+            console.log("error loading HeroNode. " + err);
         });
     }
 

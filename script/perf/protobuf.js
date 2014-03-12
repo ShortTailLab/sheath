@@ -25,8 +25,7 @@ var encoder = new protobuf.Protobuf(fs.readFileSync("../../game-server/config/cl
 var encoderIO = protobufjs.loadJson(require("../../game-server/config/clientProtos.json"));
 var route = "connector_entryHandler_enter";
 
-function testFun() {
-
+function testSerialize() {
     for (var i=0;i<1000;i++) {
 //        var Builder = encoderIO.build(route);
 //        new Builder(request).encodeNB();
@@ -35,12 +34,32 @@ function testFun() {
     }
 }
 
-for (var i=0;i<100;i++) testFun();
+function testDeSerialize() {
+    for (var i=0;i<1000;i++) {
+        encoder.Parse(reqBin, route);
+    }
+}
+
+for (var i=0;i<100;i++) testSerialize();
 
 var start = new Date();
 
-for (var i=0;i<100;i++) testFun();
+for (var i=0;i<100;i++) testSerialize();
 
 var end = new Date();
-console.log(end - start);
+console.log("Serialize 100k reqeusts: " + (end - start) + "ms");
 
+
+
+
+var reqBin = encoder.Serialize(request, route);
+
+for (var i=0;i<100;i++) testDeSerialize();
+
+start = new Date();
+
+for (var i=0;i<100;i++) testDeSerialize();
+
+end = new Date();
+
+console.log("DeSerialize 100k reqeusts: " + (end - start) + "ms");

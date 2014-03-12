@@ -120,8 +120,8 @@ class ItemHandler extends base.HandlerBase {
                 return true;
             }
             else {
-                var tokenDefId = parseInt(this.app.get("dataService").get("specialItemId").data.refreshToken);
-                if (_.isNaN(tokenDefId)) {
+                var tokenDefId = this.app.get("specialItemId").storeRefreshToken;
+                if (tokenDefId === undefined || tokenDefId === null) {
                     return Promise.reject(Constants.StoreFailed.NO_REFRESH);
                 }
                 else {
@@ -186,6 +186,10 @@ class ItemHandler extends base.HandlerBase {
             role = _role;
             if (stacks > role.getStorageRoom()) {
                 return Promise.reject(Constants.NO_ROOM);
+            }
+            var store = this.getRoleStore(role, storeItem.gold);
+            if (!store || !_.findWhere(store, {id: storeItem.id})) {
+                return Promise.reject(Constants.StoreFailed.NO_ITEM);
             }
 
             var maxDailyPurchase = this.maxDailyPurchase(role);

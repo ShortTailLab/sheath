@@ -139,8 +139,11 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
 
-            var enforceStoneId = parseInt(this.app.get("dataService").get("specialItemId").data.enpowerStone.itemId);
+            var enforceStoneId = this.app.get("specialItemId").enpowerStone;
             stoneRequired = Math.max(1, Math.floor(equipment.level/10));
+            if (enforceStoneId === undefined || enforceStoneId === null) {
+                return Promise.reject(Constants.EquipmentFailed.NO_ENFORCEMENT_STONE);
+            }
 
             return [models.Item.allP({where: {owner: role.id, itemDefId: enforceStoneId}, limit: stoneRequired}),
                     models.Role.findP(role.id)];

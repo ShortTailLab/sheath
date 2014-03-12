@@ -8,7 +8,7 @@ module.exports = {
     LEVEL_TOO_LOW: 106,
     NO_COINS: 107,
     NO_GOLDS: 108,
-    NO_CONTRIB: 109,
+    NO_CONTRIBS: 109,
     NO_ENERGY: 110,
     NO_ROOM: 111,
 
@@ -39,7 +39,10 @@ module.exports = {
         DO_NOT_OWN_HERO: 60,
         ALREADY_EQUIPPED: 61,
         CANNOT_EQUIP_WEAPON_TYPE: 62,
-        STORAGE_MAX: 63
+        STORAGE_MAX: 63,
+        NO_FREE_REFRESH: 64,
+        NO_PAID_REFRESH: 65,
+        NOT_IN_BAR: 66
     },
     TaskFailed: {
         NO_TASK: 90,

@@ -86,7 +86,7 @@ class RoleHandler extends base.HandlerBase {
 
         var formation = msg.formation;
         var role = session.get("role");
-        var specialItemIds = this.app.get("dataService").get("specialItemId").data;
+        var specialItemIds = this.app.get("specialItemId");
         var formLevelMax = Math.min(Math.floor(role.level/5), 100);
 
         if (formation < 0 || formation >= this.formationLevelReq.length || role.level < this.formationLevelReq[formation]) {

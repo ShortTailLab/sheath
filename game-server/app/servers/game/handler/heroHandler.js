@@ -2,6 +2,7 @@ var models = require("../../../../../shared/models");
 var base = require("../../../../../shared/base");
 var Constants = require("../../../../../shared/constants");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
+var Bar = require("../../../services/barService");
 var Promise = require("bluebird");
 var _ = require("underscore");
 var logger;
@@ -15,6 +16,41 @@ class HeroHandler extends base.HandlerBase {
     constructor(app) {
         this.app = app;
         logger = require('../../../utils/rethinkLogger').getLogger(app);
+    }
+
+    maxDailyRefresh(role) {
+        var max = [0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4];
+        if (0 <= role.vipLevel < max.length) {
+            return max[role.vipLevel];
+        }
+        return max[0];
+    }
+
+    getRoleBar(role) {
+        var bar = role.bar;
+
+        if (!bar.validThru || bar.validThru * 1000 < Date.now()) {
+            bar.validThru = Bar.nextRefresh;
+            bar.recruited = [];
+            bar.heroes = null;
+        }
+
+        if (bar.heroes && bar.validThru * 1000 >= Date.now()) {
+            return bar.heroes;
+        }
+        else {
+            return Bar.listHeroes();
+        }
+    }
+
+    countId(list, id) {
+        var count = 0;
+        for (var i=0;i<list.length;i++) {
+            if (list[i] === id) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     listDef(msg, session, next) {
@@ -37,8 +73,136 @@ class HeroHandler extends base.HandlerBase {
         }), next);
     }
 
-    recruit(msg, session, next) {
+    listRecruit(msg, session, next) {
+        wrapSession(session);
+        Bar.initOnce(this.app);
 
+        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        .then(function (role) {
+            var barHeroes = this.getRoleBar(role);
+
+            next(null, {
+                nextRefresh: Bar.nextRefresh,
+                freeRefresh: this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0),
+                recruited: role.bar.recruited || [],
+                heroes: barHeroes
+            });
+        }), next);
+    }
+
+    freeRefresh(msg, session, next) {
+        wrapSession(session);
+        Bar.initOnce(this.app);
+
+        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        .then(function (role) {
+            var freeRefresh = this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0);
+            if (freeRefresh < 1) {
+                return Promise.reject(Constants.HeroFailed.NO_FREE_REFRESH);
+            }
+            role.dailyRefreshData.barRefreshNum = (role.dailyRefreshData.barRefreshNum || 0) + 1;
+            role.bar = {
+                heroes: Bar.getFreeRefresh(role),
+                recruited: [],
+                validThru: Bar.nextRefresh
+            };
+            return role.saveP();
+        })
+        .then(function (role) {
+            next(null, {
+                nextRefresh: Bar.nextRefresh,
+                freeRefresh: this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0),
+                heroes: role.bar.heroes
+            });
+            logger.logInfo("bar.refresh.free", {
+                role: role.toLogObj(),
+                heroes: role.bar.heroes
+            });
+        }), next);
+    }
+
+    paidRefresh(msg, session, next) {
+        wrapSession(session);
+        Bar.initOnce(this.app);
+        var tokenDefId = this.app.get("specialItemId").barRefreshToken;
+        var role = session.get("role");
+        var tokenId;
+        if (tokenDefId === undefined || tokenDefId === null) {
+            return this.errorNext(Constants.HeroFailed.NO_PAID_REFRESH, next);
+        }
+
+        this.safe(Promise.join(models.Role.findP(role.id), models.Item.findOneP({wherer: {owner: role.id, itemDefId: tokenDefId}})).bind(this)
+        .spread(function (role, token) {
+            tokenId = token.id;
+            if (!token) {
+                return Promise.reject(Constants.HeroFailed.NO_PAID_REFRESH);
+            }
+            role.bar = {
+                heroes: Bar.getPaidRefresh(role),
+                recruited: [],
+                validThru: Bar.nextRefresh
+            };
+            return [role.saveP(), token.destroyP()];
+        })
+        .spread(function (role) {
+            next(null, {
+                destroyed: tokenId,
+                nextRefresh: Bar.nextRefresh,
+                freeRefresh: this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0),
+                heroes: role.bar.heroes
+            });
+            logger.logInfo("bar.refresh.paid", {
+                role: role.toLogObj(),
+                heroes: role.bar.heroes
+            });
+        }), next);
+    }
+
+    recruit(msg, session, next) {
+        wrapSession(session);
+
+        var heroId = msg.heroId;
+        var useGold = !!msg.useGold;
+        var cache = this.app.get("cache");
+        var role = session.get("role");
+        var heroDef = cache.heroDefById[heroId];
+        if (!heroDef) {
+            return this.errorNext(Constants.HeroFailed.NOT_IN_BAR, next);
+        }
+
+        this.safe(models.Role.findP(role.id).bind(this)
+        .then(function (_role) {
+            role = _role;
+            var barHeroes = this.getRoleBar(role);
+            if (_.contains(barHeroes, heroId)) {
+                return Promise.reject(Constants.HeroFailed.NOT_IN_BAR);
+            }
+            if (useGold && role.golds < heroDef.golds) {
+                return Promise.reject(Constants.NO_GOLDS);
+            }
+            if (!useGold && role.contribs < heroDef.contribs) {
+                return Promise.reject(Constants.NO_CONTRIBS);
+            }
+            if (this.countId(barHeroes, heroId) <= this.countId(role.bar.recruited, heroId)) {
+                return Promise.reject(Constants.HeroFailed.NOT_IN_BAR);
+            }
+            if (useGold) role.golds -= heroDef.golds;
+            else role.contribs -= heroDef.contribs;
+            role.bar.recruited.push(heroId);
+            return [role.saveP(), models.Hero.createP({owner: role.id, heroDefId: heroId})];
+        })
+        .spread(function (role, hero) {
+            next(null, {
+                role: role.toClientObj(),
+                newHero: hero.toClientObj()
+            });
+            logger.logInfo("bar.recruit", {
+                role: role.toLogObj(),
+                gold: useGold,
+                price: useGold ? heroDef.golds : heroDef.contribs,
+                newHero: hero.toLogObj()
+            });
+        }), next);
     }
 
     equip(msg, session, next) {

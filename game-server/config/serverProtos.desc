@@ -1,5 +1,5 @@
 
-¯(
+ª+
 serverProtos.proto"
 Player
 
@@ -224,7 +224,24 @@ equipments (2.EquipmentDef"D
 defs (2.HeroDef"E
 game_heroHandler_list
 error (2.Error
-heroes (2.Hero"I
+heroes (2.Hero"‚
+game_heroHandler_listRecruit
+error (2.Error
+heroes (
+	recruited (
+freeRefresh (
+nextRefresh ("o
+game_heroHandler_freeRefresh
+error (2.Error
+heroes (
+freeRefresh (
+nextRefresh ("‚
+game_heroHandler_paidRefresh
+error (2.Error
+	destroyed (	
+heroes (
+freeRefresh (
+nextRefresh ("I
 game_heroHandler_equip
 error (2.Error
 	equipment (2.Item"K
