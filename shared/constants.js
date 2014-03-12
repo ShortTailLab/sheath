@@ -47,8 +47,9 @@ module.exports = {
     },
     RoleFailed: {
         DO_NOT_OWN_HERO: 100,
-        FORMATION_LEVEL_MAX: 101,
-        NO_BOOK: 102
+        NO_FORMATION: 101,
+        FORMATION_LEVEL_MAX: 102,
+        NO_BOOK: 103
     },
     StageFailed: {
         NO_LEVEL: 120,
@@ -58,6 +59,10 @@ module.exports = {
         NO_REFRESH: 160,
         NO_PURCHASE: 161,
         NO_ITEM: 162
+    },
+    ChatFailed: {
+        NO_CHANNEL: 190,
+        NOT_IN_CHANNEL: 191
     },
 
 

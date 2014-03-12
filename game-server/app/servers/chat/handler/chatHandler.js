@@ -31,9 +31,13 @@ class ChatHandler extends base.HandlerBase {
             },
             target: msg.target
         };
-        var channel = channelService.getChannel(parId, false);
+        var targetChannel = msg.channel || parId;
+        var channel = channelService.getChannel(targetChannel, false);
         if (!channel) {
-            return this.errorNext(Constants.PartitionFailed.PARTITION_DO_NOT_EXIST, next);
+            return this.errorNext(Constants.ChatFailed.NO_CHANNEL, next);
+        }
+        if (!channel.getMember(session.uid)) {
+            return this.errorNext(Constants.ChatFailed.NOT_IN_CHANNEL, next);
         }
 
         //targets users

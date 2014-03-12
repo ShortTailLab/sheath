@@ -216,7 +216,8 @@ class ItemHandler extends base.HandlerBase {
                     owner: role.id
                 });
             }
-            return [role.saveP(), models.Item.createP(newItems)];
+            session.set("role", role.toSessionObj());
+            return [role.saveP(), models.Item.createP(newItems), session.push("role")];
         })
         .spread(function (role, items) {
             next(null, {

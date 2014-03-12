@@ -48,7 +48,7 @@ exports.init = function (dbConfig) {
 
         formation: {type: Number, default: 0},
         formationLevel: {type: db.Schema.JSON, default: function () {return [0, 0, 0, 0, 0, 0];}},
-        team: {type: db.Schema.JSON, default: function () {return [null, null, null, null, null];}},
+        team: {type: db.Schema.JSON, default: function () {var ret = new Array(30); for(var i=0;i<30;i++) ret[i]=null; return ret;}},
 
         storageRoom: {type: Number, default: 25},
         cleared: {type: db.Schema.JSON, default: function () {return {};}},

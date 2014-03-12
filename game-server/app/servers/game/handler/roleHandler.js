@@ -15,6 +15,7 @@ module.exports = function (app) {
 class RoleHandler extends base.HandlerBase {
     constructor(app) {
         this.app = app;
+        this.formationLevelReq = [0, 10, 15, 20, 25, 30];
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
@@ -42,16 +43,19 @@ class RoleHandler extends base.HandlerBase {
 
         var heroList = msg.heroes;
         var formation = msg.formation;
+        var role = session.get("role");
 
         if (heroList.length !== 5 || !heroList[0]) {
             this.errorNext(Constants.InvalidRequest, next);
+        }
+        else if (formation < 0 || formation >= this.formationLevelReq.length || role.level < this.formationLevelReq[formation]) {
+            this.errorNext(Constants.RoleFailed.NO_FORMATION, next);
         }
         else {
             for (var i=0;i<5;i++) {
                 heroList[i] = heroList[i] || null;
             }
 
-            var role = session.get("role");
             var reqHeroes = _.compact(heroList);
             this.safe(Promise.join(models.Role.findP(role.id), models.Hero.countP({id: {inq: reqHeroes}, owner: role.id})).bind(this)
             .spread(function(r, heroCount) {
@@ -60,7 +64,12 @@ class RoleHandler extends base.HandlerBase {
                     return Promise.reject(Constants.RoleFailed.DO_NOT_OWN_HERO);
                 }
 
-                role.team = heroList;
+                while (role.team.length < 30) {
+                    role.team.push(null);
+                }
+                for (var i=0;i<5;i++) {
+                    role.team[formation*5+i] = heroList[i];
+                }
                 role.formation = formation;
                 session.set("role", role.toSessionObj());
                 return [role.updateAttributesP({team: heroList, formation: formation}), session.push("role")];
@@ -81,19 +90,20 @@ class RoleHandler extends base.HandlerBase {
     upgradeFormation(msg, session, next) {
         wrapSession(session);
 
-        var formationId = msg.formId;
+        var formation = msg.formation;
         var role = session.get("role");
         var specialItemIds = this.app.get("dataService").get("specialItemId").data;
+        var formLevelMax = Math.min(Math.floor(role.level/5), 100);
 
-        if (formationId < 0  || formationId >= 7) {
-            return this.errorNext(Constants.InvalidRequest, next);
+        if (formation < 0 || formation >= this.formationLevelReq.length || role.level < this.formationLevelReq[formation]) {
+            return this.errorNext(Constants.RoleFailed.NO_FORMATION, next);
         }
 
-        this.safe(Promise.join(models.Role.findP(role.id), ItemDAO.getFormationBook(formationId)).bind(this)
+        this.safe(Promise.join(models.Role.findP(role.id), ItemDAO.getFormationBook(specialItemIds, formation)).bind(this)
         .spread(function(r, books) {
             role = r;
-            var curFormationLevel = role.formationLevel.length > formationId ? role.formationLevel.length[formationId] : 0;
-            if (curFormationLevel > Math.floor(role.level / 5)) {
+            var curFormationLevel = role.formationLevel[formation];
+            if (curFormationLevel > formLevelMax) {
                 return Promise.reject(Constants.RoleFailed.FORMATION_LEVEL_MAX);
             }
         }), next);
