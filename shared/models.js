@@ -188,7 +188,7 @@ exports.init = function (dbConfig) {
         bound: {type: String, index: true},
         itemDefId: {type: Number, index: true},
 
-        level: {type: Number, default: 0},
+        level: {type: Number, default: 1},
         stoneUsed: {type: Number, default: 0},
 
         refinement: {type: Number, default: 0},
