@@ -63,13 +63,7 @@ class RoleHandler extends base.HandlerBase {
                 if (reqHeroes.length !== heroCount) {
                     return Promise.reject(Constants.RoleFailed.DO_NOT_OWN_HERO);
                 }
-
-                while (role.team.length < 30) {
-                    role.team.push(null);
-                }
-                for (var i=0;i<5;i++) {
-                    role.team[formation*5+i] = heroList[i];
-                }
+                role.setTeam(formation, heroList);
                 role.formation = formation;
                 session.set("role", role.toSessionObj());
                 return [role.updateAttributesP({team: heroList, formation: formation}), session.push("role")];

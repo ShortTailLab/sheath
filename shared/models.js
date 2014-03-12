@@ -331,6 +331,15 @@ exports.init = function (dbConfig) {
         return this.storageRoom;
     };
 
+    Role.prototype.setTeam = function (formation, hids) {
+        while (this.team.length < 30) {
+            this.team.push(null);
+        }
+        for (var i= 0, len=Math.min(5, hids.length);i<len;i++) {
+            this.team[formation*5+i] = hids[i];
+        }
+    };
+
     Role.prototype.fillEnergy = function () {
         var now = moment();
         var lastCheck = moment(this.energyRefreshTime);

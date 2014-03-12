@@ -131,6 +131,10 @@ class EntryHandler extends base.HandlerBase {
                     });
 
                     return [role, models.Hero.createP(heros), models.Item.createP(items)];
+                })
+                .spread(function (role, heroes) {
+                    role.setTeam(0, _.pluck(heroes, "id"));
+                    return [role.saveP()];
                 });
             }
             else {
