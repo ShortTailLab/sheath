@@ -66,7 +66,7 @@ class RoleHandler extends base.HandlerBase {
                 role.setTeam(formation, heroList);
                 role.formation = formation;
                 session.set("role", role.toSessionObj());
-                return [role.updateAttributesP({team: heroList, formation: formation}), session.push("role")];
+                return [role.updateAttributesP({team: role.team, formation: formation}), session.push("role")];
             })
             .all().then(() => {
                 next(null, {
