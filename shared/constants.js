@@ -49,10 +49,10 @@ module.exports = {
         TASK_NOT_DONE: 91
     },
     RoleFailed: {
-        DO_NOT_OWN_HERO: 100,
-        NO_FORMATION: 101,
-        FORMATION_LEVEL_MAX: 102,
-        NO_BOOK: 103
+        DO_NOT_OWN_HERO: 110,
+        NO_FORMATION: 111,
+        FORMATION_LEVEL_MAX: 112,
+        NO_BOOK: 113
     },
     StageFailed: {
         NO_LEVEL: 120,

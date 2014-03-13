@@ -259,6 +259,8 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
                 $scope.heroTableParams.total($scope.heroes.length);
                 $scope.heroTableParams.reload();
                 $scope.hero_error = null;
+                $scope.roleData = data;
+                $scope.roleJson = angular.toJson($scope.roleData, true);
             }
             else {
                 index = $scope.items.indexOf(item);

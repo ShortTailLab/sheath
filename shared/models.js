@@ -82,9 +82,6 @@ exports.init = function (dbConfig) {
         stars: {type: Number, default: 1},
         skill: {type: Number, default: 0},
 
-        golds: {type: Number, default: 0},
-        contribs: {type: Number, default: 0},
-
         vitality: {type: Number, default: 0},
         strength: {type: Number, default: 0},
         intelligence: {type: Number, default: 0},
@@ -252,7 +249,14 @@ exports.init = function (dbConfig) {
         reward: Number
     });
 
+    var HeroDraw = exports.HeroDraw = schema.define("herodraw", {
+        weight: {type: Number, default: 0},
+        golds: {type: Number, default: 0},
+        contribs: {type: Number, default: 0}
+    });
+
     var HeroNode = exports.HeroNode = schema.define("heronode", {
+        weight: {type: Number, default: 0}
     });
 
     var Mail = exports.Mail = schema.define("mail", {

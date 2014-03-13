@@ -189,7 +189,8 @@ class HeroHandler extends base.HandlerBase {
             if (useGold) role.golds -= heroDef.golds;
             else role.contribs -= heroDef.contribs;
             role.bar.recruited.push(heroId);
-            return [role.saveP(), models.Hero.createP({owner: role.id, heroDefId: heroId})];
+            session.set("role", role.toSessionObj());
+            return [role.saveP(), models.Hero.createP({owner: role.id, heroDefId: heroId}), session.push("role")];
         })
         .spread(function (role, hero) {
             next(null, {

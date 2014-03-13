@@ -424,12 +424,23 @@ exports.removeHero = function (req, res) {
     .then(function (hero) {
         if (hero) {
             var unbound = appModels.Item.updateP({where: {bound: hid}, update: {bound: null}});
-            return [hero.destroyP(), unbound];
+            var removeFromTeam = appModels.Role.findP(hero.owner).then(function (role) {
+                var updated = false;
+                for (var i=0;i<role.team.length;i++) {
+                    if (role.team[i] === hid) {
+                        role.team[i] = null;
+                        updated = true;
+                    }
+                }
+                if (updated) return role.saveP();
+                else return role;
+            });
+            return [removeFromTeam, hero.destroyP(), unbound];
         }
         return null;
     })
-    .spread(function () {
-        res.send(200);
+    .spread(function (role) {
+        res.json(roleToJson(role, true));
     })
     .catch(function (err) {
         res.send(400);
