@@ -771,6 +771,8 @@ var dataColumns = {
         "hp", "attack", "magic", "defense", "resist", "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev",
         "skill", "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor",
         "damageRedFactor", "physicalResist", "magicResist", "attackFactor", "defenseFactor"],
+    heroDraw: ["id", "contribs", "golds", "sysWeight", "freeWeight", "paidWeight", "level"],
+    heroNode: [],
     itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
         'composeTarget', 'canSell', 'price', 'desc'],
     equipmentDef: ['id', 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'hp', 'attack', 'magic', 'defense',
@@ -796,6 +798,19 @@ var transformHeroDef = function (row) {
         "physicalResist", "magicResist", "skill", "attackFactor", "defenseFactor"], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
+};
+
+var transformHeroDraw = function (row) {
+    row.id = parseInt(row.id);
+    row.golds = parseInt(row.golds);
+    row.contribs = parseInt(row.contribs);
+    row.level = parseInt(row.level);
+    row.sysWeight = parseFloat(row.sysWeight);
+    row.freeWeight = parseFloat(row.freeWeight);
+    row.paidWeight = parseFloat(row.paidWeight);
+};
+
+var transformHeroNode = function (row) {
 };
 
 var transformItemDef = function (row) {
@@ -872,6 +887,8 @@ exports.import = function (req, res) {
     var body = req.body;
     var modelsAndTransform = {
         heroDef: [appModels.HeroDef, transformHeroDef],
+        heroDraw: [appModels.HeroDraw, transformHeroDraw],
+        heroNode: [appModels.HeroNode, transformHeroNode],
         itemDef: [appModels.ItemDef, transformItemDef],
         equipmentDef: [appModels.EquipmentDef, transformEquipmentDef],
         treasure: [appModels.Treasure, transformTreasure],
@@ -980,12 +997,24 @@ exports.export = function (req, res) {
             csv().from.array(hDefs, { columns: dataColumns[data.tag] }).to(res, {
                 header: true,
                 eof: true,
-                columns: dataColumns.heroDef
+                columns: dataColumns[data.tag]
             }).transform(function (row) {
                 row.attackDelta = JSON.stringify(row.attackDelta);
                 return row;
             });
         });
+    }
+    else if (data.tag === "heroDraw") {
+        appModels.HeroDraw.allP({order: "id"}).then(function (hDraws) {
+            csv().from.array(hDraws, { columns: dataColumns[data.tag] }).to(res, {
+                header: true,
+                eof: true,
+                columns: dataColumns[data.tag]
+            });
+        });
+    }
+    else if (data.tag === "heroNode") {
+
     }
     else if (data.tag === "itemDef") {
         appModels.ItemDef.allP({order: "id"}).then(function (itemDefs) {
@@ -1071,6 +1100,30 @@ exports.heroDefs = function (req, res) {
     .then(function (data) {
         res.json({
             heroes: _.map(data, function (h) { return h.toObject(true); })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.heroDraws = function (req, res) {
+    appModels.HeroDraw.allP()
+    .then(function (data) {
+        res.json({
+            draws: _.map(data, function (h) { return h.toObject(true); })
+        });
+    })
+    .catch(function (err) {
+        res.send(400);
+    });
+};
+
+exports.heroNodes = function (req, res) {
+    appModels.HeroNode.allP()
+    .then(function (data) {
+        res.json({
+            nodes: _.map(data, function (h) { return h.toObject(true); })
         });
     })
     .catch(function (err) {

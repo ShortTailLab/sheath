@@ -675,6 +675,20 @@ sheathControllers.controller('exportController', function ($scope, $http, $modal
         $scope.hero_error = "获取武将错误: " + (err.message || "未知错误");
     });
 
+    $http.get("/api/heroDraws").success(function (data) {
+        $scope.draws = data.draws;
+    })
+    .error(function (err) {
+        $scope.draw_error = "获取抽将错误: " + (err.message || "未知错误");
+    });
+
+    $http.get("/api/heroNodes").success(function (data) {
+        $scope.nodes = data.nodes;
+    })
+    .error(function (err) {
+        $scope.node_error = "获取节点错误: " + (err.message || "未知错误");
+    });
+
     $http.get("/api/levels").success(function (data) {
         $scope.levels = data.levels;
     })

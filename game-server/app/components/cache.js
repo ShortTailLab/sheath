@@ -31,7 +31,7 @@ class Cache {
 
     afterStart(cb) {
         Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel(),
-                     this.loadStoreItem(), this.loadHeroNode()).finally(cb);
+                     this.loadStoreItem(), this.loadHeroDraws()).finally(cb);
     }
 
     stop(cb) {
@@ -101,9 +101,12 @@ class Cache {
         });
     }
 
-    loadHeroNode() {
-        return models.HeroNode.allP().bind(this).then(function (nodes) {
+    loadHeroDraws() {
+        return Promise.join(models.HeroDraw.allP(), models.HeroNode.allP()).bind(this)
+        .spread(function (draws, nodes) {
+            this.heroDraws = _.invoke(draws, "toObject");
             this.heroNodes = _.invoke(nodes, "toObject");
+            this.heroDrawById = toMap(this.heroDraws, "id");
         })
         .catch(function (err) {
             console.log("error loading HeroNode. " + err);

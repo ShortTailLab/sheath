@@ -250,9 +250,12 @@ exports.init = function (dbConfig) {
     });
 
     var HeroDraw = exports.HeroDraw = schema.define("herodraw", {
-        weight: {type: Number, default: 0},
+        sysWeight: {type: Number, default: 0},
+        freeWeight: {type: Number, default: 0},
+        paidWeight: {type: Number, default: 0},
         golds: {type: Number, default: 0},
-        contribs: {type: Number, default: 0}
+        contribs: {type: Number, default: 0},
+        level: {type: Number, default: 1}
     });
 
     var HeroNode = exports.HeroNode = schema.define("heronode", {

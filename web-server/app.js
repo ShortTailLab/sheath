@@ -133,6 +133,8 @@ app.post('/api/import', restrictAPI, api.import);
 app.post('/api/export', restrictAPI, api.export);
 app.get('/api/itemDefs', restrictAPI, api.itemDefs);
 app.get('/api/heroDefs', restrictAPI, api.heroDefs);
+app.get('/api/heroDraws', restrictAPI, api.heroDraws);
+app.get('/api/heroNodes', restrictAPI, api.heroNodes);
 app.get('/api/equipmentDefs', restrictAPI, api.equipmentDefs);
 app.get('/api/levels', restrictAPI, api.levels);
 app.get('/api/treasures', restrictAPI, api.treasures);

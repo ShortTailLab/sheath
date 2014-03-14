@@ -22,13 +22,13 @@ export function sampleWithWeight(list, weights, count=1, distinct=false) {
         cumDist[i] += cumDist[i-1];
     }
     if (count === 1) {
-        return list[this.getIndexInWeights(cumDist)];
+        return list[getIndexInWeights(cumDist)];
     }
     else {
         var ret = [];
         while (ret.length < count) {
             for (var it=ret.length;it<count;it++) {
-                ret.push(this.getIndexInWeights(cumDist));
+                ret.push(getIndexInWeights(cumDist));
             }
             if (distinct) {
                 ret = _.uniq(ret);

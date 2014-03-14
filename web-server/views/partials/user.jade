@@ -31,7 +31,7 @@ include ../mixins/block
                 td(data-title="'铜钱'")
                     span(ng-if="!role.editable", ng-bind="role.coins")
                     div(ng-if="role.editable"): input(type="number", ng-model="role.editable.coins", style="width: 80px")
-                td(data-title="'战功'")
+                td(data-title="'威望'")
                     span(ng-if="!role.editable", ng-bind="role.contribs")
                     div(ng-if="role.editable"): input(type="number", ng-model="role.editable.contribs", style="width: 45px")
                 td(data-title="'分区'", ng-bind="role.partitionName")

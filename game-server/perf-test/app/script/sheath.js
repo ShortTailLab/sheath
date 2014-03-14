@@ -204,6 +204,12 @@ var ActFlagType = {
         name: "barPaidRefresh",
         route: "game.heroHandler.paidRefresh"
     },
+    RECRUIT: {
+        desc: "招募",
+        reqId: 33,
+        name: "recruit",
+        route: "game.heroHandler.recruit"
+    },
 
 
     ACT_END: null
@@ -343,6 +349,8 @@ Role.prototype.test = function (pomelo) {
     self.listRecruit(pomelo, function () {
         self.freeBarRefresh(pomelo, function () {
             self.paidBarRefresh(pomelo, function () {
+                self.recruit(pomelo, function () {
+                });
             });
         });
     });
@@ -544,10 +552,17 @@ Role.prototype.paidBarRefresh = function (pomelo, cb) {
     });
 };
 
+Role.prototype.recruit = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.RECRUIT, {heroId: 10002, useGold: true}, function (data) {
+        console.log(data);
+        cb();
+    });
+};
+
 setTimeout(function () {
     var role = new Role();
     var uname = "test" + _.random(10000, 11999);
-    role.entry("127.0.0.1", 3010, "main", uname, uname);
+//    role.entry("127.0.0.1", 3010, "main", uname, uname);
 //    role.entry("sh-test.shorttaillab.com", 3010, "main", uname, uname);
-//    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
+    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
 }, Math.random() * 2000);

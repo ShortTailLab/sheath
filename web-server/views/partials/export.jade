@@ -6,6 +6,12 @@ include ../mixins/block
             input(type="submit", value="武将数据").submit
             input(type="hidden", name="tag", value="heroDef")
         .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="抽将数据").submit
+            input(type="hidden", name="tag", value="heroDraw")
+        .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="节点数据").submit
+            input(type="hidden", name="tag", value="heroNode")
+        .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="道具数据").submit
             input(type="hidden", name="tag", value="itemDef")
         .col-md-1: form(method="post", action="/api/export")
@@ -102,6 +108,31 @@ include ../mixins/block
             td {{h.defenseFactor}}
             td {{h.skill}}
             td {{h.resKey}}
+
++block("武将抽取概率")
+    div(class="message errormsg", ng-show="draw_error")
+        p {{draw_error}}
+    table(cellpadding="0", cellspacing="0", width="100%")
+        thead: tr
+            th 武将ID
+            th 威望
+            th 元宝
+            th 系统刷新权重
+            th 免费刷新权重
+            th 付费刷新权重
+            th 等级
+        tbody: tr(ng-repeat="hd in draws | orderBy:'id'")
+            td {{hd.id}}
+            td {{hd.contribs}}
+            td {{hd.golds}}
+            td {{hd.sysWeight}}
+            td {{hd.freeWeight}}
+            td {{hd.paidWeight}}
+            td {{hd.level}}
+
++block("节点")
+    div(class="message errormsg", ng-show="node_error")
+        p {{node_error}}
 
 +block("所有道具")
     div(class="message errormsg", ng-show="item_error")

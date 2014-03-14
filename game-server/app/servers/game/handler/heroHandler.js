@@ -116,7 +116,7 @@ class HeroHandler extends base.HandlerBase {
             });
             logger.logInfo("bar.refresh.free", {
                 role: role.toLogObj(),
-                heroes: role.bar.heroes
+                heroes: _.pluck(role.bar.heroes, "id")
             });
         }), next);
     }
@@ -153,7 +153,7 @@ class HeroHandler extends base.HandlerBase {
             });
             logger.logInfo("bar.refresh.paid", {
                 role: role.toLogObj(),
-                heroes: role.bar.heroes
+                heroes: _.pluck(role.bar.heroes, "id")
             });
         }), next);
     }
@@ -165,8 +165,8 @@ class HeroHandler extends base.HandlerBase {
         var useGold = !!msg.useGold;
         var cache = this.app.get("cache");
         var role = session.get("role");
-        var heroDef = cache.heroDefById[heroId];
-        if (!heroDef) {
+        var heroDraw = cache.heroDrawById[heroId];
+        if (!heroDraw) {
             return this.errorNext(Constants.HeroFailed.NOT_IN_BAR, next);
         }
 
@@ -174,23 +174,24 @@ class HeroHandler extends base.HandlerBase {
         .then(function (_role) {
             role = _role;
             var barHeroes = this.getRoleBar(role);
-            if (_.contains(barHeroes, heroId)) {
+            var barHeroIds = _.pluck(barHeroes, "id");
+            if (!_.contains(barHeroIds, heroId)) {
                 return Promise.reject(Constants.HeroFailed.NOT_IN_BAR);
             }
-            if (useGold && role.golds < heroDef.golds) {
+            if (useGold && role.golds < heroDraw.golds) {
                 return Promise.reject(Constants.NO_GOLDS);
             }
-            if (!useGold && role.contribs < heroDef.contribs) {
+            if (!useGold && role.contribs < heroDraw.contribs) {
                 return Promise.reject(Constants.NO_CONTRIBS);
             }
-            if (this.countId(barHeroes, heroId) <= this.countId(role.bar.recruited, heroId)) {
+            if (this.countId(barHeroIds, heroId) <= this.countId(role.bar.recruited, heroId)) {
                 return Promise.reject(Constants.HeroFailed.NOT_IN_BAR);
             }
-            if (useGold) role.golds -= heroDef.golds;
-            else role.contribs -= heroDef.contribs;
+            if (useGold) role.golds -= heroDraw.golds;
+            else role.contribs -= heroDraw.contribs;
             role.bar.recruited.push(heroId);
             session.set("role", role.toSessionObj());
-            return [role.saveP(), models.Hero.createP({owner: role.id, heroDefId: heroId}), session.push("role")];
+            return [role.saveP(), models.Hero.createP({owner: role.id, heroDefId: heroId, level: heroDraw.level}), session.push("role")];
         })
         .spread(function (role, hero) {
             next(null, {
@@ -200,7 +201,7 @@ class HeroHandler extends base.HandlerBase {
             logger.logInfo("bar.recruit", {
                 role: role.toLogObj(),
                 gold: useGold,
-                price: useGold ? heroDef.golds : heroDef.contribs,
+                price: useGold ? heroDraw.golds : heroDraw.contribs,
                 newHero: hero.toLogObj()
             });
         }), next);

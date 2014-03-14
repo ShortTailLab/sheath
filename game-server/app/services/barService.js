@@ -14,7 +14,7 @@ class BarService
     initOnce(app) {
         if (utils.initOnce("barService")) {
             this.app = app;
-            this.refresh();
+            this.systemRefresh();
         }
     }
 
@@ -27,14 +27,15 @@ class BarService
         return Math.floor(+now/1000);
     }
 
-    sample(oldItems=null) {
+    sample(weightKey, oldItems=null) {
         var cache = this.app.get("cache");
-        var pool = cache.heroDefs;
+        var heroes = cache.heroDraws;
+        var weights = _.pluck(heroes, weightKey);
         var candidate = [];
 
         for (var i=0;i<10;i++) {
-            candidate = _.sample(pool, 12);
-            if (candidate.length === pool.length || !oldItems) {
+            candidate = utils.sampleWithWeight(heroes, weights, 3, true);
+            if (candidate.length === heroes.length || !oldItems) {
                 return candidate;
             }
             else {
@@ -48,24 +49,26 @@ class BarService
         return candidate;
     }
 
-    refresh() {
-        this.heroes = _.pluck(this.sample(this.heroes), "id");
-        this.nextRefresh = this.nextRefreshTime();
-    }
-
     listHeroes() {
         if (this.nextRefresh * 1000 <= Date.now()) {
-            this.refresh();
+            this.systemRefresh();
         }
         return this.heroes;
     }
 
-    getFreeRefresh(role) {
+    systemRefresh() {
+        this.heroes = this.sample("sysWeight", this.heroes);
+        this.nextRefresh = this.nextRefreshTime();
+    }
 
+    getFreeRefresh(role) {
+        var roleOldHeroes = role.bar.heroes ? role.bar.heroes : this.heroes;
+        return this.sample("freeWeight", roleOldHeroes);
     }
 
     getPaidRefresh(role) {
-
+        var roleOldHeroes = role.bar.heroes ? role.bar.heroes : this.heroes;
+        return this.sample("paidWeight", roleOldHeroes);
     }
 }
 
