@@ -36,7 +36,7 @@ app.set('connectorConfig', {
     connector: pomelo.connectors.hybridconnector,
     heartbeat: 5,
 //    useProtobuf: true,
-    useDict: true
+//    useDict: true
 });
 
 Patcher.wrapModel();
@@ -81,10 +81,11 @@ app.configure('development|production|test', "master", function () {
 
 app.configure('development|production|test', "connector", function () {
     app.use(require('pomelo-protobuf-plugin'), {});
+    app.load(require('./app/components/cache'), {role: "connector"});
 });
 
 app.configure('development|production|test', "game", function () {
-    app.load(require('./app/components/cache'), {});
+    app.load(require('./app/components/cache'), {role: "game"});
 //    profiler.profile({
 //        accountKey: 'a09978fff59621ddf3fada92a8048789d0ca3ade',
 //        appName: 'Sheath-Game'

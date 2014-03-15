@@ -34,6 +34,11 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
         case "heroDraw":
             this.cacheIns.loadHeroDraws();
             break;
+        case "partition":
+            this.cacheIns.loadPartition();
+            break;
+        default:
+            console.log("cache do not have type: " + msg.type);
     }
 };
 
@@ -41,7 +46,8 @@ Module.prototype.masterHandler = function(agent, msg) {
 };
 
 Module.prototype.clientHandler = function(agent, msg, cb) {
-    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === "game"; });
+    var serverType = msg.server || "game";
+    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === serverType; });
     var pending = servers.length;
     var waitAll = function () {
         if (--pending === 0) {

@@ -39,11 +39,11 @@ class EntryHandler extends base.HandlerBase {
         })
         .then(() => {
             var partUCount = this.app.rpc.manager.partitionStatsRemote.getUserCountAsync(session);
-            var allParts = models.Partition.allP({where: {public: true, openSince: {lt: new Date()}}, order: "openSince DESC"});
-            session.set("userId", user.id);
-            return [session.bind(user.id), partUCount, allParts, session.pushAll()];
+            return [partUCount, session.bind(user.id)];
         })
-        .spread((__, partStats, partitions) => {
+        .all().then((results) => {
+            var partStats = results[0];
+            var partitions = this.app.get("cache").getPartitions();
             session.on('closed', onUserLeave.bind(null, this.app));
 
             var logType = "user.login";
@@ -52,22 +52,16 @@ class EntryHandler extends base.HandlerBase {
                 "user": user.id
             });
 
-            partitions = _.map(partitions, function (p) {
-                var ret = {
-                    id: p.id,
-                    name: p.name,
-                    openSince: +p.openSince
-                };
+            for (var i=0;i<partitions.length;i++) {
+                var p = partitions[i];
                 var partUsers = partStats[p.id] || 0;
                 if (partUsers < 500)
-                    ret.status = 0;
+                    p.status = 0;
                 else if (partUsers < 850)
-                    ret.status = 1;
+                    p.status = 1;
                 else
-                    ret.status = 2;
-
-                return ret;
-            });
+                    p.status = 2;
+            }
 
             next(null, {
                 user: {id: user.id},
@@ -80,24 +74,19 @@ class EntryHandler extends base.HandlerBase {
     }
 
     enterPartition(msg, session, next) {
-        var part, role;
+        var role;
         var logType = "role.login";
+        var part = this.app.get("cache").partitionById[msg.partId];
 
-        this.safe(models.Partition.findP(msg.partId).bind(this)
-        .then((p) => {
-            part = p;
-            if (!part) {
-                return Promise.reject(Constants.PartitionFailed.PARTITION_DO_NOT_EXIST);
-            }
-            else if (part.openSince > new Date()) {
-                return Promise.reject(Constants.PartitionFailed.PARTITION_NOT_OPEN);
-            }
-            else {
-                return [models.Role.findOneP({where: {owner: session.uid, partition: part.id}}),
-                    this.app.rpc.manager.partitionStatsRemote.joinPartitionAsync(session, part.id)];
-            }
-        })
-        .spread((role) => {
+        if (!part) {
+            return this.errorNext(Constants.PartitionFailed.PARTITION_DO_NOT_EXIST, next);
+        }
+        if (part.openSince > Date.now()) {
+            return this.errorNext(Constants.PartitionFailed.PARTITION_NOT_OPEN, next);
+        }
+
+        this.safe(models.Role.findOneP({where: {owner: session.uid, partition: part.id}}).bind(this)
+        .then((role) => {
             if (!role) {
                 var newRoleConf = this.app.get("dataService").get("roleBootstrap").data;
                 var newData = {
@@ -149,6 +138,7 @@ class EntryHandler extends base.HandlerBase {
             return session.pushAll();
         })
         .then(() => {
+            this.app.rpc.manager.partitionStatsRemote.joinPartition(session, part.id, null);
             this.app.rpc.chat.chatRemote.add(session, session.uid, role.name, this.app.get('serverId'), part.id, null);
             this.app.rpc.chat.announcementRemote.userJoined(session, session.uid, part.id, null);
             next(null, {
@@ -157,7 +147,7 @@ class EntryHandler extends base.HandlerBase {
             logger.logInfo(logType, {
                 user: session.uid,
                 role: role.toLogObj(),
-                partition: part.toLogObj()
+                partition: _.pick(part, "id", "name")
             });
         }), next);
     }

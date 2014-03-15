@@ -22,6 +22,7 @@ class Cache {
     constructor(app, opts) {
         this.app = app;
         this.name = "cache";
+        this.cacheRole = opts.role;
     }
 
     start(cb) {
@@ -30,12 +31,31 @@ class Cache {
     }
 
     afterStart(cb) {
-        Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel(),
-                     this.loadStoreItem(), this.loadHeroDraws()).finally(cb);
+        if (this.cacheRole === "game") {
+            Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel(),
+                this.loadStoreItem(), this.loadHeroDraws()).finally(cb);
+        }
+        else if (this.cacheRole === "connector") {
+            Promise.join(this.loadPartition()).finally(cb);
+        }
+        else {
+            process.nextTick(cb);
+        }
     }
 
     stop(cb) {
         process.nextTick(cb);
+    }
+
+    loadPartition() {
+        return models.Partition.allP({order: "openSince"}).bind(this).then(function (partitions) {
+            this.clientPartitions = _.invoke(partitions, "toClientObj");
+            this.partitionById = toMap(this.clientPartitions, "id");
+            this.partTimeIndex = 0;
+        })
+        .catch(function (err) {
+            console.log("error loading partitions. " + err);
+        });
     }
 
     loadHeroDef() {
@@ -111,6 +131,16 @@ class Cache {
         .catch(function (err) {
             console.log("error loading HeroNode. " + err);
         });
+    }
+
+    getPartitions() {
+        var now = Date.now();
+        for (;this.partTimeIndex<this.clientPartitions.length;++this.partTimeIndex) {
+            if (this.clientPartitions[this.partTimeIndex].openSince > now) {
+                break;
+            }
+        }
+        return this.clientPartitions.slice(0, this.partTimeIndex);
     }
 
     randomCompositeTarget(itemDef) {

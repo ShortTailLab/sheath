@@ -160,6 +160,7 @@ exports.addPartition = function (req, res) {
             var ret = _.pick(p, ["id", "name", "public", "openSince", "distro"]);
             ret.roleCount = 0;
             ret.onlineRoles = 0;
+            pomeloConn.client.request("cacheMonitor", {type: "partition", server: "connector"});
             res.send(ret);
         }
         else {
@@ -186,6 +187,7 @@ exports.removePartition = function (req, res) {
             return res.send(400, {message: "区内已有角色，不能删除"});
         }
         res.send({id: p.id});
+        pomeloConn.client.request("cacheMonitor", {type: "partition", server: "connector"});
         return p.destroyP();
     })
     .catch(function (err) {

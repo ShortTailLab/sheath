@@ -312,11 +312,9 @@ exports.init = function (dbConfig) {
     Stage.hasMany(Level, {as: "levels", foreignKey: "stageId"});
 
     Partition.prototype.toClientObj = function () {
-        return _.pick(this, "id", "name");
-    };
-
-    Partition.prototype.toLogObj = function () {
-        return _.pick(this, "id", "name");
+        var ret = _.pick(this, "id", "name");
+        ret.openSince = +this.openSince;
+        return ret;
     };
 
     User.prototype.toClientObj = function () {
