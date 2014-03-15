@@ -6,7 +6,6 @@ class BarService
 {
     constructor() {
         this.app = null;
-
         this.nextRefresh = null;
         this.heroes = null;
     }
@@ -28,8 +27,7 @@ class BarService
     }
 
     sample(weightKey, oldItems=null) {
-        var cache = this.app.get("cache");
-        var heroes = cache.heroDraws;
+        var heroes = this.app.get("cache").heroDraws;
         var weights = _.pluck(heroes, weightKey);
         var candidate = [];
 
@@ -63,12 +61,23 @@ class BarService
 
     getFreeRefresh(role) {
         var roleOldHeroes = role.bar.heroes ? role.bar.heroes : this.heroes;
-        return this.sample("freeWeight", roleOldHeroes);
+        var stock = this.sample("freeWeight", roleOldHeroes);
+        this.applyNode(role, stock);
+        return stock;
     }
 
     getPaidRefresh(role) {
         var roleOldHeroes = role.bar.heroes ? role.bar.heroes : this.heroes;
-        return this.sample("paidWeight", roleOldHeroes);
+        var stock = this.sample("paidWeight", roleOldHeroes);
+        this.applyNode(role, stock);
+        return stock;
+    }
+
+    applyNode(role, stock) {
+        var nodes = this.app.get("cache").heroNodes;
+        for (var i=nodes.length-1;i>=0;i--) {
+            var node = nodes[i];
+        }
     }
 }
 

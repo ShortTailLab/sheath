@@ -37,6 +37,7 @@ include ../mixins/block
                 td(data-title="'分区'", ng-bind="role.partitionName")
                 td(data-title="'充值'", ng-bind="role.spent")
                 td(data-title="'创建时间'") {{role.createTime | amDateFormat:"YYYY-MM-DD HH:mm"}}
+                td(data-title="'上次下线时间'") {{role.lastLogOff | amDateFormat:"YYYY-MM-DD HH:mm"}}
                 td(data-title="'操作'", width=80)
                     a(ng-if="!role.editable", href="", class="btn btn-default btn-xs", ng-click="edit(role)") 编辑
                     a(ng-if="role.editable", href="", class="btn btn-primary btn-xs", ng-click="save(role)") 保存

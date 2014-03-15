@@ -72,6 +72,7 @@ exports.init = function (dbConfig) {
         levelGain: {type: db.Schema.JSON, default: function () {return {};}},
 
         createTime: {type: Date, default: function () { return new Date(); }},
+        lastLogOff: Date,
         isNew: Boolean
     });
 

@@ -170,6 +170,7 @@ var onUserLeave = function (app, session, reason) {
         var role = session.get("role");
         if (role) {
             app.rpc.chat.chatRemote.kick(session, session.uid, app.get('serverId'), partId, null);
+            models.Role.update({where: {id: role.id}, update: {lastLogOff: new Date()}}, function () {});
             logger.logInfo("role.logout", {
                 user: session.uid,
                 role: _.pick(role, "id", "name", "level", "title", "coins", "golds"),

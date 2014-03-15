@@ -105,7 +105,7 @@ class Cache {
         return Promise.join(models.HeroDraw.allP(), models.HeroNode.allP()).bind(this)
         .spread(function (draws, nodes) {
             this.heroDraws = _.invoke(draws, "toObject");
-            this.heroNodes = _.invoke(nodes, "toObject");
+            this.heroNodes = _.invoke(_.sortBy(nodes, "weight"), "toObject");
             this.heroDrawById = toMap(this.heroDraws, "id");
         })
         .catch(function (err) {
