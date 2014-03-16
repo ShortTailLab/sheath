@@ -88,24 +88,24 @@ class EntryHandler extends base.HandlerBase {
         this.safe(models.Role.findOneP({where: {owner: session.uid, partition: part.id}}).bind(this)
         .then((role) => {
             if (!role) {
-                var newRoleConf = this.app.get("dataService").get("roleBootstrap").data;
+                var newRoleConf = this.app.get("roleBootstrap");
                 var newData = {
                     partition: part.id,
                     owner: session.uid,
-                    name: newRoleConf.name.value,
+                    name: newRoleConf.name,
 
-                    energy: parseInt(newRoleConf.energy.value),
-                    coins: parseInt(newRoleConf.coins.value),
-                    golds: parseInt(newRoleConf.golds.value),
-                    contribs: parseInt(newRoleConf.contribs.value),
+                    energy: newRoleConf.energy,
+                    coins: newRoleConf.coins,
+                    golds: newRoleConf.golds,
+                    contribs: newRoleConf.contribs,
 
                     isNew: true
                 };
                 logType = "role.register";
 
                 return models.Role.createP(newData).then((role) => {
-                    var initialHeroes = JSON.parse(newRoleConf.heroes.value);
-                    var initialItems = JSON.parse(newRoleConf.items.value);
+                    var initialHeroes = newRoleConf.heroes;
+                    var initialItems = newRoleConf.items;
                     var heros = _.map(initialHeroes, function (hid) {
                         return {
                             heroDefId: hid,

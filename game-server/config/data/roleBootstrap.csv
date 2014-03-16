@@ -1,9 +1,0 @@
-#创建角色默认数值配置表
-id,value
-coins,100
-golds,20
-heroes,"[10001,10002,10003,10004,10005]"
-items,"[]"
-energy,5
-contribs,0
-name,玩家

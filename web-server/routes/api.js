@@ -218,6 +218,9 @@ exports.userList = function (req, res) {
                 return [[], 0];
             else {
                 var q = {owner: {inq: _.pluck(users, "id")}};
+                if (listOptions.partitions) {
+                    q.partition = {inq: listOptions.partitions};
+                }
                 return Promise.join(appModels.Role.allP({where: q}), appModels.Role.countP(q));
             }
         });

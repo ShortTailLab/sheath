@@ -1,0 +1,15 @@
+{
+	"daily": {
+		"coins": 10,
+		"golds": 0,
+		"energy": 0,
+		"contribs": 0
+	},
+	"qhourly": {
+		"coins": 10,
+		"golds": 0,
+		"energy": 0,
+		"contribs": 0,
+		"dailyLimit": 1
+	}
+}

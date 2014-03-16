@@ -178,7 +178,7 @@ exports.init = function (dbConfig) {
     });
 
     var Hero = exports.Hero = schema.define("hero", {
-        heroDefId: {type: Number, index: true},
+        heroDefId: {type: Number},
 
         level: {type: Number, default: 1},
         exp: {type: Number, default: 0},
@@ -188,7 +188,7 @@ exports.init = function (dbConfig) {
 
     var Item = exports.Item = schema.define("item", {
         bound: {type: String, index: true},
-        itemDefId: {type: Number, index: true},
+        itemDefId: {type: Number},
 
         level: {type: Number, default: 1},
         stoneUsed: {type: Number, default: 0},

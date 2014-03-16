@@ -1,7 +1,6 @@
 //var profiler = require("nodetime");
 require("../shared/traceurBootstrap");
 var pomelo = require('pomelo');
-var dataPlugin = require('pomelo-data-plugin');
 var statusPlugin = require('pomelo-status-plugin');
 var zmqRPC = require('pomelo-rpc-zeromq');
 var appModels = require("../shared/models");
@@ -17,7 +16,6 @@ var app = pomelo.createApp();
 app.set('name', 'sheath');
 app.loadConfig("rethinkdb", app.getBase() + "/config/rethinkdb.json");
 app.loadConfig("redis", app.getBase() + "/config/redis.json");
-app.loadConfig("specialItemId", app.getBase() + "/config/specialItemId.json");
 app.enable('systemMonitor');
 app.before(pomelo.filters.toobusy(80));
 app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
@@ -50,14 +48,6 @@ appModels.init({
     poolMax: 100
 }).connect();
 
-app.use(dataPlugin, {
-    watcher: {
-        dir: __dirname + "/config/data",
-        idx: "id",
-        interval: 5000
-    }
-});
-
 var redisConfig = app.get("redis");
 app.use(statusPlugin, {
     status: {
@@ -80,11 +70,14 @@ app.configure('development|production|test', "master", function () {
 });
 
 app.configure('development|production|test', "connector", function () {
+    app.loadConfig("roleBootstrap", app.getBase() + "/config/data/roleBootstrap.json");
     app.use(require('pomelo-protobuf-plugin'), {});
     app.load(require('./app/components/cache'), {role: "connector"});
 });
 
 app.configure('development|production|test', "game", function () {
+    app.loadConfig("specialItemId", app.getBase() + "/config/data/specialItemId.json");
+    app.loadConfig("rewardConfig", app.getBase() + "/config/data/reward.json");
     app.load(require('./app/components/cache'), {role: "game"});
 //    profiler.profile({
 //        accountKey: 'a09978fff59621ddf3fada92a8048789d0ca3ade',

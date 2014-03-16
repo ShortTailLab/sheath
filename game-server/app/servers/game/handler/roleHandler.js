@@ -109,14 +109,14 @@ class RoleHandler extends base.HandlerBase {
         var role = session.get("role");
         if (!role.dailyRefreshData.dailyReward) {
             role.dailyRefreshData.dailyReward = true;
-            var rewardConf = this.app.get("dataService").get("reward").data.daily;
+            var rewardConf = this.app.get("rewardConfig").daily;
 
             this.safe(models.Role.findP(role.id).bind(this)
             .then((roleObj) => {
-                roleObj.coins += parseInt(rewardConf.coins);
-                roleObj.golds += parseInt(rewardConf.golds);
-                roleObj.contribs += parseInt(rewardConf.contribs);
-                roleObj.energy += parseInt(rewardConf.energy);
+                roleObj.coins += rewardConf.coins;
+                roleObj.golds += rewardConf.golds;
+                roleObj.contribs += rewardConf.contribs;
+                roleObj.energy += rewardConf.energy;
                 roleObj.dailyRefreshData.dailyReward = true;
 
                 return [roleObj, roleObj.saveP(), session.push("role")];
@@ -128,10 +128,10 @@ class RoleHandler extends base.HandlerBase {
                     golds: roleObj.golds,
                     contribs: roleObj.contribs,
 
-                    energyDiff: parseInt(rewardConf.energy),
-                    coinsDiff: parseInt(rewardConf.coins),
-                    goldsDiff: parseInt(rewardConf.golds),
-                    contribsDiff: parseInt(rewardConf.contribs)
+                    energyDiff: rewardConf.energy,
+                    coinsDiff: rewardConf.coins,
+                    goldsDiff: rewardConf.golds,
+                    contribsDiff: rewardConf.contribs
                 };
 
                 next(null, { reward: rewardDict });
@@ -150,16 +150,16 @@ class RoleHandler extends base.HandlerBase {
         wrapSession(session);
 
         var role = session.get("role");
-        var rewardConf = this.app.get("dataService").get("reward").data.qhourly;
-        if ((role.dailyRefreshData.qhourlyReward || 0) < parseInt(rewardConf.extra)) {
+        var rewardConf = this.app.get("rewardConfig").qhourly;
+        if ((role.dailyRefreshData.qhourlyReward || 0) < rewardConf.dailyLimit) {
             role.dailyRefreshData.qhourlyReward = (role.dailyRefreshData.qhourlyReward || 0) + 1;
 
             this.safe(models.Role.findP(role.id).bind(this)
             .then((roleObj) => {
-                roleObj.coins += parseInt(rewardConf.coins);
-                roleObj.golds += parseInt(rewardConf.golds);
-                roleObj.contribs += parseInt(rewardConf.contribs);
-                roleObj.energy += parseInt(rewardConf.energy);
+                roleObj.coins += rewardConf.coins;
+                roleObj.golds += rewardConf.golds;
+                roleObj.contribs += rewardConf.contribs;
+                roleObj.energy += rewardConf.energy;
                 roleObj.dailyRefreshData.qhourlyReward = (roleObj.dailyRefreshData.qhourlyReward || 0) + 1;
 
                 return [roleObj, roleObj.saveP(), session.push("role")];
@@ -171,10 +171,10 @@ class RoleHandler extends base.HandlerBase {
                     golds: roleObj.golds,
                     contribs: roleObj.contribs,
 
-                    energyDiff: parseInt(rewardConf.energy),
-                    coinsDiff: parseInt(rewardConf.coins),
-                    goldsDiff: parseInt(rewardConf.golds),
-                    contribsDiff: parseInt(rewardConf.contribs)
+                    energyDiff: rewardConf.energy,
+                    coinsDiff: rewardConf.coins,
+                    goldsDiff: rewardConf.golds,
+                    contribsDiff: rewardConf.contribs
                 };
 
                 next(null, { reward: rewardDict });
