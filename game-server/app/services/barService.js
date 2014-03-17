@@ -1,6 +1,5 @@
 var utils = require("../../../shared/utils");
 var _ = require("underscore");
-var moment = require("moment");
 
 class BarService
 {
@@ -15,15 +14,6 @@ class BarService
             this.app = app;
             this.systemRefresh();
         }
-    }
-
-    nextRefreshTime() {
-        var now = moment();
-        now.seconds(0);
-        now.minutes(0);
-        now.hours(Math.ceil(now.hours()/2) * 2);
-
-        return Math.floor(+now/1000);
     }
 
     sample(weightKey, oldItems=null) {
@@ -56,7 +46,7 @@ class BarService
 
     systemRefresh() {
         this.heroes = this.sample("sysWeight", this.heroes);
-        this.nextRefresh = this.nextRefreshTime();
+        this.nextRefresh = utils.nextTimeSegment(2);
     }
 
     getFreeRefresh(role) {

@@ -28,14 +28,16 @@ class HeroHandler extends base.HandlerBase {
 
     getRoleBar(role) {
         var bar = role.bar;
+        var now = Math.floor(Date.now()/1000);
 
-        if (!bar.validThru || bar.validThru * 1000 < Date.now()) {
+        if (!bar.validThru || bar.validThru < now) {
+            Bar.listHeroes();
             bar.validThru = Bar.nextRefresh;
             bar.recruited = [];
             bar.heroes = null;
         }
 
-        if (bar.heroes && bar.validThru * 1000 >= Date.now()) {
+        if (bar.heroes && bar.validThru >= now) {
             return bar.heroes;
         }
         else {

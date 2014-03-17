@@ -1,6 +1,5 @@
 var utils = require("../../../shared/utils");
 var _ = require("underscore");
-var moment = require("moment");
 
 class StoreService
 {
@@ -20,15 +19,6 @@ class StoreService
             this.refresh6();
             this.refresh8();
         }
-    }
-
-    nextRefreshTime() {
-        var now = moment();
-        now.seconds(0);
-        now.minutes(0);
-        now.hours(Math.ceil(now.hours()/6) * 6);
-
-        return Math.floor(+now/1000);
     }
 
     sampleItems(isGold, oldItems=null) {
@@ -54,12 +44,12 @@ class StoreService
 
     refresh6() {
         this.coinStore = this.sampleItems(false, this.coinStore);
-        this.coinRefresh = this.nextRefreshTime();
+        this.coinRefresh = utils.nextTimeSegment(6);
     }
 
     refresh8() {
         this.goldStore = this.sampleItems(true, this.goldStore);
-        this.goldRefresh = this.nextRefreshTime();
+        this.goldRefresh = utils.nextTimeSegment(8);
     }
 
     listGoldItems() {

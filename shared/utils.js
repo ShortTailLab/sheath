@@ -1,4 +1,5 @@
 var _ = require("underscore");
+var moment = require("moment");
 
 
 function getIndexInWeights(weights) {
@@ -48,4 +49,11 @@ export function initOnce(key) {
         return true;
     }
     return false;
+}
+
+export function nextTimeSegment(segment) {
+    var sod = moment().startOf("day");
+    var hours = moment() - sod;
+    var nextHour = Math.ceil(hours / (segment * 3600 * 1000)) * (segment * 3600);
+    return sod.unix() + nextHour;
 }
