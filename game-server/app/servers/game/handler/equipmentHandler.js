@@ -230,7 +230,7 @@ class EquipmentHandler extends base.HandlerBase {
         if (!eqId || !gemId) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
-        var equipment, itemDef, eqPrefix, boundGemCount;
+        var equipment, itemDef, gemDef, eqPrefix, boundGemCount;
 
         this.safe(this.getEquipmentWithDef(eqId)
         .spread((_equipment, _itemDef) => {
@@ -245,7 +245,8 @@ class EquipmentHandler extends base.HandlerBase {
             eqPrefix = itemDef.type.substr(0, 5);
             return this.getGemWithDef(gemId);
         })
-        .spread((gem, gemDef) => {
+        .spread((gem, _gemDef) => {
+            gemDef = _gemDef;
             if (!gem || gem.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
@@ -263,7 +264,7 @@ class EquipmentHandler extends base.HandlerBase {
             // find a same type gem to replace
             var toReplace = _.find(_boundGems, function (gem) {
                 var def = cache.itemDefById[gem.itemDefId];
-                return def ? def.subType === itemDef.subType : null;
+                return def ? def.subType === gemDef.subType : null;
             });
             gem.bound = equipment.id;
             if (toReplace) {
