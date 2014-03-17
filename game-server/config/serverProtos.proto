@@ -179,7 +179,9 @@ message StoreItem {
     required string name        =   2;
     required bool gold          =   3;
     required int32 price        =   4;
-    required string desc        =   5;
+    required int32 defId        =   5;
+    required int32 count        =   6;
+    required string desc        =   7;
 }
 
 message connector_entryHandler_enter {
@@ -212,8 +214,8 @@ message game_itemHandler_list {
 }
 message game_itemHandler_listStore {
     optional Error error                    =   1;
-    optional fixed32 nextCoinStoreRefresh   =   2;
-    optional fixed32 nextGoldStoreRefresh   =   3;
+    optional int32 nextCoinStoreRefresh     =   2;
+    optional int32 nextGoldStoreRefresh     =   3;
     optional int32 coinPurchaseLeft         =   4;
     optional int32 goldPurchaseLeft         =   5;
     optional int32 coinRefreshLeft          =   6;

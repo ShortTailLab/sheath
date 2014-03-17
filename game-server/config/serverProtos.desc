@@ -1,5 +1,5 @@
 
-à,
+þ,
 serverProtos.proto"
 Player
 
@@ -168,14 +168,16 @@ refinement (
 
 id (
 contribs (
-golds ("P
+golds ("n
 	StoreItem
 
 id (
 name (	
 gold (
-price (
-desc (	"l
+price (
+defId (
+count (
+desc (	"l
 connector_entryHandler_enter
 error (2.Error
 user (2.Player
@@ -201,8 +203,8 @@ equipments (2.EquipmentDef"D
 items (2.Item"“
 game_itemHandler_listStore
 error (2.Error
-nextCoinStoreRefresh (
-nextGoldStoreRefresh (
+nextCoinStoreRefresh (
+nextGoldStoreRefresh (
 coinPurchaseLeft (
 goldPurchaseLeft (
 coinRefreshLeft (

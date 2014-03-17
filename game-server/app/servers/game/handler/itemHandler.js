@@ -88,8 +88,8 @@ class ItemHandler extends base.HandlerBase {
             next(null, {
                 coinItems: coinStoreItems,
                 goldItems: goldStoreItems,
-                nextCoinStoreRefresh: Store.coinRefresh,
-                nextGoldStoreRefresh: Store.goldRefresh,
+                nextCoinStoreRefresh: Store.coinRefresh - Math.floor(Date.now()/1000),
+                nextGoldStoreRefresh: Store.goldRefresh - Math.floor(Date.now()/1000),
                 coinRefreshLeft: coinRefreshLeft,
                 goldRefreshLeft: goldRefreshLeft,
                 coinPurchaseLeft: coinPurchaseLeft,
