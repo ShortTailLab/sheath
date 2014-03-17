@@ -82,7 +82,7 @@ class HeroHandler extends base.HandlerBase {
             var barHeroes = this.getRoleBar(role);
 
             next(null, {
-                nextRefresh: Bar.nextRefresh - Date.now(),
+                nextRefresh: Bar.nextRefresh - Math.floor(Date.now()/1000),
                 freeRefresh: this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0),
                 recruited: role.bar.recruited || [],
                 heroes: barHeroes
@@ -110,7 +110,7 @@ class HeroHandler extends base.HandlerBase {
         })
         .then(function (role) {
             next(null, {
-                nextRefresh: Bar.nextRefresh - Date.now(),
+                nextRefresh: Bar.nextRefresh - Math.floor(Date.now()/1000),
                 freeRefresh: this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0),
                 heroes: role.bar.heroes
             });
@@ -147,7 +147,7 @@ class HeroHandler extends base.HandlerBase {
         .spread(function (role) {
             next(null, {
                 destroyed: tokenId,
-                nextRefresh: Bar.nextRefresh - Date.now(),
+                nextRefresh: Bar.nextRefresh - Math.floor(Date.now()/1000),
                 freeRefresh: this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0),
                 heroes: role.bar.heroes
             });
