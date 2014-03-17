@@ -248,20 +248,20 @@ message game_heroHandler_listRecruit {
     repeated BarHero heroes     =   2;
     repeated int32 recruited    =   3;
     optional int32 freeRefresh  =   4;
-    optional fixed32 nextRefresh=   5;
+    optional int32 nextRefresh  =   5;
 }
 message game_heroHandler_freeRefresh {
     optional Error error        =   1;
     repeated BarHero heroes     =   2;
     optional int32 freeRefresh  =   3;
-    optional fixed32 nextRefresh=   4;
+    optional int32 nextRefresh  =   4;
 }
 message game_heroHandler_paidRefresh {
     optional Error error        =   1;
     optional string destroyed   =   2;
     repeated BarHero heroes     =   3;
     optional int32 freeRefresh  =   4;
-    optional fixed32 nextRefresh=   5;
+    optional int32 nextRefresh  =   5;
 }
 message game_heroHandler_recruit {
     optional Error error        =   1;

@@ -531,8 +531,9 @@ Role.prototype.refreshStore = function (pomelo, cb) {
 };
 
 Role.prototype.listRecruit = function (pomelo, cb) {
+    var self = this;
     timePomeloRequest(ActFlagType.LIST_RECRUIT, {}, function (data) {
-        console.log(data);
+        if (!data.error) self.barHeroes = data.heroes;
         cb();
     });
 };
@@ -540,7 +541,7 @@ Role.prototype.listRecruit = function (pomelo, cb) {
 Role.prototype.freeBarRefresh = function (pomelo, cb) {
     var self = this;
     timePomeloRequest(ActFlagType.FREE_BAR_REFRESH, {}, function (data) {
-        self.barHeroes = data.heroes;
+        if (!data.error) self.barHeroes = data.heroes;
         cb();
     });
 };
@@ -548,7 +549,7 @@ Role.prototype.freeBarRefresh = function (pomelo, cb) {
 Role.prototype.paidBarRefresh = function (pomelo, cb) {
     var self = this;
     timePomeloRequest(ActFlagType.PAID_BAR_REFRESH, {}, function (data) {
-        self.barHeroes = data.heroes;
+        if (!data.error) self.barHeroes = data.heroes;
         cb();
     });
 };
@@ -565,7 +566,7 @@ Role.prototype.recruit = function (pomelo, cb) {
 setTimeout(function () {
     var role = new Role();
     var uname = "test" + _.random(10000, 11999);
-//    role.entry("127.0.0.1", 3010, "main", uname, uname);
+    role.entry("127.0.0.1", 3010, "main", uname, uname);
 //    role.entry("sh-test.shorttaillab.com", 3010, "main", uname, uname);
-    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
+//    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
 }, Math.random() * 2000);

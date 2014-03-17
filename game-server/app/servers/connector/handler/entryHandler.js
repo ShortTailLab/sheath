@@ -123,15 +123,15 @@ class EntryHandler extends base.HandlerBase {
                 })
                 .spread(function (role, heroes) {
                     role.setTeam(0, _.pluck(heroes, "id"));
-                    return [role.saveP()];
+                    return role.saveP();
                 });
             }
             else {
                 role.fillEnergy();
-                return [role.saveP()];
+                return role.saveP();
             }
         })
-        .spread((_role) => {
+        .then((_role) => {
             role = _role;
             session.set("role", role.toSessionObj());
             session.set("partId", part.id);
