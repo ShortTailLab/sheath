@@ -38,6 +38,56 @@ class RoleHandler extends base.HandlerBase {
         }
     }
 
+    replaceHero(msg, session, next) {
+        var oldHeroId = msg.hero;
+        var newHeroId = msg.with;
+        var role = session.get("role");
+
+        if (!oldHeroId || !newHeroId) {
+            return this.errorNext(Constants.HeroFailed.DO_NOT_OWN_HERO, next);
+        }
+        var oldHero, newHero, boundEqs;
+
+        console.log(oldHeroId);
+        this.safe(Promise.join(models.Hero.findP(oldHeroId),
+                models.Hero.findP(newHeroId),
+                models.Item.allP({where: {bound: oldHeroId, owner: role.id}})).bind(this)
+        .spread(function (_oldHero, _newHero, _boundEqs) {
+            oldHero = _oldHero;
+            newHero = _newHero;
+            boundEqs = _boundEqs;
+            if (!oldHero || !newHero || oldHero.owner !== role.id || newHero.owner !== role.id) {
+                return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
+            }
+            var promises = [];
+            var cache = this.app.get("cache");
+            var teamIndice = _.filter(role.team, function (h) { return h === oldHeroId; });
+            if (_.contains(role.team, oldHeroId)) {
+                for (var i=0;i<role.team.length;i++) {
+                    if (role.team[i] === oldHeroId) {
+                        role.team[i] = newHeroId;
+                    }
+                }
+                session.set("role", role);
+                promises.push(Promise.join(session.push("role"), models.Role.updateP({where: {id: role.id}, update: {team: role.team}})))
+            }
+            if (boundEqs.length > 0) {
+                promises.push(models.Item.updateP({where: {bound: oldHeroId}, update: {bound: newHeroId}}));
+            }
+            return promises;
+        })
+        .all().then(function (){
+            next(null, {
+                equipments: _.pluck(boundEqs, "id")
+            });
+            logger.logInfo("role.replaceHero", {
+                oldHero: oldHeroId,
+                newHero: newHeroId,
+                equipments: _.pluck(boundEqs, "id")
+            });
+        }), next);
+    }
+
     setTeam(msg, session, next) {
         wrapSession(session);
 

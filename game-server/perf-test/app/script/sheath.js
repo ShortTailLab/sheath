@@ -187,7 +187,7 @@ var ActFlagType = {
         route: "game.itemHandler.buy"
     },
     LIST_RECRUIT: {
-        desc: "购买道具",
+        desc: "刷新聚贤庄",
         reqId: 30,
         name: "listRecruit",
         route: "game.heroHandler.listRecruit"
@@ -209,6 +209,12 @@ var ActFlagType = {
         reqId: 33,
         name: "recruit",
         route: "game.heroHandler.recruit"
+    },
+    REPLACE: {
+        desc: "替换武将",
+        reqId: 34,
+        name: "replace",
+        route: "game.roleHandler.replaceHero"
     },
 
 
@@ -346,13 +352,7 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    self.listRecruit(pomelo, function () {
-        self.freeBarRefresh(pomelo, function () {
-            self.paidBarRefresh(pomelo, function () {
-                self.recruit(pomelo, function () {
-                });
-            });
-        });
+    self.replace(pomelo, function () {
     });
 };
 
@@ -560,6 +560,14 @@ Role.prototype.recruit = function (pomelo, cb) {
     timePomeloRequest(ActFlagType.RECRUIT, {heroId: _.sample(self.barHeroes).id, useGold: true}, function (data) {
         self.role = data.role;
         self.heroes.push(data.newHero);
+        cb();
+    });
+};
+
+Role.prototype.replace = function (pomelo, cb) {
+    var self = this;
+    timePomeloRequest(ActFlagType.REPLACE, {hero: "dab95958-e0b0-4ace-ad11-19b1f206b995", with: "76afabe5-5165-4e31-9f9d-98a21bb0b0ff"}, function (data) {
+        console.log(data);
         cb();
     });
 };
