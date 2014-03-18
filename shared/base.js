@@ -3,6 +3,7 @@ var models = require("./models");
 var Promise = require("bluebird");
 var r = require("rethinkdb");
 var _ = require("underscore");
+var logger = require('pomelo-logger').getLogger('sheath', __filename);
 
 
 class HandlerBase {
@@ -12,8 +13,10 @@ class HandlerBase {
             result.error.code = err;
         else if (err.__sheath__error__)
             result.error.code = err.code;
-        if (typeof err.message === "string")
+        if (typeof err.message === "string") {
             result.error.message = err.message;
+            logger.error('handler error. ' + err.message + (err.stack || ""));
+        }
         next(null, result);
     }
 

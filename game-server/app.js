@@ -109,7 +109,7 @@ var errorHandler = function (err, msg, resp, session, cb) {
     }
     else {
         cb(null, {error: {code: Constants.InternalServerError, message: "Internal Server Error"}});
-        logger.debug('exception. ' + err.stack);
+        logger.error('exception. ' + err.stack);
     }
 };
 

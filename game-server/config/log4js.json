@@ -93,10 +93,22 @@
             },
             "backups": 5,
             "category": "pomelo-rpc"
+        },
+        {
+            "type": "file",
+            "filename": "./logs/sheath.log",
+            "maxLogSize": 1048576,
+            "layout": {
+                "type": "basic"
+            },
+            "backups": 5,
+            "category": "sheath"
         }
     ],
 
     "levels": {
+        "sheath": "WARN",
+        "admin-log": "WARN",
         "rpc-log": "ERROR",
         "pomelo": "WARN",
         "forward-log": "ERROR"
