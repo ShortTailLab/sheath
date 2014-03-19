@@ -85,10 +85,10 @@ class EntryHandler extends base.HandlerBase {
             return this.errorNext(Constants.PartitionFailed.PARTITION_NOT_OPEN, next);
         }
 
+        var newRoleConf = this.app.get("roleBootstrap");
         this.safe(models.Role.findOneP({where: {owner: session.uid, partition: part.id}}).bind(this)
         .then((role) => {
             if (!role) {
-                var newRoleConf = this.app.get("roleBootstrap");
                 var newData = {
                     partition: part.id,
                     owner: session.uid,
@@ -99,7 +99,7 @@ class EntryHandler extends base.HandlerBase {
                     golds: newRoleConf.golds,
                     contribs: newRoleConf.contribs,
 
-                    isNew: true
+                    tutorial: 1
                 };
                 logType = "role.register";
 
@@ -142,7 +142,8 @@ class EntryHandler extends base.HandlerBase {
             this.app.rpc.chat.chatRemote.add(session, session.uid, role.name, this.app.get('serverId'), part.id, null);
             this.app.rpc.chat.announcementRemote.userJoined(session, session.uid, part.id, null);
             next(null, {
-                role: role.toClientObj()
+                role: role.toClientObj(),
+                heroCans: role.tutorial === 1 ? newRoleConf.initialHeroCandidates : []
             });
             logger.logInfo(logType, {
                 user: session.uid,

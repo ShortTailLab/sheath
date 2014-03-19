@@ -12,7 +12,6 @@ exports.init = function (dbConfig) {
         auth: {type: db.Schema.JSON, default: function () { return []; } },
         joinDate: {type: Date, default: function () { return new Date(); }},
         activated: {type: Boolean, default: true},
-        isNew: Boolean,
 
         manRole: {type: db.Schema.JSON}
     }, {
@@ -73,7 +72,8 @@ exports.init = function (dbConfig) {
 
         createTime: {type: Date, default: function () { return new Date(); }},
         lastLogOff: Date,
-        isNew: Boolean
+
+        tutorial: Number
     });
 
     var HeroDef = exports.HeroDef = schema.define("herodef", {
@@ -322,14 +322,13 @@ exports.init = function (dbConfig) {
     };
 
     Role.prototype.toSessionObj = function () {
-        var ret = _.pick(this, "id", "name", "team", "level", "exp", "title", "dailyRefreshData", "manualRefreshData", "partition");
+        var ret = _.pick(this, "id", "name", "team", "level", "exp", "title", "dailyRefreshData", "manualRefreshData", "partition", "tutorial");
         ret.storageRoom = this.getStorageRoom();
         return ret;
     };
 
     Role.prototype.toClientObj = function () {
-        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "formation", "formationLevel");
-        if (this.isNew) ret.isNew = true;
+        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "formation", "formationLevel", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 

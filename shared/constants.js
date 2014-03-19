@@ -15,6 +15,8 @@ module.exports = {
     Role_Do_Not_Exist: 112,
     Mail_Do_Not_Exist: 113,
 
+    NameInvalid: 114,
+
 
     LoginFailed: {
         ID_PASSWORD_MISMATCH: 1,
@@ -66,6 +68,9 @@ module.exports = {
     ChatFailed: {
         NO_CHANNEL: 190,
         NOT_IN_CHANNEL: 191
+    },
+    TutorialFailed: {
+        TutorialStateError: 301
     },
 
 

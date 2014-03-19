@@ -80,11 +80,9 @@ class UserHelper {
         var ret = {
             id: user.id,
             name: user.name,
-            joinDate: +user.joinDate
+            joinDate: +user.joinDate,
+            isNew: user.isNew || undefined
         };
-
-        if (user.isNew)
-            ret.isNew = true;
 
         return ret;
     }

@@ -595,6 +595,7 @@ var roleToJson = function (role, rawObject) {
         ret = _.pick(role, "id", "name", "title", "level", "energy", "golds", "coins", "contribs", "partition", "spent");
     }
     ret.createTime = +role.createTime;
+    ret.lastLogOff = +role.lastLogOff;
 
     return ret;
 };

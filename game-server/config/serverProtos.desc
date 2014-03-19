@@ -1,9 +1,9 @@
 
-þ,
+“-
 serverProtos.proto"
 Player
 
-id (	"è
+id (	"ë
 Role
 
 id (	
@@ -18,9 +18,9 @@
 energy (
 coins (
 golds (
-contribs	 (
-isNew
- ("&
+contribs	 (
+tutorial
+ ("&
 Error
 code (
 message (	"H
@@ -183,10 +183,11 @@ refinement (
 user (2.Player
 
 partitions (2
-.Partition"S
+.Partition"e
 %connector_entryHandler_enterPartition
 error (2.Error
-role (2.Role"Z
+role (2.Role
+heroCans ("Z
 !game_roleHandler_claimDailyReward
 error (2.Error
 reward (2.ProfileChange"b

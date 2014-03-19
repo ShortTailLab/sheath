@@ -3,7 +3,8 @@
 	"golds": 20,
 	"energy": 5,
 	"contribs": 0,
-	"name": "玩家",
-	"heroes": [10001,10002,10003,10004,10005],
+	"name": "新玩家",
+    "initialHeroCandidates": [10001, 10002, 10003],
+	"heroes": [10004,10005],
 	"items": []
 }

@@ -216,6 +216,12 @@ var ActFlagType = {
         name: "replace",
         route: "game.roleHandler.replaceHero"
     },
+    RENAME: {
+        desc: "新手_改名",
+        reqId: 35,
+        name: "rename",
+        route: "game.tutorialHandler.setName"
+    },
 
 
     ACT_END: null
@@ -352,7 +358,7 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    self.replace(pomelo, function () {
+    self.rename(pomelo, function () {
     });
 };
 
@@ -567,7 +573,12 @@ Role.prototype.recruit = function (pomelo, cb) {
 Role.prototype.replace = function (pomelo, cb) {
     var self = this;
     timePomeloRequest(ActFlagType.REPLACE, {hero: "dab95958-e0b0-4ace-ad11-19b1f206b995", with: "76afabe5-5165-4e31-9f9d-98a21bb0b0ff"}, function (data) {
-        console.log(data);
+        cb();
+    });
+};
+
+Role.prototype.rename = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.RENAME, {name: "set_name_" + _.random(100)}, function (data) {
         cb();
     });
 };

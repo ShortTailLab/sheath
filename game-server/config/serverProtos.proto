@@ -18,7 +18,7 @@ message Role {
     optional int32 golds        =   8;
     optional int32 contribs     =   9;
 
-    optional bool isNew        =   10;
+    optional int32 tutorial     =   10;
 }
 message Error {
     required int32 code         =   1;
@@ -192,6 +192,7 @@ message connector_entryHandler_enter {
 message connector_entryHandler_enterPartition {
     optional Error error        =   1;
     optional Role role          =   2;
+    repeated int32 heroCans     =   3;
 }
 
 message game_roleHandler_claimDailyReward {

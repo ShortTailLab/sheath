@@ -19,25 +19,6 @@ class RoleHandler extends base.HandlerBase {
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
-    changeName(msg, session, next) {
-        wrapSession(session);
-
-        var newName = msg.newName;
-        var role = session.get("role");
-        if (!newName || role.name === newName) {
-            this.errorNext(Constants.InvalidRequest, next);
-        }
-        else {
-            role.name = newName;
-            session.set("role", role.toSessionObj());
-            this.safe(Promise.all(models.User.updateAttributeP("name", newName), session.push("role")).bind(this)
-            .then(() => {
-                next(null, {
-                });
-            }), next);
-        }
-    }
-
     replaceHero(msg, session, next) {
         var oldHeroId = msg.hero;
         var newHeroId = msg.with;
@@ -46,16 +27,18 @@ class RoleHandler extends base.HandlerBase {
         if (!oldHeroId || !newHeroId) {
             return this.errorNext(Constants.HeroFailed.DO_NOT_OWN_HERO, next);
         }
-        var oldHero, newHero, boundEqs;
+        var oldHero, newHero, oldBoundEqs, newBoundEqs;
 
         console.log(oldHeroId);
         this.safe(Promise.join(models.Hero.findP(oldHeroId),
                 models.Hero.findP(newHeroId),
-                models.Item.allP({where: {bound: oldHeroId, owner: role.id}})).bind(this)
-        .spread(function (_oldHero, _newHero, _boundEqs) {
+                models.Item.allP({where: {bound: oldHeroId, owner: role.id}}),
+                models.Item.allP({where: {bound: newHeroId, owner: role.id}})).bind(this)
+        .spread(function (_oldHero, _newHero, _oldBoundEqs, _newBoundEqs) {
             oldHero = _oldHero;
             newHero = _newHero;
-            boundEqs = _boundEqs;
+            oldBoundEqs = _oldBoundEqs;
+            newBoundEqs = _newBoundEqs;
             if (!oldHero || !newHero || oldHero.owner !== role.id || newHero.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
@@ -67,23 +50,31 @@ class RoleHandler extends base.HandlerBase {
                     if (role.team[i] === oldHeroId) {
                         role.team[i] = newHeroId;
                     }
+                    else if (role.team[i] === newHeroId) {
+                        role.team[i] = oldHeroId;
+                    }
                 }
                 session.set("role", role);
                 promises.push(Promise.join(session.push("role"), models.Role.updateP({where: {id: role.id}, update: {team: role.team}})))
             }
-            if (boundEqs.length > 0) {
+            if (oldBoundEqs.length > 0) {
                 promises.push(models.Item.updateP({where: {bound: oldHeroId}, update: {bound: newHeroId}}));
+            }
+            if (newBoundEqs.length > 0) {
+                promises.push(models.Item.updateP({where: {bound: newHeroId}, update: {bound: oldHeroId}}));
             }
             return promises;
         })
         .all().then(function (){
             next(null, {
-                equipments: _.pluck(boundEqs, "id")
+                oldEquipments: _.pluck(oldBoundEqs, "id"),
+                newEquipments: _.pluck(newBoundEqs, "id")
             });
             logger.logInfo("role.replaceHero", {
                 oldHero: oldHeroId,
                 newHero: newHeroId,
-                equipments: _.pluck(boundEqs, "id")
+                oldEquipments: _.pluck(oldBoundEqs, "id"),
+                newEquipments: _.pluck(newBoundEqs, "id")
             });
         }), next);
     }
