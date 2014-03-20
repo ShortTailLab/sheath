@@ -143,7 +143,7 @@ class EntryHandler extends base.HandlerBase {
             this.app.rpc.chat.announcementRemote.userJoined(session, session.uid, part.id, null);
             next(null, {
                 role: role.toClientObj(),
-                heroCans: role.tutorial === 1 ? newRoleConf.initialHeroCandidates : []
+                heroCans: 0 < role.tutorial < 3 ? newRoleConf.initialHeroCandidates : []
             });
             logger.logInfo(logType, {
                 user: session.uid,
