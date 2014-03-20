@@ -222,6 +222,12 @@ var ActFlagType = {
         name: "rename",
         route: "game.tutorialHandler.setName"
     },
+    PICKHERO: {
+        desc: "新手_选初始武将",
+        reqId: 36,
+        name: "pickHero",
+        route: "game.tutorialHandler.pickHero"
+    },
 
 
     ACT_END: null
@@ -359,6 +365,8 @@ Role.prototype.afterLogin = function (pomelo) {
 Role.prototype.test = function (pomelo) {
     var self = this;
     self.rename(pomelo, function () {
+        self.pickHero(pomelo, function () {
+        });
     });
 };
 
@@ -583,11 +591,17 @@ Role.prototype.rename = function (pomelo, cb) {
     });
 };
 
+Role.prototype.pickHero = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.PICKHERO, {heroId: 10001}, function (data) {
+        cb();
+    });
+};
+
 setTimeout(function () {
     var role = new Role();
-    var uname = "test" + _.random(10000, 11999);
-//    role.entry("127.0.0.1", 3010, "main", uname, uname);
+    var uname = "test" + _.random(20000, 21999);
+    role.entry("127.0.0.1", 3010, "main", uname, uname);
 //    role.entry("sh-test.shorttaillab.com", 3010, "main", uname, uname);
 //    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
-    role.entry("sh-test.shorttaillab.com", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
+//    role.entry("sh-test.shorttaillab.com", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
 }, Math.random() * 2000);

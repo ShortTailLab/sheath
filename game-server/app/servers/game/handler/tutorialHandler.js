@@ -60,6 +60,7 @@ class TutorialHandler extends base.HandlerBase {
         this.safe(models.Role.findP(role.id).bind(this)
         .then((roleObj) => {
             return models.Hero.createP({heroDefId: heroId, owner: role.id}).then((_newHero) => {
+                newHero = _newHero;
                 role.tutorial = 3;
                 session.set("role", role);
                 return Promise.join(session.push("role"), roleObj.updateAttributesP({tutorial: 3}));

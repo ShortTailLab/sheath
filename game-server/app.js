@@ -76,6 +76,7 @@ app.configure('development|production|test', "connector", function () {
 });
 
 app.configure('development|production|test', "game", function () {
+    app.loadConfig("roleBootstrap", app.getBase() + "/config/data/roleBootstrap.json");
     app.loadConfig("specialItemId", app.getBase() + "/config/data/specialItemId.json");
     app.loadConfig("rewardConfig", app.getBase() + "/config/data/reward.json");
     app.load(require('./app/components/cache'), {role: "game"});
