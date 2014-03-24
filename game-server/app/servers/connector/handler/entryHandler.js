@@ -21,23 +21,17 @@ class EntryHandler extends base.HandlerBase {
     enter(msg, session, next) {
         wrapSession(session);
 
+        if (session.uid) {
+            return this.errorNext(Constants.LoginFailed.AlreadyLoggedIn, next);
+        }
+
         var user;
-        this.app.rpc.auth.authRemote.authenticateAsync(session, msg.accType, msg.username.toLowerCase(), msg.password).bind(this)
+        this.safe(this.app.rpc.auth.authRemote.authenticateAsync(session, msg.accType, msg.username.toLowerCase(), msg.password).bind(this)
         .then((u) => {
             user = u;
             if (!user) {
                 return Promise.reject(Constants.LoginFailed.ID_PASSWORD_MISMATCH);
             }
-            if (session.uid) {
-                if (session.uid === user.id) {
-                    session.unbind(user.id);
-                }
-                else {
-                    return this.app.get('sessionService').kick(user.id);
-                }
-            }
-        })
-        .then(() => {
             var partUCount = this.app.rpc.manager.partitionStatsRemote.getUserCountAsync(session);
             return [partUCount, session.bind(user.id)];
         })
@@ -67,10 +61,7 @@ class EntryHandler extends base.HandlerBase {
                 user: {id: user.id},
                 partitions: partitions
             });
-        })
-        .catch((err) => {
-            this.errorNext(err, next);
-        });
+        }), next);
     }
 
     enterPartition(msg, session, next) {
@@ -83,6 +74,9 @@ class EntryHandler extends base.HandlerBase {
         }
         if (part.openSince > Date.now()) {
             return this.errorNext(Constants.PartitionFailed.PARTITION_NOT_OPEN, next);
+        }
+        if (session.get("role")) {
+            return this.errorNext(Constants.LoginFailed.AlreadyLoggedIn, next);
         }
 
         var newRoleConf = this.app.get("roleBootstrap");
@@ -152,23 +146,34 @@ class EntryHandler extends base.HandlerBase {
             });
         }), next);
     }
+
+    logOff(msg, session, next) {
+        onRoleLeave(this.app, session);
+        this.safe(session.pushAll().bind(this)
+        .then(function () {
+            next(null, {ok: true});
+        }), next);
+    }
 }
 
-var onUserLeave = function (app, session, reason) {
+var onRoleLeave = function (app, session) {
+    var role = session.get("role");
     var partId = session.get('partId');
-    if (typeof partId === "string") {
-        app.rpc.manager.partitionStatsRemote.leavePartition(session, partId, null);
-        var role = session.get("role");
-        if (role) {
-            app.rpc.chat.chatRemote.kick(session, session.uid, app.get('serverId'), partId, null);
-            models.Role.update({where: {id: role.id}, update: {lastLogOff: new Date()}}, function () {});
-            logger.logInfo("role.logout", {
-                user: session.uid,
-                role: _.pick(role, "id", "name", "level", "title", "coins", "golds"),
-                partition: role.partition
-            });
-        }
+    if (role && partId) {
+        app.rpc.chat.chatRemote.kick(session, session.uid, app.get('serverId'), partId, null);
+        models.Role.update({where: {id: role.id}, update: {lastLogOff: new Date()}}, function () {});
+        logger.logInfo("role.logout", {
+            user: session.uid,
+            role: _.pick(role, "id", "name", "level", "title", "coins", "golds"),
+            partition: role.partition
+        });
+        session.set("role", null);
+        session.set("part", null);
     }
+};
+
+var onUserLeave = function (app, session, reason) {
+    onRoleLeave(app, session);
     logger.logInfo("user.logout", {
         "user": session.uid
     });

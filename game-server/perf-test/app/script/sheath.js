@@ -228,6 +228,11 @@ var ActFlagType = {
         name: "pickHero",
         route: "game.tutorialHandler.pickHero"
     },
+    LOGOFF: {
+        reqId:37,
+        name: "logoff",
+        route:"connector.entryHandler.logOff"
+    },
 
 
     ACT_END: null
@@ -364,9 +369,8 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    self.rename(pomelo, function () {
-        self.pickHero(pomelo, function () {
-        });
+    timePomeloRequest(ActFlagType.LOGOFF, {}, function (data) {
+        console.log(data);
     });
 };
 
