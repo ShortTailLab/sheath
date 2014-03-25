@@ -44,7 +44,8 @@ module.exports = {
         STORAGE_MAX: 63,
         NO_FREE_REFRESH: 64,
         NO_PAID_REFRESH: 65,
-        NOT_IN_BAR: 66
+        NOT_IN_BAR: 66,
+        NOT_ENOUGH_SOULS: 67,
     },
     TaskFailed: {
         NO_TASK: 90,

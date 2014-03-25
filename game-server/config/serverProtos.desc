@@ -1,5 +1,5 @@
 
-“-
+¢-
 serverProtos.proto"
 Player
 
@@ -96,7 +96,7 @@ refineCost (
 gemType (	
 price  (
 destructPiece! (
-destructRefine" ("‹
+destructRefine" ("š
 HeroDef
 
 id (
@@ -104,7 +104,8 @@ refineCost (
 resKey (	
 type (	
 stars (
-skill (
+skill (
+souls& (
 vitality (
 strength (
 intelligence	 (

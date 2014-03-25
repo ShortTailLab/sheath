@@ -233,6 +233,16 @@ var ActFlagType = {
         name: "logoff",
         route:"connector.entryHandler.logOff"
     },
+    LIST_SOULS: {
+        reqId:38,
+        name: "souls",
+        route:"game.heroHandler.listSouls"
+    },
+    REDEEM_SOULS: {
+        reqId:39,
+        name: "redeem_souls",
+        route:"game.heroHandler.redeemSouls"
+    },
 
 
     ACT_END: null
@@ -369,15 +379,16 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    timePomeloRequest(ActFlagType.LOGOFF, {}, function (data) {
-        console.log(data);
+    this.listSouls(pomelo, function () {
+
     });
 };
 
 Role.prototype.randomActions = function (pomelo) {
     var actions = [
         this.upgradeWeapon, this.compositeEquipment, this.refineWeapon, this.refineGem, this.equip, this.unEquip,
-        this.setGem, this.setTeam, this.listStore, this.refreshStore, this.listRecruit, this.freeBarRefresh
+        this.setGem, this.setTeam, this.listStore, this.refreshStore, this.listRecruit, this.freeBarRefresh,
+        this.listSouls
     ];
     var count  = 500;
     var self = this;
@@ -597,6 +608,21 @@ Role.prototype.rename = function (pomelo, cb) {
 
 Role.prototype.pickHero = function (pomelo, cb) {
     timePomeloRequest(ActFlagType.PICKHERO, {heroId: 10001}, function (data) {
+        cb();
+    });
+};
+
+Role.prototype.listSouls = function (pomelo, cb) {
+    var self = this;
+    timePomeloRequest(ActFlagType.LIST_SOULS, {}, function (data) {
+        self.souls = data;
+        console.log(data);
+        cb();
+    });
+};
+
+Role.prototype.redeemSouls = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.REDEEM_SOULS, {}, function (data) {
         cb();
     });
 };

@@ -107,6 +107,8 @@ message HeroDef {
     required int32 stars        =   5;
     required int32 skill        =   6;
 
+    required int32 souls        =  38;
+
     required float vitality     =   7;
     required float strength     =   8;
     required float intelligence =   9;

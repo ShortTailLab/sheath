@@ -70,6 +70,8 @@ exports.init = function (dbConfig) {
         levelCleared: {type: db.Schema.JSON, default: function () {return {};}},
         levelGain: {type: db.Schema.JSON, default: function () {return {};}},
 
+        souls: {type: db.Schema.JSON, default: function () {return {};}},
+
         createTime: {type: Date, default: function () { return new Date(); }},
         lastLogOff: Date,
 
@@ -82,6 +84,7 @@ exports.init = function (dbConfig) {
         resKey: {type: String, default: ""},
         stars: {type: Number, default: 1},
         skill: {type: Number, default: 0},
+        souls: {type: Number, default: 100},
 
         vitality: {type: Number, default: 0},
         strength: {type: Number, default: 0},

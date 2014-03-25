@@ -209,6 +209,47 @@ class HeroHandler extends base.HandlerBase {
         }), next);
     }
 
+    listSouls(msg, session, next) {
+        wrapSession(session);
+
+        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        .then(function (role) {
+            next(null, role.souls);
+        }), next);
+    }
+
+    redeemSouls(msg, session, next) {
+        wrapSession(session);
+        var heroId = msg.heroId;
+        var heroDef = this.app.get("cache").heroDefById[heroId];
+        var hero;
+
+        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        .then(function (role) {
+            var soul = role.souls["" + heroId] || 0;
+            if (!soul || !heroDef || soul < heroDef.souls) {
+                return Promise.reject(Constants.HeroFailed.NOT_ENOUGH_SOULS);
+            }
+            soul -= heroDef.souls;
+            role.souls["" + heroId] = soul;
+            return models.Hero.createP({owner: role.id, heroDefId: heroId})
+            .then(function (_hero) {
+                hero = _hero;
+                return role.saveP();
+            });
+        })
+        .then(function (role) {
+            next(null, {
+                newHero: hero.toClientObj()
+            });
+            logger.logInfo("hero.redeemSoul", {
+                role: role.toLogObj(),
+                newHero: hero.toLogObj(),
+                souls: heroDef.souls
+            });
+        }), next);
+    }
+
     equip(msg, session, next) {
         wrapSession(session);
 

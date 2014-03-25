@@ -776,7 +776,7 @@ var dataColumns = {
     heroDef: ["id", "name", "resKey", "type", "stars", "vitality", "strength", "intelligence", "vitGrowth", "strGrowth", "intelGrowth",
         "hp", "attack", "magic", "defense", "resist", "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev",
         "skill", "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor",
-        "damageRedFactor", "physicalResist", "magicResist", "attackFactor", "defenseFactor"],
+        "damageRedFactor", "physicalResist", "magicResist", "attackFactor", "defenseFactor", "souls"],
     heroDraw: ["id", "contribs", "golds", "sysWeight", "freeWeight", "paidWeight", "level"],
     heroNode: [],
     itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
@@ -797,6 +797,7 @@ var transformHeroDef = function (row) {
     row.name = row.name || "";
     row.resKey = row.resKey || "";
     row.type = row.type || "";
+    row.souls = parseInt(row.souls) || 100;
 
     _.each(["stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense", "interval",
         "resist", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev", "secBallLev",
