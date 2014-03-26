@@ -27,11 +27,7 @@ exports.dailyActiveUser = function (conn, db, start, end) {
         var log = db.table("log");
         var timeSlicedLogs = log.between(["user.login", start], ["user.login", end], {index: "type_time"});
 
-        timeSlicedLogs.groupedMapReduce(
-            r.row("msg")("user"),
-            function () { return 1; },
-            function () { return 1; }
-        ).count().run(conn, function (err, activeCount) {
+        timeSlicedLogs.group(r.row("msg")("user")).count().run(conn, function (err, activeCount) {
             if (!err) {
                 var stat = new models.Stat();
                 stat.cycle = "daily";
@@ -51,7 +47,7 @@ function retentionOfDays(conn, db, start, end, days) {
         var regStart = moment(start).subtract(days, "d");
         var regEnd = regStart.add(1, "d");
 
-        var loginLogs = log.between(["user.login", start], ["user.login", end], {index: "type_time"}).groupBy({msg: "user"}, r.count);
+        var loginLogs = log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group({msg: "user"}).count();
         var regLogs = log.between(["user.register", regStart.toDate()], ["user.register", regEnd.toDate()], {index: "type_time"});
 
         regLogs.innerJoin(loginLogs, function (reg, login) {

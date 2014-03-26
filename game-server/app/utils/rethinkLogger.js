@@ -12,7 +12,7 @@ function _log(entry) {
     try {
         var adapter = logModel._adapter();
         adapter.pool.acquire(function(error, client) {
-            r.db(adapter.database).table("log").insert(entry).run({connection: client, noreply: true, durability: "soft"}, function(err) {
+            r.db(adapter.database).table("log").insert(entry).run(client, {noreply: true, durability: "soft"}, function(err) {
                 if (err) pLogger.warn("error writing log to database." + err);
                 adapter.pool.release(client);
             });

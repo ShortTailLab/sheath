@@ -89,7 +89,7 @@ function partitionRoleCount() {
         var helperModel = new appModels.Partition();
         var adapter = helperModel._adapter();
         adapter.pool.acquire(function(error, client) {
-            r.db(adapter.database).table("role").groupBy("partition", r.count).run(client, function (err, data) {
+            r.db(adapter.database).table("role").group("partition").count().run(client, function (err, data) {
                 adapter.pool.release(client);
 
                 if (err) {
@@ -117,9 +117,7 @@ exports.partitions = function (req, res) {
 
         for (var i=0;i<parts.length;i++) {
             var p = parts[i] = _.pick(parts[i], ["id", "name", "public", "openSince", "distro"]);
-            var countObj = _.find(roleCounts, function (red) {
-                return red.group.partition === p.id;
-            });
+            var countObj = _.findWhere(roleCounts, {group: p.id});
             if (countObj)
                 p.roleCount = countObj.reduction;
             else
