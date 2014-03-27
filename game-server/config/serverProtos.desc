@@ -1,5 +1,5 @@
 
-¢-
+Ž-
 serverProtos.proto"
 Player
 
@@ -278,12 +278,11 @@ equipments (2.EquipmentDef"D
 game_equipmentHandler_refine
 error (2.Error
 	destroyed (	
-	equipment (2.Item"†
+	equipment (2.Item"s
 game_equipmentHandler_upgrade
-error (2.Error
-	destroyed (	
-	equipment (2.Item!
-	stateDiff (2.ProfileChange"~
+error (2.Error
+	equipment (2.Item!
+	stateDiff (2.ProfileChange"~
 #game_equipmentHandler_destructCheck
 error (2.Error
 coins (

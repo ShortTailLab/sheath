@@ -307,9 +307,8 @@ message game_equipmentHandler_refine {
 }
 message game_equipmentHandler_upgrade {
     optional Error error        =   1;
-    repeated string destroyed   =   2;
-    optional Item equipment     =   3;
-    optional ProfileChange stateDiff = 4;
+    optional Item equipment     =   2;
+    optional ProfileChange stateDiff = 3;
 }
 message game_equipmentHandler_destructCheck {
     optional Error error        =   1;

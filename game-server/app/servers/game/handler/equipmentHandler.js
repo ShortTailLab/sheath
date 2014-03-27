@@ -122,7 +122,7 @@ class EquipmentHandler extends base.HandlerBase {
         var role = session.get("role");
         var weaponLevelLimit = Math.min(role.level, 99);
 
-        var equipment, itemDef, stoneRequired;
+        var equipment, itemDef;
 
         if (!eqId) {
             return this.errorNext(Constants.InvalidRequest, next);
@@ -139,33 +139,21 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
 
-            var enforceStoneId = this.app.get("specialItemId").enpowerStone;
-            stoneRequired = Math.max(1, Math.floor(equipment.level/10));
-            if (enforceStoneId === undefined || enforceStoneId === null) {
-                return Promise.reject(Constants.EquipmentFailed.NO_ENFORCEMENT_STONE);
-            }
-
-            return [models.Item.allP({where: {owner: role.id, itemDefId: enforceStoneId}, limit: stoneRequired}),
-                    models.Role.findP(role.id)];
+            return models.Role.findP(role.id);
         })
-        .spread((stones, role) => {
-            if (stones.length < stoneRequired) {
-                return Promise.reject(Constants.EquipmentFailed.NO_ENFORCEMENT_STONE);
-            }
-
+        .then((role) => {
             var coinsNeeded = equipment.level * itemDef.upgradeCost;
             if (role.coins < coinsNeeded) {
                 return Promise.reject(Constants.NO_COINS);
             }
             role.coins -= coinsNeeded;
             equipment.level += 1;
+            session.set("role", role.toSessionObj());
 
-            var destroyAll = Promise.all(_.invoke(stones, "destroyP"));
-            return [coinsNeeded, role.saveP(), stones,  destroyAll, equipment.saveP()];
+            return [coinsNeeded, role.saveP(), equipment.saveP(), session.push("role")];
         })
-        .spread((coinsSpent, roleObj, stones) => {
+        .spread((coinsSpent, roleObj) => {
             next(null, {
-                destroyed: _.pluck(stones, "id"),
                 equipment: equipment.toClientObj(),
                 stateDiff: {
                     energy: roleObj.energy,
@@ -182,7 +170,6 @@ class EquipmentHandler extends base.HandlerBase {
             logger.logInfo("equipment.upgrade", {
                 role: this.toLogObj(roleObj),
                 spentCoin: coinsSpent,
-                stones: _.pluck(stones, "id"),
                 newItem: equipment.toLogObj()
             });
         }), next);
@@ -424,10 +411,8 @@ class EquipmentHandler extends base.HandlerBase {
             return [equipment, itemDef, models.Item.allP({where: {bound: equipment.id}})];
         })
         .spread((equipment, itemDef, gems) => {
-//            var stoneId = parseInt(specialItemIds.enpowerStone.itemId);
             return {
                 coins: itemDef.price + equipment.level * 100 * 0.3,
-//                stones: [stoneId, Math.floor(equipment.stoneUsed * 0.8)],
                 pieces: equipment.destructMemory.pieces,
                 gems: _.pluck(gems, "id"),
 

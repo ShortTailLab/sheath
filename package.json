@@ -26,7 +26,7 @@
         "jugglingdb-rethink": "colprog/jugglingdb-rethink",
         "traceur": "latest",
         "iweibo": "latest",
-        "express": "3.5.0",
+        "express": "3.5.1",
         "spdy": "latest",
         "ws": "latest",
         "jade": "latest",

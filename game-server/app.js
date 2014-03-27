@@ -71,7 +71,7 @@ app.configure('development|production|test', "master", function () {
 
 app.configure('development|production|test', "connector", function () {
     app.loadConfig("roleBootstrap", app.getBase() + "/config/data/roleBootstrap.json");
-    app.use(require('pomelo-protobuf-plugin'), {});
+    app.use(require('pomelo-protobuf-plugin'), {watchFile: false});
     app.load(require('./app/components/cache'), {role: "connector"});
 });
 
