@@ -217,8 +217,8 @@ message game_itemHandler_list {
 }
 message game_itemHandler_listStore {
     optional Error error                    =   1;
-    optional int32 nextCoinStoreRefresh     =   2;
-    optional int32 nextGoldStoreRefresh     =   3;
+    optional fixed32 nextCoinStoreRefresh   =   2;
+    optional fixed32 nextGoldStoreRefresh   =   3;
     optional int32 coinPurchaseLeft         =   4;
     optional int32 goldPurchaseLeft         =   5;
     optional int32 coinRefreshLeft          =   6;
@@ -253,20 +253,20 @@ message game_heroHandler_listRecruit {
     repeated BarHero heroes     =   2;
     repeated int32 recruited    =   3;
     optional int32 freeRefresh  =   4;
-    optional int32 nextRefresh  =   5;
+    optional fixed32 nextRefresh=   5;
 }
 message game_heroHandler_freeRefresh {
     optional Error error        =   1;
     repeated BarHero heroes     =   2;
     optional int32 freeRefresh  =   3;
-    optional int32 nextRefresh  =   4;
+    optional fixed32 nextRefresh=   4;
 }
 message game_heroHandler_paidRefresh {
     optional Error error        =   1;
     optional string destroyed   =   2;
     repeated BarHero heroes     =   3;
     optional int32 freeRefresh  =   4;
-    optional int32 nextRefresh  =   5;
+    optional fixed32 nextRefresh=   5;
 }
 message game_heroHandler_recruit {
     optional Error error        =   1;

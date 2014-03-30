@@ -205,8 +205,8 @@ equipments (2.EquipmentDef"D
 items (2.Item"“
 game_itemHandler_listStore
 error (2.Error
-nextCoinStoreRefresh (
-nextGoldStoreRefresh (
+nextCoinStoreRefresh (
+nextGoldStoreRefresh (
 coinPurchaseLeft (
 goldPurchaseLeft (
 coinRefreshLeft (
@@ -239,18 +239,18 @@ equipments (2.EquipmentDef"D
 heroes (2.BarHero
 	recruited (
 freeRefresh (
-nextRefresh ("y
+nextRefresh ("y
 game_heroHandler_freeRefresh
 error (2.Error
 heroes (2.BarHero
 freeRefresh (
-nextRefresh ("Œ
+nextRefresh ("Œ
 game_heroHandler_paidRefresh
 error (2.Error
 	destroyed (	
 heroes (2.BarHero
 freeRefresh (
-nextRefresh ("^
+nextRefresh ("^
 game_heroHandler_recruit
 error (2.Error
 role (2.Role
