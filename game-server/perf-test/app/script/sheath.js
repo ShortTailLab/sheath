@@ -366,8 +366,8 @@ Role.prototype.afterLogin = function (pomelo) {
                     timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
                         timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
                             timePomeloRequest(ActFlagType.LIST_TASK, {}, function (data) {
-//                                self.randomActions(pomelo);
-                                self.test(pomelo);
+                                self.randomActions(pomelo);
+//                                self.test(pomelo);
                             });
                         });
                     });
@@ -562,7 +562,6 @@ Role.prototype.refreshStore = function (pomelo, cb) {
 Role.prototype.listRecruit = function (pomelo, cb) {
     var self = this;
     timePomeloRequest(ActFlagType.LIST_RECRUIT, {}, function (data) {
-        console.log(data);
         if (!data.error) self.barHeroes = data.heroes;
         cb();
     });
@@ -616,7 +615,6 @@ Role.prototype.listSouls = function (pomelo, cb) {
     var self = this;
     timePomeloRequest(ActFlagType.LIST_SOULS, {}, function (data) {
         self.souls = data;
-        console.log(data);
         cb();
     });
 };

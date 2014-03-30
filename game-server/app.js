@@ -8,6 +8,7 @@ var logger = require('pomelo-logger').getLogger('sheath', __filename);
 var Constants = require("../shared/constants");
 var authFilter = require("./app/filters/authFilter");
 var Patcher = require("./app/utils/monkeyPatch");
+var dispatcher = require("./app/utils/dispatcher");
 
 /**
  * Init app for client.
@@ -21,6 +22,12 @@ app.before(pomelo.filters.toobusy(80));
 app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
 app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
 app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
+
+app.route("auth", dispatcher.defaultRouter);
+app.route("chat", dispatcher.defaultRouter);
+app.route("connector", dispatcher.defaultRouter);
+app.route("game", dispatcher.defaultRouter);
+app.route("manager", dispatcher.defaultRouter);
 
 app.set('remoteConfig', {
     rpcServer: zmqRPC.server
