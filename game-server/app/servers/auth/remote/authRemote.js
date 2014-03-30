@@ -1,4 +1,4 @@
-var _ = require("underscore");
+var _ = require("lodash");
 var userDAO = require("../../../../../shared/dao/user");
 var constants = require("../../../../../shared/constants");
 var logger;

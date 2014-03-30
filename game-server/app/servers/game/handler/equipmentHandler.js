@@ -3,7 +3,7 @@ var base = require("../../../../../shared/base");
 var Constants = require("../../../../../shared/constants");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var Promise = require("bluebird");
-var _ = require("underscore");
+var _ = require("lodash");
 var logger;
 
 

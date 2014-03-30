@@ -1,4 +1,4 @@
-var _ = require("underscore");
+var _ = require("lodash");
 var crc32 = require("sse4_crc32");
 
 module.exports.dispatch = function(key, list) {

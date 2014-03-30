@@ -4,7 +4,7 @@ var Constants = require("../../../../../shared/constants");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var Bar = require("../../../services/barService");
 var Promise = require("bluebird");
-var _ = require("underscore");
+var _ = require("lodash");
 var logger;
 
 

@@ -1,5 +1,5 @@
 var pomeloConn = require("../pomelo-conn");
-var _ = require("underscore");
+var _ = require("lodash");
 var Promise = require("bluebird");
 var appModels = require("../../shared/models");
 var r = require("rethinkdb");

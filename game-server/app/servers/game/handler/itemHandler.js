@@ -5,7 +5,7 @@ var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var Store = require("../../../services/storeService");
 var Promise = require("bluebird");
 var moment = require("moment");
-var _ = require("underscore");
+var _ = require("lodash");
 var logger;
 
 

@@ -1,5 +1,5 @@
 var Promise = require("bluebird");
-var _ = require("underscore");
+var _ = require("lodash");
 var models = require("../../../shared/models");
 
 var toMap = function(array, key) {
@@ -108,10 +108,18 @@ class Cache {
         });
     }
 
+    partition(array, predicate) {
+        var pass = [], fail = [];
+        _.each(array, function(elem) {
+            (predicate(elem) ? pass : fail).push(elem);
+        });
+        return [pass, fail];
+    }
+
     loadStoreItem() {
         return models.StoreItem.allP().bind(this).then(function (items) {
             items = _.invoke(items, "toObject");
-            var sitems = _.partition(items, function (it) { return it.gold; });
+            var sitems = this.partition(items, function (it) { return it.gold; });
             this.storeItemG = sitems[0];
             this.storeItemC = sitems[1];
             this.storeItemById = toMap(items, "id");

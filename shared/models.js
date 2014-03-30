@@ -1,7 +1,7 @@
 var db = require('jugglingdb');
 var Promise = require('bluebird');
 var r = require("rethinkdb");
-var _ = require("underscore");
+var _ = require("lodash");
 var moment = require("moment");
 
 exports.init = function (dbConfig) {

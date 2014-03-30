@@ -1,7 +1,7 @@
 var Constants = require("../../../../../shared/constants");
 var models = require("../../../../../shared/models");
 var annService = require("../../../services/annService");
-var _ = require("underscore");
+var _ = require("lodash");
 
 module.exports = function (app) {
     return new AnnouncementRemote(app);

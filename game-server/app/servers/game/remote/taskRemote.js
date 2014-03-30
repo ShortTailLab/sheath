@@ -3,7 +3,7 @@ var models = require("../../../../../shared/models");
 var utils = require("../../../../../shared/utils");
 var taskService = require("../../../services/taskService");
 var Promise = require("bluebird");
-var _ = require("underscore");
+var _ = require("lodash");
 var logger;
 
 module.exports = function (app) {

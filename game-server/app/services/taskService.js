@@ -3,7 +3,7 @@ var models = require("../../../shared/models");
 var Constants = require("../../../shared/constants");
 var Task = require("../../task/tasks");
 var Promise = require("bluebird");
-var _ = require("underscore");
+var _ = require("lodash");
 var events = require('events');
 var fs = require("fs");
 var logger;

@@ -1,5 +1,5 @@
 var utils = require("../../../shared/utils");
-var _ = require("underscore");
+var _ = require("lodash");
 
 class BarService
 {

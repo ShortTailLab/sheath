@@ -1,5 +1,5 @@
 var logger = require('pomelo-logger').getLogger(__filename);
-var _ = require('underscore');
+var _ = require('lodash');
 
 module.exports = function(opts) {
 	return new Module(opts);

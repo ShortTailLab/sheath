@@ -12,7 +12,7 @@
         "seed-random": "latest",
         "iconv": "latest",
         "bluebird": "latest",
-        "underscore": "latest",
+        "lodash": "latest",
         "async": "latest",
         "bcrypt": "latest",
         "pomelo-rpc-zeromq": "latest",

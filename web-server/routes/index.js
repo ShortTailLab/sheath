@@ -1,5 +1,5 @@
 var userDAO = require("../../shared/dao/user.js");
-var _ = require("underscore");
+var _ = require("lodash");
 var crypto = require('crypto');
 var appModels = require("../../shared/models");
 

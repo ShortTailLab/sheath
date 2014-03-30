@@ -3,7 +3,7 @@ var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var userDAO = require("../../../../../shared/dao/user");
 var models = require("../../../../../shared/models");
 var base = require("../../../../../shared/base");
-var _ = require("underscore");
+var _ = require("lodash");
 var Promise = require("bluebird");
 var logger;
 

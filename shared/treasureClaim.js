@@ -1,7 +1,7 @@
 var r = require("rethinkdb");
 var models = require("./models");
 var utils = require("./utils");
-var _ = require("underscore");
+var _ = require("lodash");
 var Promise = require("bluebird");
 
 class TreasureHelper {

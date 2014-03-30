@@ -1,6 +1,6 @@
 var utils = require("../../../shared/utils");
 var models = require("../../../shared/models");
-var _ = require("underscore");
+var _ = require("lodash");
 var schedule = require("pomelo-schedule");
 
 

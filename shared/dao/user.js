@@ -1,7 +1,7 @@
 var bcrypt = require("bcrypt");
 var models = require("../models");
 var constants = require("../constants");
-var _ = require("underscore");
+var _ = require("lodash");
 var Promise = require("bluebird");
 
 class UserHelper {
