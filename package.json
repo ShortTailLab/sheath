@@ -5,6 +5,7 @@
     "repo": "https://github.com/ShortTailLab/sheath",
     "private": true,
     "dependencies": {
+        "mkdirp": "latest",
         "commander": "latest",
         "csv": "latest",
         "sse4_crc32": "latest",

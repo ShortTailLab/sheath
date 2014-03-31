@@ -1,6 +1,7 @@
 .idea/workspace.xml
 node_modules
 components
+game-server/ourpalm_logs
 game-server/logs
 game-server/perf-test/log
 web-server/views/*.html

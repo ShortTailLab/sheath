@@ -4,6 +4,8 @@ var pLogger = require('pomelo-logger').getLogger('sheath', __filename);
 var moment = require("moment");
 var Promise = require("bluebird");
 var jobs = require("./logJobs");
+var opJobs = require("./ourpalmJobs");
+var mkdirp = require("mkdirp");
 var logger;
 
 module.exports = function (app) {
@@ -13,6 +15,9 @@ module.exports = function (app) {
 class LogCron {
     constructor(app) {
         this.app = app;
+        var rawPath = app.get("opLog").path;
+        this.path = rawPath.startsWith("/") ? rawPath : (app.getBase() + "/" + rawPath);
+        mkdirp.sync(this.path);
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
@@ -35,19 +40,17 @@ class LogCron {
 
     hourlyLogRollUp() {
         this.getConn((db, conn, cb) => {
-            var curHour = moment().minutes(0).seconds(0);
-            var prevHour = curHour.subtract(1, 'h');
-            curHour = curHour.toDate();
-            prevHour = prevHour.toDate();
+            var curHour = moment().minutes(0).seconds(0).milliseconds(0);
+            var prevHour = moment(curHour).subtract(1, 'h');
 
-            cb();
+            opJobs.rollUp(this.path, conn, db, prevHour, curHour).then(cb);
         });
     }
 
     dailyLogRollUp() {
         this.getConn((db, conn, cb) => {
-            var curHour = moment().minutes(0).seconds(0);
-            var prevDay = curHour.subtract(1, 'd');
+            var curHour = moment().minutes(0).seconds(0).milliseconds(0);
+            var prevDay = moment(curHour).subtract(1, 'd');
             curHour = curHour.toDate();
             prevDay = prevDay.toDate();
 

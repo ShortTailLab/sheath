@@ -33,6 +33,7 @@ class EntryHandler extends base.HandlerBase {
                 return Promise.reject(Constants.LoginFailed.ID_PASSWORD_MISMATCH);
             }
             var partUCount = this.app.rpc.manager.partitionStatsRemote.getUserCountAsync(session);
+            session.set("distro", msg.distro);
             return [partUCount, session.bind(user.id)];
         })
         .all().then((results) => {
@@ -43,7 +44,12 @@ class EntryHandler extends base.HandlerBase {
             var logType = "user.login";
             if (user.isNew) logType = "user.register";
             logger.logInfo(logType, {
-                "user": user.id
+                device: msg.device,
+                ip: session.__session__.__socket__.remoteAddress.ip,
+                distro: msg.distro,
+                accType: msg.accType,
+                accId: msg.username,
+                user: user.id
             });
 
             for (var i=0;i<partitions.length;i++) {

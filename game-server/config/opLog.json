@@ -1,0 +1,11 @@
+{
+    "development": {
+        "path": "ourpalm_logs"
+    },
+    "test": {
+        "path": "/data/ourpalm_logs"
+    },
+    "production": {
+        "path": "/data/ourpalm_logs"
+    }
+}
