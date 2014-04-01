@@ -771,18 +771,20 @@ exports.removeAnn = function (req, res) {
 
 // data import / data export
 var dataColumns = {
-    heroDef: ["id", "name", "resKey", "type", "stars", "vitality", "strength", "intelligence", "vitGrowth", "strGrowth", "intelGrowth",
-        "hp", "attack", "magic", "defense", "resist", "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev",
-        "skill", "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor",
-        "damageRedFactor", "physicalResist", "magicResist", "attackFactor", "defenseFactor", "souls"],
+    heroDef: ["id", "name", "resKey", "type", "stars", "vitality", "strength", "intelligence", "hp", "hpGrowth",
+        "attack", "attackGrowth", "magic", "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth",
+        "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev", "skill",
+        "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine",
+        "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor",
+        "physicalResist", "magicResist", "attackFactor", "defenseFactor", "souls"],
     heroDraw: ["id", "contribs", "golds", "sysWeight", "freeWeight", "paidWeight", "level"],
     heroNode: [],
     itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
         'composeTarget', 'canSell', 'price', 'desc'],
-    equipmentDef: ['id', 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'hp', 'attack', 'magic', 'defense',
-        'resist', 'ballLev', 'attackSpeed', 'critical', 'hpP', 'attackP', 'magicP', 'defenseP', 'resistP', 'ice', 'fire',
-        'slow', 'weak', 'upgradeGrowth', 'upgradeCost', 'refineGrowth', 'refineLevel',
-        'refineCost', 'slots', 'gemType', 'price', 'destructPiece', 'destructRefine'],
+    equipmentDef: ['id', 'name', "color", 'quality', 'type', 'subType', 'levelReq', 'resKey', 'hp', 'attack', 'magic',
+        'defense', "resist", 'hpGrowth', 'attackGrowth', 'magicGrowth', 'defenseGrowth', "resistGrowth", 'upgradeCost',
+        'hpRefine', 'attackRefine', 'magicRefine', 'defenseRefine', "resistRefine", 'refineMats', 'refineCost',
+        'slots', 'gemType', 'price'],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
     storeitem: ["id", "name", "gold", "price", "defId", "count", "desc"],
@@ -797,10 +799,11 @@ var transformHeroDef = function (row) {
     row.type = row.type || "";
     row.souls = parseInt(row.souls) || 100;
 
-    _.each(["stars", "vitality", "strength", "intelligence", "hp", "attack", "magic", "defense", "interval",
-        "resist", "vitGrowth", "strGrowth", "intelGrowth", "critical", "attackSpeed", "speed", "ballLev", "secBallLev",
-        "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor", "damageRedFactor",
-        "physicalResist", "magicResist", "skill", "attackFactor", "defenseFactor"], function (f) {
+    _.each(["stars", "vitality", "strength", "intelligence", "hp", "hpGrowth", "attack", "attackGrowth", "magic",
+        "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth", "critical", "interval", "attackSpeed",
+        "speed", "ballLev", "secBallLev", "skill", "hpRefine", "attackRefine", "magicRefine", "defenseRefine",
+        "resistRefine", "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor",
+        "damageRedFactor", "physicalResist", "magicResist", "attackFactor", "defenseFactor"], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
 };
@@ -825,7 +828,7 @@ var transformItemDef = function (row) {
         row[f] = parseFloat(row[f]) || 0;
     });
     _.each(["composeTarget"], function (f) {
-        if (row[f]) {
+        if (row[f] && row[f] !== "0") {
             row[f] = JSON.parse(row[f]);
         }
     });
@@ -835,16 +838,20 @@ var transformItemDef = function (row) {
 
 var transformEquipmentDef = function (row) {
     row.id = parseInt(row.id);
-
-    _.each(["quality", "levelReq", "hp", "attack", "magic", "defense", "resist", "ballLev", "attackSpeed", "critical",
-        "hpP", "attackP", "magicP", "defenseP", "resistP", "ice", "fire", "slow", "weak", "upgradeCost",
-        "refineLevel", "slots", "price"], function (f) {
-        row[f] = parseFloat(row[f]) || 0;
-    });
-    _.each(["refineCost", "gemType", "destructPiece", "destructRefine"], function (f) {
-        if (row[f]) {
-            row[f] = JSON.parse(row[f]);
+    if (row.gemType && row.gemType !== "0") {
+        row.gemType = row.gemType.split(",");
+        for (var i=0;i<row.gemType.length;i++) {
+            row.gemType[i] = row.gemType[i].trim();
         }
+    }
+    else {
+        row.gemType = [];
+    }
+
+    _.each(["color", "quality", "levelReq", 'hp', 'attack', 'magic', 'defense', "resist", 'hpGrowth', 'attackGrowth',
+        'magicGrowth', 'defenseGrowth', "resistGrowth", 'upgradeCost', 'hpRefine', 'attackRefine', 'magicRefine',
+        'defenseRefine', "resistRefine", 'refineMats', 'refineCost', 'slots', 'price'], function (f) {
+        row[f] = parseFloat(row[f]) || 0;
     });
 };
 
@@ -1040,10 +1047,7 @@ exports.export = function (req, res) {
                 eof: true,
                 columns: dataColumns.equipmentDef
             }).transform(function (row) {
-                row.refineCost = JSON.stringify(row.refineCost);
-                row.gemType = JSON.stringify(row.gemType);
-                row.destructPiece = JSON.stringify(row.destructPiece);
-                row.destructRefine = JSON.stringify(row.destructRefine);
+                row.gemType = row.gemType.join(",");
                 return row;
             });
         });

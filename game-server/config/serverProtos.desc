@@ -1,5 +1,5 @@
 
-Ž-
+í-
 serverProtos.proto"
 Player
 
@@ -57,46 +57,42 @@ composable	 (
 composeTarget (
 canSell (
 price (
-desc (	"Ï
+desc (	"•
 EquipmentDef
 
 id (
-name (	
-quality (
-type (	
-subType (	
-levelReq (
-resKey (	
+name (	
+color (
+quality (
+type (	
+subType (	
+levelReq (
+resKey (	
 
-hp (
-attack	 (
-magic
- (
-defense (
-resist (
-ballLev (
-attackSpeed (
-critical (
-hpP (
-attackP (
-magicP (
-defenseP (
-resistP (
-ice (
-fire (
-slow (
-weak (
-upgradeGrowth (	
-upgradeCost (
-refineGrowth (	
-refineLevel (
+hp	 (
+attack
+ (
+magic (
+defense (
+resist (
+hpGrowth (
+attackGrowth (
+magicGrowth (
+defenseGrowth (
+resistGrowth (
+upgradeCost (
+hpRefine (
+attackRefine (
+magicRefine (
+defenseRefine (
+resistRefine (
 
-refineCost (
-slots (
-gemType (	
-price  (
-destructPiece! (
-destructRefine" ("š
+refineMats (
+
+refineCost (
+slots (
+gemType (	
+price ("³
 HeroDef
 
 id (
@@ -105,39 +101,47 @@ refineCost (
 type (	
 stars (
 skill (
-souls& (
-vitality (
-strength (
-intelligence	 (
+souls (
+vitality (
+strength	 (
+intelligence
+ (
 
-hp (
-attack (
-magic (
-defense (
-resist (
-attackDelta (
-	vitGrowth (
-	strGrowth (
-intelGrowth (
-critical (
-interval$ (
-attackSpeed (
-speed (
-ballLev (
+hp (
+hpGrowth (
+attack (
+attackGrowth (
+magic (
+magicGrowth (
+defense (
+defenseGrowth (
+resist (
+resistGrowth (
+attackDelta (
+critical (
+interval (
+attackSpeed (
+speed (
+ballLev (
 
-secBallLev% (
-ice (
-fire (
-slow (
-weak (
-damage (
-damageReduction (
-damageFactor (
-damageRedFactor (
-physicalResist  (
-magicResist! (
-attackFactor" (
-defenseFactor# ("k
+secBallLev (
+ice (
+fire (
+slow (
+weak (
+hpRefine  (
+attackRefine! (
+magicRefine" (
+defenseRefine# (
+resistRefine$ (
+damage% (
+damageReduction& (
+damageFactor' (
+damageRedFactor( (
+physicalResist) (
+magicResist* (
+attackFactor+ (
+defenseFactor, ("k
 Item
 
 id (	

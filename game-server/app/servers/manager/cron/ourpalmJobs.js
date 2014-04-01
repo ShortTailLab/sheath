@@ -24,9 +24,9 @@ exports.rollUp = function (logPath, conn, db, startTime, endTime) {
     pLogger.info("Begin processing ourpalm log from " + startTime.format("lll") + " to " + endTime.format("lll"));
     return Promise.join(
         rollUpUserLogin(logPath, conn, db, startTime, endTime),
-        rollUpUserCreate(logPath, conn, db, startTime, endTime)
-//        rollUpRoleLogin(logPath, conn, db, startTime, endTime),
-//        rollUpRoleCreate(logPath, conn, db, startTime, endTime),
+        rollUpUserCreate(logPath, conn, db, startTime, endTime),
+        rollUpRoleLogin(logPath, conn, db, startTime, endTime),
+        rollUpRoleCreate(logPath, conn, db, startTime, endTime)
 //        rollUpGameLaunch(logPath, conn, db, startTime, endTime),
 //        rollUpPurchase(logPath, conn, db, startTime, endTime),
 //        rollUpSpent(logPath, conn, db, startTime, endTime),
@@ -46,7 +46,7 @@ var longDistroID = function (log) {
 };
 
 var accountNameAndSrc = function (log) {
-    var dName = log.msg.distro === "main" ? "stl" : log.msg.distro;
+    var dName = log.msg.accType === "main" ? "stl" : log.msg.distro;
     return [log.msg.accId + "@" + dName + ".com", dName];
 };
 
@@ -133,6 +133,13 @@ var rollUpRoleLogin = function (logPath, conn, db, startTime, endTime) {
     })
     .then(function (logs) {
         gz = gzipStream(logPath, "role-login", startTime);
+        for (var i=0;i<logs.length;i++) {
+            var l = logs[i];
+
+            writeLogLine(gz, l.time, [longDistroID(l), l.server, l.server, "1.0", "null", "null", "null", "null",
+                l.msg.user, l.msg.role.id, l.msg.role.level, l.msg.role.vip, 0, 0
+            ]);
+        }
     })
     .finally(function () {
         if (gz !== null) {
@@ -151,6 +158,13 @@ var rollUpRoleCreate = function (logPath, conn, db, startTime, endTime) {
     })
     .then(function (logs) {
         gz = gzipStream(logPath, "role-register", startTime);
+        for (var i=0;i<logs.length;i++) {
+            var l = logs[i];
+
+            writeLogLine(gz, l.time, [longDistroID(l), l.server, l.server, "1.0", "null", "null", "null", "null",
+                l.msg.user, l.msg.role.id, l.msg.role.level, l.msg.role.vip, 0, 0, "null", l.msg.role.name
+            ]);
+        }
     })
     .finally(function () {
         if (gz !== null) {

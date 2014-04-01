@@ -21,16 +21,16 @@ class ItemHandler extends base.HandlerBase {
 
     maxDailyRefresh(role) {
         var max = [2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6];
-        if (0 <= role.vipLevel < max.length) {
-            return max[role.vipLevel];
+        if (0 <= role.vip < max.length) {
+            return max[role.vip];
         }
         return max[0];
     }
 
     maxDailyPurchase(role) {
         var max = [20, 20, 20, 20, 25, 25, 25, 30, 30, 30, 35, 35, 35];
-        if (0 <= role.vipLevel < max.length) {
-            return max[role.vipLevel];
+        if (0 <= role.vip < max.length) {
+            return max[role.vip];
         }
         return max[0];
     }

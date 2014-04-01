@@ -42,7 +42,7 @@ exports.init = function (dbConfig) {
         exp: {type: Number, default: 0},
         title: {type: String, default: ""},
 
-        vipLevel: {type: Number, default: 0},
+        vip: {type: Number, default: 0},
         spent: {type: Number, default: 0},
 
         formation: {type: Number, default: 0},
@@ -90,24 +90,31 @@ exports.init = function (dbConfig) {
         strength: {type: Number, default: 0},
         intelligence: {type: Number, default: 0},
         hp: {type: Number, default: 0},
+        hpGrowth: {type: Number, default: 0},
         attack: {type: Number, default: 0},
+        attackGrowth: {type: Number, default: 0},
         magic: {type: Number, default: 0},
+        magicGrowth: {type: Number, default: 0},
         defense: {type: Number, default: 0},
+        defenseGrowth: {type: Number, default: 0},
         resist: {type: Number, default: 0},
-        attackDelta: {type: db.Schema.JSON, default: function () {return {};}},
-        vitGrowth: {type: Number, default: 0},
-        strGrowth: {type: Number, default: 0},
-        intelGrowth: {type: Number, default: 0},
+        resistGrowth: {type: Number, default: 0},
         critical: {type: Number, default: 0},
         interval: {type: Number, default: 0},
         attackSpeed: {type: Number, default: 0},
         speed: {type: Number, default: 0},
-        secBallLev: {type: Number, default: 0},
         ballLev: {type: Number, default: 0},
+        secBallLev: {type: Number, default: 0},
+        hpRefine: {type: Number, default: 0},
+        attackRefine: {type: Number, default: 0},
+        magicRefine: {type: Number, default: 0},
+        defenseRefine: {type: Number, default: 0},
+        resistRefine: {type: Number, default: 0},
         ice: {type: Number, default: 0},
         fire: {type: Number, default: 0},
         slow: {type: Number, default: 0},
         weak: {type: Number, default: 0},
+        attackDelta: {type: db.Schema.JSON, default: function () {return {};}},
         damage: {type: Number, default: 0},
         damageReduction: {type: Number, default: 0},
         damageFactor: {type: Number, default: 0},
@@ -140,6 +147,7 @@ exports.init = function (dbConfig) {
 
     var EquipmentDef = exports.EquipmentDef = schema.define("equipmentdef", {
         name: {type: String, default: ""},
+        color: {type: Number, default: 1},
         quality: {type: Number, default: 3},
         type: {type: String, default: ""},
         subType: {type: String, default: ""},
@@ -151,33 +159,26 @@ exports.init = function (dbConfig) {
         magic: {type: Number, default: 0},
         defense: {type: Number, default: 0},
         resist: {type: Number, default: 0},
-        ballLev: {type: Number, default: 0},
-        attackSpeed: {type: Number, default: 0},
-        critical: {type: Number, default: 0},
-        hpP: {type: Number, default: 0},
-        attackP: {type: Number, default: 0},
-        magicP: {type: Number, default: 0},
-        defenseP: {type: Number, default: 0},
-        resistP: {type: Number, default: 0},
 
-        ice: {type: Number, default: 0},
-        fire: {type: Number, default: 0},
-        slow: {type: Number, default: 0},
-        weak: {type: Number, default: 0},
-
-        upgradeGrowth: {type: String},
+        hpGrowth: {type: Number, default: 0},
+        attackGrowth: {type: Number, default: 0},
+        magicGrowth: {type: Number, default: 0},
+        defenseGrowth: {type: Number, default: 0},
+        resistGrowth: {type: Number, default: 0},
         upgradeCost: {type:Number, default: 0},
 
-        refineGrowth: {type: String},
-        refineLevel: {type: Number, default: 0},
-        refineCost: {type: db.Schema.JSON, default: function () {return [];}},
+        hpRefine: {type: Number, default: 0},
+        attackRefine: {type: Number, default: 0},
+        magicRefine: {type: Number, default: 0},
+        defenseRefine: {type: Number, default: 0},
+        resistRefine: {type: Number, default: 0},
+        refineMats: {type: Number, default: 1},
+        refineCost: {type: Number, default: 0},
 
         slots: {type: Number, default: 0},
         gemType: {type: db.Schema.JSON, default: function () {return [];}},
 
-        price: {type: Number, default: 0},
-        destructPiece: {type: db.Schema.JSON, default: function () {return [];}},
-        destructRefine: {type: db.Schema.JSON, default: function () {return [];}}
+        price: {type: Number, default: 0}
     });
 
     var Hero = exports.Hero = schema.define("hero", {
@@ -339,7 +340,7 @@ exports.init = function (dbConfig) {
     };
 
     Role.prototype.toLogObj = function () {
-        return _.pick(this, "id", "name", "level", "title", "coins", "golds");
+        return _.pick(this, "id", "name", "level", "title", "coins", "golds", "vip");
     };
 
     Role.prototype.getStorageRoom = function () {

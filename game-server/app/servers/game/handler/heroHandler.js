@@ -20,8 +20,8 @@ class HeroHandler extends base.HandlerBase {
 
     maxDailyRefresh(role) {
         var max = [0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4];
-        if (0 <= role.vipLevel < max.length) {
-            return max[role.vipLevel];
+        if (0 <= role.vip < max.length) {
+            return max[role.vip];
         }
         return max[0];
     }
