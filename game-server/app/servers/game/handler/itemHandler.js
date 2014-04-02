@@ -236,15 +236,82 @@ class ItemHandler extends base.HandlerBase {
         }), next);
     }
 
+    refineGem(msg, session, next) {
+        wrapSession(session);
+
+        var gemType = msg.gemType;
+        var gemDef = this.app.get("cache").getItemDef(gemType);
+        var role = session.get("role");
+
+        if (!gemType) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+        if (!gemDef.composable) {
+            return this.errorNext(Constants.EquipmentFailed.LEVEL_MAX, next);
+        }
+
+        this.safe(models.Item.allP({where: {owner: role.id, itemDefId: gemType, bound: null}, limit: gemDef.composeCount}).bind(this)
+            .then((mats) => {
+                if (mats.length < gemDef.composeCount) {
+                    return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
+                }
+                mats[0].itemDefId = gemDef.composeTarget[0];
+                var promises = new Array(gemDef.composeCount + 1);
+                promises[0] = mats;
+                promises[1] = mats[0].saveP();
+                for (var i=1;i<mats.length;i++) {
+                    promises[i+1] = mats[i].destroyP();
+                }
+                return promises;
+            })
+            .spread((mats) => {
+                var destroyedMats = mats.slice(1);
+                next(null, {
+                    destroyed: _.pluck(destroyedMats, "id"),
+                    gem: mats[0].toClientObj()
+                });
+                logger.logInfo("item.refineGem", {
+                    role: this.toLogObj(role),
+                    materail: _.invoke(destroyedMats, "toLogObj"),
+                    refined: mats[0].toLogObj()
+                });
+            }), next);
+    }
+
     sell(msg, session, next) {
         wrapSession(session);
-    }
 
-    destroy(msg, session, next) {
-        wrapSession(session);
-    }
+        var itemId = msg.itemId;
+        var role = session.get("role");
+        var coinInc, item;
+        if (!itemId) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
 
-    transform(msg, session, next) {
-
+        this.safe(this.getItemWithDef(itemId).bind(this)
+        .spread(function (_item, itemDef) {
+            item = _item;
+            if (!item || item.owner !== role.id) {
+                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            }
+            coinInc = itemDef.price + item.level * 100 * 0.3;
+            return models.Role.findP(role.id);
+        })
+        .then(function (_role) {
+            role = _role;
+            role.coins += coinInc;
+            session.set("role", role.toSessionObj());
+            return [session.push("role"), role.saveP(), item.destroyP()];
+        })
+        .all().then(function() {
+            next(null, {
+                coins: coinInc,
+                destroyed: item.id
+            });
+            logger.logInfo("item.sell", {
+                role: this.toLogObj(role),
+                soldItem: item.toLogObj()
+            });
+        }), next);
     }
 }

@@ -168,38 +168,6 @@ class EquipmentHandler extends base.HandlerBase {
         }), next);
     }
 
-    refineGem(msg, session, next) {
-        wrapSession(session);
-
-        var gemType = msg.gemType;
-        var gemLevel = msg.gemLevel;
-        var role = session.get("role");
-
-        if (!gemType || gemLevel < 0 || gemLevel >= 10) {
-            return this.errorNext(Constants.InvalidRequest, next);
-        }
-
-        this.safe(models.Item.allP({where: {owner: role.id, itemDefId: gemType, level: gemLevel, bound: null}, limit: 2}).bind(this)
-        .then((mats) => {
-            if (mats.length < 2) {
-                return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
-            }
-            mats[0].level += 1;
-            return [mats, mats[0].saveP(), mats[1].destroyP()];
-        })
-        .spread((mats) => {
-            next(null, {
-                destroyed: mats[1].id,
-                gem: mats[0].toClientObj()
-            });
-            logger.logInfo("equipment.refineGem", {
-                role: this.toLogObj(role),
-                materail: mats[1].toLogObj(),
-                refined: mats[0].toLogObj()
-            });
-        }), next);
-    }
-
     setGem(msg, session, next) {
         wrapSession(session);
 
@@ -210,7 +178,7 @@ class EquipmentHandler extends base.HandlerBase {
         if (!eqId || !gemId) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
-        var equipment, itemDef, gemDef, eqPrefix, boundGemCount;
+        var equipment, itemDef, gemDef, boundGemCount;
 
         this.safe(this.getEquipmentWithDef(eqId)
         .spread((_equipment, _itemDef) => {
@@ -222,7 +190,6 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
             equipment = _equipment;
-            eqPrefix = itemDef.type.substr(0, 5);
             return this.getGemWithDef(gemId);
         })
         .spread((gem, _gemDef) => {

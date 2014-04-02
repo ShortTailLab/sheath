@@ -247,6 +247,11 @@ message game_itemHandler_buy {
     optional Role role                      =   2;
     repeated Item newItems                  =   3;
 }
+message game_itemHandler_refineGem {
+    optional Error error        =   1;
+    repeated string destroyed   =   2;
+    optional Item gem           =   3;
+}
 
 message game_heroHandler_listDef {
     optional Error error        =   1;
@@ -290,11 +295,6 @@ message game_heroHandler_unEquip {
     optional Item equipment     =   2;
 }
 
-message game_equipmentHandler_refineGem {
-    optional Error error        =   1;
-    optional string destroyed   =   2;
-    optional Item gem           =   3;
-}
 message game_equipmentHandler_setGem {
     optional Error error        =   1;
     optional Item gem           =   2;
@@ -318,19 +318,19 @@ message game_equipmentHandler_upgrade {
     optional Item equipment     =   2;
     optional ProfileChange stateDiff = 3;
 }
-message game_equipmentHandler_destructCheck {
-    optional Error error        =   1;
-    optional int32 coins        =   2;
-    optional int32 pieceId      =   3;
-    optional int32 pieceCount   =   4;
-    repeated string gems        =   5;
-}
-message game_equipmentHandler_destruct {
-    optional Error error                =   1;
-    optional ProfileChange stateDiff    =   2;
-    repeated Item newItems              =   3;
-    repeated string removeGems          =   4;
-}
+//message game_equipmentHandler_destructCheck {
+//    optional Error error        =   1;
+//    optional int32 coins        =   2;
+//    optional int32 pieceId      =   3;
+//    optional int32 pieceCount   =   4;
+//    repeated string gems        =   5;
+//}
+//message game_equipmentHandler_destruct {
+//    optional Error error                =   1;
+//    optional ProfileChange stateDiff    =   2;
+//    repeated Item newItems              =   3;
+//    repeated string removeGems          =   4;
+//}
 
 message game_levelHandler_start {
     optional Error error            =   1;

@@ -64,7 +64,7 @@ var ActFlagType = {
         desc: "精炼武器",
         reqId: 9,
         name: "refine_gem",
-        route: "game.equipmentHandler.refineGem"
+        route: "game.itemHandler.refineGem"
     },
     SET_GEM: {
         desc: "镶嵌宝石",
@@ -242,6 +242,11 @@ var ActFlagType = {
         reqId:39,
         name: "redeem_souls",
         route:"game.heroHandler.redeemSouls"
+    },
+    SELL: {
+        reqId:40,
+        name: "sell_item",
+        route:"game.itemHandler.sell"
     },
 
 

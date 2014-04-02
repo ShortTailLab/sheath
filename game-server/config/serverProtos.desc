@@ -1,5 +1,5 @@
 
-Å.
+¶,
 serverProtos.proto"
 Player
 
@@ -237,7 +237,11 @@ equipments (2.EquipmentDef"D
 game_itemHandler_buy
 error (2.Error
 role (2.Role
-newItems (2.Item"I
+newItems (2.Item"Z
+game_itemHandler_refineGem
+error (2.Error
+	destroyed (	
+gem (2.Item"I
 game_heroHandler_listDef
 error (2.Error
 defs (2.HeroDef"E
@@ -270,11 +274,7 @@ equipments (2.EquipmentDef"D
 	equipment (2.Item"K
 game_heroHandler_unEquip
 error (2.Error
-	equipment (2.Item"_
-game_equipmentHandler_refineGem
-error (2.Error
-	destroyed (	
-gem (2.Item"I
+	equipment (2.Item"I
 game_equipmentHandler_setGem
 error (2.Error
 gem (2.Item"L
@@ -292,20 +292,7 @@ equipments (2.EquipmentDef"D
 game_equipmentHandler_upgrade
 error (2.Error
 	equipment (2.Item!
-	stateDiff (2.ProfileChange"~
-#game_equipmentHandler_destructCheck
-error (2.Error
-coins (
-pieceId (
-
-pieceCount (
-gems (	"‡
-game_equipmentHandler_destruct
-error (2.Error!
-	stateDiff (2.ProfileChange
-newItems (2.Item
-
-removeGems (	"O
+	stateDiff (2.ProfileChange"O
 game_levelHandler_start
 error (2.Error
 enemies (2.ETypeWeight"]
