@@ -791,7 +791,7 @@ var dataColumns = {
         'composeTarget', 'canSell', 'price', 'desc'],
     equipmentDef: ['id', 'name', "color", 'quality', 'type', 'subType', 'levelReq', 'resKey', 'hp', 'attack', 'magic',
         'defense', "resist", 'hpGrowth', 'attackGrowth', 'magicGrowth', 'defenseGrowth', "resistGrowth", 'upgradeCost',
-        'hpRefine', 'attackRefine', 'magicRefine', 'defenseRefine', "resistRefine", 'refineMats', 'refineCost',
+        'hpRefine', 'attackRefine', 'magicRefine', 'defenseRefine', "resistRefine", 'refineCost',
         'slots', 'gemType', 'price'],
     gemDef: ["id", "name", "quality", "subType", "level", "resKey", "levelReq", "stackSize", "composable", "composeCount",
         "composeTarget", "canSell", "price", "hp", "attack", "magic", "defense", "resist", "attackSpeed", "critical",
@@ -889,7 +889,7 @@ var transformEquipmentDef = function (row) {
 
     _.each(["color", "quality", "levelReq", 'hp', 'attack', 'magic', 'defense', "resist", 'hpGrowth', 'attackGrowth',
         'magicGrowth', 'defenseGrowth', "resistGrowth", 'upgradeCost', 'hpRefine', 'attackRefine', 'magicRefine',
-        'defenseRefine', "resistRefine", 'refineMats', 'refineCost', 'slots', 'price'], function (f) {
+        'defenseRefine', "resistRefine", 'refineCost', 'slots', 'price'], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
 };

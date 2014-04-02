@@ -44,9 +44,6 @@ include ../mixins/block
             td(data-title="'精炼等级'", sortable="'refinement'")
                 span(ng-if="!it.editable") {{it.refinement}}
                 div(ng-if="it.editable"): input(type="number", ng-model="it.editable.refinement", style="width: 45px")
-            td(data-title="'精炼进度'", sortable="'refineProgress'")
-                span(ng-if="!it.editable") {{it.refineProgress}}
-                div(ng-if="it.editable"): input(type="number", ng-model="it.editable.refineProgress", style="width: 45px")
             td(data-title="'创建时间'", sortable="'createTime'") {{it.createTime | amCalendar}}
             td(data-title="'操作'", width=100)
                 a(ng-if="!it.editable", href="", class="btn btn-default btn-xs", ng-click="edit(it)") 编辑

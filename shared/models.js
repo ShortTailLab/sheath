@@ -174,7 +174,6 @@ exports.init = function (dbConfig) {
         magicRefine: {type: Number, default: 0},
         defenseRefine: {type: Number, default: 0},
         resistRefine: {type: Number, default: 0},
-        refineMats: {type: Number, default: 1},
         refineCost: {type: Number, default: 0},
 
         slots: {type: Number, default: 0},
@@ -200,7 +199,6 @@ exports.init = function (dbConfig) {
         stoneUsed: {type: Number, default: 0},
 
         refinement: {type: Number, default: 0},
-        refineProgress: {type: Number, default: 0},
 
         destructMemory: db.Schema.JSON,
 
@@ -389,13 +387,12 @@ exports.init = function (dbConfig) {
             defId: this.itemDefId,
             level: this.level,
             refinement: this.refinement,
-            refineProgress: this.refineProgress,
             bound: this.bound || undefined
         };
     };
 
     Item.prototype.toLogObj = function () {
-        return _.pick(this, "id", "itemDefId", "level", "refinement", "refineProgress", "bound");
+        return _.pick(this, "id", "itemDefId", "level", "refinement", "bound");
     };
 
     Hero.prototype.toClientObj = function () {

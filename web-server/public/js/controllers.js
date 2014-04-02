@@ -214,7 +214,7 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
     $scope.saveItem = function (item) {
         var editable = item.editable;
         delete item.editable;
-        var diff = diffModel(item, editable, ["bound", "level", "refinement", "refineProgress"]);
+        var diff = diffModel(item, editable, ["bound", "level", "refinement"]);
         if (_.has(diff, "bound") && !diff.bound) {
             diff.bound = null;
         }
@@ -299,7 +299,7 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
         if (item.bound) {
             var hero = _.findWhere($scope.heroes, {id: item.bound});
             if (hero) {
-                return $scope.heroDefs[hero.heroDefId].name;
+                return "武将: " + $scope.heroDefs[hero.heroDefId].name;
             }
             else {
                 var it = _.findWhere($scope.items, {id: item.bound});

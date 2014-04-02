@@ -83,7 +83,6 @@ class EquipmentHandler extends base.HandlerBase {
                 owner: role.id,
                 itemDefId: equipment.itemDefId,
                 refinement: 0,
-                refineProgress: 0,
                 level: 0,
                 bound: null,
                 id: {ne: equipment.id}
@@ -93,13 +92,7 @@ class EquipmentHandler extends base.HandlerBase {
             if (!material) {
                 return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
             }
-            var progressReq = itemDef.refineCost[equipment.refinement];
-
-            equipment.refineProgress += 1;
-            if (equipment.refineProgress === progressReq) {
-                equipment.refineProgress = 0;
-                equipment.refinement += 1;
-            }
+            equipment.refinement += 1;
             return [material, material.destroyP(), equipment.saveP()];
         })
         .spread((material) => {

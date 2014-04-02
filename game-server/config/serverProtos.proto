@@ -93,7 +93,6 @@ message EquipmentDef {
     required int32 magicRefine    = 22;
     required int32 defenseRefine  = 23;
     required int32 resistRefine   = 24;
-    required int32 refineMats     = 25;
     repeated int32 refineCost     = 26;
 
     required int32 slots          = 27;
@@ -159,7 +158,6 @@ message Item {
     required int32 defId        =   2;
     required int32 level        =   3;
     required int32 refinement   =   4;
-    required int32 refineProgress = 5;
     optional string bound       =   6;
 }
 message Hero {

@@ -1,5 +1,5 @@
 
-Ò.
+≈.
 serverProtos.proto"
 Player
 
@@ -65,7 +65,7 @@ composable	 (
 defense (
 resist (
 attackSpeed (
-critical ("ï
+critical ("Å
 EquipmentDef
 
 id (
@@ -94,8 +94,6 @@ composable	 (
 magicRefine (
 defenseRefine (
 resistRefine (
-
-refineMats (
 
 refineCost (
 slots (
@@ -150,15 +148,14 @@ secBallLev (
 physicalResist) (
 magicResist* (
 attackFactor+ (
-defenseFactor, ("k
+defenseFactor, ("S
 Item
 
 id (	
 defId (
 level (
 
-refinement (
-refineProgress (
+refinement (
 bound (	"=
 Hero
 
