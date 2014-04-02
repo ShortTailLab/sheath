@@ -93,7 +93,7 @@ message EquipmentDef {
     required int32 magicRefine    = 22;
     required int32 defenseRefine  = 23;
     required int32 resistRefine   = 24;
-    repeated int32 refineCost     = 26;
+    required int32 refineCost     = 26;
 
     required int32 slots          = 27;
     repeated string gemType       = 28;
