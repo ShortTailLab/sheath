@@ -261,6 +261,9 @@ class EquipmentHandler extends base.HandlerBase {
                 });
             }
             else {
+                if (_boundGems.length + 1 > itemDef.slots) {
+                    return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
+                }
                 return gem.saveP();
             }
         })

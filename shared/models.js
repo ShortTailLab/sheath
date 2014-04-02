@@ -369,7 +369,10 @@ exports.init = function (dbConfig) {
     };
 
     ItemDef.prototype.toClientObj = function () {
-        return this.toObject();
+        var ret = this.toObject();
+        _.extend(ret, ret.extended);
+        ret.extended = undefined;
+        return ret;
     };
 
     EquipmentDef.prototype.toClientObj = function () {

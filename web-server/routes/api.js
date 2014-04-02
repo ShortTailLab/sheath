@@ -29,6 +29,14 @@ function diffModel(m1, m2, fields) {
                 }
             }
         }
+        else if (_.isObject(m2[field])) {
+            if(!_.isEqual(m2[field], m1[field])) {
+                diff[field] ={
+                    old: m1[field],
+                    new: m2[field]
+                };
+            }
+        }
         else if (m1[field] !== m2[field]) {
             diff[field] = {
                 old: m1[field],
@@ -785,6 +793,9 @@ var dataColumns = {
         'defense', "resist", 'hpGrowth', 'attackGrowth', 'magicGrowth', 'defenseGrowth', "resistGrowth", 'upgradeCost',
         'hpRefine', 'attackRefine', 'magicRefine', 'defenseRefine', "resistRefine", 'refineMats', 'refineCost',
         'slots', 'gemType', 'price'],
+    gemDef: ["id", "name", "quality", "subType", "level", "resKey", "levelReq", "stackSize", "composable", "composeCount",
+        "composeTarget", "canSell", "price", "hp", "attack", "magic", "defense", "resist", "attackSpeed", "critical",
+        "desc", "extended"],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
     storeitem: ["id", "name", "gold", "price", "defId", "count", "desc"],
@@ -834,6 +845,34 @@ var transformItemDef = function (row) {
     });
     row.canSell = !!row.canSell;
     row.composable = !!row.composable;
+};
+
+var transformGemDef = function (row) {
+    return {
+        id: parseInt(row.id),
+        name: row.name,
+        type: "宝石",
+        subType: row.subType.trim(),
+        quality: parseInt(row.quality),
+        levelReq: parseInt(row.levelReq),
+        resKey: row.resKey,
+        stackSize: parseInt(row.stackSize),
+        composable: !!parseInt(row.composable),
+        composeCount: parseInt(row.composeCount),
+        composeTarget: (row.composeTarget && row.composeTarget !== "0") ? [parseInt(row.composeTarget)] : [],
+        canSell: !!parseInt(row.canSell),
+        price: parseInt(row.price),
+        desc: row.desc.trim(),
+        extended: {
+            hp: parseInt(row.hp),
+            attack: parseFloat(row.attack),
+            magic: parseFloat(row.magic),
+            defense: parseFloat(row.defense),
+            resist: parseFloat(row.resist),
+            attackSpeed: parseFloat(row.attackSpeed),
+            critical: parseFloat(row.critical)
+        }
+    };
 };
 
 var transformEquipmentDef = function (row) {
@@ -903,6 +942,7 @@ exports.import = function (req, res) {
         heroNode: [appModels.HeroNode, transformHeroNode],
         itemDef: [appModels.ItemDef, transformItemDef],
         equipmentDef: [appModels.EquipmentDef, transformEquipmentDef],
+        gemDef: [appModels.ItemDef, transformGemDef],
         treasure: [appModels.Treasure, transformTreasure],
         storeitem: [appModels.StoreItem, transformStoreItem],
         task: [appModels.Task, transformTask]
@@ -1029,12 +1069,14 @@ exports.export = function (req, res) {
 
     }
     else if (data.tag === "itemDef") {
-        appModels.ItemDef.allP({order: "id"}).then(function (itemDefs) {
+        appModels.ItemDef.allP({order: "id", type: {"ne": "宝石"}}).then(function (itemDefs) {
             csv().from.array(itemDefs, { columns: dataColumns[data.tag] }).to(res, {
                 header: true,
                 eof: true,
                 columns: dataColumns.itemDef
             }).transform(function (row) {
+                row.canSell = row.canSell ? 1 : 0;
+                row.composable = row.composable ? 1: 0;
                 row.composeTarget = JSON.stringify(row.composeTarget);
                 return row;
             });
@@ -1048,6 +1090,23 @@ exports.export = function (req, res) {
                 columns: dataColumns.equipmentDef
             }).transform(function (row) {
                 row.gemType = row.gemType.join(",");
+                return row;
+            });
+        });
+    }
+    else if (data.tag === "gemDef") {
+        appModels.ItemDef.allP({order: "id", type: "宝石"}).then(function (itemDefs) {
+            csv().from.array(itemDefs, { columns: dataColumns[data.tag] }).to(res, {
+                header: true,
+                eof: true,
+                columns: dataColumns[data.tag]
+            }).transform(function (row) {
+                row.composeTarget = row.composeTarget.length ? row.composeTarget[0] : 0;
+                row.level = 0;
+                row.canSell = row.canSell ? 1 : 0;
+                row.composable = row.composable ? 1: 0;
+                _.extend(row, row.extended);
+                row.extended = undefined;
                 return row;
             });
         });

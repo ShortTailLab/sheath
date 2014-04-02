@@ -18,6 +18,9 @@ include ../mixins/block
             input(type="submit", value="装备数据").submit
             input(type="hidden", name="tag", value="equipmentDef")
         .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="宝石数据").submit
+            input(type="hidden", name="tag", value="gemDef")
+        .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="关卡数据").submit
             input(type="hidden", name="tag", value="stage")
         .col-md-1: form(method="post", action="/api/export")
