@@ -771,7 +771,7 @@ exports.removeAnn = function (req, res) {
 
 // data import / data export
 var dataColumns = {
-    heroDef: ["id", "name", "resKey", "type", "stars", "vitality", "strength", "intelligence", "hp", "hpGrowth",
+    heroDef: ["id", "name", "resKey", "type", "stars", "quality", "vitality", "strength", "intelligence", "hp", "hpGrowth",
         "attack", "attackGrowth", "magic", "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth",
         "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev", "skill",
         "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine",
@@ -794,12 +794,12 @@ var dataColumns = {
 var transformHeroDef = function (row) {
     row.attackDelta = JSON.parse(row.attackDelta || "[]");
     row.id = parseInt(row.id);
-    row.name = row.name || "";
-    row.resKey = row.resKey || "";
-    row.type = row.type || "";
+    row.name = (row.name || "").trim();
+    row.resKey = (row.resKey || "").trim();
+    row.type = (row.type || "").trim();
     row.souls = parseInt(row.souls) || 100;
 
-    _.each(["stars", "vitality", "strength", "intelligence", "hp", "hpGrowth", "attack", "attackGrowth", "magic",
+    _.each(["stars", "quality", "vitality", "strength", "intelligence", "hp", "hpGrowth", "attack", "attackGrowth", "magic",
         "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth", "critical", "interval", "attackSpeed",
         "speed", "ballLev", "secBallLev", "skill", "hpRefine", "attackRefine", "magicRefine", "defenseRefine",
         "resistRefine", "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor",

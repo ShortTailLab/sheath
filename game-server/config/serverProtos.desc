@@ -1,5 +1,5 @@
 
-í-
+þ-
 serverProtos.proto"
 Player
 
@@ -92,14 +92,15 @@ refineMats (
 refineCost (
 slots (
 gemType (	
-price ("³
+price ("Ä
 HeroDef
 
 id (
 name (	
 resKey (	
 type (	
-stars (
+stars (
+quality- (
 skill (
 souls (
 vitality (

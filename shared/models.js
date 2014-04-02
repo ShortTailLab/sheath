@@ -83,6 +83,7 @@ exports.init = function (dbConfig) {
         type: {type: String, default: ""},
         resKey: {type: String, default: ""},
         stars: {type: Number, default: 1},
+        quality: {type: Number, default: 1},
         skill: {type: Number, default: 0},
         souls: {type: Number, default: 100},
 
@@ -142,6 +143,7 @@ exports.init = function (dbConfig) {
         canSell: {type: Boolean, default: true},
         price: {type: Number, default: 1000},
 
+        extended: {type: db.Schema.JSON, default: function () {return {};}},
         desc: {type: String, default: ""}
     });
 

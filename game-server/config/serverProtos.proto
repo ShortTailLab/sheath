@@ -99,6 +99,7 @@ message HeroDef {
     required string resKey      =   3;
     required string type        =   4;
     required int32 stars        =   5;
+    required int32 quality      =   45;
     required int32 skill        =   6;
 
     required int32 souls        =   7;
