@@ -371,8 +371,8 @@ Role.prototype.afterLogin = function (pomelo) {
                     timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
                         timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
                             timePomeloRequest(ActFlagType.LIST_TASK, {}, function (data) {
-                                self.randomActions(pomelo);
-//                                self.test(pomelo);
+//                                self.randomActions(pomelo);
+                                self.test(pomelo);
                             });
                         });
                     });
@@ -384,7 +384,7 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    this.listSouls(pomelo, function () {
+    this.sell(pomelo, function () {
 
     });
 };
@@ -455,7 +455,7 @@ Role.prototype.refineWeapon = function (pomelo, cb) {
 
 Role.prototype.refineGem = function (pomelo, cb) {
     var self = this;
-    timePomeloRequest(ActFlagType.REFINE_GEM, {gemType: 1022, gemLevel: 0}, function (data) {
+    timePomeloRequest(ActFlagType.REFINE_GEM, {gemType: 40000}, function (data) {
         if (!data.error) {
             self.items[data.gem.id] = data.gem;
         }
@@ -466,7 +466,7 @@ Role.prototype.refineGem = function (pomelo, cb) {
 Role.prototype.setGem = function (pomelo, cb) {
     var self = this;
     var weapon = _.findWhere(_.values(self.items), {defId: 1001});
-    var gem = _.findWhere(_.values(self.items), {defId: 1022});
+    var gem = _.findWhere(_.values(self.items), {defId: 40000});
     if (weapon && gem) {
         timePomeloRequest(ActFlagType.SET_GEM, {gemId: gem.id, equipmentId: weapon.id}, function (data) {
             if (!data.error) {
@@ -630,11 +630,18 @@ Role.prototype.redeemSouls = function (pomelo, cb) {
     });
 };
 
+Role.prototype.sell = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.SELL, {itemId: "d2de24d0-0cf5-4c8e-9163-077008a8d713"}, function (data) {
+        console.log(data);
+        cb();
+    });
+};
+
 setTimeout(function () {
     var role = new Role();
     var uname = "test" + _.random(20000, 21999);
-    role.entry("127.0.0.1", 3010, "main", uname, uname);
+//    role.entry("127.0.0.1", 3010, "main", uname, uname);
 //    role.entry("sh-test.shorttaillab.com", 3010, "main", uname, uname);
-//    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
+    role.entry("127.0.0.1", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
 //    role.entry("sh-test.shorttaillab.com", 3010, "main", "colprog", "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8");
 }, Math.random() * 2000);

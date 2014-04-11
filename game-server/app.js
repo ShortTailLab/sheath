@@ -25,7 +25,7 @@ app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
 app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
 
 app.route("auth", dispatcher.defaultRouter);
-app.route("chat", dispatcher.defaultRouter);
+app.route("chat", dispatcher.routeByPartition);
 app.route("connector", dispatcher.defaultRouter);
 app.route("game", dispatcher.defaultRouter);
 app.route("manager", dispatcher.defaultRouter);

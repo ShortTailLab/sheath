@@ -2,6 +2,7 @@ var userDAO = require("../../shared/dao/user.js");
 var _ = require("lodash");
 var crypto = require('crypto');
 var appModels = require("../../shared/models");
+var channelMap = require("../../shared/OPChannelMap");
 
 exports.logRedirect = function (req, res) {
     var log = new appModels.Log();
@@ -66,4 +67,62 @@ exports.logout = function (req, res) {
     req.session.destroy(function () {
         res.redirect('/login');
     });
+};
+
+function notifyPurchase(channelId, loginId, order) {
+    var result = order.result,
+        price = order.price,
+        orderId = order.orderId;
+    var channelName = channelMap.ID2Name(channelId);
+
+    if (result !== 1 || !channelName) {
+        return;
+    }
+
+    return appModels.PurchaseLog.findOrCreateP({where: {id: orderId}}, {
+        id: orderId,
+        channelName: channelName,
+        role: loginId,
+        state: 0,
+        extraParams: order
+    })
+    .then(function (pLog) {
+        if (pLog.state !== 1) {
+            pLog.state = 1;
+        }
+    })
+    .spread(function () {
+    })
+    .catch(function (err) {
+        var log = new appModels.Log();
+
+        log.severity = "ERROR";
+        log.type = "purchase";
+        log.time = new Date();
+        log.server = "web-0";
+        log.msg = {
+            channelId: channelId,
+            loginId: loginId,
+            order: order,
+            err: ""+err
+        };
+
+        log.save();
+    });
+}
+
+exports.purchase = function (req, res) {
+    var receipt = req.body;
+    var channelId = receipt.channelId;
+    var data = receipt.data;
+    var loginId = receipt.loginId;
+
+    if (!channelId || !data || !loginId) {
+        return res.send("NOT OK");
+    }
+
+    for (var i=0;i<data.length;i++) {
+        notifyPurchase(channelId, loginId, data[i]);
+    }
+    res.send("OK");
 };

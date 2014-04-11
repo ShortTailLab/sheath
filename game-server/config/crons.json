@@ -1,21 +1,7 @@
 {
     "development": {
-        "manager": [
-            {"id": 1, "serverId": "manager-1", "time": "0 0 0 * * *", "action": "gameCron.dailyRefresh"},
-            {"id": 2, "serverId": "manager-1", "time": "0 0 * * * *", "action": "logCron.hourlyLogRollUp"},
-            {"id": 5, "serverId": "manager-1", "time": "0 0 0 * * *", "action": "logCron.dailyLogRollUp"},
-            {"id": 3, "serverId": "manager-1", "time": "0 15 0 * * 1", "action": "logCron.weeklyLogRollUp"},
-            {"id": 4, "serverId": "manager-1", "time": "0 30 1 * * *", "action": "logCron.monthlyLogRollUp"}
-        ]
     },
     "test": {
-        "manager": [
-            {"id": 1, "serverId": "manager-1", "time": "0 0 0 * * *", "action": "gameCron.dailyRefresh"},
-            {"id": 2, "serverId": "manager-1", "time": "0 0 * * * *", "action": "logCron.hourlyLogRollUp"},
-            {"id": 5, "serverId": "manager-1", "time": "0 0 0 * * *", "action": "logCron.dailyLogRollUp"},
-            {"id": 3, "serverId": "manager-1", "time": "0 15 0 * * 1", "action": "logCron.weeklyLogRollUp"},
-            {"id": 4, "serverId": "manager-1", "time": "0 30 1 * * *", "action": "logCron.monthlyLogRollUp"}
-        ]
     },
     "production": {
         "manager": [

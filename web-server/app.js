@@ -100,6 +100,8 @@ app.use(app.router);
  * Routes
  */
 
+app.post("/op_purchase_cb", routes.purchase);
+
 // serve index and view partials
 app.get('/login', routes.login);
 app.post('/login', routes.postLogin);

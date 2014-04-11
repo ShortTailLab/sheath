@@ -285,6 +285,28 @@ exports.init = function (dbConfig) {
         end: {type: Date, default: function () { return new Date(); }}
     });
 
+    var PurchaseLog = exports.PurchaseLog = schema.define("purchaselog", {
+        role: String,
+        channelName: String,
+        state: {type: Number, default: 0},
+        time: {type: Date, default: function () { return new Date(); }},
+
+        golds: Number,
+        price: Number,
+        extraParams: {type: db.Schema.JSON, default: function () { return {}; }}
+    }, {
+    });
+
+    var Device = exports.Device = schema.define("device", {
+        os: {type: String, default: ""},
+        osVersion: {type: String, default: ""},
+        clientVersion: {type: String, default: ""},
+        pushToken: {type: String, default: ""},
+        enabledPush: {type: Boolean, default: true},
+
+        lastLogin: {type: Date, default: function () { return new Date(); }}
+    });
+
     var Log = exports.Log = schema.define("log", {
         severity: String,
         type: String,

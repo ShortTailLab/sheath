@@ -11,6 +11,7 @@
         "sse4_crc32": "latest",
         "moment": "latest",
         "seed-random": "latest",
+        "apn": "latest",
         "iconv": "latest",
         "bluebird": "latest",
         "lodash": "latest",
