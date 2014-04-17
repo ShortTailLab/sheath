@@ -3,6 +3,7 @@ var _ = require("lodash");
 var crypto = require('crypto');
 var appModels = require("../../shared/models");
 var channelMap = require("../../shared/OPChannelMap");
+var GoldItems = require("../../game-server/config/data/goldItems.json");
 
 exports.logRedirect = function (req, res) {
     var log = new appModels.Log();
@@ -70,12 +71,17 @@ exports.logout = function (req, res) {
 };
 
 function notifyPurchase(channelId, loginId, order) {
-    var result = order.result,
-        price = order.price,
-        orderId = order.orderId;
+    var result = parseInt(order.result),
+        price = parseInt(order.price),
+        goodId = ""+order.goodId,
+        orderId = ""+order.orderId;
     var channelName = channelMap.ID2Name(channelId);
+    var goldItem = GoldItems[goodId];
 
-    if (result !== 1 || !channelName) {
+    if (result !== 1 || !channelName || !goldItem || goldItem.channel !== channelName) {
+        return;
+    }
+    if (goldItem.price * 100 !== price) {
         return;
     }
 

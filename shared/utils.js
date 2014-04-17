@@ -57,3 +57,11 @@ export function nextTimeSegment(segment) {
     var nextHour = Math.ceil(hours / (segment * 3600 * 1000)) * (segment * 3600);
     return sod.unix() + nextHour;
 }
+
+export function toChunk(array, chunkSize) {
+    return [].concat.apply([],
+        array.map(function(elem,i) {
+            return i%chunkSize ? [] : [array.slice(i,i+chunkSize)];
+        })
+    );
+}

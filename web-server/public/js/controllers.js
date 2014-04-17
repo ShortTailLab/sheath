@@ -745,6 +745,12 @@ sheathControllers.controller('storeController', function ($scope, $http) {
 sheathControllers.controller('eventController', function ($scope, $http) {
 });
 
+sheathControllers.controller('announcementController', function ($scope, $http) {
+    $http.get("/api/partitions").success(function (data) {
+        $scope.partitions = data.partitions;
+    });
+});
+
 sheathControllers.controller('announcementController', function ($scope, $http, $timeout) {
     $http.get("/api/anns").success(function (data) {
         for (var i=0;i<data.anns.length;i++) {

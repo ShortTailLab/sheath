@@ -8,6 +8,7 @@ message Device {
     required string device        =     2;
     required Resolution res       =     3;
     required string osVersion     =     4;
+    required string clientVersion =     7;
     required string mac           =     5;
     required string deviceID      =     6;
 }

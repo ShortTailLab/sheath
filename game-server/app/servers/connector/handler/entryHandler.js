@@ -26,6 +26,8 @@ class EntryHandler extends base.HandlerBase {
         }
 
         var user;
+        var device = msg.device;
+
         this.safe(this.app.rpc.auth.authRemote.authenticateAsync(session, msg.accType, msg.username.toLowerCase(), msg.password).bind(this)
         .then((u) => {
             user = u;
@@ -34,7 +36,8 @@ class EntryHandler extends base.HandlerBase {
             }
             var partUCount = this.app.rpc.manager.partitionStatsRemote.getUserCountAsync(session);
             session.set("distro", msg.distro);
-            return [partUCount, session.bind(user.id)];
+            session.set("device", device);
+            return [partUCount, session.bind(user.id), session.pushAll()];
         })
         .all().then((results) => {
             var partStats = results[0];
@@ -44,7 +47,7 @@ class EntryHandler extends base.HandlerBase {
             var logType = "user.login";
             if (user.isNew) logType = "user.register";
             logger.logInfo(logType, {
-                device: msg.device,
+                device: device,
                 ip: session.__session__.__socket__.remoteAddress.ip,
                 distro: msg.distro,
                 accType: msg.accType,
@@ -74,6 +77,7 @@ class EntryHandler extends base.HandlerBase {
         var role;
         var logType = "role.login";
         var part = this.app.get("cache").partitionById[msg.partId];
+        var device = session.get("device");
 
         if (!part) {
             return this.errorNext(Constants.PartitionFailed.PARTITION_DO_NOT_EXIST, next);
@@ -135,7 +139,17 @@ class EntryHandler extends base.HandlerBase {
             role = _role;
             session.set("role", role.toSessionObj());
             session.set("partId", part.id);
-            return session.pushAll();
+            var deviceUpsert = models.Device.upsertP({
+                id: device.deviceID,
+                os: device.os,
+                osVersion: device.osVersion,
+                clientVersion: device.clientVersion || "0.1",
+                deviceName: device.device,
+
+                lastRole: role.id,
+                lastLogin: new Date()
+            });
+            return Promise.join(session.pushAll(), deviceUpsert);
         })
         .then(() => {
             this.app.rpc.manager.partitionStatsRemote.joinPartition(session, part.id, null);

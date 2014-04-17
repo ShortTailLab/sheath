@@ -301,10 +301,16 @@ exports.init = function (dbConfig) {
         os: {type: String, default: ""},
         osVersion: {type: String, default: ""},
         clientVersion: {type: String, default: ""},
-        pushToken: {type: String, default: ""},
-        enabledPush: {type: Boolean, default: true},
+        deviceName: {type: String, default: ""},
 
+        lastRole: {type: String, index: true},
         lastLogin: {type: Date, default: function () { return new Date(); }}
+    });
+
+    var MarketingCode = exports.MarketingCode = schema.define("marketingcode", {
+        redeemRole: {type: String},
+        used: {type: Boolean, default: false},
+        expire: {type: Date, default: function () { return new Date(2020, 11, 31); }}
     });
 
     var Log = exports.Log = schema.define("log", {

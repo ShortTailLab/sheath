@@ -1,12 +1,13 @@
 
-¹
-clientProtos.proto"¤
+Ð
+clientProtos.proto"»
 Device
 
 os (	
 device (	
 res (2.Device.Resolution
-	osVersion (	
+	osVersion (	
+clientVersion (	
 mac (	
 deviceID (	+
 
