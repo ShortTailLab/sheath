@@ -165,6 +165,7 @@ app.post('/api/sendMail', restrictAPI, api.sendMail);
 app.post('/api/gameLevel', api.importInGameReward);
 
 app.post('/api/getStatInfo', restrictAPI, api.getStatInfo);
+app.post('/api/sendNotification', restrictAPI, api.sendNotification);
 
 app.get('/js/lib/*.map', function (req, res) { res.send(404); });
 app.get('*', restrict, routes.index);

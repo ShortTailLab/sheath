@@ -1,3 +1,16 @@
 include ../mixins/block
 
 +block("推送")
+    div(class="message errormsg", ng-show="error")
+        p {{error}}
+    div(class="message success", ng-show="info")
+        p {{info}}
+    form(role="form").form-horizontal
+        .form-group
+            label(class="control-label col-md-1", for="target") 推送对象
+            .col-md-10: input(type="text", ng-model="target", placeholder="可填分区ID，用户ID，角色ID，留空则推送到全体。").form-control#target
+        .form-group
+            label(class="control-label col-md-1", for="content") 推送内容
+            .col-md-10: textarea(ng-model="content")#content
+        .form-group: .col-md-offset-1.col-md-10
+            button(type="submit", ng-click="send()").btn.btn-primary 发 送

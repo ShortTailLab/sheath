@@ -1,5 +1,7 @@
 var logger = require('pomelo-logger').getLogger(__filename);
 var _ = require("lodash");
+var Promise = require("bluebird");
+var models = require("../../../shared/models");
 
 module.exports = function(opts) {
     return new Module(opts);
@@ -33,7 +35,7 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
                     id: "",
                     name: "后台测试"
                 },
-                target: msg.target
+                target: msg.msg.target || ''
             };
             this.app.get("channelService").broadcast("connector", "onChat", param);
             break;
@@ -51,6 +53,29 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
         case "delAnn":
             this.app.rpc.chat.announcementRemote.deleteAnn.toServer(this.app.getServerId(), msg.msg.annId, cb);
             break;
+        case "push":
+        {
+            var target = msg.msg.target;
+            var content = msg.msg.content;
+            if (target === '') {
+                this.app.rpc.chat.pushRemote.pushAll.toServer(this.app.getServerId(), content, cb);
+            }
+            else {
+                Promise.join(models.Partition.findP(target), models.User.findP(target), models.Role.findP(target)).bind(this)
+                .spread(function (part, user, role) {
+                    if (part) {
+                        this.app.rpc.chat.pushRemote.pushToPartition.toServer(this.app.getServerId(), target, content, cb);
+                    }
+                    else if (user) {
+                        this.app.rpc.chat.pushRemote.pushToUser.toServer(this.app.getServerId(), target, content, cb);
+                    }
+                    else if (role) {
+                        this.app.rpc.chat.pushRemote.pushTo.toServer(this.app.getServerId(), target, content, cb);
+                    }
+                });
+            }
+            break;
+        }
     }
 };
 
@@ -79,6 +104,9 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
             break;
         case "delAnn":
             forward(agent, "chat", "delAnn", msg, cb);
+            break;
+        case "push":
+            forward(agent, "chat", "push", msg);
             break;
     }
 };

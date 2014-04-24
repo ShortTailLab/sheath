@@ -1344,5 +1344,13 @@ exports.sendMail = function (req, res) {
     res.send(200);
 };
 
+exports.sendNotification = function (req, res) {
+    var target = req.body.target || '';
+    var content = req.body.content;
+
+    pomeloConn.client.notify("debugCommand", {command:"push", target: target, content: content});
+    res.send(200);
+};
+
 exports.getStatInfo = function (req, res) {
 };

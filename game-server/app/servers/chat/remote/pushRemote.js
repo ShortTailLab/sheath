@@ -14,7 +14,7 @@ class PushRemote extends base.HandlerBase {
     constructor(app) {
         this.app = app;
         this.pushClient = null;
-        this.pushCount = 0;
+        this.pushCount = 1;
     }
 
     getConn() {
@@ -26,7 +26,8 @@ class PushRemote extends base.HandlerBase {
 
     getNotification(msg) {
         var note = {
-            type: 1
+            type: 1,
+            platform: this.getConn().platformType.both
         };
         if (typeof msg === "string") {
             note.content = msg;
@@ -48,22 +49,33 @@ class PushRemote extends base.HandlerBase {
 
     pushAll(msg, cb) {
         var note = this.getNotification(msg);
+        var conn = this.getConn();
         var receiver = {
-            type: jpush.pushType.broadcast,
+            type: conn.pushType.broadcast,
             value: ""
         };
         cb = cb || function () {};
-        this.getConn().pushSimpleNotification(this.pushCount++, receiver, note, cb);
+        conn.pushSimpleNotification(this.pushCount++, receiver, note, cb);
     }
 
     pushToPartition(partId, msg, cb) {
         var note = this.getNotification(msg);
+        var conn = this.getConn();
         var receiver = {
-            type: jpush.pushType.tag,
+            type: conn.pushType.tag,
             value: partId
         };
         cb = cb || function () {};
-        this.getConn().pushSimpleNotification(this.pushCount++, receiver, note, cb);
+        conn.pushSimpleNotification(this.pushCount++, receiver, note, cb);
+    }
+
+    pushToUser(userId, msg, cb) {
+        models.Role.allP({where: {owner: userId}}).bind(this)
+        .then(function (roles) {
+            if (roles.length) {
+                this.pushTo(_.pluck(roles, "id"), msg, cb);
+            }
+        });
     }
 
     pushTo(roles, msg, cb) {
@@ -72,14 +84,15 @@ class PushRemote extends base.HandlerBase {
         }
         var roleChunks = utils.toChunk(roles, 1000);
         var note = this.getNotification(msg);
+        var conn = this.getConn();
         var receiver = {
-            type: jpush.pushType.alias,
+            type: conn.pushType.alias,
             value: ""
         };
 
         for (var i=0;i<roleChunks.length;i++) {
             receiver.value = roleChunks[i].join(",");
-            this.getConn().pushSimpleNotification(this.pushCount++, receiver, note, cb);
+            conn.pushSimpleNotification(this.pushCount++, receiver, note, cb);
         }
         if (cb) cb();
     }

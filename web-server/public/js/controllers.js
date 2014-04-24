@@ -745,10 +745,27 @@ sheathControllers.controller('storeController', function ($scope, $http) {
 sheathControllers.controller('eventController', function ($scope, $http) {
 });
 
-sheathControllers.controller('announcementController', function ($scope, $http) {
+sheathControllers.controller('pushController', function ($scope, $http, $timeout) {
     $http.get("/api/partitions").success(function (data) {
         $scope.partitions = data.partitions;
     });
+
+    $scope.send = function () {
+        if (!$scope.content) return;
+
+        $scope.error = null;
+        $http.post("/api/sendNotification", {
+            target: $scope.target,
+            content: $scope.content
+        })
+        .success(function (data) {
+            $scope.info = "成功发送";
+            $timeout(function () {$scope.info = null;}, 2000);
+        })
+        .error(function (data) {
+            $scope.error = data.message || "未知错误";
+        });
+    };
 });
 
 sheathControllers.controller('announcementController', function ($scope, $http, $timeout) {
