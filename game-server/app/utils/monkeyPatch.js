@@ -1,6 +1,5 @@
 var Promise = require("bluebird");
 var logger = require('pomelo-logger').getLogger('sheath', __filename);
-var jugglingdb = require("jugglingdb");
 
 var Patcher = module.exports;
 
@@ -28,11 +27,6 @@ module.exports.wrapModule = function (m, functions, suffix="") {
         var name = functions[i];
         m[name + suffix] = Promise.promisify(m[name]);
     }
-};
-
-module.exports.wrapModel = function () {
-    Patcher.wrapModule(jugglingdb.AbstractClass, ["update", "create", "upsert", "findOrCreate", "exists", "find", "all", "iterate", "findOne", "destroyAll", "count", "include"], "P");
-    Patcher.wrapModule(jugglingdb.AbstractClass.prototype, ["save", "destroy", "updateAttribute", "updateAttributes", "reload"], "P");
 };
 
 function emptyFunc() {}

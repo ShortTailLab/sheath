@@ -1,4 +1,5 @@
 var models = require("../../../../../shared/models");
+var r = models.r;
 var treasureClaim = require("../../../../../shared/treasureClaim");
 var base = require("../../../../../shared/base");
 var Constants = require("../../../../../shared/constants");
@@ -21,7 +22,7 @@ class MailHandler extends base.HandlerBase {
     list(msg, session, next) {
         wrapSession(session);
 
-        this.safe(models.Mail.allP({where: {target: session.get("role").id}, order: "time DESC"})
+        this.safe(models.Mail.getAll(session.get("role").id, {index: "target"}).orderBy(r.desc("time")).run()
         .then(function (mails) {
             next(null, {
                 mails: _.invoke(mails, "toClientObj")
@@ -32,7 +33,7 @@ class MailHandler extends base.HandlerBase {
     checkNewMail(msg, session, next) {
         wrapSession(session);
 
-        this.safe(models.Mail.allP({where: {target: session.get("role").id, read: false}, order: "time DESC"})
+        this.safe(models.Mail.getAll(session.get("role").id, {index: "target"}).filter(r.row("read").eq(false)).orderBy(r.desc("time")).run()
         .then(function (mails) {
             next(null, {
                 mails: _.invoke(mails, "toClientObj")
@@ -48,14 +49,14 @@ class MailHandler extends base.HandlerBase {
             return this.errorNext(Constants.Mail_Do_Not_Exist, next);
         }
 
-        this.safe(models.Mail.findP(mailId)
+        this.safe(models.Mail.get(mailId).run()
         .then(function (mail) {
             if (!mail || mail.target !== session.get("role").id) {
                 return Promise.reject(Constants.Mail_Do_Not_Exist);
             }
-            return mail.updateAttributeP("read", true);
+            return models.Mail.get(mail.id).update({"read": true}).run();
         })
-        .then(function (m) {
+        .then(function () {
             next(null, {ok: true});
         }), next);
     }
@@ -68,7 +69,7 @@ class MailHandler extends base.HandlerBase {
             return this.errorNext(Constants.Mail_Do_Not_Exist, next);
         }
 
-        this.safe(models.Mail.findP(mailId).bind(this)
+        this.safe(models.Mail.get(mailId).run().bind(this)
         .then(function (_mail) {
             mail = _mail;
             if (!_mail || _mail.target !== session.get("role").id) {
@@ -77,12 +78,12 @@ class MailHandler extends base.HandlerBase {
             if (_mail.claimed || _mail.treasures.length === 0) {
                 return Promise.reject(Constants.ALREADY_CLAIMED);
             }
-            return models.Role.findP(session.get("role").id);
+            return models.Role.get(session.get("role").id).run();
         })
         .then(function (_role) {
             role = _role;
             var gain = treasureClaim.claim(role, mail.treasures);
-            var claim = mail.updateAttributeP("claimed", true);
+            var claim = models.Mail.get(mail.id).update({"claimed": true}).run();
             session.set("role", role.toSessionObj());
             return [gain, claim, session.push("role")];
         })

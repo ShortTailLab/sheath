@@ -24,7 +24,7 @@ class LevelHandler extends base.HandlerBase {
         wrapSession(session);
 
         var levels = this.app.get("cache").clientLevels;
-        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
             var cleared = role.levelCleared;
             _.each(levels, function (stage) {
@@ -49,7 +49,7 @@ class LevelHandler extends base.HandlerBase {
         }
 
         var seeds = null, self = this;
-        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
             var seedGen = this.seedGen;
             var maxCoin = 0, items = {};
@@ -88,7 +88,7 @@ class LevelHandler extends base.HandlerBase {
                 maxCoin: maxCoin,
                 items: items
             };
-            return role.saveP();
+            return role.save();
         })
         .then(function (role) {
             next(null, {
@@ -111,7 +111,7 @@ class LevelHandler extends base.HandlerBase {
         }
 
         var coins = Math.floor(msg.coins) || 0, items = msg.items || [];
-        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (_role) {
             role = _role;
             var levelGain = role.levelGain;
@@ -122,35 +122,32 @@ class LevelHandler extends base.HandlerBase {
             for (var i=0;i<itemIds.length;i++) {
                 var itemId = itemIds[i];
                 if (items[itemId] > (levelGain.items[itemId] || 0)) {
-                    role.updateAttribute("levelGain", r.literal({}));
+                    models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
                     return Promise.reject(Constants.StageFailed.Invalid_End);
                 }
             }
             if (coins > levelGain.maxCoin) {
-                role.updateAttribute("levelGain", r.literal({}));
+                models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
                 return Promise.reject(Constants.StageFailed.Invalid_End);
             }
             if (false) {
                 this.app.rpc.game.taskRemote.notify(session, "Role.LevelUp", role.id, {}, null);
             }
             var roleUpdateQ = {
-                where: {id: role.id},
-                update: {
-                    coins: r.row("coins").add(coins),
-                    exp: r.row("exp").add(levelGain.exp),
-                    levelGain: r.literal({})
-                }
+                coins: r.row("coins").add(coins),
+                exp: r.row("exp").add(levelGain.exp),
+                levelGain: r.literal({})
             };
             var newItems = [];
             _.each(itemIds, function (itemId) {
                 for (var i=0;i<items[itemId];i++) {
-                    newItems.push({
+                    newItems.push((new models.Item({
                         itemDefId: parseInt(itemId),
                         owner: role.id
-                    });
+                    })).save());
                 }
             });
-            return [models.Role.updateP(roleUpdateQ), models.Item.createP(newItems)];
+            return [models.Role.get(role.id).update(roleUpdateQ).run(), Promise.all(newItems)];
         })
         .spread(function (roleUpdate, newItems) {
             role.coins = roleUpdate.new_val.coins;

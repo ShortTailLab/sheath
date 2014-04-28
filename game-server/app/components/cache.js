@@ -48,7 +48,7 @@ class Cache {
     }
 
     loadPartition() {
-        return models.Partition.allP({order: "openSince"}).bind(this).then(function (partitions) {
+        return models.Partition.orderBy("openSince").run().bind(this).then(function (partitions) {
             this.clientPartitions = _.invoke(partitions, "toClientObj");
             this.partitionById = toMap(this.clientPartitions, "id");
             this.partTimeIndex = 0;
@@ -59,7 +59,7 @@ class Cache {
     }
 
     loadHeroDef() {
-        return models.HeroDef.allP().bind(this).then(function (hDefs) {
+        return models.HeroDef.run().bind(this).then(function (hDefs) {
             this.clientHeroDefs = _.invoke(hDefs, "toClientObj");
             this.heroDefs = _.invoke(hDefs, "toObject");
             this.heroDefById = toMap(this.heroDefs, "id");
@@ -70,7 +70,7 @@ class Cache {
     }
 
     loadItemDef() {
-        return models.ItemDef.allP().bind(this).then(function (itemDefs) {
+        return models.ItemDef.run().bind(this).then(function (itemDefs) {
             this.clientItemDefs = _.invoke(itemDefs, "toClientObj");
             this.itemDefs = _.invoke(itemDefs, "toObject");
             this.itemDefById = toMap(this.itemDefs, "id");
@@ -81,7 +81,7 @@ class Cache {
     }
 
     loadEquipmentDef() {
-        return models.EquipmentDef.allP().bind(this).then(function (eqDefs) {
+        return models.EquipmentDef.run().bind(this).then(function (eqDefs) {
             this.clientEquipmentDefs = _.invoke(eqDefs, "toClientObj");
             this.equipmentDefs = _.invoke(eqDefs, "toObject");
             this.equipmentDefById = toMap(this.equipmentDefs, "id");
@@ -92,7 +92,7 @@ class Cache {
     }
 
     loadLevel() {
-        return models.Level.allP({order: "id"}).bind(this).then(function (levels) {
+        return models.Level.orderBy("id").run().bind(this).then(function (levels) {
             this.clientLevels = _.sortBy(_.map(_.groupBy(levels, "stageId"), function (slevels) {
                 return {
                     stageId: slevels[0].stageId,
@@ -117,7 +117,7 @@ class Cache {
     }
 
     loadStoreItem() {
-        return models.StoreItem.allP().bind(this).then(function (items) {
+        return models.StoreItem.run().bind(this).then(function (items) {
             items = _.invoke(items, "toObject");
             var sitems = this.partition(items, function (it) { return it.gold; });
             this.storeItemG = sitems[0];
@@ -130,7 +130,7 @@ class Cache {
     }
 
     loadHeroDraws() {
-        return Promise.join(models.HeroDraw.allP(), models.HeroNode.allP()).bind(this)
+        return Promise.join(models.HeroDraw.run(), models.HeroNode.run()).bind(this)
         .spread(function (draws, nodes) {
             this.heroDraws = _.invoke(draws, "toObject");
             this.heroNodes = _.invoke(_.sortBy(nodes, "weight"), "toObject");

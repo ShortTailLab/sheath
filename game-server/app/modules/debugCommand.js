@@ -61,7 +61,7 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
                 this.app.rpc.chat.pushRemote.pushAll.toServer(this.app.getServerId(), content, cb);
             }
             else {
-                Promise.join(models.Partition.findP(target), models.User.findP(target), models.Role.findP(target)).bind(this)
+                Promise.join(models.Partition.get(target).run(), models.User.get(target).run(), models.Role.get(target).run()).bind(this)
                 .spread(function (part, user, role) {
                     if (part) {
                         this.app.rpc.chat.pushRemote.pushToPartition.toServer(this.app.getServerId(), target, content, cb);

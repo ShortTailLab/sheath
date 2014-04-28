@@ -32,12 +32,7 @@ class UserHelper {
 
     getUserByAuth(accType, uname, password) {
         var self = this;
-        return models.User.allP({
-            where: {
-                auth: [accType, uname]
-            },
-            limit: 2
-        })
+        return models.User.getAll([accType, uname], {index: "auth"}).limit(2).run()
         .then((users) => {
             if (_.size(users) === 1) {
                 var user = _.first(users);
@@ -58,14 +53,14 @@ class UserHelper {
     }
 
     changePassword(uid, accType, oldPassword, newPassword) {
-        return models.User.findP(uid).bind(this)
+        return models.User.get(uid).run()
         .then((user) => {
             for (var i=0;i<user.auth.length;i++) {
                 var auth = user.auth[i];
                 if (auth.type === accType){
                     if (bcrypt.compareSync(oldPassword, auth.password)) {
                         auth.password = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(5));
-                        return user.saveP();
+                        return user.save();
                     }
                     else {
                         return Promise.reject("old password does not match.");

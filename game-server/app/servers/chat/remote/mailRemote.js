@@ -15,17 +15,17 @@ class MailRemote extends base.HandlerBase {
     sendTreasureMail(sender, target, content, cb) {
         var role, mail;
 
-        this.safe(models.Role.findP(target).bind(this)
+        this.safe(models.Role.get(target).run().bind(this)
         .then(function (_role) {
             if (!_role) {
                 return Promise.reject(Constants.Role_Do_Not_Exist);
             }
             role = _role;
-            return models.Mail.createP({
+            return (new models.Mail({
                 sender: sender,
                 target: target,
                 text: content
-            });
+            })).save();
         })
         .then(function (m) {
             mail = m;

@@ -7,20 +7,38 @@ var express = require('express'),
     spdy = require('spdy'),
     ws = require("ws"),
     fs = require("fs"),
-    traceur = require("traceur"),
     path = require('path'),
     Promise = require("bluebird"),
     wsLive = require("./ws-live"),
-    routes = require('./routes'),
-    api = require('./routes/api'),
     pomeloConn = require("./pomelo-conn"),
-    appModels = require("../shared/models"),
-    Patcher = require("../game-server/app/utils/monkeyPatch");
+    appModels = require("../shared/models");
 
 var app = express();
 var pub = __dirname + '/public';
 var view = __dirname + '/views';
 var dbConfig = require("./config/rethinkdb.json");
+
+switch (process.env.NODE_ENV) {
+    case "production":
+        dbConfig = dbConfig.production;
+        break;
+    case "test":
+        dbConfig = dbConfig.test;
+        break;
+    default:
+        dbConfig = dbConfig.development;
+        break;
+}
+
+appModels.init({
+    host: dbConfig.host,
+    port: dbConfig.port,
+    database: dbConfig.database,
+    poolMax: 100
+});
+
+var routes = require('./routes');
+var api = require('./routes/api');
 
 function restrict(req, res, next) {
     if (req.session.user) {
@@ -46,14 +64,6 @@ app.configure('development', function () {
     app.use(express.logger('dev'));
     app.use(express.static(pub));
     app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
-
-    Patcher.wrapModel();
-    appModels.init({
-        host: dbConfig.development.host,
-        port: dbConfig.development.port,
-        database: dbConfig.development.database,
-        poolMax: 100
-    }).connect();
 });
 
 app.configure('test', function () {
@@ -63,13 +73,12 @@ app.configure('test', function () {
     app.use(express.static(pub, {maxAge: oneYear}));
     app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
 
-    Patcher.wrapModel();
     appModels.init({
         host: dbConfig.test.host,
         port: dbConfig.test.port,
         database: dbConfig.test.database,
         poolMax: 100
-    }).connect();
+    });
 });
 
 app.configure('production', function () {
@@ -77,13 +86,12 @@ app.configure('production', function () {
     app.use(express.static(pub, {maxAge: oneYear}));
     app.use(express.errorHandler());
 
-    Patcher.wrapModel();
     appModels.init({
         host: dbConfig.production.host,
         port: dbConfig.production.port,
         database: dbConfig.production.database,
         poolMax: 100
-    }).connect();
+    });
 });
 
 // all environments
@@ -176,10 +184,14 @@ var server = spdy.createServer({
     ca: fs.readFileSync(__dirname + '/keys/server.csr')
 }, app);
 
-http.createServer(function (req, res) {
-    res.writeHead(302, {Location: "https://"+ req.headers.host + req.url});
-    res.end();
-}).listen(80);
+try {
+    http.createServer(function (req, res) {
+        res.writeHead(302, {Location: "https://"+ req.headers.host + req.url});
+        res.end();
+    }).listen(80);
+}
+catch (err) {
+}
 
 //var server = http.createServer(app);
 

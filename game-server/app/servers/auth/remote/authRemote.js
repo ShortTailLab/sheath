@@ -23,7 +23,7 @@ class AuthRemote {
                 user = userDAO.newUser(accType, uname, password);
                 user.isNew = true;
 
-                user.saveP()
+                user.save()
                 .then(() => {
                     next(null, userDAO.toRPCObj(user));
                 })

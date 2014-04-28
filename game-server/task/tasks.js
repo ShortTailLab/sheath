@@ -1,6 +1,6 @@
 var Promise = require("bluebird");
-var r = require("rethinkdb");
 var models = require("../../shared/models");
+var r = models.r;
 var treasure = require("../../shared/treasureClaim");
 var Precondition = require("./preconditions");
 
@@ -30,20 +30,19 @@ class Task {
     claim(role) {
         return treasure.claim(role, [this.treasure]).bind(this)
         .then(function (gain) {
-            models.Role.updateP({
-                where: {id: role.id},
-                update: {
-                    taskDone: r.row("taskDone").difference([this.taskId]),
-                    taskClaimed: r.row("taskClaimed").setInsert(this.taskId)
-                }
+            return models.Role.get(role.id).update({
+                taskDone: r.row("taskDone").difference([this.taskId]),
+                taskClaimed: r.row("taskClaimed").setInsert(this.taskId)
+            }).run()
+            .then(function () {
+                return gain;
             });
-            return gain;
         });
     }
 
     needRole(context) {
         if (!context.role) {
-            context.role = models.Role.findP(context.roleId);
+            context.role = models.Role.get(context.roleId).run();
         }
     }
 
@@ -102,13 +101,10 @@ class RoleLevel extends Task {
             if (context.role.level === this.level) {
                 var dataUpdate = {};
                 dataUpdate[this.taskId] = null;
-                models.Role.updateP({
-                    where: {id: context.roleId},
-                    update: {
-                        taskDone: r.row("taskDone").setInsert(this.taskId),
-                        taskData: dataUpdate
-                    }
-                });
+                models.Role.get(context.roleId).update({
+                    taskDone: r.row("taskDone").setInsert(this.taskId),
+                    taskData: dataUpdate
+                }).run();
             }
         }
     }

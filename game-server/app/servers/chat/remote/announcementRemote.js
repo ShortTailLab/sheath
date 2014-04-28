@@ -17,7 +17,7 @@ class AnnouncementRemote {
     }
 
     addAnn(annId, cb) {
-        models.Announcement.findP(annId).bind(this)
+        models.Announcement.get(annId).run().bind(this)
         .then(function (ann) {
             if (ann) {
                 annService.addAnnAux(ann);

@@ -2,6 +2,7 @@ var Constants = require("../../../../../shared/constants");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var userDAO = require("../../../../../shared/dao/user");
 var models = require("../../../../../shared/models");
+var r = models.r;
 var base = require("../../../../../shared/base");
 var _ = require("lodash");
 var Promise = require("bluebird");
@@ -90,8 +91,9 @@ class EntryHandler extends base.HandlerBase {
         }
 
         var newRoleConf = this.app.get("roleBootstrap");
-        this.safe(models.Role.findOneP({where: {owner: session.uid, partition: part.id}}).bind(this)
-        .then((role) => {
+        this.safe(models.Role.getAll(session.uid, {index: "owner"}).filter(r.row("partition").eq(part.id)).limit(1).run().bind(this)
+        .then((roles) => {
+            var role = roles && roles.length ? roles[0] : null;
             if (!role) {
                 var newData = {
                     partition: part.id,
@@ -107,7 +109,7 @@ class EntryHandler extends base.HandlerBase {
                 };
                 logType = "role.register";
 
-                return models.Role.createP(newData).then((role) => {
+                return (new models.Role(newData)).save().then((role) => {
                     var initialHeroes = newRoleConf.heroes;
                     var initialItems = newRoleConf.items;
                     var heros = _.map(initialHeroes, function (hid) {
@@ -123,23 +125,23 @@ class EntryHandler extends base.HandlerBase {
                         };
                     });
 
-                    return [role, models.Hero.createP(heros), models.Item.createP(items)];
+                    return [role, (new models.Hero(heros)).save(), (new models.Item(items)).save()];
                 })
                 .spread(function (role, heroes) {
                     role.setTeam(0, _.pluck(heroes, "id"));
-                    return role.saveP();
+                    return role.save();
                 });
             }
             else {
                 role.fillEnergy();
-                return role.saveP();
+                return role.save();
             }
         })
         .then((_role) => {
             role = _role;
             session.set("role", role.toSessionObj());
             session.set("partId", part.id);
-            var deviceUpsert = models.Device.upsertP({
+            var deviceUpsert = models.Device.insert({
                 id: device.deviceID,
                 os: device.os,
                 osVersion: device.osVersion,
@@ -148,7 +150,7 @@ class EntryHandler extends base.HandlerBase {
 
                 lastRole: role.id,
                 lastLogin: new Date()
-            });
+            }).execute({upsert: true});
             return Promise.join(session.pushAll(), deviceUpsert);
         })
         .then(() => {
@@ -181,7 +183,7 @@ var onRoleLeave = function (app, session) {
     var partId = session.get('partId');
     if (role && partId) {
         app.rpc.chat.chatRemote.kick(session, session.uid, app.get('serverId'), partId, null);
-        models.Role.update({where: {id: role.id}, update: {lastLogOff: new Date()}}, function () {});
+        models.Role.get(role.id).update({lastLogOff: new Date()}).execute();
         logger.logInfo("role.logout", {
             user: session.uid,
             role: _.pick(role, "id", "name", "level", "title", "coins", "golds"),

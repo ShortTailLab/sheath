@@ -3,74 +3,58 @@ var r = require("rethinkdb");
 var moment = require("moment");
 var Promise = require("bluebird");
 
-exports.dailyNewUser = function (conn, db, start, end) {
-    return new Promise(function (resolve) {
-        var log = db.table("log");
-        var timeSlicedLogs = log.between(["user.register", start], ["user.register", end], {index: "type_time"});
+exports.dailyNewUser = function (start, end) {
+    return models.Log.between(["user.register", start], ["user.register", end], {index: "type_time"}).count().execute()
+    .then(function (regCount) {
+        var stat = new models.Stat();
+        stat.cycle = "daily";
+        stat.type = "newUser";
+        stat.time = start;
+        stat.value = regCount;
 
-        timeSlicedLogs.count().run(conn, function (err, regCount) {
-            if (!err) {
-                var stat = new models.Stat();
-                stat.cycle = "daily";
-                stat.type = "newUser";
-                stat.time = start;
-                stat.value = regCount;
-
-                resolve(stat.saveP());
-            }
-        });
+        return stat.save();
     });
 };
 
-exports.dailyActiveUser = function (conn, db, start, end) {
-    return new Promise(function (resolve) {
-        var log = db.table("log");
-        var timeSlicedLogs = log.between(["user.login", start], ["user.login", end], {index: "type_time"});
+exports.dailyActiveUser = function (start, end) {
+    return models.Log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group(r.row("msg")("user")).count().execute()
+    .then(function (err, activeCount) {
+        var stat = new models.Stat();
+        stat.cycle = "daily";
+        stat.type = "activeUser";
+        stat.time = start;
+        stat.value = activeCount;
 
-        timeSlicedLogs.group(r.row("msg")("user")).count().run(conn, function (err, activeCount) {
-            if (!err) {
-                var stat = new models.Stat();
-                stat.cycle = "daily";
-                stat.type = "activeUser";
-                stat.time = start;
-                stat.value = activeCount;
-
-                resolve(stat.saveP());
-            }
-        });
+        return stat.save();
     });
 };
 
-function retentionOfDays(conn, db, start, end, days) {
-    return new Promise(function (resolve) {
-        var log = db.table("log");
-        var regStart = moment(start).subtract(days, "d");
-        var regEnd = regStart.add(1, "d");
+function retentionOfDays(start, end, days) {
+    var regStart = moment(start).subtract(days, "d");
+    var regEnd = regStart.add(1, "d");
 
-        var loginLogs = log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group({msg: "user"}).count();
-        var regLogs = log.between(["user.register", regStart.toDate()], ["user.register", regEnd.toDate()], {index: "type_time"});
+    var loginLogs = models.Log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group({msg: "user"});
+    var regLogs = models.Log.between(["user.register", regStart.toDate()], ["user.register", regEnd.toDate()], {index: "type_time"});
 
-        regLogs.innerJoin(loginLogs, function (reg, login) {
-            return reg("msg")("user").eq(login("group")("msg")("user"));
-        }).count().run(conn, function (err, retentionCount) {
-            if (!err) {
-                var stat = new models.Stat();
-                stat.cycle = "daily";
-                stat.type = "retention.d" + days;
-                stat.time = start;
-                stat.value = retentionCount;
+    return regLogs.innerJoin(loginLogs, function (reg, login) {
+        return reg("msg")("user").eq(login("group")("msg")("user"));
+    }).count().execute()
+    .then(function (retentionCount) {
+        var stat = new models.Stat();
+        stat.cycle = "daily";
+        stat.type = "retention.d" + days;
+        stat.time = start;
+        stat.value = retentionCount;
 
-                resolve(stat.saveP());
-            }
-        });
+        return stat.save();
     });
 }
 
-exports.dailyRetention = function (conn, db, start, end) {
+exports.dailyRetention = function (start, end) {
     return Promise.join(
-        retentionOfDays(conn, db, start, end, 1),
-        retentionOfDays(conn, db, start, end, 3),
-        retentionOfDays(conn, db, start, end, 7),
-        retentionOfDays(conn, db, start, end, 30)
+        retentionOfDays(start, end, 1),
+        retentionOfDays(start, end, 3),
+        retentionOfDays(start, end, 7),
+        retentionOfDays(start, end, 30)
     );
 };

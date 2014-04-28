@@ -30,10 +30,10 @@ class RoleHandler extends base.HandlerBase {
         var oldHero, newHero, oldBoundEqs, newBoundEqs;
 
         console.log(oldHeroId);
-        this.safe(Promise.join(models.Hero.findP(oldHeroId),
-                models.Hero.findP(newHeroId),
-                models.Item.allP({where: {bound: oldHeroId, owner: role.id}}),
-                models.Item.allP({where: {bound: newHeroId, owner: role.id}})).bind(this)
+        this.safe(Promise.join(models.Hero.get(oldHeroId).run(),
+                models.Hero.get(newHeroId).run(),
+                models.Item.getAll(oldHeroId, {index: "bound"}).filter({owner: role.id}).run(),
+                models.Item.getAll(newHeroId, {index: "bound"}).filter({owner: role.id}).run()).bind(this)
         .spread(function (_oldHero, _newHero, _oldBoundEqs, _newBoundEqs) {
             oldHero = _oldHero;
             newHero = _newHero;
@@ -55,13 +55,14 @@ class RoleHandler extends base.HandlerBase {
                     }
                 }
                 session.set("role", role);
-                promises.push(Promise.join(session.push("role"), models.Role.updateP({where: {id: role.id}, update: {team: role.team}})))
+                promises.push(session.push("role"));
+                promises.push(models.Role.get(role.id).update({team: role.team}).run());
             }
             if (oldBoundEqs.length > 0) {
-                promises.push(models.Item.updateP({where: {bound: oldHeroId}, update: {bound: newHeroId}}));
+                promises.push(models.Item.getAll.apply(models.Item, oldHeroId).update({bound: newHeroId}).run());
             }
             if (newBoundEqs.length > 0) {
-                promises.push(models.Item.updateP({where: {bound: newHeroId}, update: {bound: oldHeroId}}));
+                promises.push(models.Item.getAll.apply(models.Item, newHeroId).update({bound: oldHeroId}).run());
             }
             return promises;
         })
@@ -98,7 +99,7 @@ class RoleHandler extends base.HandlerBase {
             }
 
             var reqHeroes = _.compact(heroList);
-            this.safe(Promise.join(models.Role.findP(role.id), models.Hero.countP({id: {inq: reqHeroes}, owner: role.id})).bind(this)
+            this.safe(Promise.join(models.Role.get(role.id).run(), models.Hero.getAll.apply(models.Hero, reqHeroes).count().execute()).bind(this)
             .spread(function(r, heroCount) {
                 role = r;
                 if (reqHeroes.length !== heroCount) {
@@ -107,7 +108,7 @@ class RoleHandler extends base.HandlerBase {
                 role.setTeam(formation, heroList);
                 role.formation = formation;
                 session.set("role", role.toSessionObj());
-                return [role.updateAttributesP({team: role.team, formation: formation}), session.push("role")];
+                return [role.save(), session.push("role")];
             })
             .all().then(() => {
                 next(null, {
@@ -134,7 +135,7 @@ class RoleHandler extends base.HandlerBase {
             return this.errorNext(Constants.RoleFailed.NO_FORMATION, next);
         }
 
-        this.safe(Promise.join(models.Role.findP(role.id), ItemDAO.getFormationBook(specialItemIds, formation)).bind(this)
+        this.safe(Promise.join(models.Role.get(role.id).run(), ItemDAO.getFormationBook(specialItemIds, formation)).bind(this)
         .spread(function(r, books) {
             role = r;
             var curFormationLevel = role.formationLevel[formation];
@@ -152,7 +153,7 @@ class RoleHandler extends base.HandlerBase {
             role.dailyRefreshData.dailyReward = true;
             var rewardConf = this.app.get("rewardConfig").daily;
 
-            this.safe(models.Role.findP(role.id).bind(this)
+            this.safe(models.Role.get(role.id).run().bind(this)
             .then((roleObj) => {
                 roleObj.coins += rewardConf.coins;
                 roleObj.golds += rewardConf.golds;
@@ -160,7 +161,7 @@ class RoleHandler extends base.HandlerBase {
                 roleObj.energy += rewardConf.energy;
                 roleObj.dailyRefreshData.dailyReward = true;
 
-                return [roleObj, roleObj.saveP(), session.push("role")];
+                return [roleObj, roleObj.save(), session.push("role")];
             })
             .spread((roleObj) => {
                 var rewardDict = {
@@ -195,7 +196,7 @@ class RoleHandler extends base.HandlerBase {
         if ((role.dailyRefreshData.qhourlyReward || 0) < rewardConf.dailyLimit) {
             role.dailyRefreshData.qhourlyReward = (role.dailyRefreshData.qhourlyReward || 0) + 1;
 
-            this.safe(models.Role.findP(role.id).bind(this)
+            this.safe(models.Role.get(role.id).run().bind(this)
             .then((roleObj) => {
                 roleObj.coins += rewardConf.coins;
                 roleObj.golds += rewardConf.golds;
@@ -203,7 +204,7 @@ class RoleHandler extends base.HandlerBase {
                 roleObj.energy += rewardConf.energy;
                 roleObj.dailyRefreshData.qhourlyReward = (roleObj.dailyRefreshData.qhourlyReward || 0) + 1;
 
-                return [roleObj, roleObj.saveP(), session.push("role")];
+                return [roleObj, roleObj.save(), session.push("role")];
             })
             .spread((roleObj) => {
                 var rewardDict = {
@@ -233,7 +234,7 @@ class RoleHandler extends base.HandlerBase {
     buyRoom(msg, session, next) {
         var role = session.get("role");
 
-        this.safe(models.findP(role.id).bind(this)
+        this.safe(models.get(role.id).run().bind(this)
         .then((roleObj) => {
             if (roleObj.storageRoom === 125) {
                 return Promise.reject(Constants.HeroFailed.STORAGE_MAX);
@@ -245,7 +246,7 @@ class RoleHandler extends base.HandlerBase {
             roleObj.golds -= 25;
             roleObj.storageRoom += 5;
             session.set("role", roleObj.toSessionObj());
-            return [roleObj.saveP(), session.push("role")];
+            return [roleObj.save(), session.push("role")];
         })
         .spread((roleObj) => {
             next(null, {

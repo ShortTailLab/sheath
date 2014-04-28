@@ -55,7 +55,7 @@ TaskService.prototype.initOnce = function(app) {
 TaskService.prototype.reloadAllTasks = function() {
     unloadAllTasks(this.taskPath);
     var dTasks = [], rTasks = [];
-    return models.Task.allP().bind(this)
+    return models.Task.run().bind(this)
     .then((tasks) => {
         var taskDefs = {};
         for (var i=0;i<tasks.length;i++) {
@@ -94,7 +94,7 @@ TaskService.prototype.notify = function(eventName, context) {
 };
 
 TaskService.prototype.claim = function(roleId, taskId) {
-    return models.Role.findP(roleId).bind(this)
+    return models.Role.get(roleId).run().bind(this)
     .then(function (role) {
         var task = this.tasks[taskId];
         if (!role || !task) {
@@ -118,7 +118,7 @@ TaskService.prototype.getTaskList = function(roleId) {
         return Promise.fulfilled([[], null]);
     }
 
-    return models.Role.findP(roleId).bind(this)
+    return models.Role.get(roleId).run().bind(this)
     .then(function (role) {
         var tasks = _.values(this.tasks);
         var roleTasks = [];
@@ -159,22 +159,19 @@ TaskService.prototype.getTaskList = function(roleId) {
                 taskUpdate[task.taskId] = task.initialProgress();
             }
 
-            return models.Role.updateP({
-                where: {id: role.id},
-                update: { taskData: taskUpdate }
-            })
-                .then(function () {
-                    return models.Role.findP(roleId);
-                })
-                .then(function (role) {
-                    context.role = role;
-                    return [roleTasks, _.map(newTasks, function (t) {
-                        return {
-                            id: t.taskId,
-                            progress: t.getProgress(context)
-                        };
-                    })];
-                });
+            return models.Role.get(role.id).update({taskData: taskUpdate}).execute({returnVals: true})
+            .then(function (ret) {
+                var role = new models.Role(ret.new_val);
+                role.setSaved(true);
+
+                context.role = role;
+                return [roleTasks, _.map(newTasks, function (t) {
+                    return {
+                        id: t.taskId,
+                        progress: t.getProgress(context)
+                    };
+                })];
+            });
         }
         else {
             return [roleTasks, null];

@@ -45,8 +45,6 @@ app.set('connectorConfig', {
 //    useDict: true
 });
 
-Patcher.wrapModel();
-
 var rethinkConfig = app.get("rethinkdb");
 appModels.init({
     host: rethinkConfig.host,
@@ -54,7 +52,7 @@ appModels.init({
     database: rethinkConfig.database,
     poolMin: 10,
     poolMax: 100
-}).connect();
+});
 
 var redisConfig = app.get("redis");
 app.use(statusPlugin, {

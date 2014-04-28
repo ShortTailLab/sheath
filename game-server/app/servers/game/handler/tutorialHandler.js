@@ -29,13 +29,11 @@ class TutorialHandler extends base.HandlerBase {
             return this.errorNext(Constants.NameInvalid, next);
         }
 
-        this.safe(models.Role.findP(role.id).bind(this)
-        .then((roleObj) => {
-            role.name = newName;
-            role.tutorial = 2;
-            session.set("role", role);
-            return Promise.join(session.push("role"), roleObj.updateAttributesP({name: newName, tutorial: 2}));
-        })
+        role.name = newName;
+        role.tutorial = 2;
+        session.set("role", role);
+
+        this.safe(Promise.join(session.push("role"), models.Role.get(role.id).update({tutorial: 2, name: newName}).run())
         .then(() => {
             next(null, {ok: true, tutorial: 2});
         }), next);
@@ -57,13 +55,14 @@ class TutorialHandler extends base.HandlerBase {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
-        this.safe(models.Role.findP(role.id).bind(this)
+        this.safe(models.Role.get(role.id).run().bind(this)
         .then((roleObj) => {
-            return models.Hero.createP({heroDefId: heroId, owner: role.id}).then((_newHero) => {
+            return (new models.Hero({heroDefId: heroId, owner: role.id})).save()
+            .then((_newHero) => {
                 newHero = _newHero;
                 role.tutorial = 3;
                 session.set("role", role);
-                return Promise.join(session.push("role"), roleObj.updateAttributesP({tutorial: 3}));
+                return Promise.join(session.push("role"), models.Role.get(role.id).update({tutorial: 3}).run());
             });
         })
         .then(() => {

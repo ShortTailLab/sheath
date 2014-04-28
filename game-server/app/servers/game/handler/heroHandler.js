@@ -67,7 +67,7 @@ class HeroHandler extends base.HandlerBase {
         wrapSession(session);
 
         var roleId = session.get("role").id;
-        this.safe(models.Hero.allP({where: {owner: roleId}})
+        this.safe(models.Hero.getAll(roleId, {index: "owner"}).run()
         .then((heroes) => {
             next(null, {
                 heroes: _.map(heroes, (h) => { return h.toClientObj(); })
@@ -79,7 +79,7 @@ class HeroHandler extends base.HandlerBase {
         wrapSession(session);
         Bar.initOnce(this.app);
 
-        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
             var barHeroes = this.getRoleBar(role);
 
@@ -96,7 +96,7 @@ class HeroHandler extends base.HandlerBase {
         wrapSession(session);
         Bar.initOnce(this.app);
 
-        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
             var freeRefresh = this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0);
             if (freeRefresh < 1) {
@@ -108,7 +108,7 @@ class HeroHandler extends base.HandlerBase {
                 recruited: [],
                 validThru: Bar.nextRefresh
             };
-            return role.saveP();
+            return role.save();
         })
         .then(function (role) {
             next(null, {
@@ -133,18 +133,18 @@ class HeroHandler extends base.HandlerBase {
             return this.errorNext(Constants.HeroFailed.NO_PAID_REFRESH, next);
         }
 
-        this.safe(Promise.join(models.Role.findP(role.id), models.Item.findOneP({wherer: {owner: role.id, itemDefId: tokenDefId}})).bind(this)
-        .spread(function (role, token) {
-            tokenId = token.id;
-            if (!token) {
+        this.safe(Promise.join(models.Role.get(role.id).run(), models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: tokenDefId}).limit(1).run()).bind(this)
+        .spread(function (role, tokens) {
+            if (!tokens || tokens.length === 0 || !tokens[0]) {
                 return Promise.reject(Constants.HeroFailed.NO_PAID_REFRESH);
             }
+            tokenId = tokens[0].id;
             role.bar = {
                 heroes: Bar.getPaidRefresh(role),
                 recruited: [],
                 validThru: Bar.nextRefresh
             };
-            return [role.saveP(), token.destroyP()];
+            return [role.save(), tokens[0].delete()];
         })
         .spread(function (role) {
             next(null, {
@@ -172,7 +172,7 @@ class HeroHandler extends base.HandlerBase {
             return this.errorNext(Constants.HeroFailed.NOT_IN_BAR, next);
         }
 
-        this.safe(models.Role.findP(role.id).bind(this)
+        this.safe(models.Role.get(role.id).run().bind(this)
         .then(function (_role) {
             role = _role;
             var barHeroes = this.getRoleBar(role);
@@ -193,7 +193,7 @@ class HeroHandler extends base.HandlerBase {
             else role.contribs -= heroDraw.contribs;
             role.bar.recruited.push(heroId);
             session.set("role", role.toSessionObj());
-            return [role.saveP(), models.Hero.createP({owner: role.id, heroDefId: heroId, level: heroDraw.level}), session.push("role")];
+            return [role.save(), (new models.Hero({owner: role.id, heroDefId: heroId, level: heroDraw.level})).save(), session.push("role")];
         })
         .spread(function (role, hero) {
             next(null, {
@@ -212,7 +212,7 @@ class HeroHandler extends base.HandlerBase {
     listSouls(msg, session, next) {
         wrapSession(session);
 
-        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
             next(null, role.souls);
         }), next);
@@ -224,7 +224,7 @@ class HeroHandler extends base.HandlerBase {
         var heroDef = this.app.get("cache").heroDefById[heroId];
         var hero;
 
-        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
             var soul = role.souls["" + heroId] || 0;
             if (!soul || !heroDef || soul < heroDef.souls) {
@@ -232,10 +232,10 @@ class HeroHandler extends base.HandlerBase {
             }
             soul -= heroDef.souls;
             role.souls["" + heroId] = soul;
-            return models.Hero.createP({owner: role.id, heroDefId: heroId})
+            return (new models.Hero({owner: role.id, heroDefId: heroId})).save()
             .then(function (_hero) {
                 hero = _hero;
-                return role.saveP();
+                return role.save();
             });
         })
         .then(function (role) {
@@ -271,7 +271,7 @@ class HeroHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
 
-            return [models.Hero.findP(heroId), models.Item.allP({where: {bound: heroId}})];
+            return [models.Hero.get(heroId).run(), models.Item.getAll(heroId, {index: "bound"}).run()];
         })
         .spread((_hero, equipments) => {
             hero = _hero;
@@ -288,12 +288,12 @@ class HeroHandler extends base.HandlerBase {
             equipment.bound = hero.id;
             if (toReplace) {
                 toReplace.bound = null;
-                return toReplace.saveP().then(function () {
-                    return equipment.saveP();
+                return toReplace.save().then(function () {
+                    return equipment.save();
                 });
             }
             else {
-                return equipment.saveP();
+                return equipment.save();
             }
         })
         .then((equipment) => {
@@ -327,7 +327,7 @@ class HeroHandler extends base.HandlerBase {
             }
             heroId = equipment.bound;
             equipment.bound = null;
-            return equipment.saveP();
+            return equipment.save();
         })
         .then((equipment) => {
             next(null, {

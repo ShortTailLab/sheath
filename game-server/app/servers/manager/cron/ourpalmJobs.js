@@ -8,30 +8,18 @@ var moment = require("moment");
 var Promise = require("bluebird");
 var pLogger = require('pomelo-logger').getLogger('sheath', __filename);
 
-var runQuery = function (query, conn, resolve, reject) {
-    query.run(conn, function (err, cursor) {
-        if (err) reject(err);
-        else {
-            cursor.toArray(function (err, results) {
-                if (err) reject(err);
-                else resolve(results);
-            });
-        }
-    });
-};
-
-exports.rollUp = function (logPath, conn, db, startTime, endTime) {
+exports.rollUp = function (logPath, startTime, endTime) {
     pLogger.info("Begin processing ourpalm log from " + startTime.format("lll") + " to " + endTime.format("lll"));
     return Promise.join(
-        rollUpUserLogin(logPath, conn, db, startTime, endTime),
-        rollUpUserCreate(logPath, conn, db, startTime, endTime),
-        rollUpRoleLogin(logPath, conn, db, startTime, endTime),
-        rollUpRoleCreate(logPath, conn, db, startTime, endTime)
-//        rollUpGameLaunch(logPath, conn, db, startTime, endTime),
-//        rollUpPurchase(logPath, conn, db, startTime, endTime),
-//        rollUpSpent(logPath, conn, db, startTime, endTime),
-//        rollUpPropUpdate(logPath, conn, db, startTime, endTime),
-//        rollUpHeartBeat(logPath, conn, db, startTime, endTime)
+        rollUpUserLogin(logPath, startTime, endTime),
+        rollUpUserCreate(logPath, startTime, endTime),
+        rollUpRoleLogin(logPath, startTime, endTime),
+        rollUpRoleCreate(logPath, startTime, endTime)
+//        rollUpGameLaunch(logPath, startTime, endTime),
+//        rollUpPurchase(logPath, startTime, endTime),
+//        rollUpSpent(logPath, startTime, endTime),
+//        rollUpPropUpdate(logPath, startTime, endTime),
+//        rollUpHeartBeat(logPath, startTime, endTime)
     )
     .then(function () {
         pLogger.info("Ourpalm log processing done");
@@ -67,14 +55,10 @@ var writeLogLine = function (s, time, args) {
     s.write(line);
 };
 
-var rollUpUserLogin = function (logPath, conn, db, startTime, endTime) {
+var rollUpUserLogin = function (logPath, startTime, endTime) {
     var gz = null;
-    return new Promise(function (resolve, reject) {
-        var log = db.table("log");
-        var logType = "user.login";
-        var timeSlicedLogs = log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"});
-        runQuery(timeSlicedLogs, conn, resolve, reject);
-    })
+    var logType = "user.login";
+    return models.Log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"}).run()
     .then(function (logs) {
         gz = gzipStream(logPath, "account-login", startTime);
         for (var i=0;i<logs.length;i++) {
@@ -95,14 +79,10 @@ var rollUpUserLogin = function (logPath, conn, db, startTime, endTime) {
     });
 };
 
-var rollUpUserCreate = function (logPath, conn, db, startTime, endTime) {
+var rollUpUserCreate = function (logPath, startTime, endTime) {
     var gz = null;
-    return new Promise(function (resolve, reject) {
-        var log = db.table("log");
-        var logType = "user.register";
-        var timeSlicedLogs = log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"});
-        runQuery(timeSlicedLogs, conn, resolve, reject);
-    })
+    var logType = "user.register";
+    return models.Log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"}).run()
     .then(function (logs) {
         gz = gzipStream(logPath, "account-register", startTime);
         for (var i=0;i<logs.length;i++) {
@@ -123,14 +103,10 @@ var rollUpUserCreate = function (logPath, conn, db, startTime, endTime) {
     });
 };
 
-var rollUpRoleLogin = function (logPath, conn, db, startTime, endTime) {
+var rollUpRoleLogin = function (logPath, startTime, endTime) {
     var gz = null;
-    return new Promise(function (resolve, reject) {
-        var log = db.table("log");
-        var logType = "role.login";
-        var timeSlicedLogs = log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"});
-        runQuery(timeSlicedLogs, conn, resolve, reject);
-    })
+    var logType = "role.login";
+    return models.Log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"}).run()
     .then(function (logs) {
         gz = gzipStream(logPath, "role-login", startTime);
         for (var i=0;i<logs.length;i++) {
@@ -148,14 +124,10 @@ var rollUpRoleLogin = function (logPath, conn, db, startTime, endTime) {
     });
 };
 
-var rollUpRoleCreate = function (logPath, conn, db, startTime, endTime) {
+var rollUpRoleCreate = function (logPath, startTime, endTime) {
     var gz = null;
-    return new Promise(function (resolve, reject) {
-        var log = db.table("log");
-        var logType = "role.register";
-        var timeSlicedLogs = log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"});
-        runQuery(timeSlicedLogs, conn, resolve, reject);
-    })
+    var logType = "role.register";
+    return models.Log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"}).run()
     .then(function (logs) {
         gz = gzipStream(logPath, "role-register", startTime);
         for (var i=0;i<logs.length;i++) {
@@ -173,14 +145,10 @@ var rollUpRoleCreate = function (logPath, conn, db, startTime, endTime) {
     });
 };
 
-var rollUpGameLaunch = function (logPath, conn, db, startTime, endTime) {
+var rollUpGameLaunch = function (logPath, startTime, endTime) {
     var gz = null;
-    return new Promise(function (resolve, reject) {
-        var log = db.table("log");
-        var logType = "launch";
-        var timeSlicedLogs = log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"});
-        runQuery(timeSlicedLogs, conn, resolve, reject);
-    })
+    var logType = "launch";
+    return models.Log.between([logType, startTime.toDate()], [logType, endTime.toDate()], {index: "type_time"}).run()
     .then(function (logs) {
         gz = gzipStream(logPath, "launch", startTime);
     })
@@ -191,14 +159,14 @@ var rollUpGameLaunch = function (logPath, conn, db, startTime, endTime) {
     });
 };
 
-var rollUpPurchase = function (logPath, conn, db, startTime, endTime) {
+var rollUpPurchase = function (logPath, startTime, endTime) {
 };
 
-var rollUpSpent = function (logPath, conn, db, startTime, endTime) {
+var rollUpSpent = function (logPath, startTime, endTime) {
 };
 
-var rollUpPropUpdate = function (logPath, conn, db, startTime, endTime) {
+var rollUpPropUpdate = function (logPath, startTime, endTime) {
 };
 
-var rollUpHeartBeat = function (logPath, conn, db, startTime, endTime) {
+var rollUpHeartBeat = function (logPath, startTime, endTime) {
 };

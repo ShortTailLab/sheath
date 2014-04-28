@@ -62,7 +62,7 @@ class ItemHandler extends base.HandlerBase {
         wrapSession(session);
 
         var roleId = session.get("role").id;
-        this.safe(models.Item.allP({where: {owner: roleId}}).bind(this)
+        this.safe(models.Item.getAll(roleId, {index: "owner"}).run()
         .then((items) => {
             next(null, {
                 items: _.invoke(items, "toClientObj")
@@ -74,7 +74,7 @@ class ItemHandler extends base.HandlerBase {
         wrapSession(session);
         Store.initOnce(this.app);
 
-        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
             var maxDailyPurchase = this.maxDailyPurchase(role);
             var maxDailyRefresh = this.maxDailyRefresh(role);
@@ -105,7 +105,7 @@ class ItemHandler extends base.HandlerBase {
         var isGoldStore = !!msg.isGold, role, tokenId;
         var key = isGoldStore ? "gold" : "coin";
 
-        this.safe(models.Role.findP(session.get("role").id).bind(this)
+        this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (_role) {
             role = _role;
             var coinRefreshLeft = this.maxDailyRefresh(role) - (role.dailyRefreshData.coinRefreshNum || 0);
@@ -125,11 +125,11 @@ class ItemHandler extends base.HandlerBase {
                     return Promise.reject(Constants.StoreFailed.NO_REFRESH);
                 }
                 else {
-                    return models.Item.findOneP({where: {owner: role.id, itemDefId: tokenDefId}}).bind(this)
+                    return models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: tokenDefId}).run().bind(this)
                     .then(function (token) {
                         if (token) {
                             tokenId = token.id;
-                            return token.destroyP();
+                            return token.delete();
                         }
                         else {
                             return Promise.reject(Constants.StoreFailed.NO_REFRESH);
@@ -143,7 +143,7 @@ class ItemHandler extends base.HandlerBase {
                 validThru: isGoldStore ? Store.goldRefresh : Store.coinRefresh,
                 items: Store.sampleItems(isGoldStore, role.store[key] ? role.store[key].items : null)
             };
-            return role.saveP();
+            return role.save();
         })
         .then(function (role) {
             var maxDailyRefresh = this.maxDailyRefresh(role);
@@ -181,7 +181,7 @@ class ItemHandler extends base.HandlerBase {
             return this.errorNext(Constants.StoreFailed.NO_ITEM, next);
         }
 
-        this.safe(Promise.join(models.Role.findP(role.id), this.getItemStacks(role.id, storeItem.defId, storeItem.count)).bind(this)
+        this.safe(Promise.join(models.Role.get(role.id).run(), this.getItemStacks(role.id, storeItem.defId, storeItem.count)).bind(this)
         .spread(function (_role, stacks) {
             role = _role;
             if (stacks > role.getStorageRoom()) {
@@ -215,13 +215,13 @@ class ItemHandler extends base.HandlerBase {
 
             var newItems = [];
             for (var i=0;i<storeItem.count;i++) {
-                newItems.push({
+                newItems.push((new models.Item({
                     itemDefId: storeItem.defId,
                     owner: role.id
-                });
+                })).save());
             }
             session.set("role", role.toSessionObj());
-            return [role.saveP(), models.Item.createP(newItems), session.push("role")];
+            return [role.save(), Promise.all(newItems), session.push("role")];
         })
         .spread(function (role, items) {
             next(null, {
@@ -250,7 +250,7 @@ class ItemHandler extends base.HandlerBase {
             return this.errorNext(Constants.EquipmentFailed.LEVEL_MAX, next);
         }
 
-        this.safe(models.Item.allP({where: {owner: role.id, itemDefId: gemType, bound: null}, limit: gemDef.composeCount}).bind(this)
+        this.safe(models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: gemType, bound: null}).limit(gemDef.composeCount).run().bind(this)
             .then((mats) => {
                 if (mats.length < gemDef.composeCount) {
                     return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
@@ -258,9 +258,9 @@ class ItemHandler extends base.HandlerBase {
                 mats[0].itemDefId = gemDef.composeTarget[0];
                 var promises = new Array(gemDef.composeCount + 1);
                 promises[0] = mats;
-                promises[1] = mats[0].saveP();
+                promises[1] = mats[0].save();
                 for (var i=1;i<mats.length;i++) {
-                    promises[i+1] = mats[i].destroyP();
+                    promises[i+1] = mats[i].delete();
                 }
                 return promises;
             })
@@ -295,13 +295,13 @@ class ItemHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
             coinInc = itemDef.price + item.level * 100 * 0.3;
-            return models.Role.findP(role.id);
+            return models.Role.get(role.id).run();
         })
         .then(function (_role) {
             role = _role;
             role.coins += coinInc;
             session.set("role", role.toSessionObj());
-            return [session.push("role"), role.saveP(), item.destroyP()];
+            return [session.push("role"), role.save(), item.delete()];
         })
         .all().then(function() {
             next(null, {

@@ -1,4 +1,5 @@
 var models = require("../../../../../shared/models");
+var r = models.r;
 var base = require("../../../../../shared/base");
 var Constants = require("../../../../../shared/constants");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
@@ -34,14 +35,14 @@ class EquipmentHandler extends base.HandlerBase {
         }
 
         var mats;
-        this.safe(models.Item.allP({where: {owner: role.id, itemDefId: matType}, limit: itemDef.composeCount}).bind(this)
-        .then((_mats) => {
+        this.safe(models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: matType}).limit(itemDef.composeCount)
+        .run().bind(this).then((_mats) => {
             mats = _mats;
             if (mats.length < itemDef.composeCount) {
                 return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
             }
             var promises = _.invoke(mats, "destroyP");
-            promises.unshift(models.Item.createP({owner: role.id, itemDefId: target.id}));
+            promises.unshift((new models.Item({owner: role.id, itemDefId: target.id})).save());
 
             return promises;
         })
@@ -79,21 +80,20 @@ class EquipmentHandler extends base.HandlerBase {
             if (equipment.refinement >= itemDef.refineLevel) {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
-            return models.Item.findOneP({where: {
-                owner: role.id,
+            return models.Item.getAll(role.id, {index: "owner"}).filter({
                 itemDefId: equipment.itemDefId,
                 refinement: 0,
                 level: 0,
-                bound: null,
-                id: {ne: equipment.id}
-            }});
+                bound: null
+            }).filter(r.row("id").ne(equipment.id)).limit(1).run();
         })
-        .then((material) => {
-            if (!material) {
+        .then((mats) => {
+            if (!mats || mats.length === 0) {
                 return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
             }
             equipment.refinement += 1;
-            return [material, material.destroyP(), equipment.saveP()];
+            var material = mats[0];
+            return [material, material.delete(), equipment.save()];
         })
         .spread((material) => {
             next(null, {
@@ -132,7 +132,7 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
 
-            return models.Role.findP(role.id);
+            return models.Role.get(role.id).run();
         })
         .then((role) => {
             var coinsNeeded = equipment.level * itemDef.upgradeCost;
@@ -143,7 +143,7 @@ class EquipmentHandler extends base.HandlerBase {
             equipment.level += 1;
             session.set("role", role.toSessionObj());
 
-            return [coinsNeeded, role.saveP(), equipment.saveP(), session.push("role")];
+            return [coinsNeeded, role.save(), equipment.save(), session.push("role")];
         })
         .spread((coinsSpent, roleObj) => {
             next(null, {
@@ -203,7 +203,7 @@ class EquipmentHandler extends base.HandlerBase {
             if (itemDef.gemType.indexOf(gemDef.subType) === -1) {
                 return Promise.reject(Constants.EquipmentFailed.CANNOT_BIND_GEM_TYPE);
             }
-            return [gem, models.Item.allP({where: {bound: eqId}})];
+            return [gem, models.Item.getAll(eqId, {index: "bound"}).run()];
         })
         .spread((gem, _boundGems) => {
             boundGemCount = _boundGems.length;
@@ -216,15 +216,15 @@ class EquipmentHandler extends base.HandlerBase {
             gem.bound = equipment.id;
             if (toReplace) {
                 toReplace.bound = null;
-                return toReplace.saveP().then(function () {
-                    return gem.saveP();
+                return toReplace.save().then(function () {
+                    return gem.save();
                 });
             }
             else {
                 if (_boundGems.length + 1 > itemDef.slots) {
                     return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
                 }
-                return gem.saveP();
+                return gem.save();
             }
         })
         .then((gem) => {
@@ -257,7 +257,7 @@ class EquipmentHandler extends base.HandlerBase {
 
             eqId = gem.bound;
             gem.bound = null;
-            return gem.saveP();
+            return gem.save();
         })
         .then((gem) => {
             next(null, { gem: gem.toClientObj() });
@@ -281,16 +281,16 @@ class EquipmentHandler extends base.HandlerBase {
 
         this.safe(this._genDestructMemory(eqId, role)
         .then((result) => {
-            return [result, models.Role.findP(role.id)];
+            return [result, models.Role.get(role.id).run()];
         })
         .spread((result, role) => {
             role.coins += result.coins;
 
             var createPieces = Promise.all(_.map(_.range(result.pieces[1]), () => {
-                return models.Item.createP({itemDefId: result.pieces[0], owner: role.id});
+                return (new models.Item({itemDefId: result.pieces[0], owner: role.id})).save();
             }));
-            var unBoundGem = models.Item.updateP({where: {bound: result.equipment.id}, update: {bound: null}});
-            return [result, role.saveP(), createPieces, unBoundGem, result.equipment.destroyP()];
+            var unBoundGem = models.Item.getAll(result.equipment.id, {index: "bound"}).update({bound: null}).run();
+            return [result, role.save(), createPieces, unBoundGem, result.equipment.delete()];
         })
         .spread((result, roleObj, pieces) => {
             next(null, {
@@ -369,9 +369,9 @@ class EquipmentHandler extends base.HandlerBase {
                     refineProgress: equipment.refineProgress,
                     pieces: [pieceId, pieceCount]
                 };
-                return [equipment.saveP(), itemDef, models.Item.allP({where: {bound: equipment.id}})];
+                return [equipment.save(), itemDef, models.Item.getAll(equipment.id, {index: "bound"}).run()];
             }
-            return [equipment, itemDef, models.Item.allP({where: {bound: equipment.id}})];
+            return [equipment, itemDef, models.Item.getAll(equipment.id, {index: "bound"}).run()];
         })
         .spread((equipment, itemDef, gems) => {
             return {

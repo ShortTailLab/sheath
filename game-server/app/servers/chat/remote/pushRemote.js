@@ -70,7 +70,7 @@ class PushRemote extends base.HandlerBase {
     }
 
     pushToUser(userId, msg, cb) {
-        models.Role.allP({where: {owner: userId}}).bind(this)
+        models.Role.getAll(userId, {index: "owner"}).run().bind(this)
         .then(function (roles) {
             if (roles.length) {
                 this.pushTo(_.pluck(roles, "id"), msg, cb);

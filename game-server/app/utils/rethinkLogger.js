@@ -4,36 +4,19 @@ var pLogger = require('pomelo-logger').getLogger('sheath', __filename);
 
 var _app;
 
-
 var logger = {};
-var logModel = null;
-
-function _log(entry) {
-    try {
-        var adapter = logModel._adapter();
-        adapter.pool.acquire(function(error, client) {
-            r.db(adapter.database).table("log").insert(entry).run(client, {noreply: true, durability: "soft"}, function(err) {
-                if (err) pLogger.warn("error writing log to database." + err);
-                adapter.pool.release(client);
-            });
-        });
-    }
-    catch (err) {
-        pLogger.warn("error writing log to database." + err);
-    }
-}
 
 logger.log = function (severity, type, msg) {
-    if (logModel === null) {
-        logModel = new models.Log();
-    }
-
-    _log({
+    var entry = {
         severity: severity,
         time: new Date(),
         server: _app.getServerId(),
         type: type,
         msg: msg
+    };
+    models.Log.insert(entry).execute({noreply: true, durability: "soft"})
+    .catch(function (err) {
+        pLogger.warn("error writing log to database." + err);
     });
 };
 

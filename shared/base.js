@@ -25,7 +25,7 @@ class HandlerBase {
     }
 
     getItemWithDef(itemId) {
-        return models.Item.findP(itemId).bind(this)
+        return models.Item.get(itemId).run().bind(this)
         .then(function (item){
             if (!item) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
@@ -59,7 +59,7 @@ class HandlerBase {
     }
 
     getItemStacks(roleId, newItemId=null, count=0) {
-        return models.Item.allP({where: {owner: roleId}}).bind(this)
+        return models.Item.getAll(roleId, {index: "owner"}).run().bind(this)
         .then((items) => {
             var itemGroups = _.groupBy(items, function (item) { return item.itemDefId + "_" + item.level; });
             var cache = this.app.get("cache");

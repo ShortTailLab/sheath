@@ -85,12 +85,18 @@ function notifyPurchase(channelId, loginId, order) {
         return;
     }
 
-    return appModels.PurchaseLog.findOrCreateP({where: {id: orderId}}, {
-        id: orderId,
-        channelName: channelName,
-        role: loginId,
-        state: 0,
-        extraParams: order
+    return appModels.PurchaseLog.get(orderId)
+    .then(function (pl) {
+        if (!pl) {
+            return (new appModels.PurchaseLog({
+                id: orderId,
+                channelName: channelName,
+                role: loginId,
+                state: 0,
+                extraParams: order
+            })).save();
+        }
+        return pl;
     })
     .then(function (pLog) {
         if (pLog.state !== 1) {

@@ -7,7 +7,7 @@ var Promise = require("bluebird");
 class TreasureHelper {
     makeClaimPromise(role, treasure) {
         var gain = {};
-        return models.Treasure.findP(treasure).bind(this)
+        return models.Treasure.get(treasure).run().bind(this)
         .then(function (treasure) {
             if (!treasure) {
                 return {};
@@ -17,27 +17,27 @@ class TreasureHelper {
             switch (treasure.type) {
                 case "Gold":
                     role.golds += treasure.count;
-                    promise = role.saveP();
+                    promise = role.save();
                     gain.golds = treasure.count;
                     break;
                 case "Coin":
                     role.coins += treasure.count;
-                    promise = role.saveP();
+                    promise = role.save();
                     gain.coins = treasure.count;
                     break;
                 case "Contrib":
                     role.contribs += treasure.count;
-                    promise = role.saveP();
+                    promise = role.save();
                     gain.contribs = treasure.count;
                     break;
                 case "Hero":
                     var hData = _(treasure.count).times(function () { return {owner: role.id, heroDefId: it}; });
-                    promise = models.Hero.createP(hData);
+                    promise = new models.Hero(hData).save();
                     gain.heroes = 1;
                     break;
                 case "Equipment":
                     var itemData = _(treasure.count).times(function () { return {owner: role.id, itemDefId: it}; });
-                    promise = models.Item.createP(itemData);
+                    promise = new models.Item(itemData).save();
                     gain.items = 1;
                     break;
                 case "Piece":

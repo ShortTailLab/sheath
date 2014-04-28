@@ -1,390 +1,395 @@
-var db = require('jugglingdb');
+var thinky = require('thinky');
 var Promise = require('bluebird');
-var r = require("rethinkdb");
 var _ = require("lodash");
 var moment = require("moment");
 
 exports.init = function (dbConfig) {
-    var schema = exports.schema = new db.Schema("rethink", dbConfig);
-    // As a workaround, array type should be rename to JSON type
+    var schema = exports.schema = thinky({
+        min: dbConfig.poolMin,
+        max: dbConfig.poolMax,
+        host: dbConfig.host,
+        port: dbConfig.port,
+        db: dbConfig.database
+    });
+    var r = exports.r = schema.r;
 
-    var User = exports.User = schema.define("user", {
-        auth: {type: db.Schema.JSON, default: function () { return []; } },
-        joinDate: {type: Date, default: function () { return new Date(); }},
-        activated: {type: Boolean, default: true},
+    var User = exports.User = schema.createModel("user", {
+        auth: [{type: String, id: String, password: String}],
+        joinDate: {_type: Date, default: r.now()},
+        activated: {_type: Boolean, default: true},
 
-        manRole: {type: db.Schema.JSON}
-    }, {
-        auth: {index: true, indexOption: {multi: true}, indexFunction: function (user) {
-            return user("auth").map(function (auth) {
-                return [auth("type"), auth("id")];
-            });
-        }},
-        authId: {index: true, indexOption: {multi: true}, indexFunction: function (user) {
-            return user("auth").map(function (auth) {
-                return auth("id");
-            });
-        }}
+        manRole: {admin: Boolean, editUser: Boolean, data: Boolean, announce: Boolean, debug: Boolean}
+    });
+    User.ensureIndex("auth", function (user) {
+        return user("auth").map(function (auth) {
+            return [auth("type"), auth("id")];
+        });
+    });
+    User.ensureIndex("authId", function (user) {
+        return user("auth").map(function (auth) {
+            return auth("id");
+        });
     });
 
-    var Partition = exports.Partition = schema.define("partition", {
-        name: {type: String, default: ""},
-        distro: {type: String, default: "All"},
-        public: {type: Boolean, default: true},
-        openSince: {type: Date, default: function () { return new Date(); }},
+    var Partition = exports.Partition = schema.createModel("partition", {
+        name: {_type: String, default: ""},
+        distro: {_type: String, default: "All"},
+        public: {_type: Boolean, default: true},
+        openSince: {_type: Date, default: r.now()},
 
-        createTime: {type: Date, default: function () { return new Date(); }}
+        createTime: {_type: Date, default: r.now()}
     });
 
-    var Role = exports.Role = schema.define("role", {
-        name: {type: String, default: ""},
-        level: {type: Number, default: 1},
-        exp: {type: Number, default: 0},
-        title: {type: String, default: ""},
+    var Role = exports.Role = schema.createModel("role", {
+        name: {_type: String, default: ""},
+        level: {_type: Number, default: 1},
+        exp: {_type: Number, default: 0},
+        title: {_type: String, default: ""},
 
-        vip: {type: Number, default: 0},
-        spent: {type: Number, default: 0},
+        vip: {_type: Number, default: 0},
+        spent: {_type: Number, default: 0},
 
-        formation: {type: Number, default: 0},
-        formationLevel: {type: db.Schema.JSON, default: function () {return [0, 0, 0, 0, 0, 0];}},
-        team: {type: db.Schema.JSON, default: function () {var ret = new Array(30); for(var i=0;i<30;i++) ret[i]=null; return ret;}},
+        formation: {_type: Number, default: 0},
+        formationLevel: {_type: Array, default: function () {return [0, 0, 0, 0, 0, 0];}},
+        team: {_type: Array, default: function () {var ret = new Array(30); for(var i=0;i<30;i++) ret[i]=null; return ret;}},
 
-        storageRoom: {type: Number, default: 25},
-        cleared: {type: db.Schema.JSON, default: function () {return {};}},
+        storageRoom: {_type: Number, default: 25},
+        cleared: {_type: Object, default: function () {return {};}},
 
-        energy: {type: Number, default: 0},
-        coins: {type: Number, default: 0},
-        golds: {type: Number, default: 0},
-        contribs: {type: Number, default: 0},
+        energy: {_type: Number, default: 0},
+        coins: {_type: Number, default: 0},
+        golds: {_type: Number, default: 0},
+        contribs: {_type: Number, default: 0},
 
-        energyRefreshTime: {type: Date, default: function () { return new Date(); }},
-        dailyRefreshData: {type: db.Schema.JSON, default: function () {return {};}},
+        energyRefreshTime: {_type: Date, default: r.now()},
+        dailyRefreshData: {_type: Object, default: function () {return {};}},
 
-        taskData: {type: db.Schema.JSON, default: function () {return {};}},
-        taskDone: {type: db.Schema.JSON, default: function () {return [];}},
-        taskClaimed: {type: db.Schema.JSON, default: function () {return [];}},
+        taskData: {_type: Object, default: function () {return {};}},
+        taskDone: {_type: Array, default: function () {return [];}},
+        taskClaimed: {_type: Array, default: function () {return [];}},
 
-        store: {type: db.Schema.JSON, default: function () {return {};}},
-        bar: {type: db.Schema.JSON, default: function () {return {};}},
+        store: {_type: Object, default: function () {return {};}},
+        bar: {_type: Object, default: function () {return {};}},
 
-        levelCleared: {type: db.Schema.JSON, default: function () {return {};}},
-        levelGain: {type: db.Schema.JSON, default: function () {return {};}},
+        levelCleared: {_type: Object, default: function () {return {};}},
+        levelGain: {_type: Object, default: function () {return {};}},
 
-        souls: {type: db.Schema.JSON, default: function () {return {};}},
+        souls: {_type: Object, default: function () {return {};}},
 
-        createTime: {type: Date, default: function () { return new Date(); }},
-        lastLogOff: Date,
+        createTime: {_type: Date, default: r.now()},
+        lastLogOff: {_type: Date, default: null},
 
         tutorial: Number
     });
 
-    var HeroDef = exports.HeroDef = schema.define("herodef", {
-        name: {type: String, default: ""},
-        type: {type: String, default: ""},
-        resKey: {type: String, default: ""},
-        stars: {type: Number, default: 1},
-        quality: {type: Number, default: 1},
-        skill: {type: Number, default: 0},
-        souls: {type: Number, default: 100},
+    var HeroDef = exports.HeroDef = schema.createModel("herodef", {
+        name: {_type: String, default: ""},
+        type: {_type: String, default: ""},
+        resKey: {_type: String, default: ""},
+        stars: {_type: Number, default: 1},
+        quality: {_type: Number, default: 1},
+        skill: {_type: Number, default: 0},
+        souls: {_type: Number, default: 100},
 
-        vitality: {type: Number, default: 0},
-        strength: {type: Number, default: 0},
-        intelligence: {type: Number, default: 0},
-        hp: {type: Number, default: 0},
-        hpGrowth: {type: Number, default: 0},
-        attack: {type: Number, default: 0},
-        attackGrowth: {type: Number, default: 0},
-        magic: {type: Number, default: 0},
-        magicGrowth: {type: Number, default: 0},
-        defense: {type: Number, default: 0},
-        defenseGrowth: {type: Number, default: 0},
-        resist: {type: Number, default: 0},
-        resistGrowth: {type: Number, default: 0},
-        critical: {type: Number, default: 0},
-        interval: {type: Number, default: 0},
-        attackSpeed: {type: Number, default: 0},
-        speed: {type: Number, default: 0},
-        ballLev: {type: Number, default: 0},
-        secBallLev: {type: Number, default: 0},
-        hpRefine: {type: Number, default: 0},
-        attackRefine: {type: Number, default: 0},
-        magicRefine: {type: Number, default: 0},
-        defenseRefine: {type: Number, default: 0},
-        resistRefine: {type: Number, default: 0},
-        ice: {type: Number, default: 0},
-        fire: {type: Number, default: 0},
-        slow: {type: Number, default: 0},
-        weak: {type: Number, default: 0},
-        attackDelta: {type: db.Schema.JSON, default: function () {return {};}},
-        damage: {type: Number, default: 0},
-        damageReduction: {type: Number, default: 0},
-        damageFactor: {type: Number, default: 0},
-        damageRedFactor: {type: Number, default: 0},
-        physicalResist: {type: Number, default: 0},
-        magicResist: {type: Number, default: 0},
-        attackFactor: {type: Number, default: 0},
-        defenseFactor: {type: Number, default: 0}
+        vitality: {_type: Number, default: 0},
+        strength: {_type: Number, default: 0},
+        intelligence: {_type: Number, default: 0},
+        hp: {_type: Number, default: 0},
+        hpGrowth: {_type: Number, default: 0},
+        attack: {_type: Number, default: 0},
+        attackGrowth: {_type: Number, default: 0},
+        magic: {_type: Number, default: 0},
+        magicGrowth: {_type: Number, default: 0},
+        defense: {_type: Number, default: 0},
+        defenseGrowth: {_type: Number, default: 0},
+        resist: {_type: Number, default: 0},
+        resistGrowth: {_type: Number, default: 0},
+        critical: {_type: Number, default: 0},
+        interval: {_type: Number, default: 0},
+        attackSpeed: {_type: Number, default: 0},
+        speed: {_type: Number, default: 0},
+        ballLev: {_type: Number, default: 0},
+        secBallLev: {_type: Number, default: 0},
+        hpRefine: {_type: Number, default: 0},
+        attackRefine: {_type: Number, default: 0},
+        magicRefine: {_type: Number, default: 0},
+        defenseRefine: {_type: Number, default: 0},
+        resistRefine: {_type: Number, default: 0},
+        ice: {_type: Number, default: 0},
+        fire: {_type: Number, default: 0},
+        slow: {_type: Number, default: 0},
+        weak: {_type: Number, default: 0},
+        attackDelta: {_type: Array, default: function () {return [];}},
+        damage: {_type: Number, default: 0},
+        damageReduction: {_type: Number, default: 0},
+        damageFactor: {_type: Number, default: 0},
+        damageRedFactor: {_type: Number, default: 0},
+        physicalResist: {_type: Number, default: 0},
+        magicResist: {_type: Number, default: 0},
+        attackFactor: {_type: Number, default: 0},
+        defenseFactor: {_type: Number, default: 0}
     });
 
-    var ItemDef = exports.ItemDef = schema.define("itemdef", {
-        name: {type: String, default: ""},
-        quality: {type: Number, default: 3},
-        type: {type: String, default: ""},
-        subType: {type: String, default: ""},
-        resKey: {type: String, default: ""},
-        levelReq: {type: Number, default: 1},
+    var ItemDef = exports.ItemDef = schema.createModel("itemdef", {
+        name: {_type: String, default: ""},
+        quality: {_type: Number, default: 3},
+        type: {_type: String, default: ""},
+        subType: {_type: String, default: ""},
+        resKey: {_type: String, default: ""},
+        levelReq: {_type: Number, default: 1},
 
-        stackSize: {type: Number, default: 1},
+        stackSize: {_type: Number, default: 1},
 
-        composable: {type: Boolean, default: true},
-        composeCount: {type: Number, default: 1},
-        composeTarget: {type: db.Schema.JSON, default: function () {return [];}},
+        composable: {_type: Boolean, default: true},
+        composeCount: {_type: Number, default: 1},
+        composeTarget: {_type: Array, default: function () {return [];}},
 
-        canSell: {type: Boolean, default: true},
-        price: {type: Number, default: 1000},
+        canSell: {_type: Boolean, default: true},
+        price: {_type: Number, default: 1000},
 
-        extended: {type: db.Schema.JSON, default: function () {return {};}},
-        desc: {type: String, default: ""}
+        extended: {_type: Object, default: function () {return {};}},
+        desc: {_type: String, default: ""}
     });
 
-    var EquipmentDef = exports.EquipmentDef = schema.define("equipmentdef", {
-        name: {type: String, default: ""},
-        color: {type: Number, default: 1},
-        quality: {type: Number, default: 3},
-        type: {type: String, default: ""},
-        subType: {type: String, default: ""},
-        resKey: {type: String, default: ""},
-        levelReq: {type: Number, default: 1},
+    var EquipmentDef = exports.EquipmentDef = schema.createModel("equipmentdef", {
+        name: {_type: String, default: ""},
+        color: {_type: Number, default: 1},
+        quality: {_type: Number, default: 3},
+        type: {_type: String, default: ""},
+        subType: {_type: String, default: ""},
+        resKey: {_type: String, default: ""},
+        levelReq: {_type: Number, default: 1},
 
-        hp: {type: Number, default: 0},
-        attack: {type: Number, default: 0},
-        magic: {type: Number, default: 0},
-        defense: {type: Number, default: 0},
-        resist: {type: Number, default: 0},
+        hp: {_type: Number, default: 0},
+        attack: {_type: Number, default: 0},
+        magic: {_type: Number, default: 0},
+        defense: {_type: Number, default: 0},
+        resist: {_type: Number, default: 0},
 
-        hpGrowth: {type: Number, default: 0},
-        attackGrowth: {type: Number, default: 0},
-        magicGrowth: {type: Number, default: 0},
-        defenseGrowth: {type: Number, default: 0},
-        resistGrowth: {type: Number, default: 0},
-        upgradeCost: {type:Number, default: 0},
+        hpGrowth: {_type: Number, default: 0},
+        attackGrowth: {_type: Number, default: 0},
+        magicGrowth: {_type: Number, default: 0},
+        defenseGrowth: {_type: Number, default: 0},
+        resistGrowth: {_type: Number, default: 0},
+        upgradeCost: {_type:Number, default: 0},
 
-        hpRefine: {type: Number, default: 0},
-        attackRefine: {type: Number, default: 0},
-        magicRefine: {type: Number, default: 0},
-        defenseRefine: {type: Number, default: 0},
-        resistRefine: {type: Number, default: 0},
-        refineCost: {type: Number, default: 0},
+        hpRefine: {_type: Number, default: 0},
+        attackRefine: {_type: Number, default: 0},
+        magicRefine: {_type: Number, default: 0},
+        defenseRefine: {_type: Number, default: 0},
+        resistRefine: {_type: Number, default: 0},
+        refineCost: {_type: Number, default: 0},
 
-        slots: {type: Number, default: 0},
-        gemType: {type: db.Schema.JSON, default: function () {return [];}},
+        slots: {_type: Number, default: 0},
+        gemType: {_type: Array, default: function () {return [];}},
 
-        price: {type: Number, default: 0}
+        price: {_type: Number, default: 0}
     });
 
-    var Hero = exports.Hero = schema.define("hero", {
-        heroDefId: {type: Number},
+    var Hero = exports.Hero = schema.createModel("hero", {
+        heroDefId: {_type: Number},
 
-        level: {type: Number, default: 1},
-        exp: {type: Number, default: 0},
+        level: {_type: Number, default: 1},
+        exp: {_type: Number, default: 0},
 
-        createTime: {type: Date, default: function () { return new Date(); }}
+        createTime: {_type: Date, default: r.now()}
     });
 
-    var Item = exports.Item = schema.define("item", {
-        bound: {type: String, index: true},
-        itemDefId: {type: Number},
+    var Item = exports.Item = schema.createModel("item", {
+        bound: {_type: String},
+        itemDefId: {_type: Number},
 
-        level: {type: Number, default: 0},
-        stoneUsed: {type: Number, default: 0},
+        level: {_type: Number, default: 0},
+        stoneUsed: {_type: Number, default: 0},
+        refinement: {_type: Number, default: 0},
 
-        refinement: {type: Number, default: 0},
+        createTime: {_type: Date, default: r.now()}
+    });
+    Item.ensureIndex("bound");
 
-        destructMemory: db.Schema.JSON,
+    var Stage = exports.Stage = schema.createModel("stage", {
+        name: {_type: String, default: ""},
 
-        createTime: {type: Date, default: function () { return new Date(); }}
+        public: {_type: Boolean, default: true}
     });
 
-    var Stage = exports.Stage = schema.define("stage", {
-        name: {type: String, default: ""},
-
-        public: {type: Boolean, default: true}
+    var Level = exports.Level = schema.createModel("level", {
+        name: {_type: String, default: ""},
+        path: {_type: String, default: ""},
+        energy: {_type: Number, default: 0},
+        exp: {_type: Number, default: 0},
+        stageId: {_type: Number, default: 0},
+        stage: {_type: String, default: ""},
+        enemies: {_type: Array, default: function () { return []; }}
     });
 
-    var Level = exports.Level = schema.define("level", {
-        name: {type: String, default: ""},
-        path: {type: String, default: ""},
-        energy: {type: Number, default: 0},
-        exp: {type: Number, default: 0},
-        stageId: {type: Number, default: 0},
-        stage: {type: String, default: ""},
-        enemies: {type: db.Schema.JSON, default: function () { return []; }}
+    var StoreItem = exports.StoreItem = schema.createModel("storeitem", {
+        name: {_type: String, default: ""},
+        gold: {_type: Boolean, default: false},
+        price: {_type: Number, default: 0},
+        defId: {_type: Number, default: 0},
+        count: {_type: Number, default: 1},
+        desc: {_type: String, default: ""}
     });
 
-    var StoreItem = exports.StoreItem = schema.define("storeitem", {
-        name: {type: String, default: ""},
-        gold: {type: Boolean, default: false},
-        price: {type: Number, default: 0},
-        defId: {type: Number, default: 0},
-        count: {type: Number, default: 1},
-        desc: {type: String, default: ""}
-    });
-
-    var Treasure = exports.Treasure = schema.define("treasure", {
+    var Treasure = exports.Treasure = schema.createModel("treasure", {
         type: String,
         count: Number,
-        desc: {type: String, default: ""},
-        candidates: {type: db.Schema.JSON, default: function () { return []; }},
-        weights: {type: db.Schema.JSON, default: function () { return []; }}
+        desc: {_type: String, default: ""},
+        candidates: {_type: Array, default: function () { return []; }},
+        weights: {_type: Array, default: function () { return []; }}
     });
 
-    var Task = exports.Task = schema.define("task", {
-        type: {type: Number, default: 0},
-        level: {type: Number, default: 0},
-        name: {type: String, default: ""},
-        desc: {type: String, default: ""},
-        weight: {type: Number, default: 0},
+    var Task = exports.Task = schema.createModel("task", {
+        type: {_type: Number, default: 0},
+        level: {_type: Number, default: 0},
+        name: {_type: String, default: ""},
+        desc: {_type: String, default: ""},
+        weight: {_type: Number, default: 0},
 
-        start: {type: Date, default: function () { return new Date(); }},
-        end: {type: Date, default: function () { return new Date(); }},
+        start: {_type: Date, default: r.now()},
+        end: {_type: Date, default: r.now()},
 
-        preCondition: {type: db.Schema.JSON, default: function () { return []; }},
-        condition: {type: db.Schema.JSON, default: function () { return []; }},
+        preCondition: {_type: Array, default: function () { return []; }},
+        condition: {_type: Array, default: function () { return []; }},
 
         reward: Number
     });
 
-    var HeroDraw = exports.HeroDraw = schema.define("herodraw", {
-        sysWeight: {type: Number, default: 0},
-        freeWeight: {type: Number, default: 0},
-        paidWeight: {type: Number, default: 0},
-        golds: {type: Number, default: 0},
-        contribs: {type: Number, default: 0},
-        level: {type: Number, default: 1}
+    var HeroDraw = exports.HeroDraw = schema.createModel("herodraw", {
+        sysWeight: {_type: Number, default: 0},
+        freeWeight: {_type: Number, default: 0},
+        paidWeight: {_type: Number, default: 0},
+        golds: {_type: Number, default: 0},
+        contribs: {_type: Number, default: 0},
+        level: {_type: Number, default: 1}
     });
 
-    var HeroNode = exports.HeroNode = schema.define("heronode", {
-        weight: {type: Number, default: 0}
+    var HeroNode = exports.HeroNode = schema.createModel("heronode", {
+        weight: {_type: Number, default: 0}
     });
 
-    var Mail = exports.Mail = schema.define("mail", {
-        sender: {type: String, index: true},
-        target: {type: String, index: true},
-        text: {type: String, default: ""},
-        time: {type: Date, index: true, default: function () { return new Date(); }},
-        read: {type: Boolean, default: false},
-        claimed: {type: Boolean, default: false},
-        treasures: {type: db.Schema.JSON, default: function () { return []; }}
+    var Mail = exports.Mail = schema.createModel("mail", {
+        sender: String,
+        target: String,
+        text: {_type: String, default: ""},
+        time: {_type: Date, default: r.now()},
+        read: {_type: Boolean, default: false},
+        claimed: {_type: Boolean, default: false},
+        treasures: {_type: Array, default: function () { return []; }}
     });
+    Mail.ensureIndex("sender");
+    Mail.ensureIndex("target");
+    Mail.ensureIndex("time");
 
-    var Announcement = exports.Announcement = schema.define("announcement", {
+    var Announcement = exports.Announcement = schema.createModel("announcement", {
         name: String,
         content: String,
-        partitions: {type: db.Schema.JSON, default: function () { return []; }},
-        start: {type: Date, default: function () { return new Date(); }},
-        end: {type: Date, default: function () { return new Date(); }}
+        partitions: {_type: Array, default: function () { return []; }},
+        start: {_type: Date, default: r.now()},
+        end: {_type: Date, default: r.now()}
     });
 
-    var PurchaseLog = exports.PurchaseLog = schema.define("purchaselog", {
+    var PurchaseLog = exports.PurchaseLog = schema.createModel("purchaselog", {
         role: String,
         channelName: String,
-        state: {type: Number, default: 0},
-        time: {type: Date, default: function () { return new Date(); }},
+        state: {_type: Number, default: 0},
+        time: {_type: Date, default: r.now()},
 
         golds: Number,
         price: Number,
-        extraParams: {type: db.Schema.JSON, default: function () { return {}; }}
-    }, {
+        extraParams: {_type: Object, default: function () { return {}; }}
     });
 
-    var Device = exports.Device = schema.define("device", {
-        os: {type: String, default: ""},
-        osVersion: {type: String, default: ""},
-        clientVersion: {type: String, default: ""},
-        deviceName: {type: String, default: ""},
+    var Device = exports.Device = schema.createModel("device", {
+        os: {_type: String, default: ""},
+        osVersion: {_type: String, default: ""},
+        clientVersion: {_type: String, default: ""},
+        deviceName: {_type: String, default: ""},
 
-        lastRole: {type: String, index: true},
-        lastLogin: {type: Date, default: function () { return new Date(); }}
+        lastRole: {_type: String},
+        lastLogin: {_type: Date, default: r.now()}
+    });
+    Device.ensureIndex("lastRole");
+
+    var MarketingCode = exports.MarketingCode = schema.createModel("marketingcode", {
+        redeemRole: {_type: String},
+        used: {_type: Boolean, default: false},
+        expire: {_type: Date, default: new Date(2020, 11, 31)}
     });
 
-    var MarketingCode = exports.MarketingCode = schema.define("marketingcode", {
-        redeemRole: {type: String},
-        used: {type: Boolean, default: false},
-        expire: {type: Date, default: function () { return new Date(2020, 11, 31); }}
-    });
-
-    var Log = exports.Log = schema.define("log", {
+    var Log = exports.Log = schema.createModel("log", {
         severity: String,
         type: String,
-        time: {type: Date, index: true},
+        time: Date,
         server: String,
         msg: Object
-    }, {
-        type_time: {index: true, indexFunction: function (stat) {
-            return [stat("type"), stat("time")];
-        }}
+    });
+    Log.ensureIndex("time");
+    Log.ensureIndex("type_time", function (stat) {
+        return [stat("type"), stat("time")];
     });
 
-    var Stat = exports.Stat = schema.define("stat", {
+    var Stat = exports.Stat = schema.createModel("stat", {
         cycle: String,
         type: String,
-        time: {type: Date, index: true},
+        time: Date,
         value: Number
-    }, {
-        cycle_type: {index: true, indexFunction: function (stat) {
-            return [stat("cycle"), stat("type")];
-        }}
+    });
+    Stat.ensureIndex("time");
+    Stat.ensureIndex("cycle_type", function (stat) {
+        return [stat("cycle"), stat("type")];
     });
 
     // relations should be used mostly in web server
-    Partition.hasMany(Role, {as: "roles", foreignKey: "partition"});
-    User.hasMany(Role, {as: "roles", foreignKey: "owner"});
-    Role.hasMany(Hero, {as: "heroes", foreignKey: "owner"});
-    Role.hasMany(Item, {as: "bag", foreignKey: "owner"});
-    Stage.hasMany(Level, {as: "levels", foreignKey: "stageId"});
+    Partition.hasMany(Role, "roles", "id", "partition");
+    User.hasMany(Role, "roles", "id", "owner");
+    Role.hasMany(Hero, "heroes", "id", "owner");
+    Role.hasMany(Item, "bag", "id", "owner");
+    Stage.hasMany(Level, "levels", "id", "stageId");
 
-    Partition.prototype.toClientObj = function () {
+    Partition.define("toClientObj", function () {
         var ret = _.pick(this, "id", "name");
         ret.openSince = +this.openSince;
         return ret;
-    };
+    });
 
-    User.prototype.toClientObj = function () {
+    User.define("toClientObj", function () {
         return _.pick(this, "id");
-    };
+    });
 
-    Role.prototype.toSessionObj = function () {
+    Role.define("toSessionObj", function () {
         var ret = _.pick(this, "id", "name", "team", "level", "exp", "title", "dailyRefreshData", "manualRefreshData", "partition", "tutorial");
         ret.storageRoom = this.getStorageRoom();
         return ret;
-    };
+    });
 
-    Role.prototype.toClientObj = function () {
+    Role.define("toClientObj", function () {
         var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "formation", "formationLevel", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 
         return ret;
-    };
+    });
 
-    Role.prototype.toLogObj = function () {
+    Role.define("toLogObj", function () {
         return _.pick(this, "id", "name", "level", "title", "coins", "golds", "vip");
-    };
+    });
 
-    Role.prototype.getStorageRoom = function () {
+    Role.define("getStorageRoom", function () {
         return this.storageRoom;
-    };
+    });
 
-    Role.prototype.setTeam = function (formation, hids) {
+    Role.define("setTeam", function (formation, hids) {
         while (this.team.length < 30) {
             this.team.push(null);
         }
         for (var i= 0, len=Math.min(5, hids.length);i<len;i++) {
             this.team[formation*5+i] = hids[i];
         }
-    };
+    });
 
-    Role.prototype.fillEnergy = function () {
+    Role.define("fillEnergy", function () {
         var now = moment();
         var lastCheck = moment(this.energyRefreshTime);
         var energyGain = Math.floor(moment.duration(now - lastCheck).asMinutes()/15);
@@ -392,24 +397,24 @@ exports.init = function (dbConfig) {
             this.energy = Math.min(this.energy + energyGain, 50);
             this.energyRefreshTime = lastCheck.add(energyGain*15, "minutes").toDate();
         }
-    };
+    });
 
-    ItemDef.prototype.toClientObj = function () {
+    ItemDef.define("toClientObj", function () {
         var ret = this.toObject();
         _.extend(ret, ret.extended);
         ret.extended = undefined;
         return ret;
-    };
+    });
 
-    EquipmentDef.prototype.toClientObj = function () {
+    EquipmentDef.define("toClientObj", function () {
         return this.toObject();
-    };
+    });
 
-    HeroDef.prototype.toClientObj = function () {
+    HeroDef.define("toClientObj", function () {
         return this.toObject(true);
-    };
+    });
 
-    Item.prototype.toClientObj = function () {
+    Item.define("toClientObj", function () {
         return {
             id: this.id,
             defId: this.itemDefId,
@@ -417,40 +422,40 @@ exports.init = function (dbConfig) {
             refinement: this.refinement,
             bound: this.bound || undefined
         };
-    };
+    });
 
-    Item.prototype.toLogObj = function () {
+    Item.define("toLogObj", function () {
         return _.pick(this, "id", "itemDefId", "level", "refinement", "bound");
-    };
+    });
 
-    Hero.prototype.toClientObj = function () {
+    Hero.define("toClientObj", function () {
         return {
             id: this.id,
             defId: this.heroDefId,
             level: this.level,
             exp: this.exp
         };
-    };
+    });
 
-    Hero.prototype.toLogObj = function () {
+    Hero.define("toLogObj", function () {
         return _.pick(this, "id", "heroDefId", "level", "exp");
-    };
+    });
 
-    Level.prototype.toClientObj = function () {
+    Level.define("toClientObj", function () {
         return _.pick(this, "id", "name", "path", "energy", "exp");
-    };
+    });
 
-    Mail.prototype.toClientObj = function () {
+    Mail.define("toClientObj", function () {
         var ret = this.toObject(true);
         ret.time = +ret.time;
         return ret;
-    };
+    });
 
-    Mail.prototype.toLogObj = function () {
+    Mail.define("toLogObj", function () {
         return _.pick(this, "id");
-    };
+    });
 
-    Task.prototype.toClientObj = function () {
+    Task.define("toClientObj", function () {
         var ret = {
             id: this.id,
             name: this.name,
@@ -459,14 +464,14 @@ exports.init = function (dbConfig) {
         if (this.start) ret.start = +this.start;
         if (this.end) ret.end = +this.end;
         return ret;
-    };
+    });
 
-    Announcement.prototype.toClientObj = function () {
+    Announcement.define("toClientObj", function () {
         var ret = _.pick(this, "id", "name", "content", "start", "end");
         ret.start = +ret.start;
         ret.end = +ret.end;
         return ret;
-    };
+    });
 
     return schema;
 };

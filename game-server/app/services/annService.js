@@ -1,5 +1,6 @@
 var utils = require("../../../shared/utils");
 var models = require("../../../shared/models");
+var r = models.r;
 var _ = require("lodash");
 var schedule = require("pomelo-schedule");
 
@@ -16,7 +17,7 @@ AnnService.prototype.initOnce = function(app) {
         this.inEffectAnnouncemeents = {all: []};
         this.allAnns = {};
 
-        models.Announcement.allP({where: {end: {gt: new Date()}}}).bind(this)
+        models.Announcement.filter(r.row("end").gt(r.now())).run().bind(this)
         .then(function (anns) {
             for (var i=0;i<anns.length;i++) {
                 this.addAnnAux(anns[i]);
