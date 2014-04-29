@@ -91,7 +91,7 @@ class EntryHandler extends base.HandlerBase {
         }
 
         var newRoleConf = this.app.get("roleBootstrap");
-        this.safe(models.Role.getAll(session.uid, {index: "owner"}).filter(r.row("partition").eq(part.id)).limit(1).run().bind(this)
+        this.safe(models.Role.getAll(session.uid, {index: "owner"}).filter({"partition": part.id}).limit(1).run().bind(this)
         .then((roles) => {
             var role = roles && roles.length ? roles[0] : null;
             if (!role) {

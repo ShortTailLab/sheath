@@ -161,7 +161,8 @@ class RoleHandler extends base.HandlerBase {
                 roleObj.energy += rewardConf.energy;
                 roleObj.dailyRefreshData.dailyReward = true;
 
-                return [roleObj, roleObj.save(), session.push("role")];
+                session.set("role", roleObj.toSessionObj());
+                return [roleObj.save(), session.push("role")];
             })
             .spread((roleObj) => {
                 var rewardDict = {
@@ -204,7 +205,8 @@ class RoleHandler extends base.HandlerBase {
                 roleObj.energy += rewardConf.energy;
                 roleObj.dailyRefreshData.qhourlyReward = (roleObj.dailyRefreshData.qhourlyReward || 0) + 1;
 
-                return [roleObj, roleObj.save(), session.push("role")];
+                session.set("role", roleObj.toSessionObj());
+                return [roleObj.save(), session.push("role")];
             })
             .spread((roleObj) => {
                 var rewardDict = {

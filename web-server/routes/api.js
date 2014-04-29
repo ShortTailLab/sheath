@@ -93,7 +93,7 @@ exports.basicStats = function (req, res) {
 };
 
 function partitionRoleCount() {
-    return appModels.Partition.group("partition").count().execute();
+    return appModels.Role.group("partition").count().run();
 }
 
 exports.partitions = function (req, res) {
@@ -186,18 +186,24 @@ exports.removePartition = function (req, res) {
     });
 };
 
-exports.userList = function (req, res) {
-    var listOptions = req.body;
-    var ownerPromise = [[], 0];
+function buildRoleQuery(listOptions) {
     var roleQuery = appModels.Role;
-
     if (listOptions.partitions) {
         var params = listOptions.partitions.concat([{index: "partition"}]);
         roleQuery = roleQuery.getAll.apply(roleQuery, params);
     }
+
     if (listOptions.hint) {
         roleQuery = roleQuery.filter(r.row("name").match(listOptions.hint));
+    }
+    return roleQuery;
+}
 
+exports.userList = function (req, res) {
+    var listOptions = req.body;
+    var ownerPromise = [[], 0];
+
+    if (listOptions.hint) {
         ownerPromise = appModels.User.between(listOptions.hint, listOptions.hint + "\uffff", {index: "authId"}).run()
         .then(function (users) {
             if (users.length === 0)
@@ -207,17 +213,17 @@ exports.userList = function (req, res) {
                 var q = appModels.Role.getAll.apply(appModels.Role, param);
                 if (listOptions.partitions) {
                     q = q.filter(function (row) {
-                        r.expr(listOptions.partitions).contains(row("partition"));
+                        return r.expr(listOptions.partitions).contains(row("partition"));
                     });
                 }
-                return Promise.join(q.run(), q.count.run());
+                return Promise.join(q.run(), q.count().execute());
             }
         });
     }
 
     var skip = (listOptions.page - 1) * listOptions.pageSize;
     var limit = listOptions.pageSize;
-    Promise.join(roleQuery.orderBy("id").skip(skip).limit(limit).run(), roleQuery.count().execute(), ownerPromise)
+    Promise.join(buildRoleQuery(listOptions).skip(skip).limit(limit).run(), buildRoleQuery(listOptions).count().execute(), ownerPromise)
     .spread(function (roles, roleCount, rolesByUser) {
         res.json({
             roles: _.map(roles.concat(rolesByUser[0]), roleToJson),
