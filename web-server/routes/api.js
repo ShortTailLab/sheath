@@ -208,7 +208,6 @@ exports.userList = function (req, res) {
     var query = {
         where: {},
         limit: listOptions.pageSize,
-        order: "id",
         skip: (listOptions.page - 1) * listOptions.pageSize
     };
     if (listOptions.partitions) {
