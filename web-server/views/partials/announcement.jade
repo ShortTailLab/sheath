@@ -14,10 +14,10 @@ include ../mixins/block
             .col-md-8: input(type="text", placeholder="可见分区，留空则所有分区可见", ng-list, ng-model="editable.partitions").form-control
         .form-group(style="height: 174px")
             label(class="control-label col-md-1") 开始时间
-            .col-md-8: datetimepicker#datePicker(date-format="yyyy-MM-dd", ng-model="editable.start", min-date="'2014-01-01'", max-date="'2020-01-01'", show-weeks="false", ng-required="true", hour-step="1", minute-step="15", show-meridian="false", close-text="关闭", current-text="今天", toggle-weeks-text="显示周数", clear-text="清空", datepicker-append-to-body="true")
+            .col-md-8: datetimepicker#datePicker(format-date="yyyy-MM-dd", ng-model="editable.start", min-date="'2014-01-01'", max-date="'2020-01-01'", show-weeks="false", ng-required="true", hour-step="1", minute-step="15", show-meridian="false", close-text="关闭", current-text="今天", toggle-weeks-text="显示周数", clear-text="清空", datepicker-append-to-body="true")
         .form-group(style="height: 174px")
             label(class="control-label col-md-1") 结束时间
-            .col-md-8: datetimepicker#datePicker(date-format="yyyy-MM-dd", ng-model="editable.end", min-date="'2014-01-01'", max-date="'2020-01-01'", show-weeks="false", ng-required="true", hour-step="1", minute-step="15", show-meridian="false", close-text="关闭", current-text="今天", toggle-weeks-text="显示周数", clear-text="清空", datepicker-append-to-body="true")
+            .col-md-8: datetimepicker#datePicker(format-date="yyyy-MM-dd", ng-model="editable.end", min-date="'2014-01-01'", max-date="'2020-01-01'", show-weeks="false", ng-required="true", hour-step="1", minute-step="15", show-meridian="false", close-text="关闭", current-text="今天", toggle-weeks-text="显示周数", clear-text="清空", datepicker-append-to-body="true")
         .form-group
             label(class="control-label col-md-1") 内容
             .col-md-8: text-angular(ng-model="editable.content", ta-toolbar-button-class="btn btn-xs")
