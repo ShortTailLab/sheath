@@ -150,7 +150,7 @@ class EntryHandler extends base.HandlerBase {
 
                 lastRole: role.id,
                 lastLogin: new Date()
-            }).execute({upsert: true});
+            }, {upsert: true}).execute();
             return Promise.join(session.pushAll(), deviceUpsert);
         })
         .then(() => {

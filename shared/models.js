@@ -1,4 +1,5 @@
 var thinky = require('thinky');
+var Document = require("thinky/lib/document");
 var Promise = require('bluebird');
 var _ = require("lodash");
 var moment = require("moment");
@@ -12,6 +13,16 @@ exports.init = function (dbConfig) {
         db: dbConfig.database
     });
     var r = exports.r = schema.r;
+
+    Document.prototype.toObject = function () {
+        var copy = {};
+        for(var key in this) {
+            if (this.hasOwnProperty(key)) {
+                copy[key] = this[key];
+            }
+        }
+        return copy;
+    };
 
     var User = exports.User = schema.createModel("user", {
         auth: [{type: String, id: String, password: String}],

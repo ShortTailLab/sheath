@@ -93,7 +93,7 @@ exports.basicStats = function (req, res) {
 };
 
 function partitionRoleCount() {
-    return appModels.Role.group("partition").count().run();
+    return appModels.Role.group("partition").count().execute();
 }
 
 exports.partitions = function (req, res) {
@@ -223,7 +223,8 @@ exports.userList = function (req, res) {
 
     var skip = (listOptions.page - 1) * listOptions.pageSize;
     var limit = listOptions.pageSize;
-    Promise.join(buildRoleQuery(listOptions).skip(skip).limit(limit).run(), buildRoleQuery(listOptions).count().execute(), ownerPromise)
+    var roleQ = buildRoleQuery(listOptions);
+    Promise.join(roleQ.skip(skip).limit(limit).run(), roleQ.count().execute(), ownerPromise)
     .spread(function (roles, roleCount, rolesByUser) {
         res.json({
             roles: _.map(roles.concat(rolesByUser[0]), roleToJson),
@@ -294,9 +295,6 @@ exports.updateRole = function (req, res) {
 
     appModels.Role.get(diff.id).run()
     .then(function (role) {
-        if (!role) {
-            return Promise.reject();
-        }
         delete diff.id;
         if (diff.taskData) {
             diff.taskData = r.literal(diff.taskData);
@@ -323,9 +321,6 @@ exports.updateHero = function (req, res) {
 
     appModels.Hero.get(diff.id).run()
     .then(function (h) {
-        if (!h) {
-            return Promise.reject();
-        }
         delete diff.id;
         h.merge(diff);
         return h.save();
@@ -346,9 +341,6 @@ exports.updateItem = function (req, res) {
 
     appModels.Item.get(diff.id).run()
     .then(function (it) {
-        if (!it) {
-            return Promise.reject();
-        }
         delete diff.id;
         it.merge(diff);
         return it.save();
@@ -433,22 +425,19 @@ exports.removeHero = function (req, res) {
     var hid = req.body.hero;
     appModels.Hero.get(hid).run()
     .then(function (hero) {
-        if (hero) {
-            var unbound = appModels.Item.getAll(hid, {index: "bound"}).update({bound: null}).run();
-            var removeFromTeam = appModels.Role.get(hero.owner).run().then(function (role) {
-                var updated = false;
-                for (var i=0;i<role.team.length;i++) {
-                    if (role.team[i] === hid) {
-                        role.team[i] = null;
-                        updated = true;
-                    }
+        var unbound = appModels.Item.getAll(hid, {index: "bound"}).update({bound: null}).run();
+        var removeFromTeam = appModels.Role.get(hero.owner).run().then(function (role) {
+            var updated = false;
+            for (var i=0;i<role.team.length;i++) {
+                if (role.team[i] === hid) {
+                    role.team[i] = null;
+                    updated = true;
                 }
-                if (updated) return role.save();
-                else return role;
-            });
-            return [removeFromTeam, hero.delete(), unbound];
-        }
-        return null;
+            }
+            if (updated) return role.save();
+            else return role;
+        });
+        return [removeFromTeam, hero.delete(), unbound];
     })
     .spread(function (role) {
         res.json(roleToJson(role, true));
@@ -465,11 +454,8 @@ exports.removeItem = function (req, res) {
     var itemId = req.body.item;
     appModels.Item.get(itemId).run()
     .then(function (item) {
-        if (item) {
-            var unbound = appModels.Item.getAll(itemId, {index: "bound"}).update({bound: null}).run();
-            return [item.delete(), unbound];
-        }
-        return null;
+        var unbound = appModels.Item.getAll(itemId, {index: "bound"}).update({bound: null}).run();
+        return [item.delete(), unbound];
     })
     .spread(function () {
         res.send(200);
@@ -682,9 +668,6 @@ exports.addAdmin = function (req, res) {
     var userId = req.body.userId;
     appModels.User.get(userId).run()
     .then(function (admin) {
-        if (!admin) {
-            return res.send(400, {message: "找不到用户"});
-        }
         if (admin.manRole !== null) {
             return res.send(400, {message: "用户已是管理员"});
         }
@@ -695,6 +678,10 @@ exports.addAdmin = function (req, res) {
         res.send(adminToJson(admin));
     })
     .catch(function (err) {
+        var errMessage = ""+err;
+        if (errMessage.startsWith("Cannot build a new instance of")) {
+            errMessage = "找不到用户";
+        }
         res.send(400, {message: ""+err});
     });
 };
@@ -706,9 +693,6 @@ exports.updateAnn = function (req, res) {
     var diff = req.body;
 
     appModels.Announcement.get(diff.id).run().then(function (ann) {
-        if (!ann) {
-            return Promise.reject();
-        }
         delete diff.id;
         ann.merge(diff);
         return ann.save();
@@ -734,16 +718,11 @@ exports.saveAnn = function (req, res) {
     var newAnn = req.body;
     appModels.Announcement.insert(newAnn, {upsert: true}).run()
     .then(function (ann) {
-        if (ann) {
-            pomeloConn.client.request("debugCommand", {command: "addAnn", annId: ann.id});
-            var ret =  ann.toObject(true);
-            ret.start = +ret.start;
-            ret.end = +ret.end;
-            res.send(200, ret);
-        }
-        else {
-            return Promise.reject();
-        }
+        pomeloConn.client.request("debugCommand", {command: "addAnn", annId: ann.id});
+        var ret =  ann.toObject(true);
+        ret.start = +ret.start;
+        ret.end = +ret.end;
+        res.send(200, ret);
     })
     .catch(function (err) {
         res.send(400);
@@ -757,12 +736,7 @@ exports.removeAnn = function (req, res) {
     var annId = req.body.annId;
     appModels.Announcement.get(annId).run()
     .then(function (ann) {
-        if (ann) {
-            return ann.delete();
-        }
-        else {
-            return Promise.reject(404);
-        }
+        return ann.delete();
     })
     .then(function () {
         pomeloConn.client.request("debugCommand", {command: "delAnn", annId: annId});

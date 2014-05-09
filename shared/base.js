@@ -27,13 +27,11 @@ class HandlerBase {
     getItemWithDef(itemId) {
         return models.Item.get(itemId).run().bind(this)
         .then(function (item){
-            if (!item) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
-            }
-            else {
-                var itemDef = this.app.get("cache").getItemDef(item.itemDefId);
-                return [item, itemDef];
-            }
+            var itemDef = this.app.get("cache").getItemDef(item.itemDefId);
+            return [item, itemDef];
+        })
+        .catch(function (err) {
+            return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
         });
     }
 

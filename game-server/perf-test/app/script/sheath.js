@@ -316,6 +316,7 @@ Role.prototype.entry = function entry(host, port, accType, username, password) {
                     height: 1440
                 },
                 osVersion: "10.9",
+                clientVersion: "0.1",
                 mac: "000000000000",
                 deviceID: ""
             }

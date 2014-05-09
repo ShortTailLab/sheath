@@ -29,7 +29,6 @@ class RoleHandler extends base.HandlerBase {
         }
         var oldHero, newHero, oldBoundEqs, newBoundEqs;
 
-        console.log(oldHeroId);
         this.safe(Promise.join(models.Hero.get(oldHeroId).run(),
                 models.Hero.get(newHeroId).run(),
                 models.Item.getAll(oldHeroId, {index: "bound"}).filter({owner: role.id}).run(),
@@ -44,7 +43,6 @@ class RoleHandler extends base.HandlerBase {
             }
             var promises = [];
             var cache = this.app.get("cache");
-            var teamIndice = _.filter(role.team, function (h) { return h === oldHeroId; });
             if (_.contains(role.team, oldHeroId)) {
                 for (var i=0;i<role.team.length;i++) {
                     if (role.team[i] === oldHeroId) {
