@@ -879,6 +879,8 @@ sheathControllers.controller('statsController', function ($scope, $http) {
     var retentionChartConfig = $scope.retentionChartConfig = _.cloneDeep(defaultChartConfig);
 
     retentionChartConfig.title.text = "留存";
+
+
 });
 
 sheathControllers.controller('settingsController', function ($scope, $http) {

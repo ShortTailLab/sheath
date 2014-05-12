@@ -72,26 +72,12 @@ app.configure('test', function () {
     app.use(express.logger('dev'));
     app.use(express.static(pub, {maxAge: oneYear}));
     app.use(express.errorHandler({dumpExceptions: true, showStack: true}));
-
-    appModels.init({
-        host: dbConfig.test.host,
-        port: dbConfig.test.port,
-        database: dbConfig.test.database,
-        poolMax: 100
-    });
 });
 
 app.configure('production', function () {
     var oneYear = 31557600000;
     app.use(express.static(pub, {maxAge: oneYear}));
     app.use(express.errorHandler());
-
-    appModels.init({
-        host: dbConfig.production.host,
-        port: dbConfig.production.port,
-        database: dbConfig.production.database,
-        poolMax: 100
-    });
 });
 
 // all environments
