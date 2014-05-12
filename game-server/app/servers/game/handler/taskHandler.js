@@ -37,7 +37,12 @@ class TaskHandler extends base.HandlerBase {
                 taskIds = taskIds.concat(_.pluck(tasks.newTasks, "id"));
             }
             taskStates = tasks;
-            return models.Task.getAll.apply(models.Task, taskIds).run();
+            if (taskIds && taskIds.length) {
+                return models.Task.getAll.apply(models.Task, taskIds).run();
+            }
+            else {
+                return [];
+            }
         })
         .then(function (taskDefs) {
             taskDefs = _.indexBy(taskDefs, "id");

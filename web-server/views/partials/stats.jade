@@ -1,4 +1,6 @@
 include ../mixins/block
 
 +block("留存")
+    div(class="message errormsg", ng-show="ret_error")
+        p {{ret_error}}
     highchart#cRetention(config="retentionChartConfig")

@@ -880,7 +880,17 @@ sheathControllers.controller('statsController', function ($scope, $http) {
 
     retentionChartConfig.title.text = "留存";
 
+    $scope.retrieveStats = function (config, errorPrefix) {
 
+        $http.post("/api/getStatInfo", {}).success(function (data) {
+
+        })
+        .error(function (data) {
+            $scope[errorPrefix + "_error"] = data.message || "未知错误";
+        });
+    };
+
+    $scope.retrieveStats(retentionChartConfig, "ret");
 });
 
 sheathControllers.controller('settingsController', function ($scope, $http) {
