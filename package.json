@@ -30,6 +30,7 @@
         "iweibo": "latest",
         "express": "3.5.2",
         "spdy": "latest",
+        "fast-stats": "latest",
         "ws": "latest",
         "jade": "latest",
         "socket.io-client": "<1.0.0",

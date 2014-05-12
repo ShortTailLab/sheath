@@ -7,6 +7,7 @@ var appModels = require("../shared/models");
 var logger = require('pomelo-logger').getLogger('sheath', __filename);
 var Constants = require("../shared/constants");
 var authFilter = require("./app/filters/authFilter");
+var statsFilter = require("./app/filters/perfStatsFilter");
 var Patcher = require("./app/utils/monkeyPatch");
 var dispatcher = require("./app/utils/dispatcher");
 
@@ -29,6 +30,11 @@ app.route("chat", dispatcher.routeByPartition);
 app.route("connector", dispatcher.defaultRouter);
 app.route("game", dispatcher.defaultRouter);
 app.route("manager", dispatcher.defaultRouter);
+
+// set up stats filter for handlers and remotes
+var stats = new statsFilter();
+app.filter(stats.handler);
+app.rpcFilter(stats.remote);
 
 app.set('remoteConfig', {
     rpcServer: zmqRPC.server
@@ -68,7 +74,8 @@ app.use(statusPlugin, {
 
 // app configuration
 app.configure('development', function () {
-    app.filter(pomelo.filters.time());
+//    app.filter(pomelo.filters.time());
+//    app.rpcFilter(pomelo.rpcFilters.rpcLog());
 });
 
 app.configure('development|production|test', "master", function () {

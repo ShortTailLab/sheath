@@ -1,6 +1,16 @@
 include ../mixins/block
 
-+block("留存")
-    div(class="message errormsg", ng-show="ret_error")
-        p {{ret_error}}
-    highchart#cRetention(config="retentionChartConfig")
++block("用户留存")
+    div(class="message errormsg", ng-show="retention_error")
+        p {{retention_error}}
+    highchart#cRetention(config="retention")
+
++block("新用户")
+    div(class="message errormsg", ng-show="reg_error")
+        p {{reg_error}}
+    highchart#cRetention(config="newReg")
+
++block("在线用户")
+    div(class="message errormsg", ng-show="online_error")
+        p {{online_error}}
+    highchart#cRetention(config="online")

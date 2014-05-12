@@ -1,7 +1,13 @@
 {
     "development": {
+        "manager": [
+            {"id": 1, "serverId": "manager-1", "time": "0 0 0 * * *", "action": "gameCron.dailyRefresh"}
+        ]
     },
     "test": {
+        "manager": [
+            {"id": 1, "serverId": "manager-1", "time": "0 0 0 * * *", "action": "gameCron.dailyRefresh"}
+        ]
     },
     "production": {
         "manager": [

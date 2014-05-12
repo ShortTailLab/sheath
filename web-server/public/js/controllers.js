@@ -861,36 +861,57 @@ sheathControllers.controller('announcementController', function ($scope, $http, 
 
 sheathControllers.controller('statsController', function ($scope, $http) {
     var defaultChartConfig = {
-        title: {text: "标题"},
+        title: {text: ""},
         options: {
             chart: {
-                type: "areaspline"
+                type: "areaspline",
+                events: {}
             },
             tooltip: {
                 style: {
                     padding: 10,
                     fontWeight: 'bold'
                 }
-            }
+            },
+            xAxis: {type: "datetime", dateTimeLabelFormats: {day: "%Y-%m-%e"}, minRange: 24*60*60*1000},
+            yAxis: {title: "", allowDecimals: false}
         },
-        loading: true
+        series: []
     };
 
-    var retentionChartConfig = $scope.retentionChartConfig = _.cloneDeep(defaultChartConfig);
+    var retention = $scope.retention = _.cloneDeep(defaultChartConfig);
+    var newReg = $scope.newReg = _.cloneDeep(defaultChartConfig);
+    var online = $scope.online = _.cloneDeep(defaultChartConfig);
 
-    retentionChartConfig.title.text = "留存";
+    retention.options.yAxis.allowDecimals = true;
+    retention.options.yAxis.ceiling = 1.0;
 
-    $scope.retrieveStats = function (config, errorPrefix) {
-
-        $http.post("/api/getStatInfo", {}).success(function (data) {
-
+    $scope.retrieveStats = function (series, seriesIndex, name, type, cycle, errorPrefix) {
+        var s = series[seriesIndex] = series[seriesIndex] || {name: name};
+        var requestParam = {
+            start: moment().subtract(14, "d").startOf("day"),
+            end: null,
+            type: type,
+            cycle: cycle
+        };
+        $http.post("/api/getStatInfo", requestParam).success(function (data) {
+            _.chain(data).each(function (r) {r.x = new Date(r.x);}).sortBy("x");
+            s.data = data;
         })
         .error(function (data) {
             $scope[errorPrefix + "_error"] = data.message || "未知错误";
         });
     };
 
-    $scope.retrieveStats(retentionChartConfig, "ret");
+    $scope.retrieveStats(retention.series, 0, "次日留存", "retention", 1, "retention");
+    $scope.retrieveStats(retention.series, 1, "三日留存", "retention", 3, "retention");
+    $scope.retrieveStats(retention.series, 2, "七日留存", "retention", 7, "retention");
+    $scope.retrieveStats(retention.series, 3, "十四日留存", "retention", 14, "retention");
+    $scope.retrieveStats(retention.series, 4, "月留存", "retention", 30, "retention");
+    $scope.retrieveStats(newReg.series, 0, "新角色", "regRole", 1, "reg");
+    $scope.retrieveStats(newReg.series, 1, "新用户", "regUser", 1, "reg");
+    $scope.retrieveStats(online.series, 0, "在线角色", "onlineRole", 1, "online");
+    $scope.retrieveStats(online.series, 1, "在线用户", "onlineUser", 1, "online");
 });
 
 sheathControllers.controller('settingsController', function ($scope, $http) {

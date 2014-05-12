@@ -33,18 +33,19 @@ function retentionOfDays(start, end, days) {
     var regStart = moment(start).subtract(days, "d");
     var regEnd = regStart.add(1, "d");
 
-    var loginLogs = models.Log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group({msg: "user"});
+    var loginLogs = models.Log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group(function (row) {return [row("msg")("user"), row("time").date()];}).count().ungroup()
     var regLogs = models.Log.between(["user.register", regStart.toDate()], ["user.register", regEnd.toDate()], {index: "type_time"});
 
     return regLogs.innerJoin(loginLogs, function (reg, login) {
-        return reg("msg")("user").eq(login("group")("msg")("user"));
-    }).count().execute()
+        return reg("msg")("user").eq(login("group").nth(0));
+    }).count().run()
     .then(function (retentionCount) {
+        if (retentionCount.length === 0) return;
         var stat = new models.Stat();
         stat.cycle = "daily";
         stat.type = "retention.d" + days;
         stat.time = start;
-        stat.value = retentionCount;
+        stat.value = retentionCount[0].reduction;
 
         return stat.save();
     });
@@ -55,6 +56,7 @@ exports.dailyRetention = function (start, end) {
         retentionOfDays(start, end, 1),
         retentionOfDays(start, end, 3),
         retentionOfDays(start, end, 7),
+        retentionOfDays(start, end, 14),
         retentionOfDays(start, end, 30)
     );
 };

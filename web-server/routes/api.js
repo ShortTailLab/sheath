@@ -2,6 +2,7 @@ var pomeloConn = require("../pomelo-conn");
 var _ = require("lodash");
 var Promise = require("bluebird");
 var appModels = require("../../shared/models");
+var stats = require("./stats");
 var r = appModels.r;
 var csv = require("csv");
 var fs = require("fs");
@@ -1328,4 +1329,22 @@ exports.sendNotification = function (req, res) {
 };
 
 exports.getStatInfo = function (req, res) {
+    var statReq = req.body;
+    var type = statReq.type, startTime = new Date(statReq.start || 0), endTime = statReq.end ? new Date(statReq.end) : new Date();
+
+    var typeAggregatorMap = {
+        regRole: stats.newRegRole,
+        regUser: stats.newRegUser,
+        onlineRole: stats.onlineRole,
+        onlineUser: stats.onlineUser,
+        retention: stats.retention
+    };
+
+    (typeAggregatorMap[type](type, startTime, endTime, statReq.cycle) || Promise.reject("No stat aggregator."))
+    .then(function (results) {
+        res.json(results);
+    })
+    .catch(function (err) {
+        res.send(400, {message: ""+err});
+    });
 };

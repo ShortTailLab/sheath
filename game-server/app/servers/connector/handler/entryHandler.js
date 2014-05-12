@@ -45,8 +45,7 @@ class EntryHandler extends base.HandlerBase {
             var partitions = this.app.get("cache").getPartitions();
             session.on('closed', onUserLeave.bind(null, this.app));
 
-            var logType = "user.login";
-            if (user.isNew) logType = "user.register";
+            var logType = user.isNew ? "user.register" : "user.login";
             logger.logInfo(logType, {
                 device: device,
                 ip: session.__session__.__socket__.remoteAddress.ip,
@@ -85,6 +84,9 @@ class EntryHandler extends base.HandlerBase {
         }
         if (part.openSince > Date.now()) {
             return this.errorNext(Constants.PartitionFailed.PARTITION_NOT_OPEN, next);
+        }
+        if (!session.uid) {
+            return this.errorNext(Constants.LoginFailed.InvalidRequest, next);
         }
         if (session.get("role")) {
             return this.errorNext(Constants.LoginFailed.AlreadyLoggedIn, next);
