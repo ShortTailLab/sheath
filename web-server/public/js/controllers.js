@@ -860,9 +860,12 @@ sheathControllers.controller('announcementController', function ($scope, $http, 
 });
 
 sheathControllers.controller('statsController', function ($scope, $http) {
-    $scope.retentionChartConfig = {
-        title: {text: "留存"},
+    var defaultChartConfig = {
+        title: {text: "标题"},
         options: {
+            chart: {
+                type: "areaspline"
+            },
             tooltip: {
                 style: {
                     padding: 10,
@@ -872,6 +875,10 @@ sheathControllers.controller('statsController', function ($scope, $http) {
         },
         loading: true
     };
+
+    var retentionChartConfig = $scope.retentionChartConfig = _.cloneDeep(defaultChartConfig);
+
+    retentionChartConfig.title.text = "留存";
 });
 
 sheathControllers.controller('settingsController', function ($scope, $http) {
