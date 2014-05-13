@@ -1,5 +1,4 @@
 var models = require("../../../shared/models");
-var r = require("rethinkdb");
 var pLogger = require('pomelo-logger').getLogger('sheath', __filename);
 
 var _app;

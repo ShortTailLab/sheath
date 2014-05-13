@@ -1,4 +1,3 @@
-var r = require("rethinkdb");
 var models = require("./models");
 var utils = require("./utils");
 var _ = require("lodash");

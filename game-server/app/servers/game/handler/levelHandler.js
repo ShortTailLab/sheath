@@ -5,7 +5,7 @@ var seed = require("seed-random");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
 var Promise = require("bluebird");
 var _ = require("lodash");
-var r = require("rethinkdb");
+var r = models.r;
 var logger;
 
 

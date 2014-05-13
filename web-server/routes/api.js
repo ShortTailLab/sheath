@@ -1328,11 +1328,34 @@ exports.sendNotification = function (req, res) {
     res.send(200);
 };
 
+exports.resetPerfStats = function (req, res) {
+    pomeloConn.client.request("perf", {command:"reset"});
+    res.send(200);
+};
+
+function perfCounter() {
+    return new Promise(function (resolve, reject) {
+        pomeloConn.client.request("perf", {command:"collect"}, function (err, results) {
+            if (err) reject(err);
+            else resolve(results);
+        });
+    })
+    .then(function (results) {
+        var accum = results.accum;
+        return _.chain(accum).map(function (value, key) {
+            value.route = key;
+            return value;
+        }).compact().value();
+    });
+}
+
 exports.getStatInfo = function (req, res) {
     var statReq = req.body;
     var type = statReq.type, startTime = new Date(statReq.start || 0), endTime = statReq.end ? new Date(statReq.end) : new Date();
 
     var typeAggregatorMap = {
+        perf: perfCounter,
+
         regRole: stats.newRegRole,
         regUser: stats.newRegUser,
         onlineRole: stats.onlineRole,

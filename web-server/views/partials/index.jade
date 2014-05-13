@@ -36,3 +36,12 @@ include ../mixins/block
             td {{node.heapUsed}}MB
             td {{humanizeUpTime(node.uptime)}}
             td {{node.hostname}}
+
++block("性能")
+    table(ng-table="tableParams").table
+        tr(ng-repeat="stat in $data")
+            td(data-title="'请求'", sortable="'route'") {{ stat.route }}
+            td(data-title="'次数'", sortable="'count'") {{ stat.count }}
+            td(data-title="'平均值'", sortable="'mean'") {{ stat.mean }}
+            td(data-title="'中位值'", sortable="'median'") {{ stat.median }}
+            td(data-title="'98%值'", sortable="'percentile98'") {{ stat.percentile98 }}

@@ -1,5 +1,5 @@
 var models = require("../../../../../shared/models");
-var r = require("rethinkdb");
+var r = models.r;
 var logger;
 
 module.exports = function (app) {

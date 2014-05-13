@@ -65,3 +65,38 @@ export function toChunk(array, chunkSize) {
         })
     );
 }
+
+export function forward(moduleId, agent, serverType, command, msg, cb) {
+    if (!cb) {
+        cb = function () {};
+    }
+
+    var servers = _.values(agent.idMap);
+    if (serverType !== "*") servers = _.filter(servers, function (r) { return r.type === serverType; });
+    var pending = servers.length;
+    var allResults = [];
+
+    var waitAll = function (err, results) {
+        if (!cb) return;
+        if (err) {
+            cb(err);
+            cb = null;
+        }
+
+        if (_.isArray(results)) {
+            allResults = allResults.concat(results);
+        }
+        else if (results) {
+            allResults.push(results);
+        }
+
+        if (--pending === 0) {
+            cb(null, allResults);
+        }
+    };
+
+    for (var i=0;i<servers.length;i++) {
+        var server = servers[i];
+        agent.request(server.id, moduleId, {command: command, msg: msg}, waitAll);
+    }
+}

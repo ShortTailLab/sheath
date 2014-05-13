@@ -3,7 +3,6 @@ var zlib = require("zlib");
 var stream = require("stream");
 var fs = require("fs");
 var util = require("util");
-var r = require("rethinkdb");
 var moment = require("moment");
 var Promise = require("bluebird");
 var pLogger = require('pomelo-logger').getLogger('sheath', __filename);

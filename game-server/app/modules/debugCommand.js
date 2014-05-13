@@ -2,6 +2,7 @@ var logger = require('pomelo-logger').getLogger(__filename);
 var _ = require("lodash");
 var Promise = require("bluebird");
 var models = require("../../../shared/models");
+var utils = require("../../../shared/utils");
 
 module.exports = function(opts) {
     return new Module(opts);
@@ -85,48 +86,28 @@ Module.prototype.masterHandler = function(agent, msg) {
 Module.prototype.clientHandler = function(agent, msg, cb) {
     switch (msg.command) {
         case "kickAll":
-            forward(agent, "connector", "kickAll", null, cb);
+            utils.forward(module.exports.moduleId, agent, "connector", "kickAll", null, cb);
             break;
         case "broadcast":
-            forward(agent, "connector", "broadcast", msg.content || "Test msg.", cb);
+            utils.forward(module.exports.moduleId, agent, "connector", "broadcast", msg.content || "Test msg.", cb);
             break;
         case "chat":
-            forward(agent, "connector", "chat", msg.content || "Test msg.", cb);
+            utils.forward(module.exports.moduleId, agent, "connector", "chat", msg.content || "Test msg.", cb);
             break;
         case 'mail':
-            forward(agent, "chat", "mail", msg, cb);
+            utils.forward(module.exports.moduleId, agent, "chat", "mail", msg, cb);
             break;
         case "reloadTask":
-            forward(agent, "game", "reloadTask", msg, cb);
+            utils.forward(module.exports.moduleId, agent, "game", "reloadTask", msg, cb);
             break;
         case "addAnn":
-            forward(agent, "chat", "addAnn", msg, cb);
+            utils.forward(module.exports.moduleId, agent, "chat", "addAnn", msg, cb);
             break;
         case "delAnn":
-            forward(agent, "chat", "delAnn", msg, cb);
+            utils.forward(module.exports.moduleId, agent, "chat", "delAnn", msg, cb);
             break;
         case "push":
-            forward(agent, "chat", "push", msg);
+            utils.forward(module.exports.moduleId, agent, "chat", "push", msg);
             break;
     }
 };
-
-function forward(agent, serverType, command, msg, cb) {
-    if (!cb) {
-        cb = function () {};
-    }
-
-    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === serverType; });
-    var pending = servers.length;
-
-    var waitAll = function () {
-        if (--pending === 0) {
-            cb();
-        }
-    };
-
-    for (var i =0;i<servers.length;i++) {
-        var server = servers[i];
-        agent.request(server.id, module.exports.moduleId, {command: command, msg: msg}, waitAll);
-    }
-}

@@ -1,6 +1,6 @@
 var _ = require("lodash");
 var Constants = require("../../../shared/constants");
-var Stats = require('fast-stats').Stats;
+var Deque = require("double-ended-queue");
 
 class PerfFilter {
     constructor() {
@@ -10,33 +10,58 @@ class PerfFilter {
     }
 
     statObject(msg) {
-        var key = "";
+        var key = msg.__route__;
+        if (!key) {
+            if (msg.namespace === "user") {
+                key = msg.serverType + "." + msg.service + "." + msg.method;
+            }
+            else if (msg.namespace === "sys") {
+                key = msg.args[0].route + ".";
+            }
+            else {
+                return null;
+            }
+        }
         var s = this.statDict[key];
         if (!s) {
-            this.statDict[key] = s = new Stats({bucket_precision: 2, store_data: false});
+            this.statDict[key] = s = new Deque(1024);
         }
         return s;
     }
 
     HBefore(msg, session, next) {
         var s = this.statObject(msg);
+        if (s) {
+            msg.__startTime__ = Date.now();
+        }
         next();
     }
 
     HAfter(err, msg, session, resp, next) {
         var s = this.statObject(msg);
+        if (s && msg.__startTime__) {
+            var timeUsed = Date.now() - msg.__startTime__;
+            s.push(timeUsed);
+        }
         next();
     }
 
     RBefore(serverId, msg, opts, next) {
         var s = this.statObject(msg);
+        if (s) {
+            opts.__startTime__ = Date.now();
+        }
         next();
     }
 
     RAfter(serverId, msg, opts, next) {
         var s = this.statObject(msg);
+        if (s && opts.__startTime__) {
+            var timeUsed = Date.now() - opts.__startTime__;
+            s.push(timeUsed);
+        }
         next();
     }
 }
 
-module.exports = PerfFilter;
+module.exports = new PerfFilter();

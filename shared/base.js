@@ -1,7 +1,6 @@
 var Constants = require("./constants");
 var models = require("./models");
 var Promise = require("bluebird");
-var r = require("rethinkdb");
 var _ = require("lodash");
 var logger = require('pomelo-logger').getLogger('sheath', __filename);
 

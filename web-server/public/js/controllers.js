@@ -42,7 +42,7 @@ function diffModel(m1, m2, fields) {
     return diff;
 }
 
-sheathControllers.controller('basicStatsController', function ($scope, $http, $window) {
+sheathControllers.controller('basicStatsController', function ($scope, $http, $window, $filter, ngTableParams) {
     var refreshInterval = 8000;
     $scope.refreshInterval = refreshInterval / 1000;
 
@@ -105,6 +105,22 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
 
     fetch5();
     fetch120();
+
+    $scope.tableParams = new ngTableParams({
+        page: 1,
+        count: 15,
+        sorting: {percentile98: 'desc'}
+    }, {
+        getData: function($defer, params) {
+            $http.post("/api/getStatInfo", {type: "perf"})
+            .success(function (data) {
+                params.total(data.length);
+
+                var orderedData = params.sorting() ? $filter('orderBy')(data, params.orderBy()) : data;
+                $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+            });
+        }
+    });
 });
 
 sheathControllers.controller('userListController', function ($scope, $http, ngTableParams, $routeParams) {
@@ -921,6 +937,10 @@ sheathControllers.controller('settingsController', function ($scope, $http) {
 
     $scope.reloadTask = function () {
         $http.post("/api/reloadTask");
+    };
+
+    $scope.resetPerf = function () {
+        $http.post("/api/resetPerfStats");
     };
 
     $scope.broadcast = function () {

@@ -24,6 +24,7 @@ app.before(pomelo.filters.toobusy(80));
 app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
 app.registerAdmin(require('./app/modules/onlineUser'), {app: app});
 app.registerAdmin(require('./app/modules/debugCommand'), {app: app});
+app.registerAdmin(require('./app/modules/perfStats'), {app: app});
 
 app.route("auth", dispatcher.defaultRouter);
 app.route("chat", dispatcher.routeByPartition);
@@ -32,9 +33,8 @@ app.route("game", dispatcher.defaultRouter);
 app.route("manager", dispatcher.defaultRouter);
 
 // set up stats filter for handlers and remotes
-var stats = new statsFilter();
-app.filter(stats.handler);
-app.rpcFilter(stats.remote);
+app.filter(statsFilter.handler);
+app.rpcFilter(statsFilter.remote);
 
 app.set('remoteConfig', {
     rpcServer: zmqRPC.server
