@@ -62,6 +62,21 @@ class PerfFilter {
         }
         next();
     }
+
+    dbQueryStart(query) {
+        var s = this.statObject({__route__: "db-Query"});
+        if (s) {
+            query.__startTime__ = Date.now();
+        }
+    }
+
+    dbQueryEnd(query) {
+        var s = this.statObject({__route__: "db-Query"});
+        if (s && query.__startTime__) {
+            var timeUsed = Date.now() - query.__startTime__;
+            s.push(timeUsed);
+        }
+    }
 }
 
 module.exports = new PerfFilter();

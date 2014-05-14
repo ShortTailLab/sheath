@@ -1,5 +1,7 @@
 var thinky = require('thinky');
 var Document = require("thinky/lib/document");
+var Query = require("thinky/lib/query");
+var perfFilter = require("../game-server/app/filters/perfStatsFilter");
 var Promise = require('bluebird');
 var _ = require("lodash");
 var moment = require("moment");
@@ -22,6 +24,16 @@ exports.init = function (dbConfig) {
             }
         }
         return copy;
+    };
+
+    Query.prototype.oldExecute = Query.prototype._execute;
+    Query.prototype._execute = function () {
+        perfFilter.dbQueryStart(this);
+        var self = this;
+        return this.oldExecute.apply(this, arguments).then(function (results) {
+            perfFilter.dbQueryEnd(self);
+            return results;
+        });
     };
 
     var User = exports.User = schema.createModel("user", {

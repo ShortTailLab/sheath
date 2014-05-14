@@ -609,7 +609,7 @@ exports.adminList = function (req, res) {
     if (!req.session.user.manRole.admin)
         return res.send(400, {message: "没有查看管理员的权限"});
 
-    appModels.User.filter(r.row("manRole").ne("null")).run()
+    appModels.User.filter(r.row("manRole").ne(null)).run()
     .then(function (admins) {
         res.json({
             admins: _.map(admins, adminToJson)

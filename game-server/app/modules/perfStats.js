@@ -74,9 +74,11 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
                 return _.mapValues(serverStats, function (s) {
                     return {
                         "count": s.length,
+                        "min": parseFloat(s.min.toFixed(2)),
                         "mean": parseFloat(s.amean().toFixed(2)),
                         "median": parseFloat(s.median().toFixed(2)),
-                        "percentile98": parseFloat(s.percentile(98).toFixed(2))
+                        "percentile98": parseFloat(s.percentile(98).toFixed(2)),
+                        "max": parseFloat(s.max.toFixed(2))
                     };
                 });
             });
