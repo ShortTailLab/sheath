@@ -219,7 +219,6 @@ exports.init = function (dbConfig) {
     });
 
     var Item = exports.Item = schema.createModel("item", {
-        bound: {_type: String},
         itemDefId: {_type: Number},
 
         level: {_type: Number, default: 0},
@@ -228,7 +227,6 @@ exports.init = function (dbConfig) {
 
         createTime: {_type: Date, default: r.now()}
     });
-    Item.ensureIndex("bound");
 
     var Stage = exports.Stage = schema.createModel("stage", {
         name: {_type: String, default: ""},
@@ -369,6 +367,7 @@ exports.init = function (dbConfig) {
     User.hasMany(Role, "roles", "id", "owner");
     Role.hasMany(Hero, "heroes", "id", "owner");
     Role.hasMany(Item, "bag", "id", "owner");
+    Hero.hasMany(Item, "equipments", "id", "bound");
     Stage.hasMany(Level, "levels", "id", "stageId");
 
     Partition.define("toClientObj", function () {

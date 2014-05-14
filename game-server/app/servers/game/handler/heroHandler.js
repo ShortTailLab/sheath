@@ -271,16 +271,16 @@ class HeroHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
 
-            return [models.Hero.get(heroId).run(), models.Item.getAll(heroId, {index: "bound"}).run()];
+            return models.Hero.get(heroId).getJoin({equipments: true}).run();
         })
-        .spread((_hero, equipments) => {
+        .then((_hero) => {
             hero = _hero;
             if (!hero || hero.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
             var cache = this.app.get("cache");
             // find a same type equipment to replace
-            var toReplace = _.find(equipments, function (eq) {
+            var toReplace = _.find(hero.equipments, function (eq) {
                 var def = cache.equipmentDefById[eq.itemDefId];
                 return def ? def.type === itemDef.type : null;
             });

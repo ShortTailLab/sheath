@@ -15,7 +15,7 @@ class PerfFilter {
             if (msg.namespace === "user") {
                 key = msg.serverType + "." + msg.service + "." + msg.method;
             }
-            else if (msg.namespace === "sys") {
+            else if (msg.namespace === "sys" && msg.args[0].route) {
                 key = msg.args[0].route + ".";
             }
             else {
