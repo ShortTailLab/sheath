@@ -16,6 +16,16 @@
         },
         {
             "type": "file",
+            "filename": "./logs/console-${opts:serverId}.log",
+            "maxLogSize": 1048576,
+            "layout": {
+                "type": "basic"
+            },
+            "backups": 5,
+            "category": "console"
+        },
+        {
+            "type": "file",
             "filename": "./logs/rpc-log-${opts:serverId}.log",
             "maxLogSize": 1048576,
             "layout": {

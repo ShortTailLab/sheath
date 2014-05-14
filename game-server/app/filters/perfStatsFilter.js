@@ -49,15 +49,15 @@ class PerfFilter {
     RBefore(serverId, msg, opts, next) {
         var s = this.statObject(msg);
         if (s) {
-            opts.__startTime__ = Date.now();
+            msg.__startTime__ = Date.now();
         }
         next();
     }
 
     RAfter(serverId, msg, opts, next) {
         var s = this.statObject(msg);
-        if (s && opts.__startTime__) {
-            var timeUsed = Date.now() - opts.__startTime__;
+        if (s && msg.__startTime__) {
+            var timeUsed = Date.now() - msg.__startTime__;
             s.push(timeUsed);
         }
         next();
