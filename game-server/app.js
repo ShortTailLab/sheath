@@ -134,5 +134,5 @@ app.set("errorHandler", errorHandler);
 app.start();
 
 process.on('uncaughtException', function (err) {
-    console.error(' Caught exception: ' + err + ". stack = " + err.stack);
+    console.error(' Caught exception: ' + err.stack);
 });

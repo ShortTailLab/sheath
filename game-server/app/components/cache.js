@@ -43,7 +43,7 @@ class Cache {
         }
     }
 
-    stop(cb) {
+    stop(force, cb) {
         process.nextTick(cb);
     }
 
