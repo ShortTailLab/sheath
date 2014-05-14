@@ -43,7 +43,7 @@ function diffModel(m1, m2, fields) {
 }
 
 sheathControllers.controller('basicStatsController', function ($scope, $http, $window, $filter, ngTableParams) {
-    var refreshInterval = 8000;
+    var refreshInterval = 10000;
     $scope.refreshInterval = refreshInterval / 1000;
 
     function fetch120() {
@@ -53,7 +53,7 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
         });
     }
 
-    function fetch5() {
+    function fetch10() {
         $http.get("/api/basicStats").
         success(function (data) {
             if ($scope.userStats === undefined) {
@@ -76,6 +76,7 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
             $scope.userStats.totalRoles = data.totalRoles;
             $scope.userStats.loginList = data.onlineUser.loginedList.chunk(20);
         });
+        if ($scope.tableParams) $scope.tableParams.reload();
     }
 
     $scope.humanizeUpTime = function (minute) {
@@ -89,7 +90,7 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
             "</table>";
     };
 
-    $scope.intervalID5 = $window.setInterval(function () {$scope.$apply(fetch5);}, refreshInterval);
+    $scope.intervalID5 = $window.setInterval(function () {$scope.$apply(fetch10);}, refreshInterval);
     $scope.intervalID120 = $window.setInterval(function () {$scope.$apply(fetch120);}, 120 * 1000);
 
     $scope.$on('$destroy', function () {
@@ -103,7 +104,7 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
         }
     });
 
-    fetch5();
+    fetch10();
     fetch120();
 
     $scope.tableParams = new ngTableParams({

@@ -118,6 +118,7 @@
 
     "levels": {
         "sheath": "WARN",
+        "console": "WARN",
         "admin-log": "WARN",
         "rpc-log": "ERROR",
         "pomelo": "WARN",
