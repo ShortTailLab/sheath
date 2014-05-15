@@ -21,7 +21,7 @@ angular.module('ui.bootstrap.datetimepicker', ["ui.bootstrap"])
                     showWeeks: "=",
                     startingDay: "=",
                     yearRange: "=",
-                    dateFormat: "=",
+                    formatDate: "=",
                     closeText: "@",
                     currentText: "@",
                     clearText: "@",
@@ -76,9 +76,9 @@ angular.module('ui.bootstrap.datetimepicker', ["ui.bootstrap"])
                         return previousAttrs + createAttr.apply(null, attr)
                     }
                     var tmpl = "<div class=\"datetimepicker-wrapper\">" +
-                        "<input class=\"form-control\" type=\"text\" ng-model=\"ngModel\" " + [
-                        ["min", "minDate"],
-                        ["max", "maxDate"],
+                        "<input class=\"form-control\" type=\"text\" ng-click=\"open($event)\" ng-model=\"ngModel\" is-open=\"opened\" " + [
+                        ["minDate"],
+                        ["maxDate"],
                         ["dayFormat"],
                         ["monthFormat"],
                         ["yearFormat"],
@@ -91,7 +91,7 @@ angular.module('ui.bootstrap.datetimepicker', ["ui.bootstrap"])
                         ["datepickerOptions", "dateOptions"]
                     ].reduce(createAttrConcat, '') +
                         createFuncAttr("dateDisabled", "date: date, mode: mode") +
-                        createEvalAttr("datepickerPopup", "dateFormat") +
+                        createEvalAttr("datepickerPopup", "formatDate") +
                         createEvalAttr("closeText", "closeText") +
                         createEvalAttr("currentText", "currentText") +
                         createEvalAttr("toggleWeeksText", "toggleWeeksText") +
@@ -118,6 +118,13 @@ angular.module('ui.bootstrap.datetimepicker', ["ui.bootstrap"])
                             if (angular.isDefined($scope.ngModel) && angular.isDefined($scope.time)) {
                                 $scope.ngModel.setHours($scope.time.getHours(), $scope.time.getMinutes());
                             }
+                        }
+
+                        $scope.open = function ($event) {
+                            $event.preventDefault();
+                            $event.stopPropagation();
+
+                            $scope.opened = true;
                         }
                     }
                 ],
