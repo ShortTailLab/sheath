@@ -114,20 +114,20 @@ class EntryHandler extends base.HandlerBase {
                 return (new models.Role(newData)).save().then((role) => {
                     var initialHeroes = newRoleConf.heroes;
                     var initialItems = newRoleConf.items;
-                    var heros = _.map(initialHeroes, function (hid) {
-                        return {
+                    var heros = Promise.all(_.map(initialHeroes, function (hid) {
+                        return new models.Hero({
                             heroDefId: hid,
                             owner: role.id
-                        };
-                    });
-                    var items = _.map(initialItems, function (itemId) {
-                        return {
+                        }).save();
+                    }));
+                    var items = Promise.all(_.map(initialItems, function (itemId) {
+                        return new models.Item({
                             itemDefId: itemId,
                             owner: role.id
-                        };
-                    });
+                        }).save();
+                    }));
 
-                    return [role, (new models.Hero(heros)).save(), (new models.Item(items)).save()];
+                    return [role, heros, items];
                 })
                 .spread(function (role, heroes) {
                     role.setTeam(0, _.pluck(heroes, "id"));

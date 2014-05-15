@@ -18,7 +18,7 @@ class UserHelper {
     }
 
     newUser(accType, uname, password) {
-        var u = new models.User();
+        var u = new models.User({});
         u.auth = [
             {
                 type: accType,

@@ -21,10 +21,10 @@ class AuthRemote {
             }
             else if (err === constants.LoginFailed.NO_USER) {
                 user = userDAO.newUser(accType, uname, password);
-                user.isNew = true;
 
                 user.save()
                 .then(() => {
+                    user.isNew = true;
                     next(null, userDAO.toRPCObj(user));
                 })
                 .catch((err) => {
