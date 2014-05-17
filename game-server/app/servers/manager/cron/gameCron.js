@@ -13,7 +13,7 @@ class GameCron {
     }
 
     dailyRefresh() {
-        models.Role.update({update: {"dailyRefreshData": r.literal({})}}).run()
+        models.Role.update({"dailyRefreshData": r.literal({})}).run()
         .catch(function (err) {
             logger.logError("cron.dailyRefresh", {
                 message: ""+err

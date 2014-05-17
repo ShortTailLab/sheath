@@ -95,7 +95,7 @@ class EntryHandler extends base.HandlerBase {
         var newRoleConf = this.app.get("roleBootstrap");
         this.safe(models.Role.getAll(session.uid, {index: "owner"}).filter({"partition": part.id}).limit(1).run().bind(this)
         .then((roles) => {
-            var role = roles && roles.length ? roles[0] : null;
+            var role = _.first(roles);
             if (!role) {
                 var newData = {
                     partition: part.id,
@@ -111,7 +111,7 @@ class EntryHandler extends base.HandlerBase {
                 };
                 logType = "role.register";
 
-                return (new models.Role(newData)).save().then((role) => {
+                return new models.Role(newData).save().then((role) => {
                     var initialHeroes = newRoleConf.heroes;
                     var initialItems = newRoleConf.items;
                     var heros = Promise.all(_.map(initialHeroes, function (hid) {
@@ -131,12 +131,12 @@ class EntryHandler extends base.HandlerBase {
                 })
                 .spread(function (role, heroes) {
                     role.setTeam(0, _.pluck(heroes, "id"));
-                    return role.save();
+                    return role;
                 });
             }
             else {
                 role.fillEnergy();
-                return role.save();
+                return role;
             }
         })
         .then((_role) => {
@@ -153,9 +153,9 @@ class EntryHandler extends base.HandlerBase {
                 lastRole: role.id,
                 lastLogin: new Date()
             }, {upsert: true}).execute();
-            return Promise.join(session.pushAll(), deviceUpsert);
+            return [role.save(), session.pushAll(), deviceUpsert];
         })
-        .then(() => {
+        .all().then(() => {
             this.app.rpc.manager.partitionStatsRemote.joinPartition(session, part.id, null);
             this.app.rpc.chat.chatRemote.add(session, session.uid, role.name, this.app.get('serverId'), part.id, null);
             this.app.rpc.chat.announcementRemote.userJoined(session, session.uid, part.id, null);
