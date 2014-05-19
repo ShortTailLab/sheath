@@ -47,12 +47,12 @@ exports.init = function (dbConfig) {
         return user("auth").map(function (auth) {
             return [auth("type"), auth("id")];
         });
-    });
+    }, {multi: true});
     User.ensureIndex("authId", function (user) {
         return user("auth").map(function (auth) {
             return auth("id");
         });
-    });
+    }, {multi: true});
 
     var Partition = exports.Partition = schema.createModel("partition", {
         name: {_type: String, default: ""},
