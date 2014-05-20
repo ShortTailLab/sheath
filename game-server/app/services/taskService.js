@@ -159,7 +159,7 @@ TaskService.prototype.getTaskList = function(roleId) {
                 taskUpdate[task.taskId] = task.initialProgress();
             }
 
-            return models.Role.get(role.id).update({taskData: taskUpdate}).execute({returnVals: true})
+            return models.Role.get(role.id).update({taskData: taskUpdate}, {returnVals: true}).execute()
             .then(function (ret) {
                 var role = new models.Role(ret.new_val);
                 role.setSaved(true);

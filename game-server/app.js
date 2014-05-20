@@ -57,7 +57,7 @@ appModels.init({
     port: rethinkConfig.port,
     database: rethinkConfig.database,
     poolMin: 10,
-    poolMax: 100
+    poolMax: 300
 });
 
 var redisConfig = app.get("redis");
