@@ -17,11 +17,11 @@ class AnnouncementRemote {
     }
 
     addAnn(annId, cb) {
+        if (!annId) return cb();
+
         models.Announcement.get(annId).run().bind(this)
         .then(function (ann) {
-            if (ann) {
-                annService.addAnnAux(ann);
-            }
+            annService.addAnnAux(ann);
         })
         .finally(function () {
             cb();

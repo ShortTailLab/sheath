@@ -1,6 +1,7 @@
 var pomeloConn = require("../pomelo-conn");
 var _ = require("lodash");
 var Promise = require("bluebird");
+var moment = require("moment");
 var appModels = require("../../shared/models");
 var stats = require("./stats");
 var r = appModels.r;
@@ -136,9 +137,9 @@ exports.addPartition = function (req, res) {
     var newPart = req.body;
     var createTime = new Date();
 
-    appModels.Partition.filter({name: newPart.name}).execute()
+    appModels.Partition.filter({name: newPart.name}).limit(1).run()
     .then(function (exists) {
-        if (exists) {
+        if (exists.length) {
             res.send(400, {message: "区名重复"});
         }
         else {
@@ -146,7 +147,7 @@ exports.addPartition = function (req, res) {
                 name: newPart.name,
                 public: newPart.public,
                 distro: newPart.distro,
-                openSince: newPart.openSince,
+                openSince: moment(newPart.openSince).toDate(),
                 createTime: createTime
             });
             return part.save()
@@ -155,7 +156,7 @@ exports.addPartition = function (req, res) {
                 ret.roleCount = 0;
                 ret.onlineRoles = 0;
                 pomeloConn.client.request("cacheMonitor", {type: "partition", server: "connector"});
-                res.send(ret);
+                res.json(ret);
             });
         }
     })
@@ -361,7 +362,7 @@ exports.addHero = function (req, res) {
     var newHeroes = req.body.heroes;
     var roleId = req.body.role;
 
-    appModels.Role.get(roleId).execute()
+    appModels.Role.get(roleId).run()
     .then(function (exists) {
         if (exists) {
             var heroes = _.map(newHeroes, function (heroId) {
@@ -394,7 +395,7 @@ exports.addItem = function (req, res) {
     var newItems = req.body.items;
     var roleId = req.body.role;
 
-    appModels.Role.get(roleId).execute()
+    appModels.Role.get(roleId).run()
     .then(function (exists) {
         if (exists) {
             var items = _.map(newItems, function (itemId) {
@@ -692,6 +693,8 @@ exports.updateAnn = function (req, res) {
         return res.send(400, {message: "没有修改公告的权限"});
 
     var diff = req.body;
+    if (diff.start) diff.start = moment(diff.start).toDate();
+    if (diff.end) diff.end = moment(diff.end).toDate();
 
     appModels.Announcement.get(diff.id).run().then(function (ann) {
         delete diff.id;
