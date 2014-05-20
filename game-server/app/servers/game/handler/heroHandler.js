@@ -70,7 +70,7 @@ class HeroHandler extends base.HandlerBase {
         this.safe(models.Hero.getAll(roleId, {index: "owner"}).run()
         .then((heroes) => {
             next(null, {
-                heroes: _.map(heroes, (h) => { return h.toClientObj(); })
+                heroes: _.invoke(heroes, "toClientObj")
             });
         }), next);
     }

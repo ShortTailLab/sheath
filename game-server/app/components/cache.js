@@ -36,7 +36,8 @@ class Cache {
                 this.loadStoreItem(), this.loadHeroDraws()).finally(cb);
         }
         else if (this.cacheRole === "connector") {
-            Promise.join(this.loadPartition()).finally(cb);
+            Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel(),
+                this.loadPartition()).finally(cb);
         }
         else {
             process.nextTick(cb);

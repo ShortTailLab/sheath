@@ -46,8 +46,30 @@ Module.prototype.masterHandler = function(agent, msg) {
 };
 
 Module.prototype.clientHandler = function(agent, msg, cb) {
-    var serverType = msg.server || "game";
-    var servers = _.filter(_.values(agent.idMap), function (r) { return r.type === serverType; });
+    var serverTypes = [];
+    if (msg.server) serverTypes = [msg.server];
+    else {
+        switch (msg.type) {
+            case "heroDef":
+            case "itemDef":
+            case "equipmentDef":
+            case "level":
+                serverTypes = ["game", "connector"];
+                break;
+            case "storeitem":
+            case "heroNode":
+            case "heroDraw":
+                serverTypes = ["game"];
+                break;
+            case "partition":
+                serverTypes = ["connector"];
+                break;
+            default:
+                console.log("cache do not have type: " + msg.type);
+        }
+    }
+
+    var servers = _.filter(_.values(agent.idMap), function (r) { return _.contains(serverTypes, r.type); });
     var pending = servers.length;
     var waitAll = function () {
         if (--pending === 0) {

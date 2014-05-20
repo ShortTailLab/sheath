@@ -193,6 +193,18 @@ message StoreItem {
     required int32 count        =   6;
     required string desc        =   7;
 }
+message Level {
+    required int32 id           =   1;
+    required string name        =   2;
+    required string path        =   3;
+    required int32 energy       =   4;
+    required int32 exp          =   5;
+}
+message Stage {
+    required int32 stageId      =   1;
+    required string stage       =   2;
+    repeated Level levels       =   3;
+}
 
 message connector_entryHandler_enter {
     optional Error error        =   1;
@@ -203,6 +215,15 @@ message connector_entryHandler_enterPartition {
     optional Error error        =   1;
     optional Role role          =   2;
     repeated int32 heroCans     =   3;
+
+    repeated ItemDef itemDefs   =   4;
+    repeated EquipmentDef equipmentDefs = 5;
+    repeated HeroDef heroDefs   =   6;
+
+    repeated Item items         =   7;
+    repeated Hero heroes        =   8;
+
+    repeated Stage stages       =   9;
 }
 
 message game_roleHandler_claimDailyReward {
@@ -332,11 +353,6 @@ message game_equipmentHandler_upgrade {
 //    repeated string removeGems          =   4;
 //}
 
-message game_levelHandler_start {
-    optional Error error            =   1;
-    repeated ETypeWeight enemies    =   2;
-}
-
 message game_taskHandler_list {
     optional Error error        =   1;
     repeated Task tasks         =   2;
@@ -349,6 +365,15 @@ message game_taskHandler_claim {
     required int32 contribs     =   4;
     repeated Hero heroes        =   5;
     repeated Item items         =   6;
+}
+
+message game_levelHandler_list {
+    optional Error error        =   1;
+    repeated Stage stages       =   2;
+}
+message game_levelHandler_start {
+    optional Error error            =   1;
+    repeated ETypeWeight enemies    =   2;
 }
 message game_levelHandler_end {
     optional Error error        =   1;

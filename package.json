@@ -7,7 +7,7 @@
     "dependencies": {
         "mkdirp": "latest",
         "commander": "latest",
-        "csv": "latest",
+        "csv": "0.3.7",
         "sse4_crc32": "latest",
         "moment": "latest",
         "seed-random": "latest",

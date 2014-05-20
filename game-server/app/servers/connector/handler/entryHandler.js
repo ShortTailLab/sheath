@@ -76,8 +76,10 @@ class EntryHandler extends base.HandlerBase {
     enterPartition(msg, session, next) {
         var role;
         var logType = "role.login";
-        var part = this.app.get("cache").partitionById[msg.partId];
+        var cache = this.app.get("cache");
+        var part = cache.partitionById[msg.partId];
         var device = session.get("device");
+        var bag, heroes;
 
         if (!part) {
             return this.errorNext(Constants.PartitionFailed.PARTITION_DO_NOT_EXIST, next);
@@ -93,7 +95,7 @@ class EntryHandler extends base.HandlerBase {
         }
 
         var newRoleConf = this.app.get("roleBootstrap");
-        this.safe(models.Role.getAll(session.uid, {index: "owner"}).filter({"partition": part.id}).limit(1).run().bind(this)
+        this.safe(models.Role.getAll(session.uid, {index: "owner"}).filter({"partition": part.id}).getJoin({bag: true, heroes: true}).limit(1).run().bind(this)
         .then((roles) => {
             var role = _.first(roles);
             if (!role) {
@@ -129,12 +131,16 @@ class EntryHandler extends base.HandlerBase {
 
                     return [role, heros, items];
                 })
-                .spread(function (role, heroes) {
+                .spread(function (role, _heroes, _items) {
+                    heroes = _heroes;
+                    bag = _items;
                     role.setTeam(0, _.pluck(heroes, "id"));
                     return role;
                 });
             }
             else {
+                bag = role.bag;
+                heroes = role.heroes;
                 role.fillEnergy();
                 return role;
             }
@@ -159,9 +165,27 @@ class EntryHandler extends base.HandlerBase {
             this.app.rpc.manager.partitionStatsRemote.joinPartition(session, part.id, null);
             this.app.rpc.chat.chatRemote.add(session, session.uid, role.name, this.app.get('serverId'), part.id, null);
             this.app.rpc.chat.announcementRemote.userJoined(session, session.uid, part.id, null);
+
+            var levels = cache.clientLevels;
+            var cleared = role.levelCleared;
+            _.each(levels, function (stage) {
+                _.each(stage.levels, function (l) {
+                    l.stars = cleared["" + l.id] || 0;
+                });
+            });
+
             next(null, {
                 role: role.toClientObj(),
-                heroCans: 0 < role.tutorial < 3 ? newRoleConf.initialHeroCandidates : []
+                heroCans: 0 < role.tutorial < 3 ? newRoleConf.initialHeroCandidates : [],
+
+                heroDefs: cache.clientHeroDefs,
+                itemDefs: cache.clientItemDefs,
+                equipmentDefs: cache.clientEquipmentDefs,
+
+                items: _.invoke(bag, "toClientObj"),
+                heroes: _.invoke(heroes, "toClientObj"),
+
+                stages: levels
             });
             logger.logInfo(logType, {
                 user: session.uid,

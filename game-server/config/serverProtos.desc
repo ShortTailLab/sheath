@@ -1,5 +1,5 @@
 
-¶,
+²/
 serverProtos.proto"
 Player
 
@@ -188,17 +188,34 @@ refinement (
 price (
 defId (
 count (
-desc (	"l
+desc (	"L
+Level
+
+id (
+name (	
+path (	
+energy (
+exp ("?
+Stage
+stageId (
+stage (	
+levels (2.Level"l
 connector_entryHandler_enter
 error (2.Error
 user (2.Player
 
 partitions (2
-.Partition"e
+.Partition"ˆ
 %connector_entryHandler_enterPartition
 error (2.Error
 role (2.Role
-heroCans ("Z
+heroCans (
+itemDefs (2.ItemDef$
+equipmentDefs (2.EquipmentDef
+heroDefs (2.HeroDef
+items (2.Item
+heroes (2.Hero
+stages	 (2.Stage"Z
 !game_roleHandler_claimDailyReward
 error (2.Error
 reward (2.ProfileChange"b
@@ -292,10 +309,7 @@ equipments (2.EquipmentDef"D
 game_equipmentHandler_upgrade
 error (2.Error
 	equipment (2.Item!
-	stateDiff (2.ProfileChange"O
-game_levelHandler_start
-error (2.Error
-enemies (2.ETypeWeight"]
+	stateDiff (2.ProfileChange"]
 game_taskHandler_list
 error (2.Error
 tasks (2.Task
@@ -306,7 +320,13 @@ equipments (2.EquipmentDef"D
 coins (
 contribs (
 heroes (2.Hero
-items (2.Item"\
+items (2.Item"G
+game_levelHandler_list
+error (2.Error
+stages (2.Stage"O
+game_levelHandler_start
+error (2.Error
+enemies (2.ETypeWeight"\
 game_levelHandler_end
 error (2.Error
 newItems (2.Item
