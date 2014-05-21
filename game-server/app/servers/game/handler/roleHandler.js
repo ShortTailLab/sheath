@@ -29,15 +29,13 @@ class RoleHandler extends base.HandlerBase {
         }
         var oldHero, newHero, oldBoundEqs, newBoundEqs;
 
-        this.safe(Promise.join(models.Hero.get(oldHeroId).run(),
-                models.Hero.get(newHeroId).run(),
-                models.Item.getAll(oldHeroId, {index: "bound"}).filter({owner: role.id}).run(),
-                models.Item.getAll(newHeroId, {index: "bound"}).filter({owner: role.id}).run()).bind(this)
-        .spread(function (_oldHero, _newHero, _oldBoundEqs, _newBoundEqs) {
-            oldHero = _oldHero;
-            newHero = _newHero;
-            oldBoundEqs = _oldBoundEqs;
-            newBoundEqs = _newBoundEqs;
+
+        this.safe(models.Hero.getAll(oldHeroId, newHeroId).getJoin({equipments: true}).run().bind(this)
+        .then(function (results) {
+            oldHero = results[0];
+            newHero = results[1];
+            oldBoundEqs = oldHero.equipments;
+            newBoundEqs = newHero.equipments;
             if (!oldHero || !newHero || oldHero.owner !== role.id || newHero.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }

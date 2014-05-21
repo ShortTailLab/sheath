@@ -38,7 +38,7 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
             this.cacheIns.loadPartition();
             break;
         default:
-            console.log("cache do not have type: " + msg.type);
+            console.warn("cache do not have type: " + msg.type);
     }
 };
 
@@ -65,7 +65,7 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
                 serverTypes = ["connector"];
                 break;
             default:
-                console.log("cache do not have type: " + msg.type);
+                console.warn("cache do not have type: " + msg.type);
         }
     }
 
