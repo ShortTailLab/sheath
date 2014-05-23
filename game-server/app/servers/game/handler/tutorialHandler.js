@@ -46,7 +46,6 @@ class TutorialHandler extends base.HandlerBase {
 
         var newRoleConf = this.app.get("roleBootstrap");
         var role = session.get("role");
-        var newHero;
 
         if (role.tutorial !== 2) {
             return this.errorNext(Constants.TutorialFailed.TutorialStateError, next);
@@ -55,17 +54,17 @@ class TutorialHandler extends base.HandlerBase {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
-        this.safe(models.Role.get(role.id).run().bind(this)
-        .then((roleObj) => {
-            return (new models.Hero({heroDefId: heroId, owner: role.id})).save()
-            .then((_newHero) => {
-                newHero = _newHero;
-                role.tutorial = 3;
-                session.set("role", role);
-                return Promise.join(session.push("role"), models.Role.get(role.id).update({tutorial: 3}).run());
-            });
-        })
-        .then(() => {
+        role.tutorial = 3;
+        session.set("role", role);
+
+        var promises = [
+            new models.Hero({heroDefId: heroId, owner: role.id}).save(),
+            session.push("role"),
+            models.Role.get(role.id).update({tutorial: 3}).run()
+        ];
+
+        this.safe(Promise.all(promises)
+        .spread((newHero) => {
             next(null, {newHero: newHero.toClientObj(), tutorial: 3});
         }), next);
     }

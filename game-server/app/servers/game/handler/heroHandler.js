@@ -263,18 +263,14 @@ class HeroHandler extends base.HandlerBase {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
-        this.safe(this.getEquipmentWithDef(eqId)
-        .spread((_equipment, _itemDef) => {
-            equipment = _equipment;
-            itemDef = _itemDef;
-            if (_equipment.owner !== role.id) {
+        this.safe(Promise.join(this.getEquipmentWithDef(eqId), models.Hero.get(heroId).getJoin({equipments: true}).run())
+        .spread((eqs, _hero) => {
+            equipment = eqs[0];
+            itemDef = eqs[1];
+            hero = _hero;
+            if (equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
-
-            return models.Hero.get(heroId).getJoin({equipments: true}).run();
-        })
-        .then((_hero) => {
-            hero = _hero;
             if (!hero || hero.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
