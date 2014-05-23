@@ -43,19 +43,13 @@ var makeTask = function (op, condition) {
 };
 
 var make = function (variable, op, condition) {
-    var ret = Always;
-    switch (variable) {
-        case "level":
-            ret = makeLevel(op, condition);
-            break;
-        case "times":
-            ret = makeTimes(op, condition);
-            break;
-        case "task":
-            ret = makeTask(op, condition);
-            break;
-    }
-    return ret;
+    var factoryMap = {
+        level: makeLevel,
+        times: makeTimes,
+        task: makeTask
+    };
+    var factoryFunc = factoryMap[variable];
+    return factoryFunc ? factoryFunc(op, condition) : Always;
 };
 
 export var makePreconditon = function(task) {

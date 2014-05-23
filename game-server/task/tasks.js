@@ -5,13 +5,13 @@ var treasure = require("../../shared/treasureClaim");
 var Precondition = require("./preconditions");
 
 export function create (app, taskModel) {
-    var ret;
-    switch (taskModel.condition[0]) {
-        case "level":
-            ret = new RoleLevel(app, taskModel);
-            break;
-    }
-    return ret;
+    var constructorMap = {
+        level: RoleLevel,
+        login: RoleLoginCount,
+        clear: LevelClear
+    };
+    var Model = constructorMap[taskModel.condition[0]];
+    return Model ? new Model(app, taskModel) : null;
 }
 
 class Task {
@@ -107,5 +107,17 @@ class RoleLevel extends Task {
                 }).run();
             }
         }
+    }
+}
+
+class RoleLoginCount extends Task {
+    constructor(app, taskModel) {
+        super(app, taskModel);
+    }
+}
+
+class LevelClear extends Task {
+    constructor(app, taskModel) {
+        super(app, taskModel);
     }
 }

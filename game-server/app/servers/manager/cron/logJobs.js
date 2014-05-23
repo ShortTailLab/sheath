@@ -6,48 +6,47 @@ var Promise = require("bluebird");
 exports.dailyNewUser = function (start, end) {
     return models.Log.between(["user.register", start], ["user.register", end], {index: "type_time"}).count().execute()
     .then(function (regCount) {
-        var stat = new models.Stat();
-        stat.cycle = "daily";
-        stat.type = "newUser";
-        stat.time = start;
-        stat.value = regCount;
-
-        return stat.save();
+        return new models.Stat({
+            cycle: "daily",
+            type: "newUser",
+            time: start,
+            value: regCount
+        }).save();
     });
 };
 
 exports.dailyActiveUser = function (start, end) {
     return models.Log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group(r.row("msg")("user")).count().execute()
     .then(function (err, activeCount) {
-        var stat = new models.Stat();
-        stat.cycle = "daily";
-        stat.type = "activeUser";
-        stat.time = start;
-        stat.value = activeCount;
-
-        return stat.save();
+        return new models.Stat({
+            cycle: "daily",
+            type: "activeUser",
+            time: start,
+            value: activeCount
+        }).save();
     });
 };
 
 function retentionOfDays(start, end, days) {
     var regStart = moment(start).subtract(days, "d");
-    var regEnd = regStart.add(1, "d");
+    var regEnd = moment(regStart).add(1, "d");
 
-    var loginLogs = models.Log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group(function (row) {return [row("msg")("user"), row("time").date()];}).count().ungroup()
+    var loginLogs = models.Log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group(r.row("msg")("user")).count().ungroup();
     var regLogs = models.Log.between(["user.register", regStart.toDate()], ["user.register", regEnd.toDate()], {index: "type_time"});
+    var regCount = regLogs.count();
 
-    return regLogs.innerJoin(loginLogs, function (reg, login) {
-        return reg("msg")("user").eq(login("group").nth(0));
-    }).count().run()
-    .then(function (retentionCount) {
-        if (retentionCount.length === 0) return;
-        var stat = new models.Stat();
-        stat.cycle = "daily";
-        stat.type = "retention.d" + days;
-        stat.time = start;
-        stat.value = retentionCount[0].reduction;
+    var recurLogins = regLogs.innerJoin(loginLogs._query, function (reg, login) {
+        return reg("msg")("user").eq(login("group"));
+    }).count();
 
-        return stat.save();
+    return Promise.join(recurLogins, regCount)
+    .spread(function (logins, regs) {
+        return new models.Stat({
+            cycle: "daily",
+            type: "retention.d" + days,
+            time: start,
+            value: logins/regs
+        }).save();
     });
 }
 
