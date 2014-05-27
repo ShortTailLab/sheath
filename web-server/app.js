@@ -160,6 +160,7 @@ app.post('/api/resetPerfStats', restrictAPI, api.resetPerfStats);
 app.post('/api/gameLevel', api.importInGameReward);
 
 app.post('/api/getStatInfo', restrictAPI, api.getStatInfo);
+app.post('/api/refreshStats', restrictAPI, api.refreshStats);
 app.post('/api/sendNotification', restrictAPI, api.sendNotification);
 
 app.get('/js/lib/*.map', function (req, res) { res.send(404); });

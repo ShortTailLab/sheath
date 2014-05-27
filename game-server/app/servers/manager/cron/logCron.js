@@ -11,6 +11,16 @@ module.exports = function (app) {
     return new LogCron(app);
 };
 
+module.exports.runJobs = function(start, end) {
+    return Promise.join(
+        jobs.dailyNewUser(start, end),
+        jobs.dailyNewRole(start, end),
+        jobs.dailyActiveUser(start, end),
+        jobs.dailyActiveRole(start, end),
+        jobs.dailyRetention(start, end)
+    );
+};
+
 class LogCron {
     constructor(app) {
         this.app = app;
@@ -21,23 +31,19 @@ class LogCron {
     }
 
     hourlyLogRollUp() {
-        var curHour = moment().minutes(0).seconds(0).milliseconds(0);
+        var curHour = moment().startOf("hour");
         var prevHour = moment(curHour).subtract(1, 'h');
 
         opJobs.rollUp(this.path, prevHour, curHour);
     }
 
     dailyLogRollUp() {
-        var curHour = moment().minutes(0).seconds(0).milliseconds(0);
+        var curHour = moment().startOf("hour");
         var prevDay = moment(curHour).subtract(1, 'd');
         curHour = curHour.toDate();
         prevDay = prevDay.toDate();
 
-        Promise.join(
-            jobs.dailyNewUser(prevDay, curHour),
-            jobs.dailyActiveUser(prevDay, curHour),
-            jobs.dailyRetention(prevDay, curHour)
-        );
+        this.runJobs(prevDay, curHour);
     }
 
     weeklyLogRollUp() {

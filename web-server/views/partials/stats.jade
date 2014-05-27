@@ -10,7 +10,7 @@ include ../mixins/block
         p {{reg_error}}
     highchart#cRetention(config="newReg")
 
-+block("在线用户")
++block("活跃用户")
     div(class="message errormsg", ng-show="online_error")
         p {{online_error}}
     highchart#cRetention(config="online")

@@ -3,7 +3,6 @@ var _ = require("lodash");
 var Promise = require("bluebird");
 var moment = require("moment");
 var appModels = require("../../shared/models");
-var stats = require("./stats");
 var r = appModels.r;
 var csv = require("csv");
 var fs = require("fs");
@@ -1357,21 +1356,41 @@ exports.getStatInfo = function (req, res) {
     var statReq = req.body;
     var type = statReq.type, startTime = new Date(statReq.start || 0), endTime = statReq.end ? new Date(statReq.end) : new Date();
 
-    var typeAggregatorMap = {
+    var typeMap = {
         perf: perfCounter,
 
-        regRole: stats.newRegRole,
-        regUser: stats.newRegUser,
-        onlineRole: stats.onlineRole,
-        onlineUser: stats.onlineUser,
-        retention: stats.retention
+        regRole: "newRole",
+        regUser: "newUser",
+        onlineRole: "activeRole",
+        onlineUser: "activeUser",
+        retention: "retention.d" + statReq.cycle
     };
 
-    (typeAggregatorMap[type](type, startTime, endTime, statReq.cycle) || Promise.reject("No stat aggregator."))
+    appModels.Stat.between(startTime, endTime, {index: "time"}).orderBy({index: "time"}).filter({type: typeMap[type], cycle: "daily"}).run()
     .then(function (results) {
-        res.json(results);
+        res.json(_.map(results, function (stat) {
+            return {
+                x: stat.time.toISOString(),
+                y: stat.value
+            };
+        }));
     })
     .catch(function (err) {
         res.send(400, {message: ""+err});
     });
+};
+
+exports.refreshStats = function (req, res) {
+    var start = moment(req.body.start).startOf("day");
+    var end = moment(req.body.end).startOf("day");
+
+    var logCron = require("../../game-server/app/servers/manager/cron/logCron");
+
+    while (start.isBefore(end)) {
+        var nextDay = moment(start).add(1, "d");
+        logCron.runJobs(start.toDate(), nextDay.toDate());
+        start = nextDay;
+    }
+
+    res.json({});
 };

@@ -5,6 +5,8 @@ include ../mixins/block
 
 div(ng-show="#{show_debug}")
     +block("调试"): .form-horizontal(role="form")
+        div(class="message success", ng-show="info")
+            p {{info}}
         .form-group
             .col-sm-1: button(class="btn btn-default", type="submit", ng-click="kickAll()") 全部踢下线
             .col-sm-1: button(class="btn btn-default", type="submit", ng-click="reloadTask()") 刷新任务
@@ -19,3 +21,11 @@ div(ng-show="#{show_debug}")
             .col-sm-3: input(type="text", placeholder="角色ID", ng-model="mailRoleId").form-control
             .col-sm-7: input(type="text", placeholder="邮件内容", ng-model="mailContent").form-control
             .col-sm-1: button(class="btn btn-default", type="submit", ng-click="sendMail()") 发送邮件
+        .form-group
+            .col-sm-3: p.input-group
+                input(type="text", datepicker-popup="{{dateFormat}}", ng-model="logRunStart", is-open="logRunStartOpened", ng-click="open($event, 'logRunStartOpened')", format-date="yyyy-MM-dd", show-meridian="false", close-text="关闭", current-text="今天", toggle-weeks-text="显示周数", clear-text="清空", datepicker-append-to-body="true").form-control
+                span.input-group-btn: button(type="button", ng-click="open($event, 'logRunStartOpened')").btn.btn-default: i.glyphicon.glyphicon-calendar
+            .col-sm-3: p.input-group
+                input(type="text", datepicker-popup="{{dateFormat}}", ng-model="logRunEnd", is-open="logRunEndOpened", ng-click="open($event, 'logRunEndOpened')", format-date="yyyy-MM-dd", show-meridian="false", close-text="关闭", current-text="今天", toggle-weeks-text="显示周数", clear-text="清空", datepicker-append-to-body="true").form-control
+                span.input-group-btn: button(type="button", ng-click="open($event, 'logRunEndOpened')").btn.btn-default: i.glyphicon.glyphicon-calendar
+            .col-sm-1.col-sm-offset-4: button(class="btn btn-default", type="submit", ng-click="logRun()") 刷新统计数据

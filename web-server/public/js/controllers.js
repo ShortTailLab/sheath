@@ -890,7 +890,7 @@ sheathControllers.controller('statsController', function ($scope, $http) {
                     fontWeight: 'bold'
                 }
             },
-            xAxis: {type: "datetime", dateTimeLabelFormats: {day: "%Y-%m-%e"}, minRange: 24*60*60*1000},
+            xAxis: {type: "datetime", dateTimeLabelFormats: {day: "%y-%m-%e"}, minRange: 24*60*60*1000},
             yAxis: {title: "", allowDecimals: false}
         },
         series: []
@@ -906,7 +906,7 @@ sheathControllers.controller('statsController', function ($scope, $http) {
     $scope.retrieveStats = function (series, seriesIndex, name, type, cycle, errorPrefix) {
         var s = series[seriesIndex] = series[seriesIndex] || {name: name};
         var requestParam = {
-            start: moment().subtract(14, "d").startOf("day"),
+            start: moment().subtract(31, "d").startOf("day"),
             end: null,
             type: type,
             cycle: cycle
@@ -931,7 +931,7 @@ sheathControllers.controller('statsController', function ($scope, $http) {
     $scope.retrieveStats(online.series, 1, "在线用户", "onlineUser", 1, "online");
 });
 
-sheathControllers.controller('settingsController', function ($scope, $http) {
+sheathControllers.controller('settingsController', function ($scope, $http, $timeout) {
     $scope.kickAll = function () {
         $http.post("/api/kickAll");
     };
@@ -954,5 +954,21 @@ sheathControllers.controller('settingsController', function ($scope, $http) {
 
     $scope.sendMail = function () {
         $http.post("/api/sendMail", {role: $scope.mailRoleId, content: $scope.mailContent});
+    };
+
+    $scope.open = function ($event, key) {
+        $event.preventDefault();
+        $event.stopPropagation();
+
+        $scope[key] = true;
+    };
+    $scope.logRunStart = $scope.logRunEnd = new Date();
+
+    $scope.logRun = function () {
+        $http.post("/api/refreshStats", {start: +$scope.logRunStart, end: +$scope.logRunEnd})
+        .success(function (data) {
+            $scope.info = "正在刷新数据.请稍候";
+            $timeout(function () {$scope.info = null;}, 2000);
+        });
     };
 });

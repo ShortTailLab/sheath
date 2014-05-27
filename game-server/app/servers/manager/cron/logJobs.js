@@ -6,24 +6,52 @@ var Promise = require("bluebird");
 exports.dailyNewUser = function (start, end) {
     return models.Log.between(["user.register", start], ["user.register", end], {index: "type_time"}).count().execute()
     .then(function (regCount) {
-        return new models.Stat({
+        return models.Stat.insert({
+            id: "dnu-" + (+start / 100000),
             cycle: "daily",
             type: "newUser",
             time: start,
             value: regCount
-        }).save();
+        }, {upsert: true}).execute();
+    });
+};
+
+exports.dailyNewRole = function (start, end) {
+    return models.Log.between(["role.register", start], ["role.register", end], {index: "type_time"}).count().execute()
+    .then(function (regCount) {
+        return models.Stat.insert({
+            id: "dnr-" + (+start / 100000),
+            cycle: "daily",
+            type: "newRole",
+            time: start,
+            value: regCount
+        }, {upsert: true}).execute();
     });
 };
 
 exports.dailyActiveUser = function (start, end) {
-    return models.Log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group(r.row("msg")("user")).count().execute()
-    .then(function (err, activeCount) {
-        return new models.Stat({
+    return models.Log.between(["user.login", start], ["user.login", end], {index: "type_time"}).group(r.row("msg")("user")).count().ungroup().count().execute()
+    .then(function (activeCount) {
+        return models.Stat.insert({
+            id: "dau-" + (+start / 100000),
             cycle: "daily",
             type: "activeUser",
             time: start,
             value: activeCount
-        }).save();
+        }, {upsert: true}).execute();
+    });
+};
+
+exports.dailyActiveRole = function (start, end) {
+    return models.Log.between(["role.login", start], ["role.login", end], {index: "type_time"}).group(r.row("msg")("role")("id")).count().ungroup().count().execute()
+    .then(function (activeCount) {
+        return models.Stat.insert({
+            id: "dar-" + (+start / 100000),
+            cycle: "daily",
+            type: "activeRole",
+            time: start,
+            value: activeCount
+        }, {upsert: true}).execute();
     });
 };
 
@@ -39,14 +67,15 @@ function retentionOfDays(start, end, days) {
         return reg("msg")("user").eq(login("group"));
     }).count();
 
-    return Promise.join(recurLogins, regCount)
+    return Promise.join(recurLogins.execute(), regCount.execute())
     .spread(function (logins, regs) {
-        return new models.Stat({
+        return models.Stat.insert({
+            id: ["dre", days, +start / 100000].join("-"),
             cycle: "daily",
             type: "retention.d" + days,
             time: start,
-            value: logins/regs
-        }).save();
+            value: regs ? logins/regs : 0
+        }, {upsert: true}).execute();
     });
 }
 
