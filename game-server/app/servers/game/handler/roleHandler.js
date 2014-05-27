@@ -27,51 +27,34 @@ class RoleHandler extends base.HandlerBase {
         if (!oldHeroId || !newHeroId) {
             return this.errorNext(Constants.HeroFailed.DO_NOT_OWN_HERO, next);
         }
-        var oldHero, newHero, oldBoundEqs, newBoundEqs;
+        if (!_.contains(role.team, oldHeroId)) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
 
-
-        this.safe(models.Hero.getAll(oldHeroId, newHeroId).getJoin({equipments: true}).run().bind(this)
+        this.safe(models.Hero.getAll(oldHeroId, newHeroId).run().bind(this)
         .then(function (results) {
-            oldHero = results[0];
-            newHero = results[1];
-            oldBoundEqs = oldHero.equipments;
-            newBoundEqs = newHero.equipments;
+            var oldHero = results[0];
+            var newHero = results[1];
             if (!oldHero || !newHero || oldHero.owner !== role.id || newHero.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
-            var promises = [];
             var cache = this.app.get("cache");
-            if (_.contains(role.team, oldHeroId)) {
-                for (var i=0;i<role.team.length;i++) {
-                    if (role.team[i] === oldHeroId) {
-                        role.team[i] = newHeroId;
-                    }
-                    else if (role.team[i] === newHeroId) {
-                        role.team[i] = oldHeroId;
-                    }
+            for (var i=0;i<role.team.length;i++) {
+                if (role.team[i] === oldHeroId) {
+                    role.team[i] = newHeroId;
                 }
-                session.set("role", role);
-                promises.push(session.push("role"));
-                promises.push(models.Role.get(role.id).update({team: role.team}).run());
+                else if (role.team[i] === newHeroId) {
+                    role.team[i] = oldHeroId;
+                }
             }
-            if (oldBoundEqs.length > 0) {
-                promises.push(models.Item.getAll.apply(models.Item, oldHeroId).update({bound: newHeroId}).run());
-            }
-            if (newBoundEqs.length > 0) {
-                promises.push(models.Item.getAll.apply(models.Item, newHeroId).update({bound: oldHeroId}).run());
-            }
-            return promises;
+            session.set("role", role);
+            return [session.push("role"), models.Role.get(role.id).update({team: role.team}).run()];
         })
         .all().then(function (){
-            next(null, {
-                oldEquipments: _.pluck(oldBoundEqs, "id"),
-                newEquipments: _.pluck(newBoundEqs, "id")
-            });
+            next(null, {});
             logger.logInfo("role.replaceHero", {
                 oldHero: oldHeroId,
-                newHero: newHeroId,
-                oldEquipments: _.pluck(oldBoundEqs, "id"),
-                newEquipments: _.pluck(newBoundEqs, "id")
+                newHero: newHeroId
             });
         }), next);
     }
