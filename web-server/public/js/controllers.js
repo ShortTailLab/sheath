@@ -113,7 +113,7 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
         sorting: {percentile98: 'desc'}
     }, {
         getData: function($defer, params) {
-            $http.post("/api/getStatInfo", {type: "perf"})
+            $http.post("/api/getPerfStats")
             .success(function (data) {
                 params.total(data.length);
 

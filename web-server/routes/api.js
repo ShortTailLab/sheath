@@ -1336,29 +1336,24 @@ exports.resetPerfStats = function (req, res) {
     res.send(200);
 };
 
-function perfCounter() {
-    return new Promise(function (resolve, reject) {
-        pomeloConn.client.request("perf", {command:"collect"}, function (err, results) {
-            if (err) reject(err);
-            else resolve(results);
-        });
-    })
-    .then(function (results) {
-        var accum = results.accum;
-        return _.chain(accum).map(function (value, key) {
-            value.route = key;
-            return value;
-        }).compact().value();
+exports.getPerfStats = function (req, res) {
+    pomeloConn.client.request("perf", {command:"collect"}, function (err, results) {
+        if (err) res.send(400, {message: "" + err});
+        else {
+            var accum = results.accum;
+            res.json(_.chain(accum).map(function (value, key) {
+                value.route = key;
+                return value;
+            }).compact().value());
+        }
     });
-}
+};
 
 exports.getStatInfo = function (req, res) {
     var statReq = req.body;
     var type = statReq.type, startTime = new Date(statReq.start || 0), endTime = statReq.end ? new Date(statReq.end) : new Date();
 
     var typeMap = {
-        perf: perfCounter,
-
         regRole: "newRole",
         regUser: "newUser",
         onlineRole: "activeRole",

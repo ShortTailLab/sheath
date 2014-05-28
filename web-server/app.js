@@ -156,6 +156,7 @@ app.post('/api/broadcast', restrictAPI, api.broadcast);
 app.post('/api/chat', restrictAPI, api.chat);
 app.post('/api/sendMail', restrictAPI, api.sendMail);
 app.post('/api/resetPerfStats', restrictAPI, api.resetPerfStats);
+app.post('/api/getPerfStats', restrictAPI, api.getPerfStats);
 
 app.post('/api/gameLevel', api.importInGameReward);
 
