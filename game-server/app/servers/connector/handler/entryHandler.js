@@ -134,7 +134,6 @@ class EntryHandler extends base.HandlerBase {
                 .spread(function (role, _heroes, _items) {
                     heroes = _heroes;
                     bag = _items;
-                    role.setTeam(0, _.pluck(heroes, "id"));
                     return role;
                 });
             }

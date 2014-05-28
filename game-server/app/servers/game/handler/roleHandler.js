@@ -20,31 +20,28 @@ class RoleHandler extends base.HandlerBase {
     }
 
     replaceHero(msg, session, next) {
-        var oldHeroId = msg.hero;
+        var oldHeroId = msg.hero || null;
         var newHeroId = msg.with;
         var role = session.get("role");
 
-        if (!oldHeroId || !newHeroId) {
+        if (!newHeroId) {
             return this.errorNext(Constants.HeroFailed.DO_NOT_OWN_HERO, next);
         }
         if (!_.contains(role.team, oldHeroId)) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
-        this.safe(models.Hero.getAll(oldHeroId, newHeroId).run().bind(this)
-        .then(function (results) {
-            var oldHero = results[0];
-            var newHero = results[1];
-            if (!oldHero || !newHero || oldHero.owner !== role.id || newHero.owner !== role.id) {
+        this.safe(models.Hero.get(newHeroId).run().bind(this)
+        .then(function (newHero) {
+            if (newHero.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
             var cache = this.app.get("cache");
+            if (role.team.length > 3) role.team = role.team.slice(0, 3);
             for (var i=0;i<role.team.length;i++) {
                 if (role.team[i] === oldHeroId) {
                     role.team[i] = newHeroId;
-                }
-                else if (role.team[i] === newHeroId) {
-                    role.team[i] = oldHeroId;
+                    break;
                 }
             }
             session.set("role", role);

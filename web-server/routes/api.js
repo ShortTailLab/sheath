@@ -360,29 +360,36 @@ exports.addHero = function (req, res) {
 
     var newHeroes = req.body.heroes;
     var roleId = req.body.role;
+    var role;
 
     appModels.Role.get(roleId).run()
-    .then(function (exists) {
-        if (exists) {
-            var heroes = _.map(newHeroes, function (heroId) {
-                return (new appModels.Hero({
-                    heroDefId: heroId,
-                    owner: roleId
-                })).save();
-            });
-            return Promise.all(heroes);
-        }
-        else {
-            return Promise.reject();
-        }
+    .then(function (_role) {
+        role = _role;
+        var heroes = _.map(newHeroes, function (heroId) {
+            return (new appModels.Hero({
+                heroDefId: heroId,
+                owner: roleId
+            })).save();
+        });
+        return Promise.all(heroes);
     })
     .then(function (heroes) {
-        res.json({
-            heroes: _.map(heroes, function (h) {return heroToJson(h);})
+        if (role.team.length > 3) role.team = role.team.slice(0, 3);
+        var newHeroIds = _.pluck(heroes, "id");
+        for (var i=0;i<role.team.length;i++) {
+            if (role.team[i] === null) {
+                role.team[i] = newHeroIds.shift(1) || null;
+            }
+        }
+        return role.save().then(function (role) {
+            res.json({
+                role: roleToJson(role, true),
+                heroes: _.map(heroes, function (h) {return heroToJson(h);})
+            });
         });
     })
     .catch(function (err) {
-        console.log(err);
+        console.log(err.stack);
         res.send(400);
     });
 };

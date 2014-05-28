@@ -357,6 +357,8 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
         });
         modalIns.result.then(function (newHeroes) {
             $http.post("/api/addHero", {role: $scope.uid, heroes: newHeroes}).success(function (data) {
+                $scope.roleData = data.role;
+                $scope.roleJson = angular.toJson($scope.roleData, true);
                 $scope.heroes = $scope.heroes.concat(data.heroes);
                 $scope.heroTableParams.total($scope.heroes.length);
                 $scope.heroTableParams.reload();

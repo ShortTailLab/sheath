@@ -46,6 +46,7 @@ class TutorialHandler extends base.HandlerBase {
 
         var newRoleConf = this.app.get("roleBootstrap");
         var role = session.get("role");
+        var newHero;
 
         if (role.tutorial !== 2) {
             return this.errorNext(Constants.TutorialFailed.TutorialStateError, next);
@@ -63,8 +64,12 @@ class TutorialHandler extends base.HandlerBase {
             models.Role.get(role.id).update({tutorial: 3}).run()
         ];
 
-        this.safe(Promise.all(promises)
-        .spread((newHero) => {
+        this.safe(new models.Hero({heroDefId: heroId, owner: role.id}).save()
+        .then((_newHero) => {
+            newHero = _newHero;
+            return [session.push("role"), models.Role.get(role.id).update({team: [newHero.id, null, null]}).run()];
+        })
+        .all().then(() => {
             next(null, {newHero: newHero.toClientObj(), tutorial: 3});
         }), next);
     }

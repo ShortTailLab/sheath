@@ -74,7 +74,7 @@ exports.init = function (dbConfig) {
 
         formation: {_type: Number, default: 0},
         formationLevel: {_type: Array, default: function () {return [0, 0, 0, 0, 0, 0];}},
-        team: {_type: Array, default: function () {var ret = new Array(30); for(var i=0;i<30;i++) ret[i]=null; return ret;}},
+        team: {_type: Array, default: function () {return [null, null, null];}},
 
         storageRoom: {_type: Number, default: 25},
         cleared: {_type: Object, default: function () {return {};}},
@@ -402,14 +402,14 @@ exports.init = function (dbConfig) {
         return this.storageRoom;
     });
 
-    Role.define("setTeam", function (formation, hids) {
-        while (this.team.length < 30) {
-            this.team.push(null);
-        }
-        for (var i= 0, len=Math.min(5, hids.length);i<len;i++) {
-            this.team[formation*5+i] = hids[i];
-        }
-    });
+//    Role.define("setTeam", function (formation, hids) {
+//        while (this.team.length < 30) {
+//            this.team.push(null);
+//        }
+//        for (var i= 0, len=Math.min(5, hids.length);i<len;i++) {
+//            this.team[formation*5+i] = hids[i];
+//        }
+//    });
 
     Role.define("fillEnergy", function () {
         var now = moment();
