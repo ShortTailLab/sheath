@@ -43,7 +43,7 @@ class LogCron {
         curHour = curHour.toDate();
         prevDay = prevDay.toDate();
 
-        this.runJobs(prevDay, curHour);
+        module.exports.runJobs(prevDay, curHour);
     }
 
     weeklyLogRollUp() {

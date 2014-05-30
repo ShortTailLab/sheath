@@ -58,18 +58,12 @@ class TutorialHandler extends base.HandlerBase {
         role.tutorial = 3;
         session.set("role", role);
 
-        var promises = [
-            new models.Hero({heroDefId: heroId, owner: role.id}).save(),
-            session.push("role"),
-            models.Role.get(role.id).update({tutorial: 3}).run()
-        ];
-
-        this.safe(new models.Hero({heroDefId: heroId, owner: role.id}).save()
-        .then((_newHero) => {
+        this.safe(Promise.join(new models.Hero({heroDefId: heroId, owner: role.id}).save(), session.push("role"))
+        .spread((_newHero) => {
             newHero = _newHero;
-            return [session.push("role"), models.Role.get(role.id).update({team: [newHero.id, null, null]}).run()];
+            return models.Role.get(role.id).update({tutorial: 3, team: [newHero.id, null, null]}).run();
         })
-        .all().then(() => {
+        .then(() => {
             next(null, {newHero: newHero.toClientObj(), tutorial: 3});
         }), next);
     }
