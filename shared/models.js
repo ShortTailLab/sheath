@@ -346,7 +346,6 @@ exports.init = function (dbConfig) {
         server: String,
         msg: Object
     });
-    Log.ensureIndex("time");
     Log.ensureIndex("type_time", function (stat) {
         return [stat("type"), stat("time")];
     });
@@ -358,9 +357,6 @@ exports.init = function (dbConfig) {
         value: Number
     });
     Stat.ensureIndex("time");
-    Stat.ensureIndex("cycle_type", function (stat) {
-        return [stat("cycle"), stat("type")];
-    });
 
     // relations should be used mostly in web server
     Partition.hasMany(Role, "roles", "id", "partition");
