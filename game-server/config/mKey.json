@@ -1,0 +1,7 @@
+{
+    "fistCoinDraw": "fcd",
+    "fistGoldDraw": "fgd",
+    "goldDrawReset": "gdr",
+    "coinDrawReset": "cdr",
+    "coinDrawCount": "cdc"
+}

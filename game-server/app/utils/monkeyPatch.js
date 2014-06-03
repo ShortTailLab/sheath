@@ -32,8 +32,8 @@ module.exports.wrapModule = function (m, functions, suffix="") {
 function emptyFunc() {}
 
 module.exports.wrapSession = function (sessionIns) {
-    var sessionProto = Object.getPrototypeOf(sessionIns);
-    if (!sessionProto.__async__wrapped__) {
+    if (!sessionIns.__async__wrapped__) {
+        var sessionProto = Object.getPrototypeOf(sessionIns);
         Patcher.wrapModule(sessionProto, ["bind", "unbind", "push", "pushAll"]);
         sessionProto.__async__wrapped__ = true;
         exports.wrapSession = emptyFunc;

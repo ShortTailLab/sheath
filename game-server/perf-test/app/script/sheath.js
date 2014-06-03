@@ -186,29 +186,17 @@ var ActFlagType = {
         name: "storeBuy",
         route: "game.itemHandler.buy"
     },
-    LIST_RECRUIT: {
-        desc: "刷新聚贤庄",
+    COIN_DRAW: {
+        desc: "铜钱抽",
         reqId: 30,
-        name: "listRecruit",
-        route: "game.heroHandler.listRecruit"
+        name: "coinDraw",
+        route: "game.heroHandler.coinDraw"
     },
-    FREE_BAR_REFRESH: {
-        desc: "聚贤庄免费刷新",
+    GOLD_DRAW: {
+        desc: "元宝抽",
         reqId: 31,
-        name: "barFreeRefresh",
-        route: "game.heroHandler.freeRefresh"
-    },
-    PAID_BAR_REFRESH: {
-        desc: "聚贤庄付费刷新",
-        reqId: 32,
-        name: "barPaidRefresh",
-        route: "game.heroHandler.paidRefresh"
-    },
-    RECRUIT: {
-        desc: "招募",
-        reqId: 33,
-        name: "recruit",
-        route: "game.heroHandler.recruit"
+        name: "goldDraw",
+        route: "game.heroHandler.goldDraw"
     },
     REPLACE: {
         desc: "替换武将",
@@ -359,25 +347,11 @@ Role.prototype.afterLogin = function (pomelo) {
         console.log('disconnect invoke!' + reason);
     });
 
-    timePomeloRequest(ActFlagType.LIST_ITEM_DEF, {}, function (data) {
-        self.itemDefs = data.items;
-        self.equipmentDefs = data.equipments;
-        timePomeloRequest(ActFlagType.LIST_HERO_DEF, {}, function (data) {
-            self.heroDefs = data.defs;
-            timePomeloRequest(ActFlagType.LIST_HERO, {}, function (data) {
-                self.heroes = data.heroes;
-                timePomeloRequest(ActFlagType.LIST_ITEM, {}, function (data) {
-                    self.items = toKeyedObject(data.items);
-
-                    timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
-                        timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
-                            timePomeloRequest(ActFlagType.LIST_TASK, {}, function (data) {
+    timePomeloRequest(ActFlagType.CLAIM_DAILY_REWARD, {}, function (data) {
+        timePomeloRequest(ActFlagType.CLAIM_QHOURLY_REWARD, {}, function (data) {
+            timePomeloRequest(ActFlagType.LIST_TASK, {}, function (data) {
 //                                self.randomActions(pomelo);
-                                self.test(pomelo);
-                            });
-                        });
-                    });
-                });
+                self.test(pomelo);
             });
         });
     });
@@ -385,7 +359,7 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    this.sell(pomelo, function () {
+    this.coinDraw(pomelo, function () {
 
     });
 };
@@ -393,7 +367,7 @@ Role.prototype.test = function (pomelo) {
 Role.prototype.randomActions = function (pomelo) {
     var actions = [
         this.upgradeWeapon, this.compositeEquipment, this.refineWeapon, this.refineGem, this.equip, this.unEquip,
-        this.setGem, this.setTeam, this.listStore, this.refreshStore, this.listRecruit, this.freeBarRefresh,
+        this.setGem, this.setTeam, this.listStore, this.refreshStore, this.coinDraw, this.goldDraw,
         this.listSouls
     ];
     var count  = 500;
@@ -565,35 +539,9 @@ Role.prototype.refreshStore = function (pomelo, cb) {
     });
 };
 
-Role.prototype.listRecruit = function (pomelo, cb) {
-    var self = this;
-    timePomeloRequest(ActFlagType.LIST_RECRUIT, {}, function (data) {
-        if (!data.error) self.barHeroes = data.heroes;
-        cb();
-    });
-};
-
-Role.prototype.freeBarRefresh = function (pomelo, cb) {
-    var self = this;
-    timePomeloRequest(ActFlagType.FREE_BAR_REFRESH, {}, function (data) {
-        if (!data.error) self.barHeroes = data.heroes;
-        cb();
-    });
-};
-
-Role.prototype.paidBarRefresh = function (pomelo, cb) {
-    var self = this;
-    timePomeloRequest(ActFlagType.PAID_BAR_REFRESH, {}, function (data) {
-        if (!data.error) self.barHeroes = data.heroes;
-        cb();
-    });
-};
-
-Role.prototype.recruit = function (pomelo, cb) {
-    var self = this;
-    timePomeloRequest(ActFlagType.RECRUIT, {heroId: _.sample(self.barHeroes).id, useGold: true}, function (data) {
-        self.role = data.role;
-        self.heroes.push(data.newHero);
+Role.prototype.coinDraw = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.COIN_DRAW, {}, function (data) {
+        console.log(data);
         cb();
     });
 };

@@ -10,7 +10,7 @@ include ../mixins/block
             input(type="hidden", name="tag", value="heroDraw")
         .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="节点数据").submit
-            input(type="hidden", name="tag", value="heroNode")
+            input(type="hidden", name="tag", value="drawNode")
         .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="道具数据").submit
             input(type="hidden", name="tag", value="itemDef")
@@ -130,25 +130,31 @@ include ../mixins/block
             td {{h.skill}}
             td {{h.resKey}}
 
-+block("武将抽取概率")
++block("抽取概率")
     div(class="message errormsg", ng-show="draw_error")
         p {{draw_error}}
     table(cellpadding="0", cellspacing="0", width="100%")
         thead: tr
-            th 武将ID
-            th 威望
-            th 元宝
-            th 系统刷新权重
-            th 免费刷新权重
-            th 付费刷新权重
+            th ID
+            th 武将ID/道具ID
+            th 碎片
+            th 铜钱抽权重
+            th 元宝抽权重
+            th 付费铜钱抽权重
+            th 付费元宝抽权重
+            th 十连铜钱抽权重
+            th 十连元宝抽权重
             th 等级
         tbody: tr(ng-repeat="hd in draws | orderBy:'id'")
             td {{hd.id}}
-            td {{hd.contribs}}
-            td {{hd.golds}}
-            td {{hd.sysWeight}}
-            td {{hd.freeWeight}}
-            td {{hd.paidWeight}}
+            td {{hd.itemId}}
+            td {{hd.isSoul}}
+            td {{hd.coinWeight}}
+            td {{hd.goldWeight}}
+            td {{hd.paidCoinWeight}}
+            td {{hd.paidGoldWeight}}
+            td {{hd.tenCoinWeight}}
+            td {{hd.tenGoldWeight}}
             td {{hd.level}}
 
 +block("节点")

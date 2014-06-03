@@ -770,10 +770,11 @@ var dataColumns = {
         "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine",
         "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor",
         "physicalResist", "magicResist", "attackFactor", "defenseFactor", "souls"],
-    heroDraw: ["id", "contribs", "golds", "sysWeight", "freeWeight", "paidWeight", "level"],
-    heroNode: [],
+    heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
+        "tenCoinWeight", "tenGoldWeight", "level"],
+    drawNode: [],
     itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
-        'composeTarget', 'canSell', 'price', 'desc'],
+        'composeTarget', 'canSell', 'price', "useTarget", "itemEffect", 'desc'],
     equipmentDef: ['id', 'name', "color", 'quality', 'type', 'subType', 'levelReq', 'resKey', 'hp', 'attack', 'magic',
         'defense', "resist", 'hpGrowth', 'attackGrowth', 'magicGrowth', 'defenseGrowth', "resistGrowth", 'upgradeCost',
         'hpRefine', 'attackRefine', 'magicRefine', 'defenseRefine', "resistRefine", 'refineCost',
@@ -806,12 +807,15 @@ var transformHeroDef = function (row) {
 
 var transformHeroDraw = function (row) {
     row.id = parseInt(row.id);
-    row.golds = parseInt(row.golds);
-    row.contribs = parseInt(row.contribs);
+    row.itemId = parseInt(row.itemId);
+    row.isSoul = !!parseInt(row.isSoul || "0");
+    row.coinWeight = parseFloat(row.coinWeight);
+    row.goldWeight = parseFloat(row.goldWeight);
+    row.paidCoinWeight = parseFloat(row.paidCoinWeight);
+    row.paidGoldWeight = parseFloat(row.paidGoldWeight);
+    row.tenCoinWeight = parseFloat(row.tenCoinWeight);
+    row.tenGoldWeight = parseFloat(row.tenGoldWeight);
     row.level = parseInt(row.level);
-    row.sysWeight = parseFloat(row.sysWeight);
-    row.freeWeight = parseFloat(row.freeWeight);
-    row.paidWeight = parseFloat(row.paidWeight);
 };
 
 var transformHeroNode = function (row) {
@@ -848,6 +852,10 @@ var transformGemDef = function (row) {
         canSell: !!parseInt(row.canSell),
         price: parseInt(row.price),
         desc: row.desc.trim(),
+
+        useTarget: parseInt(row.useTarget || "0"),
+        itemEffect: parseInt(row.itemEffect || "0"),
+
         extended: {
             hp: parseInt(row.hp),
             attack: parseFloat(row.attack),
@@ -924,7 +932,7 @@ exports.import = function (req, res) {
     var modelsAndTransform = {
         heroDef: [appModels.HeroDef, transformHeroDef],
         heroDraw: [appModels.HeroDraw, transformHeroDraw],
-        heroNode: [appModels.HeroNode, transformHeroNode],
+        drawNode: [appModels.DrawNode, transformHeroNode],
         itemDef: [appModels.ItemDef, transformItemDef],
         equipmentDef: [appModels.EquipmentDef, transformEquipmentDef],
         gemDef: [appModels.ItemDef, transformGemDef],
@@ -1050,7 +1058,7 @@ exports.export = function (req, res) {
             });
         });
     }
-    else if (data.tag === "heroNode") {
+    else if (data.tag === "drawNode") {
 
     }
     else if (data.tag === "itemDef") {
@@ -1173,7 +1181,7 @@ exports.heroDraws = function (req, res) {
 };
 
 exports.heroNodes = function (req, res) {
-    appModels.HeroNode.run()
+    appModels.DrawNode.run()
     .then(function (data) {
         res.json({
             nodes: _.map(data, function (h) { return h.toObject(true); })

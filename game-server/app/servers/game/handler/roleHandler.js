@@ -41,7 +41,9 @@ class RoleHandler extends base.HandlerBase {
             for (var i=0;i<role.team.length;i++) {
                 if (role.team[i] === oldHeroId) {
                     role.team[i] = newHeroId;
-                    break;
+                }
+                else if (role.team[i] === newHeroId) {
+                    role.team[i] = oldHeroId;
                 }
             }
             session.set("role", role);

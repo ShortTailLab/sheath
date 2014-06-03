@@ -109,6 +109,8 @@ class EntryHandler extends base.HandlerBase {
                     golds: newRoleConf.golds,
                     contribs: newRoleConf.contribs,
 
+                    manualRefreshData: {gdr: new Date()},
+
                     tutorial: 1
                 };
                 logType = "role.register";

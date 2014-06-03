@@ -1,8 +1,9 @@
 var models = require("../../../../../shared/models");
 var base = require("../../../../../shared/base");
 var Constants = require("../../../../../shared/constants");
+var draw = require("../../../services/drawService");
 var wrapSession = require("../../../utils/monkeyPatch").wrapSession;
-var Bar = require("../../../services/barService");
+var moment = require("moment");
 var Promise = require("bluebird");
 var _ = require("lodash");
 var logger;
@@ -16,43 +17,6 @@ class HeroHandler extends base.HandlerBase {
     constructor(app) {
         this.app = app;
         logger = require('../../../utils/rethinkLogger').getLogger(app);
-    }
-
-    maxDailyRefresh(role) {
-        var max = [0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4];
-        if (0 <= role.vip < max.length) {
-            return max[role.vip];
-        }
-        return max[0];
-    }
-
-    getRoleBar(role) {
-        var bar = role.bar;
-        var now = Math.floor(Date.now()/1000);
-
-        if (!bar.validThru || bar.validThru < now) {
-            Bar.listHeroes();
-            bar.validThru = Bar.nextRefresh;
-            bar.recruited = [];
-            bar.heroes = null;
-        }
-
-        if (bar.heroes && bar.validThru >= now) {
-            return bar.heroes;
-        }
-        else {
-            return Bar.listHeroes();
-        }
-    }
-
-    countId(list, id) {
-        var count = 0;
-        for (var i=0;i<list.length;i++) {
-            if (list[i] === id) {
-                ++count;
-            }
-        }
-        return count;
     }
 
     listDef(msg, session, next) {
@@ -75,137 +39,79 @@ class HeroHandler extends base.HandlerBase {
         }), next);
     }
 
-    listRecruit(msg, session, next) {
+    coinDraw(msg, session, next) {
         wrapSession(session);
-        Bar.initOnce(this.app);
+        draw.initOnce(this.app);
+        var drawResult;
+        var tenDraw = msg.tenDraw || false;
 
         this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
-            var barHeroes = this.getRoleBar(role);
-
-            next(null, {
-                nextRefresh: Bar.nextRefresh - Math.floor(Date.now()/1000),
-                freeRefresh: this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0),
-                recruited: role.bar.recruited || [],
-                heroes: barHeroes
-            });
-        }), next);
-    }
-
-    freeRefresh(msg, session, next) {
-        wrapSession(session);
-        Bar.initOnce(this.app);
-
-        this.safe(models.Role.get(session.get("role").id).run().bind(this)
-        .then(function (role) {
-            var freeRefresh = this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0);
-            if (freeRefresh < 1) {
-                return Promise.reject(Constants.HeroFailed.NO_FREE_REFRESH);
+            var nextFreeTime = role.dailyRefreshData[this.app.mKey.coinDrawReset];
+            var freeDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
+            var freeDraw = false;
+            var now = moment();
+            if (tenDraw) {
+                if (role.coins >= 90000) role.coins -= 90000;
+                else return Promise.reject(Constants.NO_COINS);
             }
-            role.dailyRefreshData.barRefreshNum = (role.dailyRefreshData.barRefreshNum || 0) + 1;
-            role.bar = {
-                heroes: Bar.getFreeRefresh(role),
-                recruited: [],
-                validThru: Bar.nextRefresh
-            };
-            return role.save();
-        })
-        .then(function (role) {
-            next(null, {
-                nextRefresh: Bar.nextRefresh - Math.floor(Date.now()/1000),
-                freeRefresh: this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0),
-                heroes: role.bar.heroes
-            });
-            logger.logInfo("bar.refresh.free", {
-                role: role.toLogObj(),
-                heroes: _.pluck(role.bar.heroes, "id")
-            });
-        }), next);
-    }
-
-    paidRefresh(msg, session, next) {
-        wrapSession(session);
-        Bar.initOnce(this.app);
-        var tokenDefId = this.app.get("specialItemId").barRefreshToken;
-        var role = session.get("role");
-        var tokenId;
-        if (tokenDefId === undefined || tokenDefId === null) {
-            return this.errorNext(Constants.HeroFailed.NO_PAID_REFRESH, next);
-        }
-
-        this.safe(Promise.join(models.Role.get(role.id).run(), models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: tokenDefId}).limit(1).run()).bind(this)
-        .spread(function (role, tokens) {
-            if (!tokens || tokens.length === 0 || !tokens[0]) {
-                return Promise.reject(Constants.HeroFailed.NO_PAID_REFRESH);
+            else if (freeDrawCount < 5 && (!nextFreeTime || moment(nextFreeTime).isBefore(now))) {
+                role.dailyRefreshData[this.app.mKey.coinDrawReset] = now.add(5, "minutes").toDate();
+                role.dailyRefreshData[this.app.mKey.coinDrawCount] = freeDrawCount + 1;
+                freeDraw = true;
             }
-            tokenId = tokens[0].id;
-            role.bar = {
-                heroes: Bar.getPaidRefresh(role),
-                recruited: [],
-                validThru: Bar.nextRefresh
-            };
-            return [role.save(), tokens[0].delete()];
+            else if (role.coins >= 10000) {
+                role.coins -= 10000;
+            }
+            else {
+                return Promise.reject(Constants.NO_COINS);
+            }
+            drawResult = draw.drawWithCoins(role, tenDraw, freeDraw);
+            session.set("role", role.toSessionObj());
+                return [role.save(), session.push("role"), Promise.all(_.invoke(drawResult.heroes, "save")), Promise.all(_.invoke(drawResult.items, "save"))];
         })
         .spread(function (role) {
-            next(null, {
-                destroyed: tokenId,
-                nextRefresh: Bar.nextRefresh - Math.floor(Date.now()/1000),
-                freeRefresh: this.maxDailyRefresh(role) - (role.dailyRefreshData.barRefreshNum || 0),
-                heroes: role.bar.heroes
-            });
-            logger.logInfo("bar.refresh.paid", {
-                role: role.toLogObj(),
-                heroes: _.pluck(role.bar.heroes, "id")
-            });
+            drawResult.role = role.toSlimClientObj();
+            drawResult.heroes = _.invoke(drawResult.heroes, "toClientObj");
+            drawResult.items = _.invoke(drawResult.items, "toClientObj");
+            next(null, drawResult);
         }), next);
     }
 
-    recruit(msg, session, next) {
+    goldDraw(msg, session, next) {
         wrapSession(session);
+        draw.initOnce(this.app);
+        var drawResult;
+        var tenDraw = msg.tenDraw || false;
 
-        var heroId = msg.heroId;
-        var useGold = !!msg.useGold;
-        var cache = this.app.get("cache");
-        var role = session.get("role");
-        var heroDraw = cache.heroDrawById[heroId];
-        if (!heroDraw) {
-            return this.errorNext(Constants.HeroFailed.NOT_IN_BAR, next);
-        }
-
-        this.safe(models.Role.get(role.id).run().bind(this)
-        .then(function (_role) {
-            role = _role;
-            var barHeroes = this.getRoleBar(role);
-            var barHeroIds = _.pluck(barHeroes, "id");
-            if (!_.contains(barHeroIds, heroId)) {
-                return Promise.reject(Constants.HeroFailed.NOT_IN_BAR);
+        this.safe(models.Role.get(session.get("role").id).run()
+        .then(function (role) {
+            var nextFreeTime = role.manualRefreshData[this.app.mKey.goldDrawReset];
+            var freeDraw = false;
+            var now = moment();
+            if (tenDraw) {
+                if (role.golds >= 2800) role.golds -= 2800;
+                else return Promise.reject(Constants.NO_GOLDS);
             }
-            if (useGold && role.golds < heroDraw.golds) {
+            else if (!nextFreeTime || moment(nextFreeTime).isBefore(now)) {
+                role.manualRefreshData[this.app.mKey.goldDrawReset] = now.add(36, "hours").toDate();
+                freeDraw = true;
+            }
+            else if (role.golds >= 300) {
+                role.golds -= 300;
+            }
+            else {
                 return Promise.reject(Constants.NO_GOLDS);
             }
-            if (!useGold && role.contribs < heroDraw.contribs) {
-                return Promise.reject(Constants.NO_CONTRIBS);
-            }
-            if (this.countId(barHeroIds, heroId) <= this.countId(role.bar.recruited, heroId)) {
-                return Promise.reject(Constants.HeroFailed.NOT_IN_BAR);
-            }
-            if (useGold) role.golds -= heroDraw.golds;
-            else role.contribs -= heroDraw.contribs;
-            role.bar.recruited.push(heroId);
+            drawResult = draw.drawWithGolds(role, tenDraw, freeDraw);
             session.set("role", role.toSessionObj());
-            return [role.save(), (new models.Hero({owner: role.id, heroDefId: heroId, level: heroDraw.level})).save(), session.push("role")];
+            return [role.save(), session.push("role"), Promise.all(_.invoke(drawResult.heroes, "save")), Promise.all(_.invoke(drawResult.items, "save"))];
         })
-        .spread(function (role, hero) {
-            next(null, {
-                role: role.toClientObj(),
-                newHero: hero.toClientObj()
-            });
-            logger.logInfo("bar.recruit", {
-                role: role.toLogObj(),
-                gold: useGold,
-                price: useGold ? heroDraw.golds : heroDraw.contribs,
-                newHero: hero.toLogObj()
-            });
+        .spread(function (role) {
+            drawResult.role = role.toSlimClientObj();
+            drawResult.heroes = _.invoke(drawResult.heroes, "toClientObj");
+            drawResult.items = _.invoke(drawResult.items, "toClientObj");
+            next(null, drawResult);
         }), next);
     }
 

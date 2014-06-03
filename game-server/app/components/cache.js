@@ -131,14 +131,14 @@ class Cache {
     }
 
     loadHeroDraws() {
-        return Promise.join(models.HeroDraw.run(), models.HeroNode.run()).bind(this)
+        return Promise.join(models.HeroDraw.run(), models.DrawNode.run()).bind(this)
         .spread(function (draws, nodes) {
             this.heroDraws = _.invoke(draws, "toObject");
             this.heroNodes = _.invoke(_.sortBy(nodes, "weight"), "toObject");
             this.heroDrawById = toMap(this.heroDraws, "id");
         })
         .catch(function (err) {
-            console.log("error loading HeroNode. " + err);
+            console.log("error loading DrawNode. " + err);
         });
     }
 

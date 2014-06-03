@@ -30,7 +30,7 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
         case "storeitem":
             this.cacheIns.loadStoreItem();
             break;
-        case "heroNode":
+        case "drawNode":
         case "heroDraw":
             this.cacheIns.loadHeroDraws();
             break;
@@ -57,7 +57,7 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
                 serverTypes = ["game", "connector"];
                 break;
             case "storeitem":
-            case "heroNode":
+            case "drawNode":
             case "heroDraw":
                 serverTypes = ["game"];
                 break;

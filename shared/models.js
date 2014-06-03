@@ -86,6 +86,7 @@ exports.init = function (dbConfig) {
 
         energyRefreshTime: {_type: Date, default: r.now()},
         dailyRefreshData: {_type: Object, default: function () {return {};}},
+        manualRefreshData: {_type: Object, default: function () {return {};}},
 
         taskData: {_type: Object, default: function () {return {};}},
         taskDone: {_type: Array, default: function () {return [];}},
@@ -169,6 +170,9 @@ exports.init = function (dbConfig) {
 
         canSell: {_type: Boolean, default: true},
         price: {_type: Number, default: 1000},
+
+        useTarget: {_type: Number, default: 0},
+        itemEffect: {_type: Number, default: 0},
 
         extended: {_type: Object, default: function () {return {};}},
         desc: {_type: String, default: ""}
@@ -278,15 +282,22 @@ exports.init = function (dbConfig) {
     });
 
     var HeroDraw = exports.HeroDraw = schema.createModel("herodraw", {
-        sysWeight: {_type: Number, default: 0},
-        freeWeight: {_type: Number, default: 0},
-        paidWeight: {_type: Number, default: 0},
-        golds: {_type: Number, default: 0},
-        contribs: {_type: Number, default: 0},
+        itemId: Number,
+        isSoul: {_type: Boolean, default: false},
+
+        coinWeight: {_type: Number, default: 0},
+        goldWeight: {_type: Number, default: 0},
+
+        paidCoinWeight: {_type: Number, default: 0},
+        paidGoldWeight: {_type: Number, default: 0},
+
+        tenCoinWeight: {_type: Number, default: 0},
+        tenGoldWeight: {_type: Number, default: 0},
+
         level: {_type: Number, default: 1}
     });
 
-    var HeroNode = exports.HeroNode = schema.createModel("heronode", {
+    var DrawNode = exports.DrawNode = schema.createModel("drawnode", {
         weight: {_type: Number, default: 0}
     });
 
@@ -383,6 +394,14 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toClientObj", function () {
+        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "formation", "formationLevel", "tutorial");
+        ret.team = _.map(this.team, function (t) { return t || ""; });
+        ret.storageRoom = this.getStorageRoom();
+
+        return ret;
+    });
+
+    Role.define("toSlimClientObj", function () {
         var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "formation", "formationLevel", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();

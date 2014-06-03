@@ -19,6 +19,7 @@ app.set('name', 'sheath');
 app.loadConfig("rethinkdb", app.getBase() + "/config/rethinkdb.json");
 app.loadConfig("redis", app.getBase() + "/config/redis.json");
 app.loadConfig("opLog", app.getBase() + "/config/opLog.json");
+app.loadConfig("mKey", app.getBase() + "/config/mKey.json");
 app.enable('systemMonitor');
 app.before(pomelo.filters.toobusy(80));
 app.before(new authFilter("connector.entryHandler.enter", "connector.entryHandler.enterPartition"));
@@ -35,6 +36,8 @@ app.route("manager", dispatcher.defaultRouter);
 // set up stats filter for handlers and remotes
 app.filter(statsFilter.handler);
 app.rpcFilter(statsFilter.remote);
+
+app.mKey = app.get("mKey");
 
 app.set('remoteConfig', {
     rpcServer: zmqRPC.server
