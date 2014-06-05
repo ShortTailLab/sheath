@@ -593,7 +593,7 @@ Role.prototype.sell = function (pomelo, cb) {
 };
 
 Role.prototype.useItem = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.USE_ITEM, {itemId: "7c75cd93-1a51-43d1-a41d-2be1ea5579e8", target: "41a602cc-b724-434a-89df-112872bc4dee"}, function (data) {
+    timePomeloRequest(ActFlagType.USE_ITEM, {itemId: "c3109a42-caf5-480e-9615-36e7a7cc77b2", target: "41a602cc-b724-434a-89df-112872bc4dee"}, function (data) {
         console.log(data);
         cb();
     });

@@ -142,7 +142,7 @@ class EntryHandler extends base.HandlerBase {
             else {
                 bag = role.bag;
                 heroes = role.heroes;
-                role.fillEnergy();
+                role.fillEnergy(this.app.get("energyTable"));
                 return role;
             }
         })

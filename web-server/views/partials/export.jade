@@ -294,6 +294,7 @@ include ../mixins/block
             th 元宝商品
             th 价格
             th 道具ID
+            th 是碎片
             th 数量
             th 描述
         tbody: tr(ng-repeat="si in storeItems | orderBy:'id'")
@@ -302,6 +303,7 @@ include ../mixins/block
             td {{si.gold}}
             td {{si.price}}
             td {{si.defId}}
+            td {{si.isSoul}}
             td {{si.count}}
             td {{si.desc}}
 

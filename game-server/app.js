@@ -87,6 +87,7 @@ app.configure('development|production|test', "master", function () {
 
 app.configure('development|production|test', "connector", function () {
     app.loadConfig("roleBootstrap", app.getBase() + "/config/data/roleBootstrap.json");
+    app.loadConfig("energyTable", app.getBase() + "/config/data/energyTable.json");
     app.use(require('pomelo-protobuf-plugin'), {watchFile: false});
     app.load(require('./app/components/cache'), {role: "connector"});
 });
@@ -95,6 +96,8 @@ app.configure('development|production|test', "game", function () {
     app.loadConfig("roleBootstrap", app.getBase() + "/config/data/roleBootstrap.json");
     app.loadConfig("specialItemId", app.getBase() + "/config/data/specialItemId.json");
     app.loadConfig("rewardConfig", app.getBase() + "/config/data/reward.json");
+    app.loadConfig("expTables", app.getBase() + "/config/data/expTables.json");
+    app.loadConfig("energyTable", app.getBase() + "/config/data/energyTable.json");
     app.load(require('./app/components/cache'), {role: "game"});
 //    profiler.profile({
 //        accountKey: 'a09978fff59621ddf3fada92a8048789d0ca3ade',

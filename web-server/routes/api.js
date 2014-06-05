@@ -784,7 +784,7 @@ var dataColumns = {
         "desc", "extended"],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
-    storeitem: ["id", "name", "gold", "price", "defId", "count", "desc"],
+    storeitem: ["id", "name", "gold", "price", "defId", "isSoul", "count", "desc"],
     ballistic: ["id", "value"]
 };
 
@@ -924,6 +924,7 @@ var transformTask = function (row) {
 var transformStoreItem = function (row) {
     row.id = parseInt(row.id);
     row.gold = !!parseInt(row.gold || "0");
+    row.isSoul = !!parseInt(row.isSoul || "0");
     row.price = parseInt(row.price);
     row.defId = parseInt(row.defId);
     row.count = parseInt(row.count);

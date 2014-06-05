@@ -222,7 +222,6 @@ class RoleHandler extends base.HandlerBase {
             if (roleObj.golds < 25) {
                 return Promise.reject(Constants.HeroFailed.NO_GOLDS);
             }
-            roleObj.fillEnergy();
             roleObj.golds -= 25;
             roleObj.storageRoom += 5;
             session.set("role", roleObj.toSessionObj());

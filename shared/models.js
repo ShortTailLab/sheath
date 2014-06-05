@@ -36,6 +36,15 @@ exports.init = function (dbConfig) {
         });
     };
 
+    var levelUp = function levelUp (expTable) {
+        while (true) {
+            var nextLevelExp = expTable[this.level];
+            if (this.exp < nextLevelExp || this.level >= expTable.length - 1) break;
+            this.level += 1;
+            this.exp -= nextLevelExp;
+        }
+    };
+
     var User = exports.User = schema.createModel("user", {
         auth: [{type: String, id: String, password: String}],
         joinDate: {_type: Date, default: r.now()},
@@ -253,6 +262,7 @@ exports.init = function (dbConfig) {
         gold: {_type: Boolean, default: false},
         price: {_type: Number, default: 0},
         defId: {_type: Number, default: 0},
+        isSoul: {_type: Boolean, default: false},
         count: {_type: Number, default: 1},
         desc: {_type: String, default: ""}
     });
@@ -426,15 +436,18 @@ exports.init = function (dbConfig) {
 //        }
 //    });
 
-    Role.define("fillEnergy", function () {
+    Role.define("fillEnergy", function (energyTable) {
         var now = moment();
         var lastCheck = moment(this.energyRefreshTime);
         var energyGain = Math.floor(moment.duration(now - lastCheck).asMinutes()/15);
+        var maxEnergy = energyTable.maxEnergy[Math.min(this.level, energyTable.maxEnergy.length-1)];
         if (energyGain > 0) {
-            this.energy = Math.min(this.energy + energyGain, 50);
+            this.energy = Math.max(this.energy, Math.min(this.energy + energyGain, maxEnergy));
             this.energyRefreshTime = lastCheck.add(energyGain*15, "minutes").toDate();
         }
     });
+
+    Role.define("levelUp", levelUp);
 
     ItemDef.define("toClientObj", function () {
         var ret = this.toObject();
@@ -477,6 +490,8 @@ exports.init = function (dbConfig) {
     Hero.define("toLogObj", function () {
         return _.pick(this, "id", "heroDefId", "level", "exp");
     });
+
+    Hero.define("levelUp", levelUp);
 
     Level.define("toClientObj", function () {
         return _.pick(this, "id", "name", "path", "energy", "exp");
