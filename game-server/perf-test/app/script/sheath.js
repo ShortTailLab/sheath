@@ -198,6 +198,12 @@ var ActFlagType = {
         name: "goldDraw",
         route: "game.heroHandler.goldDraw"
     },
+    USE_ITEM: {
+        desc: "使用道具",
+        reqId: 32,
+        name: "useItem",
+        route: "game.itemHandler.useItem"
+    },
     REPLACE: {
         desc: "替换武将",
         reqId: 34,
@@ -359,7 +365,7 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    this.coinDraw(pomelo, function () {
+    this.useItem(pomelo, function () {
 
     });
 };
@@ -367,7 +373,7 @@ Role.prototype.test = function (pomelo) {
 Role.prototype.randomActions = function (pomelo) {
     var actions = [
         this.upgradeWeapon, this.compositeEquipment, this.refineWeapon, this.refineGem, this.equip, this.unEquip,
-        this.setGem, this.setTeam, this.listStore, this.refreshStore, this.coinDraw, this.goldDraw,
+        this.setGem, this.setTeam, this.listStore, this.refreshStore, this.coinDraw, this.goldDraw, this.useItem,
         this.listSouls
     ];
     var count  = 500;
@@ -581,6 +587,13 @@ Role.prototype.redeemSouls = function (pomelo, cb) {
 
 Role.prototype.sell = function (pomelo, cb) {
     timePomeloRequest(ActFlagType.SELL, {itemId: "d2de24d0-0cf5-4c8e-9163-077008a8d713"}, function (data) {
+        console.log(data);
+        cb();
+    });
+};
+
+Role.prototype.useItem = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.USE_ITEM, {itemId: "7c75cd93-1a51-43d1-a41d-2be1ea5579e8", target: "41a602cc-b724-434a-89df-112872bc4dee"}, function (data) {
         console.log(data);
         cb();
     });

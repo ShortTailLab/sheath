@@ -172,7 +172,7 @@ exports.init = function (dbConfig) {
         price: {_type: Number, default: 1000},
 
         useTarget: {_type: Number, default: 0},
-        itemEffect: {_type: Number, default: 0},
+        itemEffect: {_type: Array, default: function () {return [];}},
 
         extended: {_type: Object, default: function () {return {};}},
         desc: {_type: String, default: ""}

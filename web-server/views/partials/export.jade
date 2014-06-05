@@ -179,6 +179,8 @@ include ../mixins/block
             th 合成目标
             th 可售出
             th 价格
+            th 使用对象
+            th 效果
             th 描述
         tbody: tr(ng-repeat="item in items | orderBy:'id'")
             td {{item.id}}
@@ -194,6 +196,8 @@ include ../mixins/block
             td {{item.composeTarget}}
             td {{item.canSell}}
             td {{item.price}}
+            td {{item.useTarget}}
+            td {{item.itemEffect}}
             td {{item.desc}}
 
 +block("所有装备")

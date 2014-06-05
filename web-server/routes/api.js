@@ -827,13 +827,18 @@ var transformItemDef = function (row) {
     _.each(["quality", "levelReq", "stackSize", "composable", "composeCount", "canSell", "price"], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
-    _.each(["composeTarget"], function (f) {
+    _.each(["composeTarget", "itemEffect"], function (f) {
         if (row[f] && row[f] !== "0") {
             row[f] = JSON.parse(row[f]);
+        }
+        else {
+            row[f] = [];
         }
     });
     row.canSell = !!row.canSell;
     row.composable = !!row.composable;
+
+    row.useTarget = parseInt(row.useTarget || "0");
 };
 
 var transformGemDef = function (row) {
@@ -853,8 +858,8 @@ var transformGemDef = function (row) {
         price: parseInt(row.price),
         desc: row.desc.trim(),
 
-        useTarget: parseInt(row.useTarget || "0"),
-        itemEffect: parseInt(row.itemEffect || "0"),
+        useTarget: 0,
+        itemEffect: [],
 
         extended: {
             hp: parseInt(row.hp),
@@ -1071,6 +1076,7 @@ exports.export = function (req, res) {
                 row.canSell = row.canSell ? 1 : 0;
                 row.composable = row.composable ? 1: 0;
                 row.composeTarget = JSON.stringify(row.composeTarget);
+                row.itemEffect = JSON.stringify(row.itemEffect);
                 return row;
             });
         });
@@ -1224,7 +1230,7 @@ exports.itemDefs = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 

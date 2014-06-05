@@ -70,6 +70,55 @@ class ItemHandler extends base.HandlerBase {
         }), next);
     }
 
+    useItem(msg, session, next) {
+        wrapSession(session);
+
+        var roleId = session.get("role").id;
+        var item, itemDef;
+        var validEffects = [
+            null,
+            ["energy"],
+            ["exp"]
+        ];
+
+        this.safe(this.getItemWithDef(msg.itemId).bind(this)
+        .spread(function (_item, _itemDef) {
+            item = _item;
+            itemDef = _itemDef;
+            var target = msg.target || roleId;
+            if (item.owner !== roleId) return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            if (!target || !itemDef.useTarget || itemDef.useTarget > 2 || !itemDef.itemEffect || itemDef.itemEffect.length === 0) {
+                return Promise.reject(Constants.InvalidRequest);
+            }
+            if (!_.contains(validEffects[itemDef.useTarget], itemDef.itemEffect[0])) {
+                return Promise.reject(Constants.InternalServerError);
+            }
+
+            var target = itemDef.useTarget === 1 ? models.Role.get(roleId) : models.Hero.get(target);
+            return target.run();
+        })
+        .then(function (target) {
+            var [effectName, amount] = itemDef.itemEffect;
+            switch (effectName) {
+                case "energy": {
+                    target.energy += amount;
+                    break;
+                }
+                case "exp": {
+                    target.exp += amount;
+                    break;
+                }
+            }
+            return [target.save(), item.delete()];
+        })
+        .spread((target) => {
+            var tName = itemDef.useTarget === 1 ? "role" : "hero";
+            next(null, {
+                [tName]: target.toClientObj()
+            });
+        }), next);
+    }
+
     listStore(msg, session, next) {
         wrapSession(session);
         Store.initOnce(this.app);
