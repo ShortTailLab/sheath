@@ -45,7 +45,7 @@ class HeroHandler extends base.HandlerBase {
         var drawResult;
         var tenDraw = msg.tenDraw || false;
 
-        this.safe(models.Role.get(session.get("role").id).run().bind(this)
+        this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run().bind(this)
         .then(function (role) {
             var nextFreeTime = role.dailyRefreshData[this.app.mKey.coinDrawReset];
             var freeDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
@@ -67,8 +67,20 @@ class HeroHandler extends base.HandlerBase {
                 return Promise.reject(Constants.NO_COINS);
             }
             drawResult = draw.drawWithCoins(role, tenDraw, freeDraw);
+            var heroPromises = [];
+            _.map(drawResult.heroes, function (h) {
+                if (_.findWhere(role.heroes, {heroDefId: h.heroDefId})) {
+                    var hId = "" + h.heroDefId;
+                    h.id = "";
+                    role.souls[hId] = (role.souls[hId] || 0) + 10;
+                }
+                else {
+                    heroPromises.push(h.save());
+                }
+            });
+
             session.set("role", role.toSessionObj());
-                return [role.save(), session.push("role"), Promise.all(_.invoke(drawResult.heroes, "save")), Promise.all(_.invoke(drawResult.items, "save"))];
+            return [role.save(), session.push("role"), heroPromises, Promise.all(_.invoke(drawResult.items, "save"))];
         })
         .spread(function (role) {
             drawResult.role = role.toSlimClientObj();
@@ -84,7 +96,7 @@ class HeroHandler extends base.HandlerBase {
         var drawResult;
         var tenDraw = msg.tenDraw || false;
 
-        this.safe(models.Role.get(session.get("role").id).run()
+        this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run()
         .then(function (role) {
             var nextFreeTime = role.manualRefreshData[this.app.mKey.goldDrawReset];
             var freeDraw = false;
@@ -104,8 +116,20 @@ class HeroHandler extends base.HandlerBase {
                 return Promise.reject(Constants.NO_GOLDS);
             }
             drawResult = draw.drawWithGolds(role, tenDraw, freeDraw);
+            var heroPromises = [];
+            _.map(drawResult.heroes, function (h) {
+                if (_.findWhere(role.heroes, {heroDefId: h.heroDefId})) {
+                    var hId = "" + h.heroDefId;
+                    h.id = "";
+                    role.souls[hId] = (role.souls[hId] || 0) + 10;
+                }
+                else {
+                    heroPromises.push(h.save());
+                }
+            });
+
             session.set("role", role.toSessionObj());
-            return [role.save(), session.push("role"), Promise.all(_.invoke(drawResult.heroes, "save")), Promise.all(_.invoke(drawResult.items, "save"))];
+            return [role.save(), session.push("role"), heroPromises, Promise.all(_.invoke(drawResult.items, "save"))];
         })
         .spread(function (role) {
             drawResult.role = role.toSlimClientObj();
@@ -130,11 +154,14 @@ class HeroHandler extends base.HandlerBase {
         var heroDef = this.app.get("cache").heroDefById[heroId];
         var hero;
 
-        this.safe(models.Role.get(session.get("role").id).run().bind(this)
+        this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run().bind(this)
         .then(function (role) {
             var soul = role.souls["" + heroId] || 0;
             if (!soul || !heroDef || soul < heroDef.souls) {
                 return Promise.reject(Constants.HeroFailed.NOT_ENOUGH_SOULS);
+            }
+            if (_.findWhere(role.heroes, {heroDefId: heroId})) {
+                return Promise.reject(Constants.HeroFailed.ALREADY_HAVE_HERO);
             }
             soul -= heroDef.souls;
             role.souls["" + heroId] = soul;

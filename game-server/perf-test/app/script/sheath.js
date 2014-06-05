@@ -365,7 +365,7 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    this.useItem(pomelo, function () {
+    this.coinDraw(pomelo, function () {
 
     });
 };

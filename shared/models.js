@@ -410,7 +410,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toSlimClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "formation", "formationLevel", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 

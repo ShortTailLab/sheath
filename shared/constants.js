@@ -46,6 +46,7 @@ module.exports = {
         NO_PAID_REFRESH: 65,
         NOT_IN_BAR: 66,
         NOT_ENOUGH_SOULS: 67,
+        ALREADY_HAVE_HERO: 68,
     },
     TaskFailed: {
         NO_TASK: 90,
