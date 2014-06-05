@@ -133,16 +133,11 @@ message HeroDef {
     required int32 ballLev      =   26;
     required int32 secBallLev   =   27;
 
-    required float ice          =   28;
-    required float fire         =   29;
-    required float slow         =   30;
-    required float weak         =   31;
-
-    required int32 hpRefine     =   32;
-    required int32 attackRefine =   33;
-    required int32 magicRefine  =   34;
-    required int32 defenseRefine=   35;
-    required int32 resistRefine =   36;
+    repeated int32 hpRefine     =   32;
+    repeated int32 attackRefine =   33;
+    repeated int32 magicRefine  =   34;
+    repeated int32 defenseRefine=   35;
+    repeated int32 resistRefine =   36;
 
     required float damage       =   37;
     required float damageReduction  =   38;
@@ -163,8 +158,9 @@ message Item {
 message Hero {
     required string id          =   1;
     required int32 defId        =   2;
-    required int32 level        =   3;
-    required int32 exp          =   4;
+    required int32 stars        =   3;
+    required int32 level        =   4;
+    required int32 exp          =   5;
 }
 message Task {
     required int32 id           =   1;

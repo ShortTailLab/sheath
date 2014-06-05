@@ -768,7 +768,7 @@ var dataColumns = {
         "attack", "attackGrowth", "magic", "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth",
         "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev", "skill",
         "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine",
-        "ice", "fire", "slow", "weak", "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor",
+        "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor",
         "physicalResist", "magicResist", "attackFactor", "defenseFactor", "souls"],
     heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
         "tenCoinWeight", "tenGoldWeight", "level"],
@@ -798,10 +798,18 @@ var transformHeroDef = function (row) {
 
     _.each(["stars", "quality", "vitality", "strength", "intelligence", "hp", "hpGrowth", "attack", "attackGrowth", "magic",
         "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth", "critical", "interval", "attackSpeed",
-        "speed", "ballLev", "secBallLev", "skill", "hpRefine", "attackRefine", "magicRefine", "defenseRefine",
-        "resistRefine", "ice", "fire", "slow", "weak", "damage", "damageReduction", "damageFactor",
-        "damageRedFactor", "physicalResist", "magicResist", "attackFactor", "defenseFactor"], function (f) {
+        "speed", "ballLev", "secBallLev", "skill", "damage", "damageReduction", "damageFactor", "damageRedFactor",
+        "physicalResist", "magicResist", "attackFactor", "defenseFactor"], function (f) {
         row[f] = parseFloat(row[f]) || 0;
+    });
+
+    _.each(["hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine"], function (f) {
+        if (row[f] && row[f] !== "0") {
+            row[f] = JSON.parse(row[f]);
+        }
+        else {
+            row[f] = [];
+        }
     });
 };
 
@@ -1050,7 +1058,9 @@ exports.export = function (req, res) {
                 eof: true,
                 columns: dataColumns[data.tag]
             }).transform(function (row) {
-                row.attackDelta = JSON.stringify(row.attackDelta);
+                _.each(["attackDelta", "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine"], function (f) {
+                    row[f] = JSON.stringify(row[f]);
+                });
                 return row;
             });
         });

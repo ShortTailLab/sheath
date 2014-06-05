@@ -143,15 +143,12 @@ exports.init = function (dbConfig) {
         speed: {_type: Number, default: 0},
         ballLev: {_type: Number, default: 0},
         secBallLev: {_type: Number, default: 0},
-        hpRefine: {_type: Number, default: 0},
-        attackRefine: {_type: Number, default: 0},
-        magicRefine: {_type: Number, default: 0},
-        defenseRefine: {_type: Number, default: 0},
-        resistRefine: {_type: Number, default: 0},
-        ice: {_type: Number, default: 0},
-        fire: {_type: Number, default: 0},
-        slow: {_type: Number, default: 0},
-        weak: {_type: Number, default: 0},
+        hpRefine: {_type: Array, default: function () {return [];}},
+        attackRefine: {_type: Array, default: function () {return [];}},
+        magicRefine: {_type: Array, default: function () {return [];}},
+        defenseRefine: {_type: Array, default: function () {return [];}},
+        resistRefine: {_type: Array, default: function () {return [];}},
+
         attackDelta: {_type: Array, default: function () {return [];}},
         damage: {_type: Number, default: 0},
         damageReduction: {_type: Number, default: 0},
@@ -225,6 +222,7 @@ exports.init = function (dbConfig) {
     var Hero = exports.Hero = schema.createModel("hero", {
         heroDefId: {_type: Number},
 
+        stars: {_type: Number, default: 0},
         level: {_type: Number, default: 1},
         exp: {_type: Number, default: 0},
 
@@ -482,13 +480,14 @@ exports.init = function (dbConfig) {
         return {
             id: this.id,
             defId: this.heroDefId,
+            stars: this.stars,
             level: this.level,
             exp: this.exp
         };
     });
 
     Hero.define("toLogObj", function () {
-        return _.pick(this, "id", "heroDefId", "level", "exp");
+        return _.pick(this, "id", "heroDefId", "stars", "level", "exp");
     });
 
     Hero.define("levelUp", levelUp);

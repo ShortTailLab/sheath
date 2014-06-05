@@ -1,5 +1,5 @@
 
-ª+
+ì+
 serverProtos.proto"
 Player
 
@@ -98,7 +98,7 @@ composable	 (
 refineCost (
 slots (
 gemType (	
-price ("ƒ
+price ("ç
 HeroDef
 
 id (
@@ -131,16 +131,12 @@ refineCost (
 speed (
 ballLev (
 
-secBallLev (
-ice (
-fire (
-slow (
-weak (
-hpRefine  (
-attackRefine! (
-magicRefine" (
-defenseRefine# (
-resistRefine$ (
+secBallLev (
+hpRefine  (
+attackRefine! (
+magicRefine" (
+defenseRefine# (
+resistRefine$ (
 damage% (
 damageReduction& (
 damageFactor' (
@@ -156,13 +152,14 @@ secBallLev (
 level (
 
 refinement (
-bound (	"=
+bound (	"L
 Hero
 
 id (	
 defId (
-level (
-exp ("|
+stars (
+level (
+exp ("|
 Task
 
 id (
