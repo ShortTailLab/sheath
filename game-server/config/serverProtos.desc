@@ -1,5 +1,5 @@
 
-¹+
+»+
 serverProtos.proto"
 Player
 
@@ -179,16 +179,16 @@ refinement (
 
 id (
 contribs (
-golds ("n
+golds ("p
 	StoreItem
 
 id (
 name (	
 gold (
 price (
-defId (
-count (
-desc (	"L
+defId (
+isSoul (
+count ("L
 Level
 
 id (

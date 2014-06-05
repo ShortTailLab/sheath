@@ -190,8 +190,8 @@ message StoreItem {
     required bool gold          =   3;
     required int32 price        =   4;
     required int32 defId        =   5;
-    required int32 count        =   6;
-    required string desc        =   7;
+    required bool isSoul        =   6;
+    required int32 count        =   7;
 }
 message Level {
     required int32 id           =   1;
