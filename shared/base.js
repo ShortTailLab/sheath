@@ -8,10 +8,14 @@ var logger = require('pomelo-logger').getLogger('sheath', __filename);
 class HandlerBase {
     errorNext(err, next) {
         var result = {error: {code: Constants.UnknownError}};
-        if (typeof err === "number")
+        if (err === undefined || err === null) {
+        }
+        if (typeof err === "number") {
             result.error.code = err;
-        else if (err.__sheath__error__)
+        }
+        else if (err.__sheath__error__) {
             result.error.code = err.code;
+        }
         if (typeof err.message === "string") {
             result.error.message = err.message;
             logger.error('handler error. ' + err.message + (err.stack || ""));

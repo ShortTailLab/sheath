@@ -190,7 +190,7 @@ class EntryHandler extends base.HandlerBase {
                 stages: levels,
 
                 nextGoldReset: Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000),
-                nextCoinReset: Math.floor(moment(role.manualRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000),
+                nextCoinReset: Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000),
                 coinDrawCount: role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0
             });
             logger.logInfo(logType, {
