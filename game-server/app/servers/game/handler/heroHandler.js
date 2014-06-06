@@ -45,12 +45,12 @@ class HeroHandler extends base.HandlerBase {
         var drawResult;
         var tenDraw = msg.tenDraw || false;
         var freeReq = msg.freeDraw || false;
+        var freeDraw = false;
 
         this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run().bind(this)
         .then(function (role) {
             var nextFreeTime = role.dailyRefreshData[this.app.mKey.coinDrawReset];
             var freeDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
-            var freeDraw = false;
             var now = moment();
             if (tenDraw) {
                 if (role.coins >= 90000) role.coins -= 90000;
@@ -58,7 +58,6 @@ class HeroHandler extends base.HandlerBase {
             }
             else if (freeReq) {
                 if (freeDrawCount < 5 && (!nextFreeTime || moment(nextFreeTime).isBefore(now))) {
-                    console.warn(this.app.mKey.coinDrawReset);
                     role.dailyRefreshData[this.app.mKey.coinDrawReset] = now.add(5, "minutes").toDate();
                     role.dailyRefreshData[this.app.mKey.coinDrawCount] = freeDrawCount + 1;
                     freeDraw = true;
@@ -95,6 +94,16 @@ class HeroHandler extends base.HandlerBase {
             drawResult.nextGoldReset = Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000);
             drawResult.nextCoinReset = Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000);
             drawResult.coinDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
+
+            logger.logInfo("hero.coinDraw", {
+                role: role.toLogObj(),
+                newHero: _.invoke(drawResult.heroes, "toLogObj"),
+                newItem: _.invoke(drawResult.items, "toLogObj"),
+                souls: drawResult.souls,
+                freeDraw: freeDraw,
+                tenDraw: tenDraw
+            });
+
             next(null, drawResult);
         }), next);
     }
@@ -105,11 +114,11 @@ class HeroHandler extends base.HandlerBase {
         var drawResult;
         var tenDraw = msg.tenDraw || false;
         var freeReq = msg.freeDraw || false;
+        var freeDraw = false;
 
-        this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run()
+        this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run().bind(this)
         .then(function (role) {
             var nextFreeTime = role.manualRefreshData[this.app.mKey.goldDrawReset];
-            var freeDraw = false;
             var now = moment();
             if (tenDraw) {
                 if (role.golds >= 2800) role.golds -= 2800;
@@ -152,6 +161,16 @@ class HeroHandler extends base.HandlerBase {
             drawResult.nextGoldReset = Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000);
             drawResult.nextCoinReset = Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000);
             drawResult.coinDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
+
+            logger.logInfo("hero.goldDraw", {
+                role: role.toLogObj(),
+                newHero: _.invoke(drawResult.heroes, "toLogObj"),
+                newItem: _.invoke(drawResult.items, "toLogObj"),
+                souls: drawResult.souls,
+                freeDraw: freeDraw,
+                tenDraw: tenDraw
+            });
+
             next(null, drawResult);
         }), next);
     }

@@ -320,7 +320,6 @@ Role.prototype.entry = function entry(host, port, accType, username, password) {
             self.user = data.user;
 
             timePomeloRequest(ActFlagType.ENTER_PARTITION, {partId: data.partitions[0].id}, function (data) {
-                console.log(data);
                 self.role = data.role;
                 self.afterLogin(pomelo);
             });
@@ -546,7 +545,7 @@ Role.prototype.refreshStore = function (pomelo, cb) {
 };
 
 Role.prototype.coinDraw = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.COIN_DRAW, {freeDraw: true}, function (data) {
+    timePomeloRequest(ActFlagType.COIN_DRAW, {}, function (data) {
         console.log(data);
         cb();
     });

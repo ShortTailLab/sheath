@@ -94,8 +94,8 @@ class ItemHandler extends base.HandlerBase {
                 return Promise.reject(Constants.InternalServerError);
             }
 
-            var target = itemDef.useTarget === 1 ? models.Role.get(roleId) : models.Hero.get(target);
-            return target.run();
+            var targetP = itemDef.useTarget === 1 ? models.Role.get(roleId) : models.Hero.get(target);
+            return targetP.run();
         })
         .then(function (target) {
             var [effectName, amount] = itemDef.itemEffect;
@@ -116,7 +116,7 @@ class ItemHandler extends base.HandlerBase {
             }
             return [target.save(), item.delete()];
         })
-        .spread((target) => {
+        .spread(function (target) {
             var tName = itemDef.useTarget === 1 ? "role" : "hero";
             next(null, {
                 [tName]: target.toClientObj()
