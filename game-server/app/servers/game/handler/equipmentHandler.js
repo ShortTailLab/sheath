@@ -83,9 +83,8 @@ class EquipmentHandler extends base.HandlerBase {
             return models.Item.getAll(role.id, {index: "owner"}).filter({
                 itemDefId: equipment.itemDefId,
                 refinement: 0,
-                level: 0,
-                bound: null
-            }).filter(r.row("id").ne(equipment.id)).limit(1).run();
+                level: 0
+            }).filter({bound: null}, {default: true}).filter(r.row("id").ne(equipment.id)).limit(1).run();
         })
         .then((mats) => {
             if (!mats || mats.length === 0) {
@@ -178,22 +177,18 @@ class EquipmentHandler extends base.HandlerBase {
         if (!eqId || !gemId) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
-        var equipment, itemDef, gemDef, boundGemCount;
+        var equipment, itemDef, gem, gemDef, boundGemCount;
 
-        this.safe(this.getEquipmentWithDef(eqId)
-        .spread((_equipment, _itemDef) => {
-            itemDef = _itemDef;
+        this.safe(Promise.join(this.getEquipmentWithDef(eqId), this.getGemWithDef(gemId))
+        .spread((q1, q2) => {
+            [equipment, itemDef] = q1;
+            [gem ,gemDef] = q2;
             if (itemDef.slots === 0) {
                 return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
             }
-            if (!_equipment || _equipment.owner !== role.id) {
+            if (!equipment || equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
-            equipment = _equipment;
-            return this.getGemWithDef(gemId);
-        })
-        .spread((gem, _gemDef) => {
-            gemDef = _gemDef;
             if (!gem || gem.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
@@ -203,14 +198,14 @@ class EquipmentHandler extends base.HandlerBase {
             if (itemDef.gemType.indexOf(gemDef.subType) === -1) {
                 return Promise.reject(Constants.EquipmentFailed.CANNOT_BIND_GEM_TYPE);
             }
-            return [gem, models.Item.getAll(eqId, {index: "bound"}).run()];
+            return models.Item.getAll(eqId, {index: "bound"}).run();
         })
-        .spread((gem, _boundGems) => {
+        .then((_boundGems) => {
             boundGemCount = _boundGems.length;
             var cache = this.app.get("cache");
             // find a same type gem to replace
-            var toReplace = _.find(_boundGems, function (gem) {
-                var def = cache.itemDefById[gem.itemDefId];
+            var toReplace = _.find(_boundGems, function (g) {
+                var def = cache.itemDefById[g.itemDefId];
                 return def ? def.subType === gemDef.subType : null;
             });
             gem.bound = equipment.id;
