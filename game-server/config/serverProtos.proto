@@ -220,6 +220,11 @@ message connector_entryHandler_enterPartition {
     repeated Hero heroes        =   8;
 
     repeated Stage stages       =   9;
+
+    optional fixed32 nextGoldReset =   10;
+    optional fixed32 nextCoinReset =   11;
+    optional int32   coinDrawCount =   12;
+    optional fixed32 serverTime    =   13;
 }
 
 message game_roleHandler_claimDailyReward {

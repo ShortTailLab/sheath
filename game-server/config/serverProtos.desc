@@ -1,5 +1,5 @@
 
-“+
+ì+
 serverProtos.proto"
 Player
 
@@ -202,7 +202,7 @@ refinement (
 user (2.Player
 
 partitions (2
-.Partition"ˆ
+.Partition"á
 %connector_entryHandler_enterPartition
 error (2.Error
 role (2.Role
@@ -212,7 +212,13 @@ partitions (2
 heroDefs (2.HeroDef
 items (2.Item
 heroes (2.Hero
-stages	 (2.Stage"Z
+stages	 (2.Stage
+nextGoldReset
+ (
+nextCoinReset (
+coinDrawCount (
+
+serverTime ("Z
 !game_roleHandler_claimDailyReward
 error (2.Error
 reward (2.ProfileChange"b

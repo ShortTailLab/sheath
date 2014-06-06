@@ -109,7 +109,7 @@ class EntryHandler extends base.HandlerBase {
                     golds: newRoleConf.golds,
                     contribs: newRoleConf.contribs,
 
-                    manualRefreshData: {gdr: new Date()},
+                    manualRefreshData: {gdr: new Date(), fcd: true, fgd: true},
 
                     tutorial: 1
                 };
@@ -186,7 +186,13 @@ class EntryHandler extends base.HandlerBase {
                 items: _.invoke(bag, "toClientObj"),
                 heroes: _.invoke(heroes, "toClientObj"),
 
-                stages: levels
+                stages: levels,
+
+                nextGoldReset: Math.floor(+(role.manualRefreshData[this.app.mKey.goldDrawReset] || new Date()) / 1000),
+                nextCoinReset: Math.floor(+(role.manualRefreshData[this.app.mKey.coinDrawReset] || new Date()) / 1000),
+                coinDrawCount: role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0,
+
+                serverTime: Math.floor(Date.now() / 1000)
             });
             logger.logInfo(logType, {
                 user: session.uid,

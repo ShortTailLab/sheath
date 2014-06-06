@@ -44,6 +44,7 @@ class HeroHandler extends base.HandlerBase {
         draw.initOnce(this.app);
         var drawResult;
         var tenDraw = msg.tenDraw || false;
+        var freeReq = msg.freeDraw || false;
 
         this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run().bind(this)
         .then(function (role) {
@@ -55,10 +56,13 @@ class HeroHandler extends base.HandlerBase {
                 if (role.coins >= 90000) role.coins -= 90000;
                 else return Promise.reject(Constants.NO_COINS);
             }
-            else if (freeDrawCount < 5 && (!nextFreeTime || moment(nextFreeTime).isBefore(now))) {
-                role.dailyRefreshData[this.app.mKey.coinDrawReset] = now.add(5, "minutes").toDate();
-                role.dailyRefreshData[this.app.mKey.coinDrawCount] = freeDrawCount + 1;
-                freeDraw = true;
+            else if (freeReq) {
+                if (freeDrawCount < 5 && (!nextFreeTime || moment(nextFreeTime).isBefore(now))) {
+                    role.dailyRefreshData[this.app.mKey.coinDrawReset] = now.add(5, "minutes").toDate();
+                    role.dailyRefreshData[this.app.mKey.coinDrawCount] = freeDrawCount + 1;
+                    freeDraw = true;
+                }
+                else return Promise.reject(Constants.NO_FREE_REFRESH);
             }
             else if (role.coins >= 10000) {
                 role.coins -= 10000;
@@ -95,6 +99,7 @@ class HeroHandler extends base.HandlerBase {
         draw.initOnce(this.app);
         var drawResult;
         var tenDraw = msg.tenDraw || false;
+        var freeReq = msg.freeDraw || false;
 
         this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run()
         .then(function (role) {
@@ -105,9 +110,12 @@ class HeroHandler extends base.HandlerBase {
                 if (role.golds >= 2800) role.golds -= 2800;
                 else return Promise.reject(Constants.NO_GOLDS);
             }
-            else if (!nextFreeTime || moment(nextFreeTime).isBefore(now)) {
-                role.manualRefreshData[this.app.mKey.goldDrawReset] = now.add(36, "hours").toDate();
-                freeDraw = true;
+            else if (freeReq) {
+                if (!nextFreeTime || moment(nextFreeTime).isBefore(now)) {
+                    role.manualRefreshData[this.app.mKey.goldDrawReset] = now.add(36, "hours").toDate();
+                    freeDraw = true;
+                }
+                else return Promise.reject(Constants.NO_FREE_REFRESH);
             }
             else if (role.golds >= 300) {
                 role.golds -= 300;

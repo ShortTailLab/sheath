@@ -147,7 +147,7 @@ class LevelHandler extends base.HandlerBase {
                     })).save());
                 }
             });
-            return [models.Role.get(role.id).update(roleUpdateQ).run(), Promise.all(newItems)];
+            return [models.Role.get(role.id).update(roleUpdateQ, {returnVals: true}).execute(), Promise.all(newItems)];
         })
         .spread(function (roleUpdate, newItems) {
             role.coins = roleUpdate.new_val.coins;

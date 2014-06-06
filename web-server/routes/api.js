@@ -589,7 +589,7 @@ var adminToJson = function (u) {
 var roleToJson = function (role, rawObject) {
     var ret;
     if (rawObject) {
-        ret = _.omit(role.toObject(true), "energyRefreshTime", "dailyRefreshData");
+        ret = _.omit(role.toObject(true), "energyRefreshTime", "dailyRefreshData", "manualRefreshData");
     }
     else {
         ret = _.pick(role, "id", "name", "title", "level", "energy", "golds", "coins", "contribs", "partition", "spent");
