@@ -130,8 +130,8 @@ class LevelHandler extends base.HandlerBase {
                 models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
                 return Promise.reject(Constants.StageFailed.Invalid_End);
             }
-            role.coins += coins;
-            role.exp += levelGain.exp;
+            role.coins += coins || 0;
+            role.exp += levelGain.exp || 0;
             role.levelGain = {};
             var lGain = role.levelUp(this.app.get("expTables").role);
             var newItems = [];
