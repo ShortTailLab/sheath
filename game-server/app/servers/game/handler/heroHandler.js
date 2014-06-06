@@ -87,14 +87,6 @@ class HeroHandler extends base.HandlerBase {
             return [role.save(), session.push("role"), heroPromises, Promise.all(_.invoke(drawResult.items, "save"))];
         })
         .spread(function (role) {
-            drawResult.role = role.toSlimClientObj();
-            drawResult.heroes = _.invoke(drawResult.heroes, "toClientObj");
-            drawResult.items = _.invoke(drawResult.items, "toClientObj");
-
-            drawResult.nextGoldReset = Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000);
-            drawResult.nextCoinReset = Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000);
-            drawResult.coinDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
-
             logger.logInfo("hero.coinDraw", {
                 role: role.toLogObj(),
                 newHero: _.invoke(drawResult.heroes, "toLogObj"),
@@ -104,6 +96,13 @@ class HeroHandler extends base.HandlerBase {
                 tenDraw: tenDraw
             });
 
+            drawResult.role = role.toSlimClientObj();
+            drawResult.heroes = _.invoke(drawResult.heroes, "toClientObj");
+            drawResult.items = _.invoke(drawResult.items, "toClientObj");
+
+            drawResult.nextGoldReset = Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000);
+            drawResult.nextCoinReset = Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000);
+            drawResult.coinDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
             next(null, drawResult);
         }), next);
     }
@@ -154,14 +153,6 @@ class HeroHandler extends base.HandlerBase {
             return [role.save(), session.push("role"), heroPromises, Promise.all(_.invoke(drawResult.items, "save"))];
         })
         .spread(function (role) {
-            drawResult.role = role.toSlimClientObj();
-            drawResult.heroes = _.invoke(drawResult.heroes, "toClientObj");
-            drawResult.items = _.invoke(drawResult.items, "toClientObj");
-
-            drawResult.nextGoldReset = Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000);
-            drawResult.nextCoinReset = Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000);
-            drawResult.coinDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
-
             logger.logInfo("hero.goldDraw", {
                 role: role.toLogObj(),
                 newHero: _.invoke(drawResult.heroes, "toLogObj"),
@@ -170,6 +161,14 @@ class HeroHandler extends base.HandlerBase {
                 freeDraw: freeDraw,
                 tenDraw: tenDraw
             });
+
+            drawResult.role = role.toSlimClientObj();
+            drawResult.heroes = _.invoke(drawResult.heroes, "toClientObj");
+            drawResult.items = _.invoke(drawResult.items, "toClientObj");
+
+            drawResult.nextGoldReset = Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000);
+            drawResult.nextCoinReset = Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000);
+            drawResult.coinDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
 
             next(null, drawResult);
         }), next);
