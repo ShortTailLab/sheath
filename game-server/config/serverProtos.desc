@@ -1,5 +1,5 @@
 
-ì+
+Ò,
 serverProtos.proto"
 Player
 
@@ -202,7 +202,7 @@ refinement (
 user (2.Player
 
 partitions (2
-.Partition"á
+.Partition"Í
 %connector_entryHandler_enterPartition
 error (2.Error
 role (2.Role
@@ -214,11 +214,9 @@ partitions (2
 heroes (2.Hero
 stages	 (2.Stage
 nextGoldReset
- (
-nextCoinReset (
-coinDrawCount (
-
-serverTime ("Z
+ (
+nextCoinReset (
+coinDrawCount ("Z
 !game_roleHandler_claimDailyReward
 error (2.Error
 reward (2.ProfileChange"b
@@ -235,8 +233,8 @@ equipments (2.EquipmentDef"D
 items (2.Item"“
 game_itemHandler_listStore
 error (2.Error
-nextCoinStoreRefresh (
-nextGoldStoreRefresh (
+nextCoinStoreRefresh (
+nextGoldStoreRefresh (
 coinPurchaseLeft (
 goldPurchaseLeft (
 coinRefreshLeft (
@@ -264,7 +262,12 @@ equipments (2.EquipmentDef"D
 gem (2.Item"I
 game_heroHandler_listDef
 error (2.Error
-defs (2.HeroDef"E
+defs (2.HeroDef"x
+game_heroHandler_queryDraw
+error (2.Error
+nextGoldReset (
+nextCoinReset (
+coinDrawCount ("E
 game_heroHandler_list
 error (2.Error
 heroes (2.Hero"I

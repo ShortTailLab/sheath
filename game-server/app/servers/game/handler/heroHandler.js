@@ -147,6 +147,17 @@ class HeroHandler extends base.HandlerBase {
         }), next);
     }
 
+    queryDraw(msg, session, next) {
+        wrapSession(session);
+        var role = session.get("role");
+
+        next(null, {
+            nextGoldReset: Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000),
+            nextCoinReset: Math.floor(moment(role.manualRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000),
+            coinDrawCount: role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0
+        });
+    }
+
     listSouls(msg, session, next) {
         wrapSession(session);
 

@@ -221,10 +221,9 @@ message connector_entryHandler_enterPartition {
 
     repeated Stage stages       =   9;
 
-    optional fixed32 nextGoldReset =   10;
-    optional fixed32 nextCoinReset =   11;
-    optional int32   coinDrawCount =   12;
-    optional fixed32 serverTime    =   13;
+    optional int32 nextGoldReset   =   10;
+    optional int32 nextCoinReset   =   11;
+    optional int32 coinDrawCount   =   12;
 }
 
 message game_roleHandler_claimDailyReward {
@@ -247,8 +246,8 @@ message game_itemHandler_list {
 }
 message game_itemHandler_listStore {
     optional Error error                    =   1;
-    optional fixed32 nextCoinStoreRefresh   =   2;
-    optional fixed32 nextGoldStoreRefresh   =   3;
+    optional int32 nextCoinStoreRefresh     =   2;
+    optional int32 nextGoldStoreRefresh     =   3;
     optional int32 coinPurchaseLeft         =   4;
     optional int32 goldPurchaseLeft         =   5;
     optional int32 coinRefreshLeft          =   6;
@@ -278,6 +277,12 @@ message game_itemHandler_refineGem {
 message game_heroHandler_listDef {
     optional Error error        =   1;
     repeated HeroDef defs       =   2;
+}
+message game_heroHandler_queryDraw {
+    optional Error error           =   1;
+    optional int32 nextGoldReset   =   2;
+    optional int32 nextCoinReset   =   3;
+    optional int32   coinDrawCount =   4;
 }
 message game_heroHandler_list {
     optional Error error        =   1;

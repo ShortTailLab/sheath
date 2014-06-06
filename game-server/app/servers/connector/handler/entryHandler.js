@@ -6,6 +6,7 @@ var r = models.r;
 var base = require("../../../../../shared/base");
 var _ = require("lodash");
 var Promise = require("bluebird");
+var moment = require("moment");
 var logger;
 
 
@@ -188,11 +189,9 @@ class EntryHandler extends base.HandlerBase {
 
                 stages: levels,
 
-                nextGoldReset: Math.floor(+(role.manualRefreshData[this.app.mKey.goldDrawReset] || new Date()) / 1000),
-                nextCoinReset: Math.floor(+(role.manualRefreshData[this.app.mKey.coinDrawReset] || new Date()) / 1000),
-                coinDrawCount: role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0,
-
-                serverTime: Math.floor(Date.now() / 1000)
+                nextGoldReset: Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000),
+                nextCoinReset: Math.floor(moment(role.manualRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000),
+                coinDrawCount: role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0
             });
             logger.logInfo(logType, {
                 user: session.uid,
