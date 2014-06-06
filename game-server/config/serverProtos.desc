@@ -214,8 +214,8 @@ partitions (2
 heroes (2.Hero
 stages	 (2.Stage
 nextGoldReset
- (
-nextCoinReset (
+ (
+nextCoinReset (
 coinDrawCount ("Z
 !game_roleHandler_claimDailyReward
 error (2.Error
@@ -265,8 +265,8 @@ equipments (2.EquipmentDef"D
 defs (2.HeroDef"x
 game_heroHandler_queryDraw
 error (2.Error
-nextGoldReset (
-nextCoinReset (
+nextGoldReset (
+nextCoinReset (
 coinDrawCount ("E
 game_heroHandler_list
 error (2.Error

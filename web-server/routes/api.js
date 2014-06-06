@@ -771,7 +771,7 @@ var dataColumns = {
         "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor",
         "physicalResist", "magicResist", "attackFactor", "defenseFactor", "souls"],
     heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
-        "tenCoinWeight", "tenGoldWeight", "level"],
+        "tenGoldWeight", "level", "count"],
     drawNode: [],
     itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
         'composeTarget', "useTarget", "itemEffect", 'canSell', 'price', 'desc'],
@@ -821,9 +821,10 @@ var transformHeroDraw = function (row) {
     row.goldWeight = parseFloat(row.goldWeight);
     row.paidCoinWeight = parseFloat(row.paidCoinWeight);
     row.paidGoldWeight = parseFloat(row.paidGoldWeight);
-    row.tenCoinWeight = parseFloat(row.tenCoinWeight);
+//    row.tenCoinWeight = parseFloat(row.tenCoinWeight);
     row.tenGoldWeight = parseFloat(row.tenGoldWeight);
-    row.level = parseInt(row.level);
+    row.level = parseInt(row.level || "1");
+    row.count = parseInt(row.count || "1");
 };
 
 var transformHeroNode = function (row) {

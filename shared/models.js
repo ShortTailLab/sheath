@@ -305,7 +305,8 @@ exports.init = function (dbConfig) {
         tenCoinWeight: {_type: Number, default: 0},
         tenGoldWeight: {_type: Number, default: 0},
 
-        level: {_type: Number, default: 1}
+        level: {_type: Number, default: 1},
+        count: {_type: Number, default: 1}
     });
 
     var DrawNode = exports.DrawNode = schema.createModel("drawnode", {

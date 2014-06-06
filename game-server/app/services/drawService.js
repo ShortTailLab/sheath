@@ -56,22 +56,26 @@ class DrawService
             var item = results[i];
             if (item.isSoul) {
                 var strItemId = "" + item.itemId;
-                ret.souls[strItemId] = item.level;
+                ret.souls[strItemId] = item.count;
                 owner.souls[strItemId] = (owner.souls[strItemId] || 0) + item.level;
             }
             else if (cache.heroDefById[item.itemId]) {
-                ret.heroes.push(new models.Hero({
-                    heroDefId: item.itemId,
-                    owner: owner.id,
-                    level: item.level
-                }));
+                for (var i=0;i<item.count;i++) {
+                    ret.heroes.push(new models.Hero({
+                        heroDefId: item.itemId,
+                        owner: owner.id,
+                        level: item.level
+                    }));
+                }
             }
-            else{
-                ret.items.push(new models.Item({
-                    itemDefId: item.itemId,
-                    owner: owner.id,
-                    level: item.level
-                }));
+            else {
+                for (var i=0;i<item.count;i++) {
+                    ret.items.push(new models.Item({
+                        itemDefId: item.itemId,
+                        owner: owner.id,
+                        level: item.level
+                    }));
+                }
             }
         }
         return ret;

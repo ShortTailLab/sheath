@@ -221,8 +221,8 @@ message connector_entryHandler_enterPartition {
 
     repeated Stage stages       =   9;
 
-    optional int32 nextGoldReset   =   10;
-    optional int32 nextCoinReset   =   11;
+    optional sint32 nextGoldReset  =   10;
+    optional sint32 nextCoinReset  =   11;
     optional int32 coinDrawCount   =   12;
 }
 
@@ -280,8 +280,8 @@ message game_heroHandler_listDef {
 }
 message game_heroHandler_queryDraw {
     optional Error error           =   1;
-    optional int32 nextGoldReset   =   2;
-    optional int32 nextCoinReset   =   3;
+    optional sint32 nextGoldReset  =   2;
+    optional sint32 nextCoinReset  =   3;
     optional int32   coinDrawCount =   4;
 }
 message game_heroHandler_list {

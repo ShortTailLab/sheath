@@ -137,6 +137,7 @@ include ../mixins/block
             th 十连铜钱抽权重
             th 十连元宝抽权重
             th 等级
+            th 数量
         tbody: tr(ng-repeat="hd in draws | orderBy:'id'")
             td {{hd.id}}
             td {{hd.itemId}}
@@ -148,6 +149,7 @@ include ../mixins/block
             td {{hd.tenCoinWeight}}
             td {{hd.tenGoldWeight}}
             td {{hd.level}}
+            td {{hd.count}}
 
 +block("节点")
     div(class="message errormsg", ng-show="node_error")
