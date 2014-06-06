@@ -37,6 +37,10 @@ div(ng-show="!toConfirm")
 
 div(ng-show="toConfirm")
     +block("确认")
+        div(class="message errormsg", ng-show="error")
+            p {{error}}
+        div(class="message success", ng-show="info")
+            p {{info}}
         div(ng-show="toConfirm.news")
             h2 新条目
             pre(ng-repeat="n in toConfirm.news"): table.table

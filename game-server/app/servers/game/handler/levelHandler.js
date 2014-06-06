@@ -130,15 +130,14 @@ class LevelHandler extends base.HandlerBase {
                 models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
                 return Promise.reject(Constants.StageFailed.Invalid_End);
             }
-            if (false) {
-                this.app.rpc.game.taskRemote.notify(session, "Role.LevelUp", role.id, {}, null);
-            }
-            var roleUpdateQ = {
-                coins: r.row("coins").add(coins),
-                exp: r.row("exp").add(levelGain.exp),
-                levelGain: r.literal({})
-            };
+            role.coins += coins;
+            role.exp += levelGain.exp;
+            role.levelGain = {};
+            var lGain = role.levelUp(this.app.get("expTables").role);
             var newItems = [];
+            if (lGain) {
+                this.app.rpc.game.taskRemote.notify(session, "Role.LevelUp", role.id, {levelGain: lGain}, null);
+            }
             _.each(itemIds, function (itemId) {
                 for (var i=0;i<items[itemId];i++) {
                     newItems.push((new models.Item({
@@ -147,11 +146,9 @@ class LevelHandler extends base.HandlerBase {
                     })).save());
                 }
             });
-            return [models.Role.get(role.id).update(roleUpdateQ, {returnVals: true}).execute(), Promise.all(newItems)];
+            return [role.save(), Promise.all(newItems)];
         })
-        .spread(function (roleUpdate, newItems) {
-            role.coins = roleUpdate.new_val.coins;
-            role.exp = roleUpdate.new_val.exp;
+        .spread(function (role, newItems) {
             this.app.rpc.game.taskRemote.notify(session, "Level.Cleared", role.id, {level: level.id}, null);
             next(null, {
                 level: level.id,

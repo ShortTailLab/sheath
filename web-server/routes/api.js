@@ -774,7 +774,7 @@ var dataColumns = {
         "tenCoinWeight", "tenGoldWeight", "level"],
     drawNode: [],
     itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
-        'composeTarget', 'canSell', 'price', "useTarget", "itemEffect", 'desc'],
+        'composeTarget', "useTarget", "itemEffect", 'canSell', 'price', 'desc'],
     equipmentDef: ['id', 'name', "color", 'quality', 'type', 'subType', 'levelReq', 'resKey', 'hp', 'attack', 'magic',
         'defense', "resist", 'hpGrowth', 'attackGrowth', 'magicGrowth', 'defenseGrowth', "resistGrowth", 'upgradeCost',
         'hpRefine', 'attackRefine', 'magicRefine', 'defenseRefine', "resistRefine", 'refineCost',
@@ -784,7 +784,7 @@ var dataColumns = {
         "desc", "extended"],
     treasure: ["id", "type", "count", "desc", "candidates", "weights"],
     task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
-    storeitem: ["id", "name", "gold", "price", "defId", "isSoul", "count", "desc"],
+    storeitem: ["id", "name", "gold", "price", "defId", "isSoul", "count", "weight"],
     ballistic: ["id", "value"]
 };
 
@@ -936,6 +936,7 @@ var transformStoreItem = function (row) {
     row.price = parseInt(row.price);
     row.defId = parseInt(row.defId);
     row.count = parseInt(row.count);
+    row.weight = parseFloat(row.weight || "0");
 };
 
 exports.import = function (req, res) {
@@ -1036,6 +1037,9 @@ exports.import = function (req, res) {
         Promise.all(updates).then(function () {
             pomeloConn.client.request("cacheMonitor", {type: body.tag});
             res.send(200);
+        })
+        .catch(function (err) {
+            res.send(400, {message: ""+err});
         });
     }
     else {
@@ -1167,6 +1171,7 @@ exports.export = function (req, res) {
                 columns: dataColumns.storeitem
             }).transform(function (row) {
                 row.gold = row.gold ? 1 : 0;
+                row.isSoul = row.isSoul ? 1 : 0;
                 return row;
             });
         });

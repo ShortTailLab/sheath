@@ -37,12 +37,15 @@ exports.init = function (dbConfig) {
     };
 
     var levelUp = function levelUp (expTable) {
+        var levelGain = 0;
         while (true) {
             var nextLevelExp = expTable[this.level];
             if (this.exp < nextLevelExp || this.level >= expTable.length - 1) break;
             this.level += 1;
+            levelGain += 1;
             this.exp -= nextLevelExp;
         }
+        return levelGain;
     };
 
     var User = exports.User = schema.createModel("user", {
@@ -262,7 +265,7 @@ exports.init = function (dbConfig) {
         defId: {_type: Number, default: 0},
         isSoul: {_type: Boolean, default: false},
         count: {_type: Number, default: 1},
-        desc: {_type: String, default: ""}
+        weight: {_type: Number, default: 0}
     });
 
     var Treasure = exports.Treasure = schema.createModel("treasure", {

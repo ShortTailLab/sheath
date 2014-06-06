@@ -288,7 +288,7 @@ include ../mixins/block
             th 道具ID
             th 是碎片
             th 数量
-            th 描述
+            th 权重
         tbody: tr(ng-repeat="si in storeItems | orderBy:'id'")
             td {{si.id}}
             td {{si.name}}
@@ -297,7 +297,7 @@ include ../mixins/block
             td {{si.defId}}
             td {{si.isSoul}}
             td {{si.count}}
-            td {{si.desc}}
+            td {{si.weight}}
 
 +block("所有奖励")
     div(class="message errormsg", ng-show="trea_error")
