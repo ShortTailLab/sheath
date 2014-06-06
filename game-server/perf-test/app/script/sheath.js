@@ -545,7 +545,7 @@ Role.prototype.refreshStore = function (pomelo, cb) {
 };
 
 Role.prototype.coinDraw = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.COIN_DRAW, {}, function (data) {
+    timePomeloRequest(ActFlagType.COIN_DRAW, {tenDraw: true}, function (data) {
         console.log(data);
         cb();
     });

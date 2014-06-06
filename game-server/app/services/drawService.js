@@ -60,7 +60,7 @@ class DrawService
                 owner.souls[strItemId] = (owner.souls[strItemId] || 0) + item.level;
             }
             else if (cache.heroDefById[item.itemId]) {
-                for (var i=0;i<item.count;i++) {
+                for (var j=0;j<item.count;j++) {
                     ret.heroes.push(new models.Hero({
                         heroDefId: item.itemId,
                         owner: owner.id,
@@ -69,7 +69,7 @@ class DrawService
                 }
             }
             else {
-                for (var i=0;i<item.count;i++) {
+                for (var j=0;j<item.count;j++) {
                     ret.items.push(new models.Item({
                         itemDefId: item.itemId,
                         owner: owner.id,

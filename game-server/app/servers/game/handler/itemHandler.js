@@ -118,6 +118,12 @@ class ItemHandler extends base.HandlerBase {
         })
         .spread(function (target) {
             var tName = itemDef.useTarget === 1 ? "role" : "hero";
+
+            logger.logInfo("item.use", {
+                target: itemDef.useTarget === 1 ? "" : target.id,
+                item: itemDef.id
+            });
+
             next(null, {
                 [tName]: target.toClientObj()
             });
