@@ -821,13 +821,15 @@ sheathControllers.controller('announcementController', function ($scope, $http, 
         _.each(source, function (value, key) {
             dest[key] = value;
         });
-        dest.start = moment(dest.start).toDate();
-        dest.end = moment(dest.end).toDate();
+        dest.start = moment(source.start).toDate();
+        dest.end = moment(source.end).toDate();
     }
 
     $scope.modify = function (ann) {
         var diff = diffModel($scope.selected, ann, ["name", "content", "partitions", "start", "end"]);
         if (_.size(diff) > 1) {
+            if (diff.start) diff.start = +diff.start;
+            if (diff.start) diff.end = +diff.end;
             $http.post("/api/updateAnn", diff).success(function (data) {
                 updateModel($scope.selected, data);
                 $scope.select($scope.selected);
@@ -842,6 +844,9 @@ sheathControllers.controller('announcementController', function ($scope, $http, 
     };
 
     $scope.save = function (ann) {
+        if (ann.start) ann.start = +ann.start;
+        if (ann.start) ann.end = +ann.end;
+        ann.isNew = undefined;
         $http.post("/api/saveAnn", ann).success(function (data) {
             updateModel($scope.selected, data);
             $scope.selected.isNew = undefined;

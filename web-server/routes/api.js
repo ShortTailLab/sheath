@@ -711,7 +711,7 @@ exports.updateAnn = function (req, res) {
         pomeloConn.client.request("debugCommand", {command: "delAnn", annId: ann.id}, function () {
             pomeloConn.client.request("debugCommand", {command: "addAnn", annId: ann.id});
         });
-        var ret =  ann.toObject(true);
+        var ret = ann.toObject();
         ret.start = +ret.start;
         ret.end = +ret.end;
         res.send(200, ret);
@@ -726,10 +726,12 @@ exports.saveAnn = function (req, res) {
         return res.send(400, {message: "没有发公告的权限"});
 
     var newAnn = req.body;
-    appModels.Announcement.insert(newAnn, {upsert: true}).run()
+    newAnn.start = moment(newAnn.start).toDate();
+    newAnn.end = moment(newAnn.end).toDate();
+    new appModels.Announcement(newAnn).save()
     .then(function (ann) {
         pomeloConn.client.request("debugCommand", {command: "addAnn", annId: ann.id});
-        var ret =  ann.toObject(true);
+        var ret =  ann.toObject();
         ret.start = +ret.start;
         ret.end = +ret.end;
         res.send(200, ret);
