@@ -17,7 +17,7 @@
         "lodash": "latest",
         "async": "latest",
         "bcrypt": "latest",
-        "pomelo-rpc-zeromq": "latest",
+        "pomelo-rpc-zeromq": "colprog/pomelo-rpc-zeromq",
         "pomelo-protobuf-plugin": "ShortTailLab/pomelo-protobuf-plugin",
         "pomelo-logger": "latest",
         "pomelo-status-plugin": "latest",

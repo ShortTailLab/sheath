@@ -120,9 +120,10 @@ class EquipmentHandler extends base.HandlerBase {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
-        this.safe(this.getEquipmentWithDef(eqId)
-        .spread((_equipment, _itemDef) => {
-            [equipment, itemDef] = [_equipment, _itemDef];
+        this.safe(Promise.join(this.getEquipmentWithDef(eqId), models.Role.get(role.id).run())
+        .spread((eqs, role) => {
+            [equipment, itemDef] = eqs;
+            var coinsNeeded = equipment.level * itemDef.upgradeCost;
 
             if (equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
@@ -130,11 +131,6 @@ class EquipmentHandler extends base.HandlerBase {
             if (equipment.level >= weaponLevelLimit) {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
-
-            return models.Role.get(role.id).run();
-        })
-        .then((role) => {
-            var coinsNeeded = equipment.level * itemDef.upgradeCost;
             if (role.coins < coinsNeeded) {
                 return Promise.reject(Constants.NO_COINS);
             }
