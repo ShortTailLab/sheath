@@ -125,6 +125,7 @@ exports.init = function (dbConfig) {
         stars: {_type: Number, default: 1},
         quality: {_type: Number, default: 1},
         skill: {_type: Number, default: 0},
+        pSkill: {_type: Number, default: 0},
         souls: {_type: Number, default: 100},
 
         vitality: {_type: Number, default: 0},
@@ -151,6 +152,7 @@ exports.init = function (dbConfig) {
         magicRefine: {_type: Array, default: function () {return [];}},
         defenseRefine: {_type: Array, default: function () {return [];}},
         resistRefine: {_type: Array, default: function () {return [];}},
+        refineStars: {_type: Array, default: function () {return [];}},
 
         attackDelta: {_type: Array, default: function () {return [];}},
         damage: {_type: Number, default: 0},
@@ -463,7 +465,7 @@ exports.init = function (dbConfig) {
     });
 
     HeroDef.define("toClientObj", function () {
-        return this.toObject(true);
+        return this.toObject();
     });
 
     Item.define("toClientObj", function () {

@@ -1,5 +1,5 @@
 
-“,
+˜,
 serverProtos.proto"
 Player
 
@@ -98,7 +98,7 @@ composable	 (
 refineCost (
 slots (
 gemType (	
-price ("ç
+price ("≤
 HeroDef
 
 id (
@@ -107,7 +107,8 @@ refineCost (
 type (	
 stars (
 quality- (
-skill (
+skill (
+pSkill. (
 souls (
 vitality (
 strength	 (
@@ -132,11 +133,12 @@ refineCost (
 ballLev (
 
 secBallLev (
-hpRefine  (
-attackRefine! (
-magicRefine" (
-defenseRefine# (
-resistRefine$ (
+hpRefine  (
+attackRefine! (
+magicRefine" (
+defenseRefine# (
+resistRefine$ (
+refineStars/ (
 damage% (
 damageReduction& (
 damageFactor' (

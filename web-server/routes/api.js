@@ -768,8 +768,8 @@ exports.removeAnn = function (req, res) {
 var dataColumns = {
     heroDef: ["id", "name", "resKey", "type", "stars", "quality", "vitality", "strength", "intelligence", "hp", "hpGrowth",
         "attack", "attackGrowth", "magic", "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth",
-        "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev", "skill",
-        "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine",
+        "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev", "skill", "pSkill",
+        "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine", "refineStars",
         "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor",
         "physicalResist", "magicResist", "attackFactor", "defenseFactor", "souls"],
     heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
@@ -800,12 +800,12 @@ var transformHeroDef = function (row) {
 
     _.each(["stars", "quality", "vitality", "strength", "intelligence", "hp", "hpGrowth", "attack", "attackGrowth", "magic",
         "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth", "critical", "interval", "attackSpeed",
-        "speed", "ballLev", "secBallLev", "skill", "damage", "damageReduction", "damageFactor", "damageRedFactor",
+        "speed", "ballLev", "secBallLev", "skill", "pSkill", "damage", "damageReduction", "damageFactor", "damageRedFactor",
         "physicalResist", "magicResist", "attackFactor", "defenseFactor"], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
 
-    _.each(["hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine"], function (f) {
+    _.each(["hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine", "refineStars"], function (f) {
         if (row[f] && row[f] !== "0") {
             row[f] = JSON.parse(row[f]);
         }
@@ -1065,7 +1065,7 @@ exports.export = function (req, res) {
                 eof: true,
                 columns: dataColumns[data.tag]
             }).transform(function (row) {
-                _.each(["attackDelta", "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine"], function (f) {
+                _.each(["attackDelta", "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine", "refineStars"], function (f) {
                     row[f] = JSON.stringify(row[f]);
                 });
                 return row;

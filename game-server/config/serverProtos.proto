@@ -108,6 +108,7 @@ message HeroDef {
     required int32 stars        =   5;
     required int32 quality      =   45;
     required int32 skill        =   6;
+    required int32 pSkill       =   46;
 
     required int32 souls        =   7;
 
@@ -133,11 +134,12 @@ message HeroDef {
     required int32 ballLev      =   26;
     required int32 secBallLev   =   27;
 
-    repeated int32 hpRefine     =   32;
-    repeated int32 attackRefine =   33;
-    repeated int32 magicRefine  =   34;
-    repeated int32 defenseRefine=   35;
-    repeated int32 resistRefine =   36;
+    repeated float hpRefine     =   32;
+    repeated float attackRefine =   33;
+    repeated float magicRefine  =   34;
+    repeated float defenseRefine=   35;
+    repeated float resistRefine =   36;
+    repeated float refineStars  =   47;
 
     required float damage       =   37;
     required float damageReduction  =   38;

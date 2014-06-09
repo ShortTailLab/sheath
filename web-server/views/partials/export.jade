@@ -62,7 +62,8 @@ include ../mixins/block
             th 法攻升星
             th 物防升星
             th 法防升星
-            th 攻击升星
+            th 升星将魂
+            th 攻击浮动
             th 暴击
             th 基础间隔
             th 攻击速度
@@ -77,7 +78,8 @@ include ../mixins/block
             th 法术抗性
             th 常量表攻击常数
             th 常量表防御常数
-            th 技能
+            th 主动技能
+            th 被动技能
             th 资源
         tbody: tr(ng-repeat="h in heroes | orderBy:'id'")
             td {{h.id}}
@@ -104,6 +106,7 @@ include ../mixins/block
             td {{h.magicRefine}}
             td {{h.defenseRefine}}
             td {{h.resistRefine}}
+            td {{h.refineStars}}
             td {{h.attackDelta}}
             td {{h.critical}}
             td {{h.interval}}
@@ -120,6 +123,7 @@ include ../mixins/block
             td {{h.attackFactor}}
             td {{h.defenseFactor}}
             td {{h.skill}}
+            td {{h.pSkill}}
             td {{h.resKey}}
 
 +block("抽取概率")
