@@ -673,7 +673,7 @@ exports.addAdmin = function (req, res) {
     var userId = req.body.userId;
     appModels.User.get(userId).run()
     .then(function (admin) {
-        if (admin.manRole !== null) {
+        if (admin.manRole) {
             return res.send(400, {message: "用户已是管理员"});
         }
         admin.manRole = {};
