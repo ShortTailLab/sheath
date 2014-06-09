@@ -525,29 +525,26 @@ exports.findUsers = function (req, res) {
 
     var userQuery = appModels.User.between(hint, hint + "\uffff", {index: "authId"}).limit(10);
     if (req.body.notAdmin) {
-        userQuery = userQuery.filter({manRole: null});
+        userQuery = userQuery.filter({manRole: null}, {default: true});
     }
 
     queries.push(userQuery.run());
-    queries.push(appModels.User.get(hint).run());
-    queries.push(appModels.Role.filter(r.row("name").match(hint)).limit(10).run());
+    queries.push(appModels.User.get(hint).execute());
     queries.push(appModels.Partition.run());
 
     Promise.all(queries)
-    .spread(function (users, u, roles, partitions) {
+    .spread(function (users, u, partitions) {
         if (u) {
-            users.unshift(u);
+            users.unshift(new appModels.User(u));
         }
 
-        var owner = _.pluck(roles, "owner");
-        owner = owner.length > 0 ? appModels.User.getAll.apply(appModels.User, owner).filter({manRole: null}).run() : null;
         var ownerRole = Promise.all(_.map(users, function (u) { return appModels.Role.getAll(u.id, {index: "owner"}).limit(1).run(); }));
 
-        return [users, owner, roles, ownerRole, partitions];
+        return [users, ownerRole, partitions];
     })
-    .spread(function (users, roleOwners, roles, userRoles, partitions) {
-        users = _.compact(users.concat(roleOwners));
-        roles = _.compact(roles.concat(_.map(userRoles, function (ua) {return ua[0];})));
+    .spread(function (users, userRoles, partitions) {
+        users = _.compact(users);
+        roles = _.compact(_.map(userRoles, function (ua) {return ua[0];}));
 
         partitions = _.groupBy(partitions, "id");
         roles = _.groupBy(roles, "owner");
