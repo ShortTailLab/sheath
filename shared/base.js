@@ -59,29 +59,29 @@ class HandlerBase {
         });
     }
 
-    getItemStacks(roleId, newItemId=null, count=0) {
-        return models.Item.getAll(roleId, {index: "owner"}).run().bind(this)
-        .then((items) => {
-            var itemGroups = _.groupBy(items, function (item) { return item.itemDefId + "_" + item.level; });
-            var cache = this.app.get("cache");
-            var stack = 0;
+    getStacks(role, newItemId=null, count=0) {
+        var stack = 0;
+        var cache = this.app.get("cache");
+        var stackCounts = {};
+        for (var i=0;i<role.bag.length;i++) {
+            var item = role.bag[i];
+            var key = item.itemDefId + "_" + item.level;
+            if (!stackCounts[key]) stackCounts[key] = [item.itemDefId, 0];
+            stackCounts[key][1] += 1;
+        }
 
-            if (newItemId !== null) {
-                var newItemKey = newItemId + "_1";
-                itemGroups[newItemKey] = itemGroups[newItemKey] || [];
-                itemGroups[newItemKey].length += count;
-                for (var i=1;i<=count;i++) {
-                    itemGroups[newItemKey][itemGroups[newItemKey].length - i] = {itemDefId: newItemId};
-                }
-            }
+        if (newItemId !== null) {
+            var newItemKey = newItemId + "_1";
+            if (!stackCounts[newItemKey]) stackCounts[newItemKey] = [newItemId, 0];
+            stackCounts[key][1] += count;
+        }
 
-            _.each(itemGroups, function (value) {
-                var itemDef = cache.getItemDef(value[0].itemDefId);
-                var stackSize = itemDef.stackSize || 1;
-                stack += Math.ceil(value.length/stackSize);
-            });
-            return stack;
+        _.each(stackCounts, function (value) {
+            var itemDef = cache.getItemDef(value[0]);
+            var stackSize = itemDef.stackSize || 1;
+            stack += Math.ceil(value[1]/stackSize);
         });
+        return stack;
     }
 
     evalRandAtom(atom, randFunc=Math.random) {

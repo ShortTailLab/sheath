@@ -1,4 +1,7 @@
 {
+    "coinPurchaseNum": "cpn",
+    "goldPurchaseNum": "gpn",
+
     "fistCoinDraw": "fcd",
     "fistGoldDraw": "fgd",
     "goldDrawReset": "gdr",

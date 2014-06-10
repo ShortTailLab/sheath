@@ -241,33 +241,34 @@ class ItemHandler extends base.HandlerBase {
             return this.errorNext(Constants.StoreFailed.NO_ITEM, next);
         }
 
-        this.safe(Promise.join(models.Role.get(role.id).run(), this.getItemStacks(role.id, storeItem.defId, storeItem.count)).bind(this)
-        .spread(function (_role, stacks) {
+        this.safe(models.Role.get(role.id).getJoin({bag: true}).run().bind(this)
+        .then(function (_role) {
             role = _role;
-            if (stacks > role.getStorageRoom()) {
+            if (this.getStacks(role, storeItem.defId, storeItem.count) > role.getStorageRoom()) {
                 return Promise.reject(Constants.NO_ROOM);
             }
             var store = this.getRoleStore(role, storeItem.gold);
+            var mKey = this.app.mKey;
             if (!store || !_.findWhere(store, {id: storeItem.id})) {
                 return Promise.reject(Constants.StoreFailed.NO_ITEM);
             }
 
             var maxDailyPurchase = this.maxDailyPurchase(role);
-            var coinPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData.coinPurchaseNum || 0);
-            var goldPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData.goldPurchaseNum || 0);
+            var coinPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData[mKey.coinPurchaseNum] || 0);
+            var goldPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData[mKey.goldPurchaseNum] || 0);
             if (storeItem.gold && goldPurchaseLeft > 0) {
                 if (role.golds < storeItem.price) {
                     return Promise.reject(Constants.NO_GOLDS);
                 }
                 role.golds -= storeItem.price;
-                role.dailyRefreshData.goldPurchaseNum = (role.dailyRefreshData.goldPurchaseNum || 0) + 1;
+                role.dailyRefreshData[mKey.goldPurchaseNum] = (role.dailyRefreshData[mKey.goldPurchaseNum] || 0) + 1;
             }
             else if (!storeItem.gold && coinPurchaseLeft > 0) {
                 if (role.coins < storeItem.price) {
                     return Promise.reject(Constants.NO_GOLDS);
                 }
                 role.coins -= storeItem.price;
-                role.dailyRefreshData.coinPurchaseNum = (role.dailyRefreshData.coinPurchaseNum || 0) + 1;
+                role.dailyRefreshData[mKey.coinPurchaseNum] = (role.dailyRefreshData[mKey.coinPurchaseNum] || 0) + 1;
             }
             else {
                 return Promise.reject(Constants.StoreFailed.NO_PURCHASE);

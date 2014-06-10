@@ -18,6 +18,7 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
         case "heroDef":
             this.cacheIns.loadHeroDef();
             break;
+        case "gemDef":
         case "itemDef":
             this.cacheIns.loadItemDef();
             break;
@@ -53,6 +54,7 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
             case "heroDef":
             case "itemDef":
             case "equipmentDef":
+            case "gemDef":
             case "level":
                 serverTypes = ["game", "connector"];
                 break;
