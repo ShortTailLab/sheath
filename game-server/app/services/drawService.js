@@ -41,10 +41,10 @@ class DrawService
     pickWeightKey(coinDraw, tenDraw, freeDraw) {
         var hash = (tenDraw << 2) + (freeDraw << 1) + coinDraw ;
         var keyMap = [
-            "coinWeight", "goldWeight",
-            "paidCoinWeight", "paidGoldWeight",
-            "tenCoinWeight", "tenGoldWeight",
-            "tenCoinWeight", "tenGoldWeight",
+            "paidGoldWeight", "paidCoinWeight",
+            "goldWeight", "coinWeight",
+            "tenGoldWeight", "tenCoinWeight",
+            "tenGoldWeight", "tenCoinWeight",
         ];
         return keyMap[hash];
     }
