@@ -132,7 +132,7 @@ class EntryHandler extends base.HandlerBase {
                         }).save();
                     }));
 
-                    return [role, heros, items];
+                    return Promise.join(role, heros, items);
                 })
                 .spread(function (role, _heroes, _items) {
                     heroes = _heroes;
