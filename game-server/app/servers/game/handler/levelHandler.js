@@ -85,6 +85,7 @@ class LevelHandler extends base.HandlerBase {
             role.levelGain = {
                 level: level.id,
                 exp: level.exp || 0,
+                hExp: level.heroExp || 0,
                 maxCoin: maxCoin,
                 items: items
             };
@@ -104,21 +105,26 @@ class LevelHandler extends base.HandlerBase {
     end(msg, session, next) {
         wrapSession(session);
 
-        var level = msg.level, role;
-        level = this.app.get("cache").levelById[level];
+        var level = msg.level, role = session.get("role");
+        var cache = this.app.get("cache");
+        level = cache.levelById[level];
         if (!level) {
             return this.errorNext(Constants.StageFailed.NO_LEVEL, next);
         }
 
         var coins = Math.floor(msg.coins) || 0, items = msg.items || [];
-        this.safe(models.Role.get(session.get("role").id).run().bind(this)
-        .then(function (_role) {
+        var team = _.compact(role.team);
+        var heroExp;
+
+        this.safe(Promise.join(models.Role.get(role.id).run(), models.Hero.getAll.apply(models.Hero, team).run()).bind(this)
+        .spread(function (_role, teamHeroes) {
             role = _role;
             var levelGain = role.levelGain;
             if (!levelGain) {
                 return Promise.reject(Constants.InvalidRequest);
             }
             var itemIds = _.keys(items);
+            var expTables = this.app.get("expTables");
             for (var i=0;i<itemIds.length;i++) {
                 var itemId = itemIds[i];
                 if (items[itemId] > (levelGain.items[itemId] || 0)) {
@@ -133,7 +139,16 @@ class LevelHandler extends base.HandlerBase {
             role.coins += coins || 0;
             role.exp += levelGain.exp || 0;
             role.levelGain = {};
-            var lGain = role.levelUp(this.app.get("expTables").role);
+            heroExp = levelGain.hExp || 0;
+            var hUps = _.map(teamHeroes, function (h) {
+                h.exp += heroExp;
+                var heroDef = cache.heroDefById[h.heroDefId];
+                var expKey = "hero" + heroDef.stars;
+                var expTable = expTables[expKey] || expTables.hero1;
+                h.levelUp(expTable);
+                return h.save();
+            });
+            var lGain = role.levelUp(expTables.role);
             var newItems = [];
             if (lGain) {
                 this.app.rpc.game.taskRemote.notify(session, "Role.LevelUp", role.id, {levelGain: lGain}, null);
@@ -146,14 +161,15 @@ class LevelHandler extends base.HandlerBase {
                     })).save());
                 }
             });
-            return [role.save(), Promise.all(newItems)];
+            return [role.save(), Promise.all(newItems), hUps];
         })
         .spread(function (role, newItems) {
             this.app.rpc.game.taskRemote.notify(session, "Level.Cleared", role.id, {level: level.id}, null);
             next(null, {
                 level: level.id,
                 newItems: _.invoke(newItems, "toClientObj"),
-                role: role.toClientObj()
+                role: role.toClientObj(),
+                heroExp: heroExp
             });
             logger.logInfo("level.end", {
                 level: level.id,

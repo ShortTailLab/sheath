@@ -361,5 +361,6 @@ message game_levelHandler_start {
 message game_levelHandler_end {
     optional Error error        =   1;
     repeated Item newItems      =   2;
-    required Role role          =   3;
+    optional Role role          =   3;
+    optional int32 heroExp      =   4;
 }
