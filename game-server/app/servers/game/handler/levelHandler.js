@@ -144,7 +144,7 @@ class LevelHandler extends base.HandlerBase {
             var hUps = _.map(teamHeroes, function (h) {
                 h.exp += heroExp;
                 var heroDef = cache.heroDefById[h.heroDefId];
-                var expKey = "hero" + heroDef.stars;
+                var expKey = "hero" + (heroDef.stars - 1);
                 var expTable = expTables[expKey] || expTables.hero1;
                 h.levelUp(expTable);
                 return h.save();
