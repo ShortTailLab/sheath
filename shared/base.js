@@ -63,11 +63,13 @@ class HandlerBase {
         var stack = 0;
         var cache = this.app.get("cache");
         var stackCounts = {};
-        for (var i=0;i<role.bag.length;i++) {
-            var item = role.bag[i];
-            var key = item.itemDefId + "_" + item.level;
-            if (!stackCounts[key]) stackCounts[key] = [item.itemDefId, 0];
-            stackCounts[key][1] += 1;
+        if (role.bag) {
+            for (var i=0;i<role.bag.length;i++) {
+                var item = role.bag[i];
+                var key = item.itemDefId + "_" + item.level;
+                if (!stackCounts[key]) stackCounts[key] = [item.itemDefId, 0];
+                stackCounts[key][1] += 1;
+            }
         }
 
         if (newItemId !== null) {

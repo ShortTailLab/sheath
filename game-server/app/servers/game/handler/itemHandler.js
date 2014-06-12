@@ -133,13 +133,14 @@ class ItemHandler extends base.HandlerBase {
     listStore(msg, session, next) {
         wrapSession(session);
         Store.initOnce(this.app);
+        var mKey = this.app.mKey;
 
         this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
             var maxDailyPurchase = this.maxDailyPurchase(role);
             var maxDailyRefresh = this.maxDailyRefresh(role);
-            var coinPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData.coinPurchaseNum || 0);
-            var goldPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData.goldPurchaseNum || 0);
+            var coinPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData[mKey.coinPurchaseNum] || 0);
+            var goldPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData[mKey.goldPurchaseNum] || 0);
             var coinRefreshLeft = maxDailyRefresh - (role.dailyRefreshData.coinRefreshNum || 0);
             var goldRefreshLeft = maxDailyRefresh - (role.dailyRefreshData.goldRefreshNum || 0);
             var coinStoreItems = this.getRoleStore(role, false);

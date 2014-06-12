@@ -1,9 +1,9 @@
 
-Î-
+Û-
 serverProtos.proto"
 Player
 
-id (	"À
+id (	"Í
 Role
 
 id (	
@@ -12,7 +12,8 @@
 exp (
 title (	
 team (	
-storageRoom (
+storageRoom (
+vip (
 energy (
 coins (
 golds (

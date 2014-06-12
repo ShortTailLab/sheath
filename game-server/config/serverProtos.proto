@@ -11,6 +11,8 @@ message Role {
     repeated string team        =   11;
     required int32 storageRoom  =   12;
 
+    optional int32 vip          =   13;
+
     optional int32 energy       =   6;
     optional int32 coins        =   7;
     optional int32 golds        =   8;

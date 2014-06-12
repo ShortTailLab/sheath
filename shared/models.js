@@ -407,7 +407,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 
@@ -415,7 +415,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toSlimClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 
