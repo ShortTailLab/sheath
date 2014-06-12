@@ -229,6 +229,22 @@ class HeroHandler extends base.HandlerBase {
         }), next);
     }
 
+    upgrade(msg, session, next) {
+        wrapSession(session);
+        var heroId = msg.heroId;
+        var heroDef = this.app.get("cache").heroDefById[heroId];
+        var hero;
+
+        this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run().bind(this)
+        .then(function (role) {
+            var soul = role.souls["" + heroId] || 0;
+            hero = _.findWhere(role.heroes, {heroDefId: heroId});
+            if (!soul || !hero || !heroDef) {
+                return Promise.reject(Constants.HeroFailed.NO_HERO);
+            }
+        }), next);
+    }
+
     equip(msg, session, next) {
         wrapSession(session);
 

@@ -223,24 +223,29 @@ var ActFlagType = {
         route: "game.tutorialHandler.pickHero"
     },
     LOGOFF: {
-        reqId:37,
+        reqId: 37,
         name: "logoff",
         route:"connector.entryHandler.logOff"
     },
     LIST_SOULS: {
-        reqId:38,
+        reqId: 38,
         name: "souls",
         route:"game.heroHandler.listSouls"
     },
     REDEEM_SOULS: {
-        reqId:39,
+        reqId: 39,
         name: "redeem_souls",
         route:"game.heroHandler.redeemSouls"
     },
     SELL: {
-        reqId:40,
+        reqId: 40,
         name: "sell_item",
         route:"game.itemHandler.sell"
+    },
+    UPGRADE_HERO: {
+        reqId: 41,
+        name: "upgrade_hero",
+        route:"game.heroHandler.upgrade"
     },
 
 
@@ -366,8 +371,7 @@ Role.prototype.afterLogin = function (pomelo) {
 Role.prototype.test = function (pomelo) {
     var self = this;
     self.listStore(pomelo, function () {
-        timePomeloRequest(ActFlagType.STORE_BUY, {siId: 26}, function (data) {
-        });
+
     });
 };
 
@@ -536,6 +540,12 @@ Role.prototype.end = function (pomelo, cb) {
 
 Role.prototype.listStore = function (pomelo, cb) {
     timePomeloRequest(ActFlagType.LIST_STORE, {}, function (data) {
+        cb();
+    });
+};
+
+Role.prototype.buy = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.STORE_BUY, {siId: 26}, function (data) {
         cb();
     });
 };
