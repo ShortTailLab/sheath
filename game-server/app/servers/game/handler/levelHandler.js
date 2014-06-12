@@ -114,7 +114,7 @@ class LevelHandler extends base.HandlerBase {
 
         var coins = Math.floor(msg.coins) || 0, items = msg.items || [];
         var team = _.compact(role.team);
-        var heroExp;
+        var heroExp, roleExp;
 
         this.safe(Promise.join(models.Role.get(role.id).run(), models.Hero.getAll.apply(models.Hero, team).run()).bind(this)
         .spread(function (_role, teamHeroes) {
@@ -136,10 +136,11 @@ class LevelHandler extends base.HandlerBase {
                 models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
                 return Promise.reject(Constants.StageFailed.Invalid_End);
             }
-            role.coins += coins || 0;
-            role.exp += levelGain.exp || 0;
-            role.levelGain = {};
             heroExp = levelGain.hExp || 0;
+            roleExp = levelGain.exp || 0;
+            role.coins += coins || 0;
+            role.exp += roleExp;
+            role.levelGain = {};
             var hUps = _.map(teamHeroes, function (h) {
                 h.exp += heroExp;
                 var heroDef = cache.heroDefById[h.heroDefId];
@@ -169,7 +170,8 @@ class LevelHandler extends base.HandlerBase {
                 level: level.id,
                 newItems: _.invoke(newItems, "toClientObj"),
                 role: role.toClientObj(),
-                heroExp: heroExp
+                heroExp: heroExp,
+                roleExp: roleExp
             });
             logger.logInfo("level.end", {
                 level: level.id,
