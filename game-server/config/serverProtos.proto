@@ -146,7 +146,7 @@ message HeroDef {
     repeated float magicRefine  =   34;
     repeated float defenseRefine=   35;
     repeated float resistRefine =   36;
-    repeated float refineStars  =   47;
+    repeated int32 refineStars  =   47;
 
     required float damage       =   37;
     required float damageReduction  =   38;
