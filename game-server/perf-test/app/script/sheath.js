@@ -365,7 +365,9 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    self.coinDraw(pomelo, function () {
+    self.listStore(pomelo, function () {
+        timePomeloRequest(ActFlagType.STORE_BUY, {siId: 26}, function (data) {
+        });
     });
 };
 
