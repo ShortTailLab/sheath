@@ -242,10 +242,10 @@ var ActFlagType = {
         name: "sell_item",
         route:"game.itemHandler.sell"
     },
-    UPGRADE_HERO: {
+    REFINE_HERO: {
         reqId: 41,
         name: "upgrade_hero",
-        route:"game.heroHandler.upgrade"
+        route:"game.heroHandler.refine"
     },
 
 
@@ -370,8 +370,7 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    self.listStore(pomelo, function () {
-
+    self.refineHero(pomelo, function () {
     });
 };
 
@@ -592,6 +591,12 @@ Role.prototype.listSouls = function (pomelo, cb) {
 
 Role.prototype.redeemSouls = function (pomelo, cb) {
     timePomeloRequest(ActFlagType.REDEEM_SOULS, {}, function (data) {
+        cb();
+    });
+};
+
+Role.prototype.refineHero = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.REFINE_HERO, {heroId: "8da6bcaa-2af3-4c21-b189-d2a934aaf17e"}, function (data) {
         cb();
     });
 };

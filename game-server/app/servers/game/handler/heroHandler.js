@@ -229,19 +229,39 @@ class HeroHandler extends base.HandlerBase {
         }), next);
     }
 
-    upgrade(msg, session, next) {
+    refine(msg, session, next) {
         wrapSession(session);
         var heroId = msg.heroId;
-        var heroDef = this.app.get("cache").heroDefById[heroId];
-        var hero;
+        var refineReq;
 
-        this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run().bind(this)
-        .then(function (role) {
-            var soul = role.souls["" + heroId] || 0;
-            hero = _.findWhere(role.heroes, {heroDefId: heroId});
-            if (!soul || !hero || !heroDef) {
+        this.safe(Promise.join(models.Role.get(session.get("role").id).run(), models.Hero.get(heroId).run()).bind(this)
+        .spread(function (role, hero) {
+            var heroDefId = hero.heroDefId;
+            var heroDef = this.app.get("cache").heroDefById[heroDefId];
+            var soul = role.souls["" + heroDefId] || 0;
+            if (!soul || hero.owner !== role.id || !heroDef) {
                 return Promise.reject(Constants.HeroFailed.NO_HERO);
             }
+            if (hero.stars >= heroDef.refineStars.length) {
+                return Promise.reject(Constants.HeroFailed.REFINE_MAX);
+            }
+            refineReq = heroDef.refineStars[hero.stars];
+            if (soul < refineReq) {
+                return Promise.reject(Constants.HeroFailed.NOT_ENOUGH_SOULS);
+            }
+            role.souls["" + heroDefId] = soul = soul - refineReq;
+            hero.stars += 1;
+            return [role.save(), hero.save()];
+        })
+        .spread(function (role, hero) {
+            next(null, {
+                hero: hero.toClientObj()
+            });
+            logger.logInfo("hero.refine", {
+                role: role.toLogObj(),
+                hero: hero.toLogObj(),
+                usedSouls: refineReq
+            });
         }), next);
     }
 

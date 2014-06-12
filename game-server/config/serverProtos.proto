@@ -297,6 +297,10 @@ message game_heroHandler_list {
     optional Error error        =   1;
     repeated Hero heroes        =   2;
 }
+message game_heroHandler_refine {
+    optional Error error        =   1;
+    optional Hero hero          =   2;
+}
 message game_heroHandler_equip {
     optional Error error        =   1;
     optional Item equipment     =   2;

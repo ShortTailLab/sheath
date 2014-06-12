@@ -19,6 +19,9 @@ include ../mixins/block
             td(data-title="'等级'", sortable="'level'")
                 span(ng-if="!h.editable") {{h.level}}
                 div(ng-if="h.editable"): input(type="number", ng-model="h.editable.level", style="width: 45px")
+            td(data-title="'进阶次数'", sortable="'stars'")
+                span(ng-if="!h.editable") {{h.stars}}
+                div(ng-if="h.editable"): input(type="number", ng-model="h.editable.stars", style="width: 45px")
             td(data-title="'经验值'", sortable="'exp'")
                 span(ng-if="!h.editable") {{h.exp}}
                 div(ng-if="h.editable"): input(type="number", ng-model="h.editable.exp", style="width: 45px")

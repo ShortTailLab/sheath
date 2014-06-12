@@ -1,5 +1,5 @@
 
-Û-
+¢.
 serverProtos.proto"
 Player
 
@@ -278,7 +278,10 @@ equipments (2.EquipmentDef"D
 coinDrawCount ("E
 game_heroHandler_list
 error (2.Error
-heroes (2.Hero"I
+heroes (2.Hero"E
+game_heroHandler_refine
+error (2.Error
+hero (2.Hero"I
 game_heroHandler_equip
 error (2.Error
 	equipment (2.Item"K

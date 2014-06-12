@@ -248,7 +248,7 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
     $scope.saveHero = function (hero) {
         var editable = hero.editable;
         delete hero.editable;
-        var diff = diffModel(hero, editable, ["level", "exp"]);
+        var diff = diffModel(hero, editable, ["level", "exp", "stars"]);
         if (_.size(diff) > 1) {
             $http.post("/api/updateHero", diff).success(function (data) {
                 _.extend(hero, data);
