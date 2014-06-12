@@ -1,5 +1,5 @@
 
-ô-
+˘-
 serverProtos.proto"
 Player
 
@@ -39,7 +39,11 @@ energyDiff (
 energy (
 coins (
 golds (
-contribs ("Í
+contribs ("*
+
+ItemEffect
+name (	
+amount ("û
 ItemDef
 
 id (
@@ -65,7 +69,10 @@ composable	 (
 defense (
 resist (
 attackSpeed (
-critical ("Å
+critical (
+	useTarget (
+
+itemEffect (2.ItemEffect"Å
 EquipmentDef
 
 id (

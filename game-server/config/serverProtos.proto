@@ -41,6 +41,10 @@ message ProfileChange {
     required int32 golds        =   7;
     required int32 contribs     =   8;
 }
+message ItemEffect {
+    required string name  =   1;
+    required int32 amount       =   2;
+}
 message ItemDef {
     required int32 id           =   1;
     required string name        =   2;
@@ -64,6 +68,9 @@ message ItemDef {
     optional float resist       =  19;
     optional float attackSpeed  =  20;
     optional float critical     =  21;
+
+    optional int32 useTarget    =  22;
+    optional ItemEffect itemEffect = 23;
 }
 message EquipmentDef {
     required int32 id           =   1;

@@ -109,9 +109,10 @@ sheathControllers.controller('basicStatsController', function ($scope, $http, $w
 
     $scope.tableParams = new ngTableParams({
         page: 1,
-        count: 15,
+        count: 200,
         sorting: {percentile98: 'desc'}
     }, {
+        counts: [],
         getData: function($defer, params) {
             $http.post("/api/getPerfStats")
             .success(function (data) {
