@@ -84,8 +84,8 @@ exports.init = function (dbConfig) {
         vip: {_type: Number, default: 0},
         spent: {_type: Number, default: 0},
 
-        formation: {_type: Number, default: 0},
-        formationLevel: {_type: Array, default: function () {return [0, 0, 0, 0, 0, 0];}},
+//        formation: {_type: Number, default: 0},
+//        formationLevel: {_type: Array, default: function () {return [0, 0, 0, 0, 0, 0];}},
         team: {_type: Array, default: function () {return [null, null, null];}},
 
         storageRoom: {_type: Number, default: 25},
@@ -105,7 +105,6 @@ exports.init = function (dbConfig) {
         taskClaimed: {_type: Array, default: function () {return [];}},
 
         store: {_type: Object, default: function () {return {};}},
-        bar: {_type: Object, default: function () {return {};}},
 
         levelCleared: {_type: Object, default: function () {return {};}},
         levelGain: {_type: Object, default: function () {return {};}},
@@ -298,14 +297,14 @@ exports.init = function (dbConfig) {
         itemId: Number,
         isSoul: {_type: Boolean, default: false},
 
-        coinWeight: {_type: Number, default: 0},
-        goldWeight: {_type: Number, default: 0},
+        coinWeight: {_type: Number, default: 1},
+        goldWeight: {_type: Number, default: 1},
 
-        paidCoinWeight: {_type: Number, default: 0},
-        paidGoldWeight: {_type: Number, default: 0},
+        paidCoinWeight: {_type: Number, default: 1},
+        paidGoldWeight: {_type: Number, default: 1},
 
-        tenCoinWeight: {_type: Number, default: 0},
-        tenGoldWeight: {_type: Number, default: 0},
+        tenCoinWeight: {_type: Number, default: 1},
+        tenGoldWeight: {_type: Number, default: 1},
 
         level: {_type: Number, default: 1},
         count: {_type: Number, default: 1}
@@ -408,7 +407,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "formation", "formationLevel", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 

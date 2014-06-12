@@ -15,7 +15,7 @@ module.exports = function (app) {
 class RoleHandler extends base.HandlerBase {
     constructor(app) {
         this.app = app;
-        this.formationLevelReq = [0, 10, 15, 20, 25, 30];
+//        this.formationLevelReq = [0, 10, 15, 20, 25, 30];
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
 
@@ -58,70 +58,70 @@ class RoleHandler extends base.HandlerBase {
         }), next);
     }
 
-    setTeam(msg, session, next) {
-        wrapSession(session);
-
-        var heroList = msg.heroes;
-        var formation = msg.formation;
-        var role = session.get("role");
-
-        if (heroList.length !== 5 || !heroList[0]) {
-            this.errorNext(Constants.InvalidRequest, next);
-        }
-        else if (formation < 0 || formation >= this.formationLevelReq.length || role.level < this.formationLevelReq[formation]) {
-            this.errorNext(Constants.RoleFailed.NO_FORMATION, next);
-        }
-        else {
-            for (var i=0;i<5;i++) {
-                heroList[i] = heroList[i] || null;
-            }
-
-            var reqHeroes = _.compact(heroList);
-            this.safe(Promise.join(models.Role.get(role.id).run(), models.Hero.getAll.apply(models.Hero, reqHeroes).count().execute()).bind(this)
-            .spread(function(r, heroCount) {
-                role = r;
-                if (reqHeroes.length !== heroCount) {
-                    return Promise.reject(Constants.RoleFailed.DO_NOT_OWN_HERO);
-                }
-                role.setTeam(formation, heroList);
-                role.formation = formation;
-                session.set("role", role.toSessionObj());
-                return [role.save(), session.push("role")];
-            })
-            .all().then(() => {
-                next(null, {
-                    role: role.toClientObj()
-                });
-                logger.logInfo("role.setTeam", {
-                    role: role.toLogObj(),
-                    team: heroList,
-                    formation: formation
-                });
-            }), next);
-        }
-    }
-
-    upgradeFormation(msg, session, next) {
-        wrapSession(session);
-
-        var formation = msg.formation;
-        var role = session.get("role");
-        var specialItemIds = this.app.get("specialItemId");
-        var formLevelMax = Math.min(Math.floor(role.level/5), 100);
-
-        if (formation < 0 || formation >= this.formationLevelReq.length || role.level < this.formationLevelReq[formation]) {
-            return this.errorNext(Constants.RoleFailed.NO_FORMATION, next);
-        }
-
-        this.safe(Promise.join(models.Role.get(role.id).run(), ItemDAO.getFormationBook(specialItemIds, formation)).bind(this)
-        .spread(function(r, books) {
-            role = r;
-            var curFormationLevel = role.formationLevel[formation];
-            if (curFormationLevel > formLevelMax) {
-                return Promise.reject(Constants.RoleFailed.FORMATION_LEVEL_MAX);
-            }
-        }), next);
-    }
+//    setTeam(msg, session, next) {
+//        wrapSession(session);
+//
+//        var heroList = msg.heroes;
+//        var formation = msg.formation;
+//        var role = session.get("role");
+//
+//        if (heroList.length !== 5 || !heroList[0]) {
+//            this.errorNext(Constants.InvalidRequest, next);
+//        }
+//        else if (formation < 0 || formation >= this.formationLevelReq.length || role.level < this.formationLevelReq[formation]) {
+//            this.errorNext(Constants.RoleFailed.NO_FORMATION, next);
+//        }
+//        else {
+//            for (var i=0;i<5;i++) {
+//                heroList[i] = heroList[i] || null;
+//            }
+//
+//            var reqHeroes = _.compact(heroList);
+//            this.safe(Promise.join(models.Role.get(role.id).run(), models.Hero.getAll.apply(models.Hero, reqHeroes).count().execute()).bind(this)
+//            .spread(function(r, heroCount) {
+//                role = r;
+//                if (reqHeroes.length !== heroCount) {
+//                    return Promise.reject(Constants.RoleFailed.DO_NOT_OWN_HERO);
+//                }
+//                role.setTeam(formation, heroList);
+//                role.formation = formation;
+//                session.set("role", role.toSessionObj());
+//                return [role.save(), session.push("role")];
+//            })
+//            .all().then(() => {
+//                next(null, {
+//                    role: role.toClientObj()
+//                });
+//                logger.logInfo("role.setTeam", {
+//                    role: role.toLogObj(),
+//                    team: heroList,
+//                    formation: formation
+//                });
+//            }), next);
+//        }
+//    }
+//
+//    upgradeFormation(msg, session, next) {
+//        wrapSession(session);
+//
+//        var formation = msg.formation;
+//        var role = session.get("role");
+//        var specialItemIds = this.app.get("specialItemId");
+//        var formLevelMax = Math.min(Math.floor(role.level/5), 100);
+//
+//        if (formation < 0 || formation >= this.formationLevelReq.length || role.level < this.formationLevelReq[formation]) {
+//            return this.errorNext(Constants.RoleFailed.NO_FORMATION, next);
+//        }
+//
+//        this.safe(Promise.join(models.Role.get(role.id).run(), ItemDAO.getFormationBook(specialItemIds, formation)).bind(this)
+//        .spread(function(r, books) {
+//            role = r;
+//            var curFormationLevel = role.formationLevel[formation];
+//            if (curFormationLevel > formLevelMax) {
+//                return Promise.reject(Constants.RoleFailed.FORMATION_LEVEL_MAX);
+//            }
+//        }), next);
+//    }
 
     claimDailyReward(msg, session, next) {
         wrapSession(session);

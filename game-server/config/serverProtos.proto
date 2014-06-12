@@ -8,8 +8,6 @@ message Role {
     optional int32 exp          =   4;
     optional string title       =   5;
 
-    required int32 formation    =   13;
-    repeated int32 formationLevel = 14;
     repeated string team        =   11;
     required int32 storageRoom  =   12;
 
