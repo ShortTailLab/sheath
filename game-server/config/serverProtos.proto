@@ -100,6 +100,7 @@ message EquipmentDef {
     required int32 magicRefine    = 22;
     required int32 defenseRefine  = 23;
     required int32 resistRefine   = 24;
+    repeated int32 refineCoin     = 30;
     required int32 refineCost     = 26;
 
     required int32 slots          = 27;
@@ -325,8 +326,9 @@ message game_equipmentHandler_composite {
 }
 message game_equipmentHandler_refine {
     optional Error error        =   1;
-    optional string destroyed   =   2;
-    optional Item equipment     =   3;
+    optional Role role          =   2;
+    optional string destroyed   =   3;
+    optional Item equipment     =   4;
 }
 message game_equipmentHandler_upgrade {
     optional Error error        =   1;

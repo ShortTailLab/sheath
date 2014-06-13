@@ -776,7 +776,7 @@ var dataColumns = {
         'composeTarget', "useTarget", "itemEffect", 'canSell', 'price', 'desc'],
     equipmentDef: ['id', 'name', "color", 'quality', 'type', 'subType', 'levelReq', 'resKey', 'hp', 'attack', 'magic',
         'defense', "resist", 'hpGrowth', 'attackGrowth', 'magicGrowth', 'defenseGrowth', "resistGrowth", 'upgradeCost',
-        'hpRefine', 'attackRefine', 'magicRefine', 'defenseRefine', "resistRefine", 'refineCost',
+        'hpRefine', 'attackRefine', 'magicRefine', 'defenseRefine', "resistRefine", 'refineCoin', 'refineCost',
         'slots', 'gemType', 'price'],
     gemDef: ["id", "name", "quality", "subType", "level", "resKey", "levelReq", "stackSize", "composable", "composeCount",
         "composeTarget", "canSell", "price", "hp", "attack", "magic", "defense", "resist", "attackSpeed", "critical",
@@ -898,6 +898,8 @@ var transformEquipmentDef = function (row) {
         'defenseRefine', "resistRefine", 'refineCost', 'slots', 'price'], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
+
+    row.refineCoin = JSON.parse(row.refineCoin || "[]");
 };
 
 var transformTreasure = function (row) {
@@ -1104,6 +1106,7 @@ exports.export = function (req, res) {
                 columns: dataColumns.equipmentDef
             }).transform(function (row) {
                 row.gemType = row.gemType.join(",");
+                row.refineCoin = JSON.stringify(row.refineCoin);
                 return row;
             });
         });

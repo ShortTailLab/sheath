@@ -36,11 +36,12 @@ exports.init = function (dbConfig) {
         });
     };
 
-    var levelUp = function levelUp (expTable) {
+    var levelUp = function levelUp (expTable, maxLevel) {
         var levelGain = 0;
+        maxLevel = maxLevel || expTable.length - 1;
         while (true) {
             var nextLevelExp = expTable[this.level];
-            if (this.exp < nextLevelExp || this.level >= expTable.length - 1) break;
+            if (this.exp < nextLevelExp || this.level >= maxLevel) break;
             this.level += 1;
             levelGain += 1;
             this.exp -= nextLevelExp;
@@ -215,6 +216,7 @@ exports.init = function (dbConfig) {
         magicRefine: {_type: Number, default: 0},
         defenseRefine: {_type: Number, default: 0},
         resistRefine: {_type: Number, default: 0},
+        refineCoin: {_type: Array, default: function () {return [];}},
         refineCost: {_type: Number, default: 0},
 
         slots: {_type: Number, default: 0},

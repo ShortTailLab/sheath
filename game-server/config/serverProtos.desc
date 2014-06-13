@@ -1,5 +1,5 @@
 
-¢.
+∂.
 serverProtos.proto"
 Player
 
@@ -71,7 +71,7 @@ composable	 (
 critical (
 	useTarget (
 
-itemEffect (2.ItemEffect"Å
+itemEffect (2.ItemEffect"ï
 EquipmentDef
 
 id (
@@ -100,6 +100,8 @@ itemEffect (2.ItemEffect"Å
 magicRefine (
 defenseRefine (
 resistRefine (
+
+refineCoin (
 
 refineCost (
 slots (

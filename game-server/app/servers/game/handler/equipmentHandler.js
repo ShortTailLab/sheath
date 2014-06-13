@@ -65,14 +65,16 @@ class EquipmentHandler extends base.HandlerBase {
         var eqId = msg.equipmentId;
         var role = session.get("role");
         var equipment, itemDef;
+        var material;
 
         if (!eqId) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
-        this.safe(this.getEquipmentWithDef(eqId)
-        .spread((_equipment, _itemDef) => {
-            [equipment, itemDef] = [_equipment, _itemDef];
+        this.safe(Promise.join(this.getEquipmentWithDef(eqId), models.Role.get(role.id).run())
+        .spread((eqs, _role) => {
+            [equipment, itemDef] = eqs;
+            role = _role;
 
             if (equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
@@ -80,6 +82,15 @@ class EquipmentHandler extends base.HandlerBase {
             if (equipment.refinement >= itemDef.refineLevel) {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
+
+            var coinReq = itemDef.refineCoin.length ? itemDef.refineCoin[0] : 0;
+            if (role.coins < coinReq) {
+                return Promise.reject(Constants.NO_COINS);
+            }
+            else {
+                role.coins -= coinReq;
+            }
+
             return models.Item.getAll(role.id, {index: "owner"}).filter({
                 itemDefId: equipment.itemDefId,
                 refinement: 0,
@@ -91,11 +102,12 @@ class EquipmentHandler extends base.HandlerBase {
                 return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
             }
             equipment.refinement += 1;
-            var material = mats[0];
-            return [material, material.delete(), equipment.save()];
+            material = mats[0];
+            return [role.save(), material.delete(), equipment.save()];
         })
-        .spread((material) => {
+        .all().then(() => {
             next(null, {
+                role: role.toSlimClientObj(),
                 destroyed: material.id,
                 equipment: equipment.toClientObj()
             });
