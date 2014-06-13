@@ -1,5 +1,5 @@
 
-¶.
+Ë.
 serverProtos.proto"
 Player
 
@@ -299,11 +299,12 @@ equipments (2.EquipmentDef"D
 game_equipmentHandler_composite
 error (2.Error
 	destroyed (	
-newItem (2.Item"b
+newItem (2.Item"w
 game_equipmentHandler_refine
-error (2.Error
-	destroyed (	
-	equipment (2.Item"s
+error (2.Error
+role (2.Role
+	destroyed (	
+	equipment (2.Item"s
 game_equipmentHandler_upgrade
 error (2.Error
 	equipment (2.Item!
