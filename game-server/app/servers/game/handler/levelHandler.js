@@ -125,13 +125,13 @@ class LevelHandler extends base.HandlerBase {
             }
             var itemIds = _.keys(items);
             var expTables = this.app.get("expTables");
-            for (var i=0;i<itemIds.length;i++) {
-                var itemId = itemIds[i];
-                if (items[itemId] > (levelGain.items[itemId] || 0)) {
-                    models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
-                    return Promise.reject(Constants.StageFailed.Invalid_End);
-                }
-            }
+//            for (var i=0;i<itemIds.length;i++) {
+//                var itemId = itemIds[i];
+//                if (items[itemId] > (levelGain.items[itemId] || 0)) {
+//                    models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
+//                    return Promise.reject(Constants.StageFailed.Invalid_End);
+//                }
+//            }
             if (coins > levelGain.maxCoin) {
                 models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
                 return Promise.reject(Constants.StageFailed.Invalid_End);

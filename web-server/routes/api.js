@@ -899,10 +899,14 @@ var transformEquipmentDef = function (row) {
         row[f] = parseFloat(row[f]) || 0;
     });
 
-    row.refineCoin = JSON.parse(row.refineCoin || "[]");
-    if (!row.refineCoin instanceof Array) {
-        row.refineCoin = [];
-    }
+    _.each(["refineCoin"], function (f) {
+        if (row[f] && row[f] !== "0") {
+            row[f] = JSON.parse(row[f]);
+        }
+        else {
+            row[f] = [];
+        }
+    });
 };
 
 var transformTreasure = function (row) {
