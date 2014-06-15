@@ -1261,7 +1261,7 @@ exports.equipmentDefs = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -1278,7 +1278,7 @@ exports.tasks = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -1295,7 +1295,7 @@ exports.anns = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
