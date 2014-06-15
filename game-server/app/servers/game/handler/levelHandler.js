@@ -112,7 +112,7 @@ class LevelHandler extends base.HandlerBase {
             return this.errorNext(Constants.StageFailed.NO_LEVEL, next);
         }
 
-        var coins = Math.floor(msg.coins) || 0, items = msg.items || [];
+        var coins = Math.floor(msg.coins) || 0, items = msg.items || {};
         var team = _.compact(role.team);
         var heroExp, roleExp;
 
