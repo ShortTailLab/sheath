@@ -273,7 +273,8 @@ include ../mixins/block
             th 关卡ID
             th 关卡名
             th 体力
-            th 经验
+            th 角色经验
+            th 英雄经验
             th 路径
         tbody: tr(ng-repeat="l in levels | orderBy:['stageId', 'id']")
             td {{l.stageId}}
@@ -281,7 +282,8 @@ include ../mixins/block
             td {{l.id}}
             td {{l.name}}
             td {{l.energy}}
-            td {{l.exp}}
+            td {{l.roleExp}}
+            td {{l.heroExp}}
             td {{l.path}}
 
 +block("所有集市商品")

@@ -255,7 +255,8 @@ exports.init = function (dbConfig) {
         name: {_type: String, default: ""},
         path: {_type: String, default: ""},
         energy: {_type: Number, default: 0},
-        exp: {_type: Number, default: 0},
+        roleExp: {_type: Number, default: 0},
+        heroExp: {_type: Number, default: 0},
         stageId: {_type: Number, default: 0},
         stage: {_type: String, default: ""},
         enemies: {_type: Array, default: function () { return []; }}

@@ -84,7 +84,7 @@ class LevelHandler extends base.HandlerBase {
             }));
             role.levelGain = {
                 level: level.id,
-                exp: level.exp || 0,
+                exp: level.roleExp || 0,
                 hExp: level.heroExp || 0,
                 maxCoin: maxCoin,
                 items: items
