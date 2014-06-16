@@ -204,7 +204,6 @@ message Level {
     required string name        =   2;
     required string path        =   3;
     required int32 energy       =   4;
-    required int32 exp          =   5;
 }
 message Stage {
     required int32 stageId      =   1;

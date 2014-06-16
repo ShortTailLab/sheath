@@ -245,12 +245,6 @@ exports.init = function (dbConfig) {
         createTime: {_type: Date, default: r.now()}
     });
 
-    var Stage = exports.Stage = schema.createModel("stage", {
-        name: {_type: String, default: ""},
-
-        public: {_type: Boolean, default: true}
-    });
-
     var Level = exports.Level = schema.createModel("level", {
         name: {_type: String, default: ""},
         path: {_type: String, default: ""},
@@ -391,7 +385,6 @@ exports.init = function (dbConfig) {
     Role.hasMany(Hero, "heroes", "id", "owner");
     Role.hasMany(Item, "bag", "id", "owner");
     Hero.hasMany(Item, "equipments", "id", "bound");
-    Stage.hasMany(Level, "levels", "id", "stageId");
 
     Partition.define("toClientObj", function () {
         var ret = _.pick(this, "id", "name");
