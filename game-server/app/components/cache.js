@@ -93,7 +93,7 @@ class Cache {
     }
 
     loadLevel() {
-        return models.Level.orderBy("id").run().bind(this).then(function (levels) {
+        return models.Level.orderBy("id").filter({enabled: true}).run().bind(this).then(function (levels) {
             this.clientLevels = _.sortBy(_.map(_.groupBy(levels, "stageId"), function (slevels) {
                 return {
                     stageId: slevels[0].stageId,

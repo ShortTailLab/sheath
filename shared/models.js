@@ -254,9 +254,10 @@ exports.init = function (dbConfig) {
         stageId: {_type: Number, default: 0},
         stage: {_type: String, default: ""},
         enemies: {_type: Array, default: function () { return []; }},
-        enabled: {_type: Boolean, default: true},
+        enabled: {_type: Boolean, default: false},
         requirement: {_type: Number, default: 0},
-        min_level: {_type: Number, default: 0}
+        min_level: {_type: Number, default: 0},
+        drop_items: {_type: Array, default: function () {return [];}}
     });
 
     var StoreItem = exports.StoreItem = schema.createModel("storeitem", {

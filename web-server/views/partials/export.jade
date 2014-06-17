@@ -277,6 +277,7 @@ include ../mixins/block
             th 英雄经验
             th 最小等级
             th 前置条件
+            th 掉落
             th 路径
             th 激活
         tbody: tr(ng-repeat="l in levels | orderBy:['stageId', 'id']")
@@ -289,6 +290,7 @@ include ../mixins/block
             td {{l.heroExp}}
             td {{l.min_level}}
             td {{l.requirement}}
+            td {{l.drop_items}}
             td {{l.path}}
             td {{l.enabled}}
 

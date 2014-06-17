@@ -1,5 +1,5 @@
 
-¾.
+ú.
 serverProtos.proto"
 Player
 
@@ -195,13 +195,17 @@ refinement (
 price (
 defId (
 isSoul (
-count ("?
+count ("{
 Level
 
 id (
 name (	
 path (	
-energy ("?
+energy (
+requirement (
+	min_level (
+
+drop_items ("?
 Stage
 stageId (
 stage (	
