@@ -939,6 +939,11 @@ sheathControllers.controller('statsController', function ($scope, $http) {
     $scope.retrieveStats(online.series, 1, "在线用户", "onlineUser", 1, "online");
 });
 
+sheathControllers.controller('mcodeController', function ($scope, $http, $modal) {
+    $scope.newMCode = function () {
+    };
+});
+
 sheathControllers.controller('settingsController', function ($scope, $http, $timeout) {
     $scope.kickAll = function () {
         $http.post("/api/kickAll");

@@ -253,7 +253,10 @@ exports.init = function (dbConfig) {
         heroExp: {_type: Number, default: 0},
         stageId: {_type: Number, default: 0},
         stage: {_type: String, default: ""},
-        enemies: {_type: Array, default: function () { return []; }}
+        enemies: {_type: Array, default: function () { return []; }},
+        enabled: {_type: Boolean, default: true},
+        requirement: {_type: Number, default: 0},
+        min_level: {_type: Number, default: 0}
     });
 
     var StoreItem = exports.StoreItem = schema.createModel("storeitem", {
@@ -269,7 +272,6 @@ exports.init = function (dbConfig) {
     var Treasure = exports.Treasure = schema.createModel("treasure", {
         type: String,
         count: Number,
-        desc: {_type: String, default: ""},
         candidates: {_type: Array, default: function () { return []; }},
         weights: {_type: Array, default: function () { return []; }}
     });
@@ -355,9 +357,11 @@ exports.init = function (dbConfig) {
     Device.ensureIndex("lastRole");
 
     var MarketingCode = exports.MarketingCode = schema.createModel("marketingcode", {
-        redeemRole: {_type: String},
-        used: {_type: Boolean, default: false},
-        expire: {_type: Date, default: new Date(2020, 11, 31)}
+        treasures: {_type: Array, default: function () { return []; }},
+        roles: {_type: Array, schema: Number, default: function () {return [];}},
+        max: {_type: Number, default: 1},
+        expire: {_type: Date, default: new Date(2020, 11, 31)},
+        lastClaimed: Date
     });
 
     var Log = exports.Log = schema.createModel("log", {

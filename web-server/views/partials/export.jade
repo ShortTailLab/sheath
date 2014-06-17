@@ -275,7 +275,10 @@ include ../mixins/block
             th 体力
             th 角色经验
             th 英雄经验
+            th 最小等级
+            th 前置条件
             th 路径
+            th 激活
         tbody: tr(ng-repeat="l in levels | orderBy:['stageId', 'id']")
             td {{l.stageId}}
             td {{l.stage}}
@@ -284,7 +287,10 @@ include ../mixins/block
             td {{l.energy}}
             td {{l.roleExp}}
             td {{l.heroExp}}
+            td {{l.min_level}}
+            td {{l.requirement}}
             td {{l.path}}
+            td {{l.enabled}}
 
 +block("所有集市商品")
     div(class="message errormsg", ng-show="si_error")
