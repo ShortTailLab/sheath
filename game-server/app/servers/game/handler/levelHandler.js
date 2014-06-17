@@ -116,6 +116,10 @@ class LevelHandler extends base.HandlerBase {
         var team = _.compact(role.team);
         var heroExp, roleExp;
 
+        if (!team || team.length === 0) {
+            return this.errorNext(Constants.InternalServerError, next);
+        }
+
         this.safe(Promise.join(models.Role.get(role.id).run(), models.Hero.getAll.apply(models.Hero, team).run()).bind(this)
         .spread(function (_role, teamHeroes) {
             role = _role;

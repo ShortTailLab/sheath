@@ -41,7 +41,7 @@ class EquipmentHandler extends base.HandlerBase {
             if (mats.length < itemDef.composeCount) {
                 return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
             }
-            var promises = _.invoke(mats, "destroyP");
+            var promises = _.invoke(mats, "delete");
             promises.unshift((new models.Item({owner: role.id, itemDefId: target.id})).save());
 
             return promises;
