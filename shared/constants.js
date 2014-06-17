@@ -62,7 +62,8 @@ module.exports = {
     },
     StageFailed: {
         NO_LEVEL: 120,
-        Invalid_End: 121
+        Invalid_End: 121,
+        LevelRequired: 122
     },
     StoreFailed: {
         NO_REFRESH: 160,

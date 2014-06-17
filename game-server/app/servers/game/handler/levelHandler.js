@@ -44,7 +44,7 @@ class LevelHandler extends base.HandlerBase {
 
         var level = msg.level;
         level = this.app.get("cache").levelById[level];
-        if (!level) {
+        if (!level || !level.enabled) {
             return this.errorNext(Constants.StageFailed.NO_LEVEL, next);
         }
 
@@ -56,6 +56,9 @@ class LevelHandler extends base.HandlerBase {
             role.fillEnergy(this.app.get("energyTable"));
             if (role.energy < level.energy) {
                 return Promise.reject(Constants.NO_ENERGY);
+            }
+            if (role.level < level.min_level) {
+                return Promise.reject(Constants.StageFailed.LevelRequired);
             }
             role.energy -= level.energy;
 
