@@ -55,13 +55,13 @@ class TutorialHandler extends base.HandlerBase {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
-        role.tutorial = 3;
-        session.set("role", role);
-
-        this.safe(Promise.join(new models.Hero({heroDefId: heroId, owner: role.id}).save(), session.push("role"))
-        .spread((_newHero) => {
+        this.safe(new models.Hero({heroDefId: heroId, owner: role.id}).save()
+        .then(function (_newHero) {
             newHero = _newHero;
-            return models.Role.get(role.id).update({tutorial: 3, team: [newHero.id, null, null]}).run();
+            role.tutorial = 3;
+            role.team[0] = newHero.id;
+            session.set("role", role);
+            return [models.Role.get(role.id).update({tutorial: 3, team: role.team}).run(), session.push("role")];
         })
         .then(() => {
             next(null, {newHero: newHero.toClientObj(), tutorial: 3});
