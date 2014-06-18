@@ -156,6 +156,12 @@ var ActFlagType = {
         name: "upgradeFormation",
         route: "game.roleHandler.upgradeFormation"
     },
+    LIST_LEVEL: {
+        desc: "获取关卡",
+        reqId: 42,
+        name: "listLevel",
+        route: "game.levelHandler.list"
+    },
     START: {
         desc: "开始关卡",
         reqId: 25,
@@ -370,7 +376,10 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    self.refineHero(pomelo, function () {
+    self.listLevel(pomelo, function () {
+        self.start(pomelo, function () {
+
+        });
     });
 };
 
@@ -521,6 +530,13 @@ Role.prototype.setTeam = function (pomelo, cb) {
     }
 
     timePomeloRequest(ActFlagType.SET_TEAM, {heroes: randomHeroes, formation: 2}, function (data) {
+        cb();
+    });
+};
+
+Role.prototype.listLevel = function (pomelo, cb) {
+    timePomeloRequest(ActFlagType.LIST_LEVEL, {}, function (data) {
+        console.log(data);
         cb();
     });
 };
