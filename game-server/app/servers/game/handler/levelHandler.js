@@ -43,7 +43,8 @@ class LevelHandler extends base.HandlerBase {
         wrapSession(session);
 
         var level = msg.level;
-        level = this.app.get("cache").levelById[level];
+        var cache = this.app.get("cache");
+        level = cache.levelById[level];
         if (!level || !level.enabled) {
             return this.errorNext(Constants.StageFailed.NO_LEVEL, next);
         }
@@ -62,6 +63,7 @@ class LevelHandler extends base.HandlerBase {
             }
             role.energy -= level.energy;
 
+            var missingItem;
             seeds = _.compact(_.map(level.enemies, function (e) {
                 if (e.count === 0) return null;
                 if ((e.coins && e.coins.length) || (e.items && e.items.length)) {
@@ -73,6 +75,9 @@ class LevelHandler extends base.HandlerBase {
                         }
                         if (e.items && e.items.length) {
                             var itemId = self.evalRandAtom(e.items, seedRand);
+                            if (!cache.getItemDef(itemId)) {
+                                missingItem = itemId;
+                            }
                             if (itemId) {
                                 items[itemId] = (items[itemId] || 0) + 1;
                             }
@@ -85,6 +90,9 @@ class LevelHandler extends base.HandlerBase {
                 }
                 return null;
             }));
+            if (missingItem) {
+                return Promise.reject(Constants.InternalServerError);
+            }
             role.levelGain = {
                 level: level.id,
                 exp: level.roleExp || 0,
@@ -132,13 +140,13 @@ class LevelHandler extends base.HandlerBase {
             }
             var itemIds = _.keys(items);
             var expTables = this.app.get("expTables");
-//            for (var i=0;i<itemIds.length;i++) {
-//                var itemId = itemIds[i];
-//                if (items[itemId] > (levelGain.items[itemId] || 0)) {
-//                    models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
-//                    return Promise.reject(Constants.StageFailed.Invalid_End);
-//                }
-//            }
+            for (var i=0;i<itemIds.length;i++) {
+                var itemId = itemIds[i];
+                if (items[itemId] > (levelGain.items[itemId] || 0)) {
+                    models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
+                    return Promise.reject(Constants.StageFailed.Invalid_End);
+                }
+            }
             if (coins > levelGain.maxCoin) {
                 models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
                 return Promise.reject(Constants.StageFailed.Invalid_End);
