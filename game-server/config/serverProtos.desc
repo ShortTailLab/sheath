@@ -1,5 +1,5 @@
 
-ú.
+µ.
 serverProtos.proto"
 Player
 
@@ -71,7 +71,7 @@ composable	 (
 critical (
 	useTarget (
 
-itemEffect (2.ItemEffect"•
+itemEffect (2.ItemEffect"Ð
 EquipmentDef
 
 id (
@@ -80,30 +80,28 @@ itemEffect (2.ItemEffect"•
 quality (
 type (	
 subType (	
-levelReq (
+levelReq (
+refineLevel (
 resKey (	
 
 hp	 (
 attack
- (
-magic (
-defense (
-resist (
+ (
+defense (
+iron (
+luck (
 hpGrowth (
-attackGrowth (
-magicGrowth (
-defenseGrowth (
-resistGrowth (
-upgradeCost (
-hpRefine (
-attackRefine (
-magicRefine (
-defenseRefine (
-resistRefine (
+attackGrowth (
+defenseGrowth (
 
-refineCoin (
+coinFactor (
+hpRefine (
+attackRefine (
+defenseRefine (
 
-refineCost (
+luckRefine (
+
+ironFactor (
 slots (
 gemType (	
 price ("²

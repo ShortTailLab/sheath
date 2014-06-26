@@ -197,27 +197,27 @@ exports.init = function (dbConfig) {
         subType: {_type: String, default: ""},
         resKey: {_type: String, default: ""},
         levelReq: {_type: Number, default: 1},
+        refineLevel: {_type: Number, default: 1},
 
         hp: {_type: Number, default: 0},
         attack: {_type: Number, default: 0},
-        magic: {_type: Number, default: 0},
         defense: {_type: Number, default: 0},
-        resist: {_type: Number, default: 0},
+        iron: {_type: Number, default: 0},
+        luck: {_type: Array, schema: Number, default: function () {return [];}},
 
         hpGrowth: {_type: Number, default: 0},
         attackGrowth: {_type: Number, default: 0},
-        magicGrowth: {_type: Number, default: 0},
         defenseGrowth: {_type: Number, default: 0},
-        resistGrowth: {_type: Number, default: 0},
         upgradeCost: {_type:Number, default: 0},
+        coinFactor: {_type:Number, default: 0},
 
         hpRefine: {_type: Number, default: 0},
         attackRefine: {_type: Number, default: 0},
-        magicRefine: {_type: Number, default: 0},
         defenseRefine: {_type: Number, default: 0},
-        resistRefine: {_type: Number, default: 0},
+        luckRefine: {_type: Number, default: 0},
         refineCoin: {_type: Array, default: function () {return [];}},
         refineCost: {_type: Number, default: 0},
+        ironFactor: {_type:Number, default: 0},
 
         slots: {_type: Number, default: 0},
         gemType: {_type: Array, default: function () {return [];}},
@@ -241,6 +241,7 @@ exports.init = function (dbConfig) {
         level: {_type: Number, default: 0},
         stoneUsed: {_type: Number, default: 0},
         refinement: {_type: Number, default: 0},
+        luck: Number,
 
         createTime: {_type: Date, default: r.now()}
     });

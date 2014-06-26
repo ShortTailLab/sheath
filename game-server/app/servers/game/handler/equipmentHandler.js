@@ -277,14 +277,16 @@ class EquipmentHandler extends base.HandlerBase {
 
         var eqId = msg.equipmentId;
         var role = session.get("role");
+        var equipment, eqDef;
 
         if (!eqId) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
-        this.safe(this._genDestructMemory(eqId, role)
-        .then((result) => {
-            return [result, models.Role.get(role.id).run()];
+        this.safe(Promise.join(this.getEquipmentWithDef(eqId), models.Role.get(role.id).run()).bind(this)
+        .spread((eqWithDef, _role) => {
+            [equipment, eqDef] = eqWithDef;
+            role = _role;
         })
         .spread((result, role) => {
             role.coins += result.coins;
@@ -319,71 +321,5 @@ class EquipmentHandler extends base.HandlerBase {
                 newItems: _.invoke(pieces, "toLogObj")
             });
         }), next);
-    }
-
-    destructCheck(msg, session, next) {
-        wrapSession(session);
-
-        var eqId = msg.equipmentId;
-        var role = session.get("role");
-
-        if (!eqId) {
-            return this.errorNext(Constants.InvalidRequest, next);
-        }
-
-        this.safe(this._genDestructMemory(eqId, role)
-        .then((result) => {
-            next(null, {
-                coins: result.coins,
-                pieceId: result.pieces[0],
-                pieceCount: result.pieces[1],
-//                stoneId: result.stones[0],
-//                stoneCount: result.stones[1],
-                gems: result.gems
-            });
-        }), next);
-    }
-
-    _genDestructMemory(eqId, role) {
-        var cache = this.app.get("cache");
-        return this.getEquipmentWithDef(eqId)
-        .spread((equipment, itemDef) => {
-            if (equipment.owner !== role.id) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
-            }
-            if (equipment.bound) {
-                return Promise.reject(Constants.EquipmentFailed.ALREADY_BOUND);
-            }
-            if (!equipment.destructMemory || equipment.refinement !== equipment.destructMemory.refinement || equipment.refineProgress !== equipment.destructMemory.refineProgress) {
-                var pieceId = cache.getPieceId(itemDef);
-                var sumMat = [0];
-                _.each(itemDef.refineCost, function (c) {
-                    sumMat.push(sumMat[sumMat.length - 1] + c);
-                });
-                var iterCount = sumMat[equipment.refinement] + equipment.refineProgress + 1;
-                var pieceCount = 0;
-                var pieceCoeff = itemDef.destructPiece;
-                for (var i=0;i<iterCount;i++) {
-                    pieceCount += this.evalRandAtom(pieceCoeff);
-                }
-
-                equipment.destructMemory = {
-                    refinement: equipment.refinement,
-                    refineProgress: equipment.refineProgress,
-                    pieces: [pieceId, pieceCount]
-                };
-                return [equipment.save(), itemDef, models.Item.getAll(equipment.id, {index: "bound"}).run()];
-            }
-            return [equipment, itemDef, models.Item.getAll(equipment.id, {index: "bound"}).run()];
-        })
-        .spread((equipment, itemDef, gems) => {
-            return {
-                coins: itemDef.price + equipment.level * 100 * 0.3,
-                pieces: equipment.destructMemory.pieces,
-                gems: _.pluck(gems, "id"),
-
-                equipment: equipment
-            };
-        });
     }
 }
