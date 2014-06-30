@@ -53,7 +53,7 @@ class TaskRemote {
         .then(function (tasks) {
             cb(null, {
                 tasks: tasks[0],
-                newTasks: tasks[1] ? tasks[1] : undefined
+                newTasks: tasks[1] || []
             });
         })
         .catch(function () {

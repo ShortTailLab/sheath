@@ -366,12 +366,12 @@ exports.addHero = function (req, res) {
     .then(function (_role) {
         role = _role;
         var heroes = _.map(newHeroes, function (heroId) {
-            return (new appModels.Hero({
+            return {
                 heroDefId: heroId,
                 owner: roleId
-            })).save();
+            };
         });
-        return Promise.all(heroes);
+        return appModels.Hero.save(heroes);
     })
     .then(function (heroes) {
         if (role.team.length > 3) role.team = role.team.slice(0, 3);
@@ -405,12 +405,12 @@ exports.addItem = function (req, res) {
     .then(function (exists) {
         if (exists) {
             var items = _.map(newItems, function (itemId) {
-                return (new appModels.Item({
+                return {
                     itemDefId: itemId,
                     owner: roleId
-                })).save();
+                };
             });
-            return Promise.all(items);
+            return appModels.Item.save(items);
         }
         else {
             return Promise.reject();

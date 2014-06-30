@@ -52,7 +52,7 @@ exports.init = function (dbConfig) {
 
     var User = exports.User = schema.createModel("user", {
         auth: [{type: String, id: String, password: String}],
-        joinDate: {_type: Date, default: r.now()},
+        joinDate: {_type: Date, default: function () {return new Date();}},
         activated: {_type: Boolean, default: true},
 
         manRole: {admin: Boolean, editUser: Boolean, data: Boolean, announce: Boolean, debug: Boolean}
@@ -72,9 +72,9 @@ exports.init = function (dbConfig) {
         name: {_type: String, default: ""},
         distro: {_type: String, default: "All"},
         public: {_type: Boolean, default: true},
-        openSince: {_type: Date, default: r.now()},
+        openSince: {_type: Date, default: function () {return new Date();}},
 
-        createTime: {_type: Date, default: r.now()}
+        createTime: {_type: Date, default: function () {return new Date();}}
     });
 
     var Role = exports.Role = schema.createModel("role", {
@@ -99,7 +99,7 @@ exports.init = function (dbConfig) {
         contribs: {_type: Number, default: 0},
         irons: {_type: Array, schema: Number, default: [0, 0, 0, 0]},
 
-        energyRefreshTime: {_type: Date, default: r.now()},
+        energyRefreshTime: {_type: Date, default: function () {return new Date();}},
         dailyRefreshData: {_type: Object, default: function () {return {};}},
         manualRefreshData: {_type: Object, default: function () {return {};}},
 
@@ -114,7 +114,7 @@ exports.init = function (dbConfig) {
 
         souls: {_type: Object, default: function () {return {};}},
 
-        createTime: {_type: Date, default: r.now()},
+        createTime: {_type: Date, default: function () {return new Date();}},
         lastLogOff: {_type: Date, default: null},
 
         tutorial: Number
@@ -224,7 +224,7 @@ exports.init = function (dbConfig) {
         level: {_type: Number, default: 1},
         exp: {_type: Number, default: 0},
 
-        createTime: {_type: Date, default: r.now()}
+        createTime: {_type: Date, default: function () {return new Date();}}
     });
 
     var Item = exports.Item = schema.createModel("item", {
@@ -235,7 +235,7 @@ exports.init = function (dbConfig) {
         refinement: {_type: Number, default: 0},
         luck: Number,
 
-        createTime: {_type: Date, default: r.now()}
+        createTime: {_type: Date, default: function () {return new Date();}}
     });
 
     var Level = exports.Level = schema.createModel("level", {
@@ -271,14 +271,13 @@ exports.init = function (dbConfig) {
     });
 
     var Task = exports.Task = schema.createModel("task", {
+        prevTask: {_type: Number, default: 0},
         type: {_type: Number, default: 0},
-        level: {_type: Number, default: 0},
         name: {_type: String, default: ""},
         desc: {_type: String, default: ""},
-        weight: {_type: Number, default: 0},
 
-        start: {_type: Date, default: r.now()},
-        end: {_type: Date, default: r.now()},
+        start: {_type: Date, default: function () {return new Date();}},
+        end: {_type: Date, default: function () {return new Date();}},
 
         preCondition: {_type: Array, default: function () { return []; }},
         condition: {_type: Array, default: function () { return []; }},
@@ -311,7 +310,7 @@ exports.init = function (dbConfig) {
         sender: String,
         target: String,
         text: {_type: String, default: ""},
-        time: {_type: Date, default: r.now()},
+        time: {_type: Date, default: function () {return new Date();}},
         read: {_type: Boolean, default: false},
         claimed: {_type: Boolean, default: false},
         treasures: {_type: Array, default: function () { return []; }}
@@ -324,15 +323,15 @@ exports.init = function (dbConfig) {
         name: String,
         content: String,
         partitions: {_type: Array, default: function () { return []; }},
-        start: {_type: Date, default: r.now()},
-        end: {_type: Date, default: r.now()}
+        start: {_type: Date, default: function () {return new Date();}},
+        end: {_type: Date, default: function () {return new Date();}}
     });
 
     var PurchaseLog = exports.PurchaseLog = schema.createModel("purchaselog", {
         role: String,
         channelName: String,
         state: {_type: Number, default: 0},
-        time: {_type: Date, default: r.now()},
+        time: {_type: Date, default: function () {return new Date();}},
 
         golds: Number,
         price: Number,
@@ -346,7 +345,7 @@ exports.init = function (dbConfig) {
         deviceName: {_type: String, default: ""},
 
         lastRole: {_type: String},
-        lastLogin: {_type: Date, default: r.now()}
+        lastLogin: {_type: Date, default: function () {return new Date();}}
     });
     Device.ensureIndex("lastRole");
 

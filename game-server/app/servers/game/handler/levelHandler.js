@@ -171,14 +171,14 @@ class LevelHandler extends base.HandlerBase {
             }
             _.each(itemIds, function (itemId) {
                 for (var i=0;i<items[itemId];i++) {
-                    newItems.push((new models.Item({
+                    newItems.push({
                         itemDefId: parseInt(itemId),
                         owner: role.id
-                    })).save());
+                    });
                 }
             });
             session.set("role", role.toSessionObj());
-            return [role.save(), Promise.all(newItems), hUps, session.push("role")];
+            return [role.save(), models.Item.save(newItems), hUps, session.push("role")];
         })
         .spread(function (role, newItems) {
             this.app.rpc.game.taskRemote.notify(session, "Level.Cleared", role.id, {level: level.id}, null);
