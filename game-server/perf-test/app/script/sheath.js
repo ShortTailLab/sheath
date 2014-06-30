@@ -376,10 +376,7 @@ Role.prototype.afterLogin = function (pomelo) {
 
 Role.prototype.test = function (pomelo) {
     var self = this;
-    self.listLevel(pomelo, function () {
-        self.start(pomelo, function () {
-
-        });
+    self.destroyEquipment(pomelo, function () {
     });
 };
 
@@ -408,10 +405,9 @@ Role.prototype.randomActions = function (pomelo) {
 Role.prototype.upgradeWeapon = function (pomelo, cb) {
     var self = this;
     var weapon = _.findWhere(_.values(self.items), {defId: 1001});
-    if (weapon) {
-        timePomeloRequest(ActFlagType.UPGRADE_EQUIPMENT, {equipmentId: weapon.id}, function (data) {
+    if (true) {
+        timePomeloRequest(ActFlagType.UPGRADE_EQUIPMENT, {equipmentId: "797a90f7-c7fc-43f4-9ce4-684edf14b831"}, function (data) {
             if (!data.error) {
-                delete self.items[data.destroyed];
                 self.items[data.equipment.id] = data.equipment;
             }
             cb();
@@ -437,8 +433,8 @@ Role.prototype.compositeEquipment = function (pomelo, cb) {
 Role.prototype.refineWeapon = function (pomelo, cb) {
     var self = this;
     var weapon = _.findWhere(_.values(self.items), {defId: 1001});
-    if (weapon) {
-        timePomeloRequest(ActFlagType.REFINE_EQUIPMENT, {equipmentId: weapon.id}, function (data) {
+    if (true) {
+        timePomeloRequest(ActFlagType.REFINE_EQUIPMENT, {equipmentId: "797a90f7-c7fc-43f4-9ce4-684edf14b831"}, function (data) {
             cb();
         });
     }
@@ -510,11 +506,9 @@ Role.prototype.unEquip = function (pomelo, cb) {
 Role.prototype.destroyEquipment = function (pomelo, cb) {
     var self = this;
     var weapon = _.findWhere(self.items, {defId: 1001});
-    if (weapon) {
-        timePomeloRequest(ActFlagType.DESTRUCT_CHECK, {equipmentId: weapon.id}, function (data) {
-            timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: weapon.id}, function (data) {
-                cb();
-            });
+    if (true) {
+        timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: "914fe772-ce0a-47cd-954c-cdb0bf98cb08"}, function (data) {
+            cb();
         });
     }
     else {

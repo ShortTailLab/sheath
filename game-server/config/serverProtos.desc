@@ -1,9 +1,9 @@
 
-µ.
+º-
 serverProtos.proto"
 Player
 
-id (	"Í
+id (	"Ü
 Role
 
 id (	
@@ -17,7 +17,8 @@
 energy (
 coins (
 golds (
-contribs	 (
+contribs	 (
+irons (
 tutorial
  ("&
 Error
@@ -31,10 +32,10 @@
 	openSince ("Ÿ
 ProfileChange
 
-energyDiff (
-	coinsDiff (
-	goldsDiff (
-contribsDiff (
+energyDiff (
+	coinsDiff (
+	goldsDiff (
+contribsDiff (
 energy (
 coins (
 golds (
@@ -71,40 +72,33 @@ composable	 (
 critical (
 	useTarget (
 
-itemEffect (2.ItemEffect"Ð
+itemEffect (2.ItemEffect"ö
 EquipmentDef
 
 id (
-name (	
-color (
-quality (
-type (	
-subType (	
-levelReq (
-refineLevel (
-resKey (	
+type (	
+color (
+name (	
+level (
+quality (
+counts (
+desc (	
+resKey	 (	
 
-hp	 (
-attack
- (
+hp
+ (
+attack (
 defense (
-iron (
-luck (
+iron (
 hpGrowth (
 attackGrowth (
-defenseGrowth (
+defenseGrowth (
 
-coinFactor (
-hpRefine (
-attackRefine (
-defenseRefine (
-
-luckRefine (
-
-ironFactor (
-slots (
-gemType (	
-price ("²
+growFactor (
+hpRefine (
+attackRefine (
+defenseRefine (
+refineFactor ("²
 HeroDef
 
 id (
@@ -290,26 +284,25 @@ equipments (2.EquipmentDef"D
 	equipment (2.Item"K
 game_heroHandler_unEquip
 error (2.Error
-	equipment (2.Item"I
-game_equipmentHandler_setGem
-error (2.Error
-gem (2.Item"L
-game_equipmentHandler_removeGem
-error (2.Error
-gem (2.Item"c
-game_equipmentHandler_composite
-error (2.Error
-	destroyed (	
+	equipment (2.Item"M
+game_equipmentHandler_redeem
+error (2.Error
 newItem (2.Item"w
 game_equipmentHandler_refine
 error (2.Error
 role (2.Role
-	destroyed (	
+	destroyed (	
 	equipment (2.Item"s
 game_equipmentHandler_upgrade
 error (2.Error
 	equipment (2.Item!
-	stateDiff (2.ProfileChange"]
+	stateDiff (2.ProfileChange"}
+game_equipmentHandler_destruct
+error (2.Error
+role (2.Role
+	destroyed (	
+coins (
+irons ("]
 game_taskHandler_list
 error (2.Error
 tasks (2.Task

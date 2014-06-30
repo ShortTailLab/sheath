@@ -774,10 +774,9 @@ var dataColumns = {
     drawNode: [],
     itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
         'composeTarget', "useTarget", "itemEffect", 'canSell', 'price', 'desc'],
-    equipmentDef: ['id', 'name', "color", 'quality', 'type', 'subType', 'levelReq', 'refineLevel', 'resKey', 'hp', 'attack', 'magic',
-        'defense', 'resist',  'iron', "luck", 'hpGrowth', 'attackGrowth', 'magicGrowth', 'defenseGrowth', 'resistGrowth', 'upgradeCost',
-        'hpRefine', 'attackRefine', 'magicRefine', 'defenseRefine', 'resistRefine', "luckRefine", 'refineCoin', 'refineCost',
-        'slots', 'gemType', 'price'],
+    equipmentDef: ['id', 'type', "color", 'name', "level", 'quality', "counts", "desc", 'resKey',
+        'hp', 'attack', 'defense', 'iron', 'hpGrowth', 'attackGrowth', 'defenseGrowth', 'growFactor',
+        'hpRefine', 'attackRefine', 'defenseRefine', 'refineFactor'],
     gemDef: ["id", "name", "quality", "subType", "level", "resKey", "levelReq", "stackSize", "composable", "composeCount",
         "composeTarget", "canSell", "price", "hp", "attack", "magic", "defense", "resist", "attackSpeed", "critical",
         "desc", "extended"],
@@ -883,33 +882,12 @@ var transformGemDef = function (row) {
 
 var transformEquipmentDef = function (row) {
     row.id = parseInt(row.id);
-    if (row.gemType && row.gemType !== "0") {
-        row.gemType = row.gemType.split(",");
-        for (var i=0;i<row.gemType.length;i++) {
-            row.gemType[i] = row.gemType[i].trim();
-        }
-    }
-    else {
-        row.gemType = [];
-    }
 
-    _.each(["color", "quality", "levelReq", 'hp', 'attack', 'defense', "iron", 'hpGrowth', 'attackGrowth', 'defenseGrowth',
-        'upgradeCost', 'hpRefine', 'attackRefine', 'defenseRefine', "luckRefine", 'refineCost', 'slots', 'price', 'refineLevel'
+    _.each(["color", "level", "quality", "counts", 'hp', 'attack', 'defense', "iron",
+        'hpGrowth', 'attackGrowth', 'defenseGrowth', 'growFactor',
+        'hpRefine', 'attackRefine', 'defenseRefine', 'refineFactor'
     ], function (f) {
         row[f] = parseFloat(row[f]) || 0;
-    });
-
-    _.each(["refineCoin", "luck"], function (f) {
-        if (row[f] && row[f] !== "0") {
-            row[f] = JSON.parse(row[f]);
-        }
-        else {
-            row[f] = [];
-        }
-    });
-
-    _.each(["magic", "resist", "magicGrowth", "resistGrowth", "magicRefine", "resistRefine"], function (f) {
-        row[f] = undefined;
     });
 };
 
@@ -1116,9 +1094,6 @@ exports.export = function (req, res) {
                 eof: true,
                 columns: dataColumns.equipmentDef
             }).transform(function (row) {
-                row.gemType = row.gemType.join(",");
-                row.refineCoin = JSON.stringify(row.refineCoin);
-                row.luck = JSON.stringify(row.luck);
                 return row;
             });
         });

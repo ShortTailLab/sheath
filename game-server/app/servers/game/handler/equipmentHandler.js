@@ -20,6 +20,7 @@ class EquipmentHandler extends base.HandlerBase {
 
     composite(msg, session, next) {
         wrapSession(session);
+        return this.errorNext(Constants.InvalidRequest, next);
 
         var matType = msg.matType;
         var role = session.get("role");
@@ -59,19 +60,31 @@ class EquipmentHandler extends base.HandlerBase {
         }), next);
     }
 
+    getIronIndex(itemDef) {
+        var ironIndice = {
+            "武器": 0,
+            "护甲": 1,
+            "头盔": 2,
+            "坐骑": 3
+        };
+        return ironIndice[itemDef.type];
+    }
+
     refine(msg, session, next) {
         wrapSession(session);
 
         var eqId = msg.equipmentId;
         var role = session.get("role");
         var equipment, itemDef;
-        var material;
+        var material, ironReq;
+        var refineCostTable = this.app.get("refineTable").refineTable;
+        var refineOptions, success;
 
         if (!eqId) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
-        this.safe(Promise.join(this.getEquipmentWithDef(eqId), models.Role.get(role.id).run())
+        this.safe(Promise.join(this.getEquipmentWithDef(eqId), models.Role.get(role.id).run()).bind(this)
         .spread((eqs, _role) => {
             [equipment, itemDef] = eqs;
             role = _role;
@@ -79,42 +92,44 @@ class EquipmentHandler extends base.HandlerBase {
             if (equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
-            if (equipment.refinement >= itemDef.refineLevel) {
+            if (equipment.refinement >= itemDef.quality) {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
 
-            var coinReq = itemDef.refineCoin.length ? itemDef.refineCoin[0] : 0;
+            refineOptions = refineCostTable[equipment.refinement];
+            var ironIndex = this.getIronIndex(itemDef);
+            var coinReq = Math.ceil(refineOptions.coinCost * itemDef.refineFactor);
+            ironReq = Math.ceil(refineOptions.ironCost * itemDef.refineFactor);
             if (role.coins < coinReq) {
                 return Promise.reject(Constants.NO_COINS);
             }
+            if (ironIndex == null || role.irons[ironIndex] < ironReq) {
+                return Promise.reject(Constants.NO_IRONS);
+            }
+            role.coins -= coinReq;
+            role.irons[ironIndex] -= ironReq;
+
+            if (Math.random() < (refineOptions.luck + (equipment.luck || 0))) {
+                equipment.refinement += 1;
+                equipment.luck = 0;
+                success = true;
+            }
             else {
-                role.coins -= coinReq;
+                equipment.luck = (equipment.luck || 0) + refineOptions.luckGrowth;
+                success = false;
             }
 
-            return models.Item.getAll(role.id, {index: "owner"}).filter({
-                itemDefId: equipment.itemDefId,
-                refinement: 0,
-                level: 0
-            }).filter({bound: null}, {default: true}).filter(r.row("id").ne(equipment.id)).limit(1).run();
-        })
-        .then((mats) => {
-            if (!mats || mats.length === 0) {
-                return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
-            }
-            equipment.refinement += 1;
-            material = mats[0];
-            return [role.save(), material.delete(), equipment.save()];
+            return [role.save(), equipment.save()];
         })
         .all().then(() => {
             next(null, {
                 role: role.toSlimClientObj(),
-                destroyed: material.id,
                 equipment: equipment.toClientObj()
             });
             logger.logInfo("equipment.refine", {
                 role: this.toLogObj(role),
-                material: material.toLogObj(),
-                newItem: equipment.toLogObj()
+                equipment: equipment.toLogObj(),
+                success: success
             });
         }), next);
     }
@@ -124,9 +139,7 @@ class EquipmentHandler extends base.HandlerBase {
 
         var eqId = msg.equipmentId;
         var role = session.get("role");
-        var weaponLevelLimit = Math.min(role.level, 99);
-
-        var equipment, itemDef;
+        var equipment, itemDef, coinsNeeded;
 
         if (!eqId) {
             return this.errorNext(Constants.InvalidRequest, next);
@@ -135,7 +148,9 @@ class EquipmentHandler extends base.HandlerBase {
         this.safe(Promise.join(this.getEquipmentWithDef(eqId), models.Role.get(role.id).run())
         .spread((eqs, role) => {
             [equipment, itemDef] = eqs;
-            var coinsNeeded = equipment.level * itemDef.upgradeCost;
+            var coinCostTable = this.app.get("growTable").coinCostTable;
+            var weaponLevelLimit = Math.min(role.level, itemDef.level, 120);
+            coinsNeeded = Math.ceil(coinCostTable[equipment.level] * itemDef.growFactor);
 
             if (equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
@@ -150,9 +165,9 @@ class EquipmentHandler extends base.HandlerBase {
             equipment.level += 1;
             session.set("role", role.toSessionObj());
 
-            return [coinsNeeded, role.save(), equipment.save(), session.push("role")];
+            return [role.save(), equipment.save(), session.push("role")];
         })
-        .spread((coinsSpent, roleObj) => {
+        .spread((roleObj) => {
             next(null, {
                 equipment: equipment.toClientObj(),
                 stateDiff: {
@@ -162,14 +177,14 @@ class EquipmentHandler extends base.HandlerBase {
                     contribs: roleObj.contribs,
 
                     energyDiff: 0,
-                    coinsDiff: -coinsSpent,
+                    coinsDiff: -coinsNeeded,
                     goldsDiff: 0,
                     contribsDiff: 0
                 }
             });
             logger.logInfo("equipment.upgrade", {
                 role: this.toLogObj(roleObj),
-                spentCoin: coinsSpent,
+                spentCoin: coinsNeeded,
                 newItem: equipment.toLogObj()
             });
         }), next);
@@ -278,6 +293,7 @@ class EquipmentHandler extends base.HandlerBase {
         var eqId = msg.equipmentId;
         var role = session.get("role");
         var equipment, eqDef;
+        var coins = 0, irons = 0;
 
         if (!eqId) {
             return this.errorNext(Constants.InvalidRequest, next);
@@ -287,38 +303,39 @@ class EquipmentHandler extends base.HandlerBase {
         .spread((eqWithDef, _role) => {
             [equipment, eqDef] = eqWithDef;
             role = _role;
-        })
-        .spread((result, role) => {
-            role.coins += result.coins;
 
-            var createPieces = Promise.all(_.map(_.range(result.pieces[1]), () => {
-                return (new models.Item({itemDefId: result.pieces[0], owner: role.id})).save();
-            }));
-            var unBoundGem = models.Item.getAll(result.equipment.id, {index: "bound"}).update({bound: null}).run();
-            return [result, role.save(), createPieces, unBoundGem, result.equipment.delete()];
+            var coinCostTable = this.app.get("growTable").coinCostTable;
+            var refineCostTable = this.app.get("refineTable").refineTable;
+            var ironIndex = this.getIronIndex(eqDef);
+
+            for (var i=1;i<equipment.level;i++) {
+                coins += Math.ceil(coinCostTable[i] * eqDef.growFactor);
+            }
+
+            irons = eqDef.iron;
+            for (var i=0;i<equipment.refinement;i++) {
+                var refineOption = refineCostTable[i];
+                coins += Math.ceil(refineOption.coinCost * eqDef.refineFactor);
+                irons += Math.ceil(refineOption.ironCost * eqDef.refineFactor);
+            }
+
+            role.coins += coins;
+            role.irons[ironIndex] += irons;
+
+            return [role.save(), equipment.delete()];
         })
-        .spread((result, roleObj, pieces) => {
+        .spread((roleObj) => {
             next(null, {
-                stateDiff: {
-                    energy: roleObj.energy,
-                    coins: roleObj.coins,
-                    golds: roleObj.golds,
-                    contribs: roleObj.contribs,
-
-                    energyDiff: 0,
-                    coinsDiff: result.coins,
-                    goldsDiff: 0,
-                    contribsDiff: 0
-                },
-                removeGems: result.gems,
-                newItems: _.invoke(pieces, "toClientObj")
+                role: roleObj.toClientObj(),
+                destroyed: equipment.id,
+                coins: coins,
+                irons: irons
             });
-            logger.logInfo("equipment.removeGem", {
+            logger.logInfo("equipment.destruct", {
                 role: this.toLogObj(roleObj),
-                equipment: result.equipment.toLogObj(),
-                equipmentCreateTime: result.equipment.createTime,
-                gemIds: result.gems,
-                newItems: _.invoke(pieces, "toLogObj")
+                equipment: equipment.toLogObj(),
+                coins: coins,
+                irons: irons
             });
         }), next);
     }

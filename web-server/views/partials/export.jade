@@ -206,56 +206,46 @@ include ../mixins/block
             th ID
             th 道具名
             th 颜色
-            th 品质
+            th 最大等级
+            th 最大精炼
             th 类型
-            th 子类型
+            th 碎片
+            th 描述
             th 资源
-            th 最低等级
             th HP
             th 物理攻击
             th 物理防御
             th 精铁
-            th 幸运
             th 强化HP提升
             th 强化物攻提升
             th 强化物防提升
-            th 强化消耗
+            th 强化消耗系数
             th 精炼HP提升
             th 精炼物攻提升
             th 精炼物防提升
-            th 精炼幸运提升
-            th 精炼铜钱消耗
-            th 精炼消耗
-            th 孔数
-            th 宝石类型
-            th 价格
+            th 精炼消耗系数
         tbody: tr(ng-repeat="eq in equipments | orderBy:'id'")
             td {{eq.id}}
             td {{eq.name}}
             td {{eq.color}}
+            td {{eq.level}}
             td {{eq.quality}}
             td {{eq.type}}
-            td {{eq.subType}}
+            td {{eq.counts}}
+            td {{eq.desc}}
             td {{eq.resKey}}
-            td {{eq.levelReq}}
             td {{eq.hp}}
             td {{eq.attack}}
             td {{eq.defense}}
             td {{eq.iron}}
-            td {{eq.luck}}
             td {{eq.hpGrowth}}
             td {{eq.attackGrowth}}
             td {{eq.defenseGrowth}}
-            td {{eq.upgradeCost}}
+            td {{eq.growFactor}}
             td {{eq.hpRefine}}
             td {{eq.attackRefine}}
             td {{eq.defenseRefine}}
-            td {{eq.luckRefine}}
-            td {{eq.refineCoin}}
-            td {{eq.refineCost}}
-            td {{eq.slots}}
-            td {{eq.gemType}}
-            td {{eq.price}}
+            td {{eq.refineFactor}}
 
 +block("所有关卡")
     div(class="message errormsg", ng-show="level_error")

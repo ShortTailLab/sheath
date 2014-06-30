@@ -15,7 +15,7 @@
         "bluebird": "latest",
         "lodash": "latest",
         "bcrypt": "latest",
-        "AhoCorasick.js": "latest",
+        "aho-corasick.js": "latest",
         "pomelo-rpc-zeromq": "git+https://github.com/colprog/pomelo-rpc-zeromq",
         "pomelo-protobuf-plugin": "git+https://github.com/ShortTailLab/pomelo-protobuf-plugin",
         "pomelo-logger": "latest",

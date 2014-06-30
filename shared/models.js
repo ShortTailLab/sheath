@@ -97,6 +97,7 @@ exports.init = function (dbConfig) {
         coins: {_type: Number, default: 0},
         golds: {_type: Number, default: 0},
         contribs: {_type: Number, default: 0},
+        irons: {_type: Array, schema: Number, default: [0, 0, 0, 0]},
 
         energyRefreshTime: {_type: Date, default: r.now()},
         dailyRefreshData: {_type: Object, default: function () {return {};}},
@@ -192,38 +193,28 @@ exports.init = function (dbConfig) {
 
     var EquipmentDef = exports.EquipmentDef = schema.createModel("equipmentdef", {
         name: {_type: String, default: ""},
+        desc: {_type: String, default: ""},
         color: {_type: Number, default: 1},
-        quality: {_type: Number, default: 3},
+        level: {_type: Number, default: 1},
+        quality: {_type: Number, default: 0},
+        counts: {_type: Number, default: 0},
         type: {_type: String, default: ""},
-        subType: {_type: String, default: ""},
         resKey: {_type: String, default: ""},
-        levelReq: {_type: Number, default: 1},
-        refineLevel: {_type: Number, default: 1},
 
         hp: {_type: Number, default: 0},
         attack: {_type: Number, default: 0},
         defense: {_type: Number, default: 0},
         iron: {_type: Number, default: 0},
-        luck: {_type: Array, schema: Number, default: function () {return [];}},
 
         hpGrowth: {_type: Number, default: 0},
         attackGrowth: {_type: Number, default: 0},
         defenseGrowth: {_type: Number, default: 0},
-        upgradeCost: {_type:Number, default: 0},
-        coinFactor: {_type:Number, default: 0},
+        growFactor: {_type:Number, default: 0},
 
         hpRefine: {_type: Number, default: 0},
         attackRefine: {_type: Number, default: 0},
         defenseRefine: {_type: Number, default: 0},
-        luckRefine: {_type: Number, default: 0},
-        refineCoin: {_type: Array, default: function () {return [];}},
-        refineCost: {_type: Number, default: 0},
-        ironFactor: {_type:Number, default: 0},
-
-        slots: {_type: Number, default: 0},
-        gemType: {_type: Array, default: function () {return [];}},
-
-        price: {_type: Number, default: 0}
+        refineFactor: {_type:Number, default: 0}
     });
 
     var Hero = exports.Hero = schema.createModel("hero", {
@@ -239,7 +230,7 @@ exports.init = function (dbConfig) {
     var Item = exports.Item = schema.createModel("item", {
         itemDefId: {_type: Number},
 
-        level: {_type: Number, default: 0},
+        level: {_type: Number, default: 1},
         stoneUsed: {_type: Number, default: 0},
         refinement: {_type: Number, default: 0},
         luck: Number,
@@ -410,7 +401,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "irons", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 
@@ -418,7 +409,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toSlimClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "irons", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 
@@ -426,7 +417,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toLogObj", function () {
-        return _.pick(this, "id", "name", "level", "title", "coins", "golds", "vip");
+        return _.pick(this, "id", "name", "level", "title", "coins", "golds", "irons", "vip");
     });
 
     Role.define("getStorageRoom", function () {

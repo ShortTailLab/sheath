@@ -11,6 +11,7 @@ module.exports = {
     NO_CONTRIBS: 109,
     NO_ENERGY: 110,
     NO_ROOM: 111,
+    NO_IRONS: 112,
 
     Role_Do_Not_Exist: 112,
     Mail_Do_Not_Exist: 113,

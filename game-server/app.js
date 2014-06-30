@@ -98,6 +98,8 @@ app.configure('development|production|test', "game", function () {
     app.loadConfig("rewardConfig", app.getBase() + "/config/data/reward.json");
     app.loadConfig("expTables", app.getBase() + "/config/data/expTables.json");
     app.loadConfig("energyTable", app.getBase() + "/config/data/energyTable.json");
+    app.loadConfig("growTable", app.getBase() + "/config/data/growTable.json");
+    app.loadConfig("refineTable", app.getBase() + "/config/data/refineTable.json");
     app.load(require('./app/components/cache'), {role: "game"});
 //    profiler.profile({
 //        accountKey: 'a09978fff59621ddf3fada92a8048789d0ca3ade',

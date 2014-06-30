@@ -232,7 +232,7 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
     $scope.saveItem = function (item) {
         var editable = item.editable;
         delete item.editable;
-        var diff = diffModel(item, editable, ["bound", "level", "refinement"]);
+        var diff = diffModel(item, editable, ["bound", "level", "refinement", "luck"]);
         if (_.has(diff, "bound") && !diff.bound) {
             diff.bound = null;
         }
