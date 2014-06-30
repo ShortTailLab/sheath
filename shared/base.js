@@ -33,7 +33,7 @@ class HandlerBase {
             var itemDef = this.app.get("cache").getItemDef(item.itemDefId);
             return [item, itemDef];
         })
-        .catch(function (err) {
+        .catch(models.Errors.DocumentNotFound, function(err) {
             return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
         });
     }

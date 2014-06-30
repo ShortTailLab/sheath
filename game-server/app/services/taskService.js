@@ -46,7 +46,7 @@ TaskService.prototype.initOnce = function(app) {
     if (utils.initOnce("taskService")) {
         logger = require('../utils/rethinkLogger').getLogger(app);
         this.app = app;
-        this.taskPath = this.app.base + "/task/";
+        this.taskPath = this.app.getBase() + "/task/";
         this.emitter = new events.EventEmitter();
         this.reloadAllTasks();
     }
@@ -54,6 +54,7 @@ TaskService.prototype.initOnce = function(app) {
 
 TaskService.prototype.reloadAllTasks = function() {
     unloadAllTasks(this.taskPath);
+    Task = require("../../task/tasks");
     var dTasks = [], rTasks = [];
     return models.Task.run().bind(this)
     .then((tasks) => {

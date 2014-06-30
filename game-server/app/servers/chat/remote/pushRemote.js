@@ -19,54 +19,41 @@ class PushRemote extends base.HandlerBase {
 
     getConn() {
         if (!this.pushClient) {
-            this.pushClient = new jpush.build({appKey: "6d8717fbfdb615912e227235", masterSecret: "774f312c815a69c5587dfa5a"});
+            this.pushClient = jpush.buildClient("6d8717fbfdb615912e227235", "774f312c815a69c5587dfa5a");
         }
         return this.pushClient;
     }
 
-    getNotification(msg) {
-        var note = {
-            type: 1,
-            platform: this.getConn().platformType.both
-        };
+    setPayload(conn, msg) {
         if (typeof msg === "string") {
-            note.content = msg;
+            conn.setNotification(msg);
         }
         else {
-            note.content = {
-                n_content: msg.content,
-                n_title: msg.title,
-                n_extra: msg.extra || {}
-            };
-            note.content.n_extra.ios = {
-                badge: msg.badge,
-                sound: msg.sound
-            };
+            var pushContent = [msg.content];
+            if (msg.ios) {
+                pushContent.push(jpush.ios(msg.content, msg.ios.sound, msg.ios.badge, msg.ios.contentAvailable, msg.ios.extras));
+            }
+            if (msg.android) {
+                pushContent.push(jpush.android(msg.content, msg.android.title, msg.android.builder_id, msg.android.extras));
+            }
+            conn.setNotification.apply(conn, pushContent);
         }
 
-        return note;
+        return conn;
     }
 
     pushAll(msg, cb) {
-        var note = this.getNotification(msg);
         var conn = this.getConn();
-        var receiver = {
-            type: conn.pushType.broadcast,
-            value: ""
-        };
         cb = cb || function () {};
-        conn.pushSimpleNotification(this.pushCount++, receiver, note, cb);
+        this.pushCount++;
+        this.setPayload(conn.push().setPlatform(jpush.ALL).setAudience(jpush.ALL), msg).send(cb);
     }
 
     pushToPartition(partId, msg, cb) {
-        var note = this.getNotification(msg);
         var conn = this.getConn();
-        var receiver = {
-            type: conn.pushType.tag,
-            value: partId
-        };
         cb = cb || function () {};
-        conn.pushSimpleNotification(this.pushCount++, receiver, note, cb);
+        this.pushCount++;
+        this.setPayload(conn.push().setPlatform(jpush.ALL).setAudience(jpush.tag(partId)), msg).send(cb);
     }
 
     pushToUser(userId, msg, cb) {
@@ -83,17 +70,18 @@ class PushRemote extends base.HandlerBase {
             roles = [roles];
         }
         var roleChunks = utils.toChunk(roles, 1000);
-        var note = this.getNotification(msg);
         var conn = this.getConn();
-        var receiver = {
-            type: conn.pushType.alias,
-            value: ""
+        var chunksLeft = roleChunks.length;
+
+        var partialCB = function (err) {
+            if (err) cb(err);
+            else if (--chunksLeft === 0) {
+                cb();
+            }
         };
 
         for (var i=0;i<roleChunks.length;i++) {
-            receiver.value = roleChunks[i].join(",");
-            conn.pushSimpleNotification(this.pushCount++, receiver, note, cb);
+            this.setPayload(conn.push().setPlatform(jpush.ALL).setAudience(jpush.alias(roleChunks[i])), msg).send(partialCB);
         }
-        if (cb) cb();
     }
 }

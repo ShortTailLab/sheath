@@ -15,6 +15,7 @@ exports.init = function (dbConfig) {
         db: dbConfig.database
     });
     var r = exports.r = schema.r;
+    exports.Errors = schema.Errors;
 
     Document.prototype.toObject = function () {
         var copy = {};
