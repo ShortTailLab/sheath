@@ -61,20 +61,20 @@ class DrawService
             }
             else if (cache.heroDefById[item.itemId]) {
                 for (var j=0;j<item.count;j++) {
-                    ret.heroes.push(new models.Hero({
+                    ret.heroes.push({
                         heroDefId: item.itemId,
                         owner: owner.id,
                         level: item.level
-                    }));
+                    });
                 }
             }
             else {
                 for (var j=0;j<item.count;j++) {
-                    ret.items.push(new models.Item({
+                    ret.items.push({
                         itemDefId: item.itemId,
                         owner: owner.id,
                         level: item.level
-                    }));
+                    });
                 }
             }
         }

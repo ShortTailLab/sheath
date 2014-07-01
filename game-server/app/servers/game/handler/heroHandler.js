@@ -71,34 +71,23 @@ class HeroHandler extends base.HandlerBase {
                 return Promise.reject(Constants.NO_COINS);
             }
             drawResult = draw.drawWithCoins(role, tenDraw, freeDraw);
-            var heroPromises = [];
-            _.map(drawResult.heroes, function (h) {
-                if (_.findWhere(role.heroes, {heroDefId: h.heroDefId})) {
-                    var hId = "" + h.heroDefId;
-                    h.id = "";
-                    role.souls[hId] = (role.souls[hId] || 0) + 10;
-                }
-                else {
-                    heroPromises.push(h.save());
-                }
-            });
 
             session.set("role", role.toSessionObj());
-            return [role.save(), session.push("role"), heroPromises, Promise.all(_.invoke(drawResult.items, "save"))];
+            return [role.save(), models.Hero.save(drawResult.heroes), models.Item.save(drawResult.items), session.push("role")];
         })
-        .spread(function (role) {
+        .spread(function (role, newHeroes, newItems) {
             logger.logInfo("hero.coinDraw", {
                 role: role.toLogObj(),
-                newHero: _.invoke(drawResult.heroes, "toLogObj"),
-                newItem: _.invoke(drawResult.items, "toLogObj"),
+                newHero: _.invoke(newHeroes, "toLogObj"),
+                newItem: _.invoke(newItems, "toLogObj"),
                 souls: drawResult.souls,
                 freeDraw: freeDraw,
                 tenDraw: tenDraw
             });
 
             drawResult.role = role.toSlimClientObj();
-            drawResult.heroes = _.invoke(drawResult.heroes, "toClientObj");
-            drawResult.items = _.invoke(drawResult.items, "toClientObj");
+            drawResult.heroes = _.invoke(newHeroes, "toClientObj");
+            drawResult.items = _.invoke(newItems, "toClientObj");
 
             drawResult.nextGoldReset = Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000);
             drawResult.nextCoinReset = Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000);
@@ -137,34 +126,23 @@ class HeroHandler extends base.HandlerBase {
                 return Promise.reject(Constants.NO_GOLDS);
             }
             drawResult = draw.drawWithGolds(role, tenDraw, freeDraw);
-            var heroPromises = [];
-            _.map(drawResult.heroes, function (h) {
-                if (_.findWhere(role.heroes, {heroDefId: h.heroDefId})) {
-                    var hId = "" + h.heroDefId;
-                    h.id = "";
-                    role.souls[hId] = (role.souls[hId] || 0) + 10;
-                }
-                else {
-                    heroPromises.push(h.save());
-                }
-            });
 
             session.set("role", role.toSessionObj());
-            return [role.save(), session.push("role"), heroPromises, Promise.all(_.invoke(drawResult.items, "save"))];
+            return [role.save(), models.Hero.save(drawResult.heroes), models.Item.save(drawResult.items), session.push("role")];
         })
-        .spread(function (role) {
+        .spread(function (role, newHeroes, newItems) {
             logger.logInfo("hero.goldDraw", {
                 role: role.toLogObj(),
-                newHero: _.invoke(drawResult.heroes, "toLogObj"),
-                newItem: _.invoke(drawResult.items, "toLogObj"),
+                newHero: _.invoke(newHeroes, "toLogObj"),
+                newItem: _.invoke(newItems, "toLogObj"),
                 souls: drawResult.souls,
                 freeDraw: freeDraw,
                 tenDraw: tenDraw
             });
 
             drawResult.role = role.toSlimClientObj();
-            drawResult.heroes = _.invoke(drawResult.heroes, "toClientObj");
-            drawResult.items = _.invoke(drawResult.items, "toClientObj");
+            drawResult.heroes = _.invoke(newHeroes, "toClientObj");
+            drawResult.items = _.invoke(newItems, "toClientObj");
 
             drawResult.nextGoldReset = Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000);
             drawResult.nextCoinReset = Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000);
