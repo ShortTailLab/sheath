@@ -1176,7 +1176,7 @@ exports.heroDefs = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -1188,7 +1188,7 @@ exports.heroDraws = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -1200,7 +1200,7 @@ exports.heroNodes = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -1212,7 +1212,7 @@ exports.levels = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -1224,7 +1224,7 @@ exports.treasures = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -1297,7 +1297,7 @@ exports.storeitems = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 

@@ -1,5 +1,5 @@
 
-º-
+¸+
 serverProtos.proto"
 Player
 
@@ -98,55 +98,42 @@ growFactor (
 hpRefine (
 attackRefine (
 defenseRefine (
-refineFactor ("²
+refineFactor ("°
 HeroDef
 
 id (
-name (	
-resKey (	
-type (	
-stars (
-quality- (
-skill (
-pSkill. (
-souls (
-vitality (
-strength	 (
-intelligence
- (
+name (	
+desc (	
+resKey (	
+type (	
+stars (
+quality (
+skill (
+pSkill	 (
+couts
+ (
+souls (
 
-hp (
-hpGrowth (
-attack (
-attackGrowth (
-magic (
-magicGrowth (
-defense (
-defenseGrowth (
-resist (
-resistGrowth (
-attackDelta (
-critical (
-interval (
-attackSpeed (
-speed (
-ballLev (
-
-secBallLev (
-hpRefine  (
-attackRefine! (
-magicRefine" (
-defenseRefine# (
-resistRefine$ (
-refineStars/ (
-damage% (
-damageReduction& (
-damageFactor' (
-damageRedFactor( (
-physicalResist) (
-magicResist* (
-attackFactor+ (
-defenseFactor, ("S
+hp (
+attack (
+defense (
+	expFactor (
+hpGrowth (
+attackGrowth (
+defenseGrowth (
+hpRefine (
+attackRefine (
+defenseRefine (
+attackDelta (
+critical (
+interval (
+attackSpeed (
+speed (
+ballLev (
+damage (
+damageReduction (
+damageFactor (
+damageRedFactor ("S
 Item
 
 id (	

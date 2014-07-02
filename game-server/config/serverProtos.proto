@@ -102,52 +102,40 @@ message EquipmentDef {
 message HeroDef {
     required int32 id           =   1;
     required string name        =   2;
-    required string resKey      =   3;
-    required string type        =   4;
-    required int32 stars        =   5;
-    required int32 quality      =   45;
-    required int32 skill        =   6;
-    required int32 pSkill       =   46;
+    required string desc        =   3;
+    required string resKey      =   4;
+    required string type        =   5;
+    required int32 stars        =   6;
+    required int32 quality      =   7;
+    required int32 skill        =   8;
+    required int32 pSkill       =   9;
+    required int32 counts        =   10;
+    required int32 souls        =   11;
 
-    required int32 souls        =   7;
-
-    required float vitality     =   8;
-    required float strength     =   9;
-    required float intelligence =   10;
-    required int32 hp           =   11;
-    required int32 hpGrowth     =   12;
+    required int32 hp           =   12;
     required int32 attack       =   13;
-    required int32 attackGrowth =   14;
-    required int32 magic        =   15;
-    required int32 magicGrowth  =   16;
-    required int32 defense      =   17;
+    required int32 defense      =   14;
+    required float expFactor    =   15;
+
+    required int32 hpGrowth     =   16;
+    required int32 attackGrowth =   17;
     required int32 defenseGrowth=   18;
-    required int32 resist       =   19;
-    required int32 resistGrowth =   20;
-    repeated float attackDelta  =   21;
 
-    required float critical     =   22;
-    required float interval     =   23;
-    required float attackSpeed  =   24;
-    required float speed        =   25;
-    required int32 ballLev      =   26;
-    required int32 secBallLev   =   27;
+    required float hpRefine     =   19;
+    required float attackRefine =   20;
+    required float defenseRefine=   21;
 
-    repeated float hpRefine     =   32;
-    repeated float attackRefine =   33;
-    repeated float magicRefine  =   34;
-    repeated float defenseRefine=   35;
-    repeated float resistRefine =   36;
-    repeated int32 refineStars  =   47;
+    repeated float attackDelta  =   22;
+    required float critical     =   23;
+    required float interval     =   24;
+    required float attackSpeed  =   25;
+    required float speed        =   26;
+    required int32 ballLev      =   27;
 
-    required float damage       =   37;
-    required float damageReduction  =   38;
-    required float damageFactor     =   39;
-    required float damageRedFactor  =   40;
-    required float physicalResist   =   41;
-    required float magicResist      =   42;
-    required float attackFactor     =   43;
-    required float defenseFactor    =   44;
+    required float damage           =   28;
+    required float damageReduction  =   29;
+    required float damageFactor     =   30;
+    required float damageRedFactor  =   31;
 }
 message Item {
     required string id          =   1;

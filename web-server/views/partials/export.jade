@@ -41,72 +41,54 @@ include ../mixins/block
             th ID
             th 武将名
             th 职业
-            th 星级
             th 资质
-            th 魂魄
-            th 体质
-            th 武力
-            th 智力
+            th 最大等级
+            th 最大品阶
+            th 合成数量
+            th 功勋
             th HP
-            th 物攻
-            th 法攻
-            th 物防
-            th 法防
+            th 攻击
+            th 防御
             th HP成长
             th 物攻成长
-            th 法攻成长
             th 物防成长
-            th 法防成长
+            th 经验消耗系数
             th HP升星
             th 物攻升星
-            th 法攻升星
             th 物防升星
-            th 法防升星
-            th 升星将魂
             th 攻击浮动
             th 暴击
             th 基础间隔
             th 攻击速度
             th 移动速度
-            th 主将弹道
-            th 副将弹道
+            th 弹道等级
             th 伤害加成
             th 伤害减免
             th 伤害增加
             th 伤害减少
-            th 物理抗性
-            th 法术抗性
-            th 常量表攻击常数
-            th 常量表防御常数
             th 主动技能
             th 被动技能
             th 资源
+            th 描述
         tbody: tr(ng-repeat="h in heroes | orderBy:'id'")
             td {{h.id}}
             td {{h.name}}
             td {{h.type}}
             td {{h.stars}}
+            td {{h.level}}
             td {{h.quality}}
+            td {{h.counts}}
             td {{h.souls}}
-            td {{h.vitality}}
-            td {{h.strength}}
-            td {{h.intelligence}}
             td {{h.hp}}
             td {{h.attack}}
-            td {{h.magic}}
             td {{h.defense}}
-            td {{h.resist}}
             td {{h.hpGrowth}}
             td {{h.attackGrowth}}
-            td {{h.magicGrowth}}
             td {{h.defenseGrowth}}
-            td {{h.resistGrowth}}
+            td {{h.expFactor}}
             td {{h.hpRefine}}
             td {{h.attackRefine}}
-            td {{h.magicRefine}}
             td {{h.defenseRefine}}
-            td {{h.resistRefine}}
-            td {{h.refineStars}}
             td {{h.attackDelta}}
             td {{h.critical}}
             td {{h.interval}}
@@ -118,13 +100,10 @@ include ../mixins/block
             td {{h.damageReduction}}
             td {{h.damageFactor}}
             td {{h.damageRedFactor}}
-            td {{h.physicalResist}}
-            td {{h.magicResist}}
-            td {{h.attackFactor}}
-            td {{h.defenseFactor}}
             td {{h.skill}}
             td {{h.pSkill}}
             td {{h.resKey}}
+            td {{h.desc}}
 
 +block("抽取概率")
     div(class="message errormsg", ng-show="draw_error")
