@@ -216,6 +216,12 @@ exports.init = function (dbConfig) {
         level: {_type: Number, default: 1},
         exp: {_type: Number, default: 0},
 
+//        attackBonus: {_type: Number, default: 0},
+//        defenseBonus: {_type: Number, default: 0},
+//        hpBonus: {_type: Number, default: 0},
+//        criticalBonus: {_type: Number, default: 0},
+//        attackSpeedBonus: {_type: Number, default: 0},
+
         createTime: {_type: Date, default: function () {return new Date();}}
     });
 

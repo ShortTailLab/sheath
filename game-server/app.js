@@ -93,13 +93,22 @@ app.configure('development|production|test', "connector", function () {
 });
 
 app.configure('development|production|test', "game", function () {
-    app.loadConfig("roleBootstrap", app.getBase() + "/config/data/roleBootstrap.json");
     app.loadConfig("specialItemId", app.getBase() + "/config/data/specialItemId.json");
     app.loadConfig("rewardConfig", app.getBase() + "/config/data/reward.json");
+
+    // Role tables
+    app.loadConfig("roleBootstrap", app.getBase() + "/config/data/roleBootstrap.json");
     app.loadConfig("expTables", app.getBase() + "/config/data/expTables.json");
     app.loadConfig("energyTable", app.getBase() + "/config/data/energyTable.json");
+
+    // Equipment tables
     app.loadConfig("growTable", app.getBase() + "/config/data/growTable.json");
     app.loadConfig("refineTable", app.getBase() + "/config/data/refineTable.json");
+
+    // Hero tables
+    app.loadConfig("heroExpTable", app.getBase() + "/config/data/heroExpTable.json");
+    app.loadConfig("heroRefineTable", app.getBase() + "/config/data/heroRefineTable.json");
+
     app.load(require('./app/components/cache'), {role: "game"});
 //    profiler.profile({
 //        accountKey: 'a09978fff59621ddf3fada92a8048789d0ca3ade',

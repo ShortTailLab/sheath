@@ -63,7 +63,7 @@ exports.nodeInfo = function (req, res) {
         res.json(ret);
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
         console.log(err.stack);
     });
 };
@@ -88,7 +88,7 @@ exports.basicStats = function (req, res) {
         res.json(ret);
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
         console.log(err.stack);
     });
 };
@@ -128,7 +128,7 @@ exports.partitions = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -233,7 +233,7 @@ exports.userList = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -277,7 +277,7 @@ exports.cloneRole = function (req, res) {
         res.send({id: newRole.id});
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -310,7 +310,7 @@ exports.updateRole = function (req, res) {
         res.json(roleToJson(role, rawObject));
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -330,7 +330,7 @@ exports.updateHero = function (req, res) {
         res.json(heroToJson(h));
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -350,7 +350,7 @@ exports.updateItem = function (req, res) {
         res.json(itemToJson(it));
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -390,7 +390,7 @@ exports.addHero = function (req, res) {
     })
     .catch(function (err) {
         console.log(err.stack);
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -422,7 +422,7 @@ exports.addItem = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -451,7 +451,7 @@ exports.removeHero = function (req, res) {
         res.json(roleToJson(role, true));
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -469,7 +469,7 @@ exports.removeItem = function (req, res) {
         res.send(200);
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -497,7 +497,7 @@ exports.findRoles = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -515,7 +515,7 @@ exports.getRole = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -544,7 +544,7 @@ exports.findUsers = function (req, res) {
     })
     .spread(function (users, userRoles, partitions) {
         users = _.compact(users);
-        roles = _.compact(_.map(userRoles, function (ua) {return ua[0];}));
+        var roles = _.compact(_.map(userRoles, function (ua) {return ua[0];}));
 
         partitions = _.groupBy(partitions, "id");
         roles = _.groupBy(roles, "owner");
@@ -568,7 +568,7 @@ exports.findUsers = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -620,7 +620,7 @@ exports.adminList = function (req, res) {
         });
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -714,7 +714,7 @@ exports.updateAnn = function (req, res) {
         res.send(200, ret);
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -734,7 +734,7 @@ exports.saveAnn = function (req, res) {
         res.send(200, ret);
     })
     .catch(function (err) {
-        res.send(400);
+        res.send(400, {message: ""+err});
     });
 };
 
@@ -756,19 +756,18 @@ exports.removeAnn = function (req, res) {
             res.send(404);
         }
         else {
-            res.send(400);
+            res.send(400, {message: ""+err});
         }
     });
 };
 
 // data import / data export
 var dataColumns = {
-    heroDef: ["id", "name", "resKey", "type", "stars", "quality", "vitality", "strength", "intelligence", "hp", "hpGrowth",
-        "attack", "attackGrowth", "magic", "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth",
-        "critical", "interval", "attackSpeed", "speed", "ballLev", "secBallLev", "skill", "pSkill",
-        "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine", "refineStars",
-        "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor",
-        "physicalResist", "magicResist", "attackFactor", "defenseFactor", "souls"],
+    heroDef: ["id", "name", "resKey", "desc", "type", "stars", "quality", "souls", "counts",
+        "hp", "attack", "defense", "hpGrowth", "attackGrowth", "defenseGrowth",
+        "expFactor", "hpRefine", "attackRefine", "defenseRefine",
+        "critical", "interval", "attackSpeed", "speed", "ballLev", "skill", "pSkill", "attackDelta",
+        "damage", "damageReduction", "damageFactor", "damageRedFactor"],
     heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
         "tenGoldWeight", "level", "count"],
     drawNode: [],
@@ -1012,14 +1011,14 @@ exports.import = function (req, res) {
     }
     else if (body.confirm) {
         var updates = _.map(body.updates, function (d) {
-            var model = modelsAndTransform[body.tag][0];
+            var Model = modelsAndTransform[body.tag][0];
             if (!d.id) {
-                return (new model(d)).save();
+                return (new Model(d)).save();
             }
             else {
-                return model.get(d.id).update(d).run().then(function (data) {
+                return Model.get(d.id).update(d).run().then(function (data) {
                     if (data.replaced === 0) {
-                        return (new model(d)).save();
+                        return (new Model(d)).save();
                     }
                 });
             }

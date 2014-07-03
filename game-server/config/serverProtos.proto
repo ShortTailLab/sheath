@@ -150,6 +150,12 @@ message Hero {
     required int32 stars        =   3;
     required int32 level        =   4;
     required int32 exp          =   5;
+
+//    required float attackBonus      =   6;
+//    required float defenseBonus     =   7;
+//    required float hpBonus          =   8;
+//    required float criticalBonus    =   9;
+//    required float attackSpeedBonus =   10;
 }
 message Task {
     required int32 id           =   1;

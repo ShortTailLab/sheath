@@ -1,5 +1,5 @@
 
-¸+
+§,
 serverProtos.proto"
 Player
 
@@ -98,7 +98,7 @@ growFactor (
 hpRefine (
 attackRefine (
 defenseRefine (
-refineFactor ("°
+refineFactor ("±
 HeroDef
 
 id (
@@ -109,8 +109,8 @@ growFactor (
 stars (
 quality (
 skill (
-pSkill	 (
-couts
+pSkill	 (
+counts
  (
 souls (
 
@@ -141,14 +141,20 @@ growFactor (
 level (
 
 refinement (
-bound (	"L
+bound (	"¹
 Hero
 
 id (	
 defId (
 stars (
 level (
-exp ("|
+exp (
+attackBonus (
+defenseBonus (
+hpBonus (
+criticalBonus	 (
+attackSpeedBonus
+ ("|
 Task
 
 id (
