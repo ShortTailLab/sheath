@@ -109,8 +109,8 @@ message HeroDef {
     required int32 quality      =   7;
     required int32 skill        =   8;
     required int32 pSkill       =   9;
-    required int32 counts        =   10;
-    required int32 souls        =   11;
+    required int32 counts       =   10;
+    required int32 contribs     =   11;
 
     required int32 hp           =   12;
     required int32 attack       =   13;

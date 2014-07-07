@@ -763,11 +763,10 @@ exports.removeAnn = function (req, res) {
 
 // data import / data export
 var dataColumns = {
-    heroDef: ["id", "name", "resKey", "desc", "type", "stars", "quality", "souls", "counts",
-        "hp", "attack", "defense", "hpGrowth", "attackGrowth", "defenseGrowth",
-        "expFactor", "hpRefine", "attackRefine", "defenseRefine",
-        "critical", "interval", "attackSpeed", "speed", "ballLev", "skill", "pSkill", "attackDelta",
-        "damage", "damageReduction", "damageFactor", "damageRedFactor"],
+    heroDef: ["id", "type", "stars", "level", "quality", "counts", "name", "desc", "resKey", "skill", "pSkill", "ballLev",
+        "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor", "hp", "attack", "defense", "critical",
+        "attackSpeed", "interval", "speed", "contribs", "hpGrowth", "defenseGrowth", "attackGrowth", "expFactor",
+        "hpRefine", "defenseRefine", "attackRefine"],
     heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
         "tenGoldWeight", "level", "count"],
     drawNode: [],
@@ -793,20 +792,15 @@ var transformHeroDef = function (row) {
     row.type = (row.type || "").trim();
     row.souls = parseInt(row.souls) || 100;
 
-    _.each(["stars", "quality", "vitality", "strength", "intelligence", "hp", "hpGrowth", "attack", "attackGrowth", "magic",
-        "magicGrowth", "defense", "defenseGrowth", "resist", "resistGrowth", "critical", "interval", "attackSpeed",
-        "speed", "ballLev", "secBallLev", "skill", "pSkill", "damage", "damageReduction", "damageFactor", "damageRedFactor",
-        "physicalResist", "magicResist", "attackFactor", "defenseFactor"], function (f) {
-        row[f] = parseFloat(row[f]) || 0;
+    _.each(["stars", "level", "quality", "counts", "contribs", "hp", "attack", "defense", "skill", "pSkill", "ballLev"
+    ], function (f) {
+        row[f] = parseInt(row[f]) || 0;
     });
 
-    _.each(["hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine", "refineStars"], function (f) {
-        if (row[f] && row[f] !== "0") {
-            row[f] = JSON.parse(row[f]);
-        }
-        else {
-            row[f] = [];
-        }
+    _.each(["hpGrowth", "attackGrowth", "defenseGrowth", "critical", "interval", "attackSpeed", "speed", "expFactor",
+        "damage", "damageReduction", "damageFactor", "damageRedFactor", "hpRefine", "defenseRefine", "attackRefine"
+    ], function (f) {
+        row[f] = parseFloat(row[f]) || 0;
     });
 };
 
@@ -1052,7 +1046,7 @@ exports.export = function (req, res) {
                 eof: true,
                 columns: dataColumns[data.tag]
             }).transform(function (row) {
-                _.each(["attackDelta", "hpRefine", "attackRefine", "magicRefine", "defenseRefine", "resistRefine", "refineStars"], function (f) {
+                _.each(["attackDelta"], function (f) {
                     row[f] = JSON.stringify(row[f]);
                 });
                 return row;

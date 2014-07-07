@@ -131,7 +131,7 @@ exports.init = function (dbConfig) {
         skill: {_type: Number, default: 0},
         pSkill: {_type: Number, default: 0},
         counts: {_type: Number, default: 100},
-        souls: {_type: Number, default: 100},
+        contribs: {_type: Number, default: 100},
 
         hp: {_type: Number, default: 0},
         attack: {_type: Number, default: 0},
