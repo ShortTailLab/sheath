@@ -106,7 +106,6 @@ app.configure('development|production|test', "game", function () {
     app.loadConfig("refineTable", app.getBase() + "/config/data/refineTable.json");
 
     // Hero tables
-    app.loadConfig("heroExpTable", app.getBase() + "/config/data/heroExpTable.json");
     app.loadConfig("heroRefineTable", app.getBase() + "/config/data/heroRefineTable.json");
 
     app.load(require('./app/components/cache'), {role: "game"});

@@ -115,15 +115,16 @@ message HeroDef {
     required int32 hp           =   12;
     required int32 attack       =   13;
     required int32 defense      =   14;
-    required float expFactor    =   15;
 
-    required int32 hpGrowth     =   16;
-    required int32 attackGrowth =   17;
-    required int32 defenseGrowth=   18;
+    required float hpGrowth     =   15;
+    required float attackGrowth =   16;
+    required float defenseGrowth=   17;
+    required float expFactor    =   18;
 
     required float hpRefine     =   19;
     required float attackRefine =   20;
     required float defenseRefine=   21;
+    required float matFactor    =   32;
 
     repeated float attackDelta  =   22;
     required float critical     =   23;
@@ -288,6 +289,8 @@ message game_heroHandler_list {
 message game_heroHandler_refine {
     optional Error error        =   1;
     optional Hero hero          =   2;
+    repeated string destroyedHeroes =   3;
+    repeated string destroyedItems  =   4;
 }
 message game_heroHandler_equip {
     optional Error error        =   1;

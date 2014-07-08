@@ -183,6 +183,32 @@ sheathControllers.controller('userListController', function ($scope, $http, ngTa
 });
 
 sheathControllers.controller('userDetailController', function ($scope, $http, $routeParams, $timeout, $q, $modal, $filter, ngTableParams, $location) {
+    var addHeroes = function (newHeroes) {
+        $http.post("/api/addHero", {role: $scope.uid, heroes: newHeroes}).success(function (data) {
+            $scope.roleData = data.role;
+            $scope.roleJson = angular.toJson($scope.roleData, true);
+            $scope.heroes = $scope.heroes.concat(data.heroes);
+            $scope.heroTableParams.total($scope.heroes.length);
+            $scope.heroTableParams.reload();
+            $scope.hero_error = null;
+        })
+            .error(function (data) {
+                $scope.hero_error = "添加武将失败，" + (data.message || "未知错误");
+            });
+    };
+
+    var addItems = function (newItems) {
+        $http.post("/api/addItem", {role: $scope.uid, items: newItems}).success(function (data) {
+            $scope.items = $scope.items.concat(data.items);
+            $scope.itemTableParams.total($scope.items.length);
+            $scope.itemTableParams.reload();
+            $scope.item_error = null;
+        })
+            .error(function (data) {
+                $scope.item_error = "添加道具失败，" + (data.message || "未知错误");
+            });
+    };
+
     $scope.uid = $routeParams.uid;
     $scope.editorParams = {
         useWrapMode : false,
@@ -192,7 +218,7 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
     };
     $scope.heroTableParams = new ngTableParams({
         page: 1,
-        count: 20,
+        count: 25,
         sorting: {id: "asc"}
     }, {
         counts: [],
@@ -210,10 +236,11 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
     });
     $scope.itemTableParams = new ngTableParams({
         page: 1,
-        count: 20,
+        count: 50,
         sorting: {id: "asc"}
     }, {
         counts: [],
+        groupBy: "itemDefId",
         getData: function ($defer, params) {
             if ($scope.items) {
                 var orderedData = params.sorting() ?
@@ -289,6 +316,14 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
             }
         });
     };
+    $scope.clone = function (heroOritem) {
+        if (heroOritem.heroDefId) {
+            addHeroes([heroOritem.heroDefId]);
+        }
+        else {
+            addItems([heroOritem.itemDefId]);
+        }
+    };
 
     $scope.update = function () {
         var modified = angular.fromJson($scope.roleJson);
@@ -356,19 +391,7 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
                 heroDefs: function () {return $scope.heroDefs;}
             }
         });
-        modalIns.result.then(function (newHeroes) {
-            $http.post("/api/addHero", {role: $scope.uid, heroes: newHeroes}).success(function (data) {
-                $scope.roleData = data.role;
-                $scope.roleJson = angular.toJson($scope.roleData, true);
-                $scope.heroes = $scope.heroes.concat(data.heroes);
-                $scope.heroTableParams.total($scope.heroes.length);
-                $scope.heroTableParams.reload();
-                $scope.hero_error = null;
-            })
-            .error(function (data) {
-                $scope.hero_error = "添加武将失败，" + (data.message || "未知错误");
-            });
-        });
+        modalIns.result.then(addHeroes);
     };
     $scope.openAddItem = function () {
         var modalIns = $modal.open({
@@ -379,17 +402,7 @@ sheathControllers.controller('userDetailController', function ($scope, $http, $r
                 itemDefs: function () {return $scope.itemDefs;}
             }
         });
-        modalIns.result.then(function (newItems) {
-            $http.post("/api/addItem", {role: $scope.uid, items: newItems}).success(function (data) {
-                $scope.items = $scope.items.concat(data.items);
-                $scope.itemTableParams.total($scope.items.length);
-                $scope.itemTableParams.reload();
-                $scope.item_error = null;
-            })
-            .error(function (data) {
-                $scope.item_error = "添加道具失败，" + (data.message || "未知错误");
-            });
-        });
+        modalIns.result.then(addItems);
     };
 
     $q.all([$http.post("/api/getRole", {uid: $scope.uid}), $http.get("/api/itemDefs"), $http.get("/api/equipmentDefs"), $http.get("/api/heroDefs")])

@@ -1,4 +1,12 @@
 {
     "storeRefreshToken": null,
-    "barRefreshToken": null
+    "barRefreshToken": null,
+
+    "heroRefineMaterial": [
+        [53001, 53002],
+        [53011, 53012],
+        [53021, 53022],
+        [53031, 53032],
+        [53041, 53042]
+    ]
 }

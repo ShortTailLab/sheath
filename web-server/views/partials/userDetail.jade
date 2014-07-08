@@ -26,16 +26,22 @@ include ../mixins/block
                 span(ng-if="!h.editable") {{h.exp}}
                 div(ng-if="h.editable"): input(type="number", ng-model="h.editable.exp", style="width: 45px")
             td(data-title="'创建时间'", sortable="'createTime'") {{h.createTime | amCalendar}}
-            td(data-title="'操作'", width=100)
+            td(data-title="'操作'", width=125)
                 a(ng-if="!h.editable", href="", class="btn btn-default btn-xs", ng-click="edit(h)") 编辑
                 a(ng-if="h.editable", href="", class="btn btn-primary btn-xs", ng-click="saveHero(h)") 保存
                 a(href="", class="btn btn-default btn-xs", ng-click="remove(h)") 删除
+                a(href="", class="btn btn-default btn-xs", ng-click="clone(h)") 复制
 
 +block("道具", [["openAddItem()", "添加道具"]])
     div(class="message errormsg", ng-show="item_error")
         p {{item_error}}
-    table(ng-table="itemTableParams").table
-        tr(ng-repeat="it in $data")
+    table(ng-table="itemTableParams").table: tbody(ng-repeat="group in $groups")
+        tr.ng-table-group
+            td(colspan="{{$columns.length}}")
+                a(href="", ng-click="group.$hideRows=!group.$hideRows")
+                    span.glyphicon(ng-class="{'glyphicon-chevron-right': group.$hideRows, 'glyphicon-chevron-down': !group.$hideRows}")
+                    strong {{itemDefs[group.value].name}} ({{group.data.length}})
+        tr(ng-repeat="it in group.data", ng-hide="group.$hideRows")
             td(data-title="'ID'", sortable="'id'"): span(ng-bind="it.id")
             td(data-title="'道具名'", sortable="'itemDefId'") {{itemDefs[it.itemDefId].name}}
             td(data-title="'装备武将'", sortable="'bound'")
@@ -51,7 +57,8 @@ include ../mixins/block
                 span(ng-if="!it.editable") {{it.luck || 0}}
                 div(ng-if="it.editable"): input(type="number", ng-model="it.editable.luck", style="width: 45px")
             td(data-title="'创建时间'", sortable="'createTime'") {{it.createTime | amCalendar}}
-            td(data-title="'操作'", width=100)
+            td(data-title="'操作'", width=125)
                 a(ng-if="!it.editable", href="", class="btn btn-default btn-xs", ng-click="edit(it)") 编辑
                 a(ng-if="it.editable", href="", class="btn btn-primary btn-xs", ng-click="saveItem(it)") 保存
                 a(href="", class="btn btn-default btn-xs", ng-click="remove(it)") 删除
+                a(href="", class="btn btn-default btn-xs", ng-click="clone(it)") 复制

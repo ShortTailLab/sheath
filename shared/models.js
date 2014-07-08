@@ -37,11 +37,11 @@ exports.init = function (dbConfig) {
         });
     };
 
-    var levelUp = function levelUp (expTable, maxLevel) {
+    var levelUp = function levelUp (expTable, expFactor=1, maxLevel=0) {
         var levelGain = 0;
         maxLevel = maxLevel || expTable.length - 1;
         while (true) {
-            var nextLevelExp = expTable[this.level];
+            var nextLevelExp = Math.ceil(expTable[this.level] * expFactor);
             if (this.exp < nextLevelExp || this.level >= maxLevel) break;
             this.level += 1;
             levelGain += 1;
@@ -145,6 +145,7 @@ exports.init = function (dbConfig) {
         hpRefine: {_type: Number, default: 0},
         attackRefine: {_type: Number, default: 0},
         defenseRefine: {_type: Number, default: 0},
+        matFactor: {_type: Number, default: 1},
 
         ballLev: {_type: Number, default: 0},
         attackDelta: {_type: Array, default: function () {return [];}},

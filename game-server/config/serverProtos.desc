@@ -1,5 +1,5 @@
 
-¼+
+€,
 serverProtos.proto"
 Player
 
@@ -98,7 +98,7 @@ growFactor (
 hpRefine (
 attackRefine (
 defenseRefine (
-refineFactor ("´
+refineFactor ("Ç
 HeroDef
 
 id (
@@ -116,14 +116,15 @@ growFactor (
 
 hp (
 attack (
-defense (
-	expFactor (
-hpGrowth (
-attackGrowth (
-defenseGrowth (
+defense (
+hpGrowth (
+attackGrowth (
+defenseGrowth (
+	expFactor (
 hpRefine (
 attackRefine (
-defenseRefine (
+defenseRefine (
+	matFactor  (
 attackDelta (
 critical (
 interval (
@@ -262,10 +263,12 @@ equipments (2.EquipmentDef"D
 coinDrawCount ("E
 game_heroHandler_list
 error (2.Error
-heroes (2.Hero"E
+heroes (2.Hero"v
 game_heroHandler_refine
 error (2.Error
-hero (2.Hero"I
+hero (2.Hero
+destroyedHeroes (	
+destroyedItems (	"I
 game_heroHandler_equip
 error (2.Error
 	equipment (2.Item"K

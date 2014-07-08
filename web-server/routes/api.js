@@ -766,7 +766,7 @@ var dataColumns = {
     heroDef: ["id", "type", "stars", "level", "quality", "counts", "name", "desc", "resKey", "skill", "pSkill", "ballLev",
         "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor", "hp", "attack", "defense", "critical",
         "attackSpeed", "interval", "speed", "contribs", "hpGrowth", "defenseGrowth", "attackGrowth", "expFactor",
-        "hpRefine", "defenseRefine", "attackRefine"],
+        "hpRefine", "defenseRefine", "attackRefine", "matFactor"],
     heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
         "tenGoldWeight", "level", "count"],
     drawNode: [],
@@ -798,7 +798,8 @@ var transformHeroDef = function (row) {
     });
 
     _.each(["hpGrowth", "attackGrowth", "defenseGrowth", "critical", "interval", "attackSpeed", "speed", "expFactor",
-        "damage", "damageReduction", "damageFactor", "damageRedFactor", "hpRefine", "defenseRefine", "attackRefine"
+        "damage", "damageReduction", "damageFactor", "damageRedFactor", "hpRefine", "defenseRefine", "attackRefine",
+        "matFactor"
     ], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });

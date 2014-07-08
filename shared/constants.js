@@ -49,7 +49,9 @@ module.exports = {
         NOT_ENOUGH_SOULS: 67,
         ALREADY_HAVE_HERO: 68,
         NO_HERO: 69,
-        REFINE_MAX: 70
+        REFINE_MAX: 70,
+        NO_MATERIAL_ITEM: 71,
+        NO_MATERIAL_HERO: 72
     },
     TaskFailed: {
         NO_TASK: 90,
