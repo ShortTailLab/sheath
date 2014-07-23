@@ -22,7 +22,7 @@
         "pomelo-status-plugin": "latest",
         "pomelo-schedule": "latest",
         "hiredis": "latest",
-        "node-protobuf": "git+https://github.com/ShortTailLab/node-protobuf",
+        "node-protobuf": "latest",
         "thinky": "latest",
         "traceur": "latest",
         "iweibo": "latest",
