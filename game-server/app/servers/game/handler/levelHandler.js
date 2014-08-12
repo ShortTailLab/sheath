@@ -91,7 +91,11 @@ class LevelHandler extends base.HandlerBase {
                 return null;
             }));
             if (missingItem) {
-                return Promise.reject(Constants.InternalServerError);
+                return Promise.reject({
+                    __sheath__error__: true,
+                    code: Constants.InternalServerError,
+                    message: "missing " + missingItem
+                });
             }
             role.levelGain = {
                 level: level.id,
