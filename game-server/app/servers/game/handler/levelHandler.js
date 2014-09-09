@@ -94,7 +94,7 @@ class LevelHandler extends base.HandlerBase {
                 return Promise.reject({
                     __sheath__error__: true,
                     code: Constants.InternalServerError,
-                    message: "missing " + missingItem
+                    message: "missing item " + missingItem
                 });
             }
             role.levelGain = {

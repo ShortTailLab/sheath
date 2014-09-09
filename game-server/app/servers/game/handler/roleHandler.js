@@ -58,6 +58,43 @@ class RoleHandler extends base.HandlerBase {
         }), next);
     }
 
+    setTeam(msg, session, next) {
+        wrapSession(session);
+
+        var role = session.get("role");
+        var heroList = msg.heroes;
+        for (var i=0;i<3;i++) {
+            heroList[i] = heroList[i] || null;
+        }
+
+        if (heroList.length !== 3 || !_.any(heroList)) {
+            return this.errorNext({code: Constants.InvalidRequest, message: "heroList invalid"}, next);
+        }
+
+        var reqHeroes = _.compact(heroList);
+        this.safe(Promise.join(models.Role.get(role.id).run(), models.Hero.getAll.apply(models.Hero, reqHeroes).count().execute()).bind(this)
+        .spread(function (r, heroCount) {
+            role = r;
+            if (reqHeroes.length !== heroCount) {
+                return Promise.reject(Constants.RoleFailed.DO_NOT_OWN_HERO);
+            }
+            if (role.team.length > 3) role.team = role.team.slice(0, 3);
+
+            role.setTeam(heroList);
+            session.set("role", role.toSessionObj());
+            return [role.save(), session.push("role")];
+        })
+        .all().then(function () {
+            next(null, {
+                role: role.toClientObj()
+            });
+            logger.logInfo("role.setTeam", {
+                role: role.toLogObj(),
+                team: heroList
+            });
+        }), next);
+    }
+
 //    setTeam(msg, session, next) {
 //        wrapSession(session);
 //

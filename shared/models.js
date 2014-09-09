@@ -422,14 +422,11 @@ exports.init = function (dbConfig) {
         return this.storageRoom;
     });
 
-//    Role.define("setTeam", function (formation, hids) {
-//        while (this.team.length < 30) {
-//            this.team.push(null);
-//        }
-//        for (var i= 0, len=Math.min(5, hids.length);i<len;i++) {
-//            this.team[formation*5+i] = hids[i];
-//        }
-//    });
+    Role.define("setTeam", function (hids) {
+        for (var i= 0;i<hids.length;i++) {
+            this.team[i] = hids[i];
+        }
+    });
 
     Role.define("fillEnergy", function (energyTable) {
         var now = moment();
