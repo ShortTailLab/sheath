@@ -107,10 +107,7 @@ class ItemHandler extends base.HandlerBase {
                 case "exp": {
                     target.exp += amount;
                     var heroDef = this.app.get("cache").heroDefById[target.heroDefId];
-                    var expTables = this.app.get("expTables");
-                    var expKey = "hero" + (heroDef.stars - 1);
-                    var expTable = expTables[expKey] || expTables.hero1;
-                    target.levelUp(expTable);
+                    target.levelUp(this.app.get("expTables").hero, heroDef.expFactor || 1);
                     break;
                 }
             }
