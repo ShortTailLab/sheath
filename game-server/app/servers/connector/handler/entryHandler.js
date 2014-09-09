@@ -161,7 +161,7 @@ class EntryHandler extends base.HandlerBase {
 
                 lastRole: role.id,
                 lastLogin: new Date()
-            }, {upsert: true}).execute();
+            }, {conflict: 'replace'}).execute();
             return [role.save(), session.pushAll(), deviceUpsert];
         })
         .all().then(() => {
