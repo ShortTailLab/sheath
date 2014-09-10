@@ -1,5 +1,5 @@
 
-£+
+µ+
 serverProtos.proto"
 Player
 
@@ -98,7 +98,7 @@ growFactor (
 hpRefine (
 attackRefine (
 defenseRefine (
-refineFactor ("„
+refineFactor ("–
 HeroDef
 
 id (
@@ -121,7 +121,8 @@ growFactor (
 	expFactor (
 hpRefine (
 attackRefine (
-defenseRefine (
+defenseRefine (
+coinCost  (
 attackDelta (
 critical (
 interval (

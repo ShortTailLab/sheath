@@ -213,15 +213,17 @@ class HeroHandler extends base.HandlerBase {
         var heroId = msg.heroId;
         var matId = msg.matId;
         var role = session.get("role");
-        var mat;
+        var mat, heroDef;
 
-        if (_.contains(role.team, matId)) {
+        if (_.contains(role.team, matId) || heroId === matId) {
             return this.errorNext(Constants.HeroFailed.NO_MATERIAL_HERO, next);
         }
 
-        this.safe(models.Hero.getAll(heroId, matId).run().bind(this)
-        .spread(function (hero, _mat) {
-            mat = _mat;
+        this.safe(Promise.join(models.Hero.getAll(heroId, matId).run(), models.Role.get(role.id).run()).bind(this)
+        .spread(function (heroes, _role) {
+            var hero = heroes[0];
+            mat = heroes[1];
+            role = _role;
             if (!hero || !mat || hero.owner !== role.id || mat.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
@@ -234,19 +236,28 @@ class HeroHandler extends base.HandlerBase {
             if (hero.stars !== mat.stars) {
                 return Promise.reject(Constants.HeroFailed.REFINE_LEVEL_NOT_MATCH);
             }
+            heroDef = this.app.get("cache").heroDefById[hero.heroDefId];
+            if (role.coins < heroDef.coinCost[hero.stars]) {
+                return Promise.reject(Constants.NO_COINS);
+            }
 
             hero.stars += 1;
-            return [hero.save(), mat.delete()];
+            role.coins -= heroDef.coinCost[hero.stars];
+            session.set("role", role.toSessionObj());
+            return [hero.save(), mat.delete(), role.save(), session.push("role")];
         })
         .spread(function (hero) {
+            var coinCost = heroDef.coinCost[hero.stars - 1];
             next(null, {
                 hero: hero.toClientObj(),
-                destroyedHero: mat.id
+                destroyedHero: mat.id,
+                coins: coinCost
             });
             logger.logInfo("hero.refine", {
                 role: this.toLogObj(role),
                 hero: hero.toLogObj(),
-                destroyedHero: mat.toLogObj()
+                destroyedHero: mat.toLogObj(),
+                coins: coinCost
             });
         }), next);
     }

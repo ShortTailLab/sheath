@@ -177,7 +177,7 @@ try {
     http.createServer(function (req, res) {
         res.writeHead(302, {Location: "https://"+ req.headers.host + req.url});
         res.end();
-    }).listen(6000);
+    }).listen(80);
 }
 catch (err) {
 }

@@ -765,7 +765,7 @@ exports.removeAnn = function (req, res) {
 var dataColumns = {
     heroDef: ["id", "name", "type", "resKey", "stars", "hp", "attack", "defense", "hpGrowth", "attackGrowth", "defenseGrowth",
         "critical", "attackSpeed", "interval", "speed", "skill", "pSkill", "expFactor", "hpRefine", "attackRefine", "defenseRefine",
-        "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor", "counts", "contribs"],
+        "coinCost", "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor", "counts", "contribs"],
     heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
         "tenGoldWeight", "level", "count"],
     drawNode: [],
@@ -795,7 +795,7 @@ var transformHeroDef = function (row) {
         row[f] = parseInt(row[f]) || 0;
     });
 
-    _.each(["hpRefine", "defenseRefine", "attackRefine", "contribs"
+    _.each(["hpRefine", "defenseRefine", "attackRefine", "contribs", "coinCost"
     ], function (f) {
         row[f] = JSON.parse(row[f] || "[]");
     });

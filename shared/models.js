@@ -143,6 +143,7 @@ exports.init = function (dbConfig) {
         attackRefine: {_type: Array, default: function () {return [];}},
         defenseRefine: {_type: Array, default: function () {return [];}},
 
+        coinCost: {_type: Array, default: function () {return [];}},
         attackDelta: {_type: Array, default: function () {return [];}},
         critical: {_type: Number, default: 0},
         attackSpeed: {_type: Number, default: 0},

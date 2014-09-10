@@ -123,6 +123,7 @@ message HeroDef {
     repeated float attackRefine =   20;
     repeated float defenseRefine=   21;
 
+    repeated int32 coinCost     =   32;
     repeated float attackDelta  =   22;
     required float critical     =   23;
     required float interval     =   24;
@@ -286,6 +287,7 @@ message game_heroHandler_refine {
     optional Error error        =   1;
     optional Hero hero          =   2;
     optional string destroyedHero =   3;
+    optional int32 coins        =   4;
 }
 message game_heroHandler_equip {
     optional Error error        =   1;
