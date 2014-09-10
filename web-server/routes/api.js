@@ -763,10 +763,9 @@ exports.removeAnn = function (req, res) {
 
 // data import / data export
 var dataColumns = {
-    heroDef: ["id", "type", "stars", "level", "quality", "counts", "name", "desc", "resKey", "skill", "pSkill", "ballLev",
-        "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor", "hp", "attack", "defense", "critical",
-        "attackSpeed", "interval", "speed", "contribs", "hpGrowth", "defenseGrowth", "attackGrowth", "expFactor",
-        "hpRefine", "defenseRefine", "attackRefine", "matFactor"],
+    heroDef: ["id", "name", "type", "resKey", "stars", "hp", "attack", "defense", "hpGrowth", "attackGrowth", "defenseGrowth",
+        "critical", "attackSpeed", "interval", "speed", "skill", "pSkill", "expFactor", "hpRefine", "attackRefine", "defenseRefine",
+        "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor", "counts", "contribs"],
     heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
         "tenGoldWeight", "level", "count"],
     drawNode: [],
@@ -790,16 +789,19 @@ var transformHeroDef = function (row) {
     row.name = (row.name || "").trim();
     row.resKey = (row.resKey || "").trim();
     row.type = (row.type || "").trim();
-    row.souls = parseInt(row.souls) || 100;
 
-    _.each(["stars", "level", "quality", "counts", "contribs", "hp", "attack", "defense", "skill", "pSkill", "ballLev"
+    _.each(["stars", "counts", "hp", "attack", "defense", "skill", "pSkill"
     ], function (f) {
         row[f] = parseInt(row[f]) || 0;
     });
 
+    _.each(["hpRefine", "defenseRefine", "attackRefine", "contribs"
+    ], function (f) {
+        row[f] = JSON.parse(row[f] || "[]");
+    });
+
     _.each(["hpGrowth", "attackGrowth", "defenseGrowth", "critical", "interval", "attackSpeed", "speed", "expFactor",
-        "damage", "damageReduction", "damageFactor", "damageRedFactor", "hpRefine", "defenseRefine", "attackRefine",
-        "matFactor"
+        "damage", "damageReduction", "damageFactor", "damageRedFactor"
     ], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
@@ -1011,11 +1013,7 @@ exports.import = function (req, res) {
                 return (new Model(d)).save();
             }
             else {
-                return Model.get(d.id).update(d).run().then(function (data) {
-                    if (data.replaced === 0) {
-                        return (new Model(d)).save();
-                    }
-                });
+                return Model.insert(d, {"conflict": "update"}).run();
             }
         });
 

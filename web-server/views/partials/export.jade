@@ -42,8 +42,6 @@ include ../mixins/block
             th 武将名
             th 职业
             th 资质
-            th 最大等级
-            th 最大品阶
             th 合成数量
             th 功勋
             th HP
@@ -56,13 +54,11 @@ include ../mixins/block
             th HP升星
             th 物攻升星
             th 物防升星
-            th 进阶道具系数
             th 攻击浮动
             th 暴击
             th 基础间隔
             th 攻击速度
             th 移动速度
-            th 弹道等级
             th 伤害加成
             th 伤害减免
             th 伤害增加
@@ -70,16 +66,13 @@ include ../mixins/block
             th 主动技能
             th 被动技能
             th 资源
-            th 描述
         tbody: tr(ng-repeat="h in heroes | orderBy:'id'")
             td {{h.id}}
             td {{h.name}}
             td {{h.type}}
             td {{h.stars}}
-            td {{h.level}}
-            td {{h.quality}}
             td {{h.counts}}
-            td {{h.souls}}
+            td {{h.contribs}}
             td {{h.hp}}
             td {{h.attack}}
             td {{h.defense}}
@@ -90,13 +83,11 @@ include ../mixins/block
             td {{h.hpRefine}}
             td {{h.attackRefine}}
             td {{h.defenseRefine}}
-            td {{h.matFactor}}
             td {{h.attackDelta}}
             td {{h.critical}}
             td {{h.interval}}
             td {{h.attackSpeed}}
             td {{h.speed}}
-            td {{h.ballLev}}
             td {{h.damage}}
             td {{h.damageReduction}}
             td {{h.damageFactor}}
@@ -104,7 +95,6 @@ include ../mixins/block
             td {{h.skill}}
             td {{h.pSkill}}
             td {{h.resKey}}
-            td {{h.desc}}
 
 +block("抽取概率")
     div(class="message errormsg", ng-show="draw_error")

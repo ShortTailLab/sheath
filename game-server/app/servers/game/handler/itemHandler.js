@@ -73,7 +73,8 @@ class ItemHandler extends base.HandlerBase {
     useItem(msg, session, next) {
         wrapSession(session);
 
-        var roleId = session.get("role").id;
+        var role = session.get("role");
+        var roleId = role.id;
         var item, itemDef;
         var validEffects = [
             null,
@@ -107,7 +108,7 @@ class ItemHandler extends base.HandlerBase {
                 case "exp": {
                     target.exp += amount;
                     var heroDef = this.app.get("cache").heroDefById[target.heroDefId];
-                    target.levelUp(this.app.get("expTables").hero, heroDef.expFactor || 1);
+                    target.levelUp(this.app.get("expTables").hero, heroDef.expFactor || 1, role.level);
                     break;
                 }
             }

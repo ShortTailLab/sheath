@@ -211,71 +211,42 @@ class HeroHandler extends base.HandlerBase {
     refine(msg, session, next) {
         wrapSession(session);
         var heroId = msg.heroId;
-        var heroReqs = [0, 1, 2, 4, 8];
-        var refineMats = this.app.get("specialItemId").heroRefineMaterial;
-        var heroRefineTable = this.app.get("heroRefineTable").refineTable;
+        var matId = msg.matId;
         var role = session.get("role");
-        var hero, matDefIds, matsCount1, matsCount2, heroCount;
-        var heroes, mat1, mat2;
+        var mat;
 
-        if (refineMats.length !== 5) {
-            return this.errorNext(Constants.InternalServerError, next);
+        if (_.contains(role.team, matId)) {
+            return this.errorNext(Constants.HeroFailed.NO_MATERIAL_HERO, next);
         }
 
-        this.safe(models.Hero.get(heroId).run().bind(this)
-        .then((_hero) => {
-            hero = _hero;
-            var heroDefId = hero.heroDefId;
-            var heroDef = this.app.get("cache").heroDefById[heroDefId];
-            matDefIds = refineMats[hero.stars];
-            matsCount1 = Math.ceil(heroDef.matFactor * heroRefineTable[hero.stars].mat1);
-            matsCount2 = Math.ceil(heroDef.matFactor * heroRefineTable[hero.stars].mat2);
-            heroCount = heroReqs[hero.stars];
-
-            if (hero.owner !== role.id) {
+        this.safe(models.Hero.getAll(heroId, matId).run().bind(this)
+        .spread(function (hero, _mat) {
+            mat = _mat;
+            if (!hero || !mat || hero.owner !== role.id || mat.owner !== role.id) {
                 return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
             }
-            if (hero.level < (hero.stars+1) * 12) {
-                return Promise.reject(Constants.LEVEL_TOO_LOW);
-            }
-            if (hero.stars >= heroDef.quality) {
+            if (hero.stars >= 4) {
                 return Promise.reject(Constants.HeroFailed.REFINE_MAX);
             }
-            if (matDefIds.length !== 2) {
-                return Promise.reject(Constants.InternalServerError);
-            }
-
-            return [
-                models.Hero.getAll(role.id, {index: "owner"}).filter({heroDefId: heroDefId}).filter(r.row("id").ne(hero.id)).limit(heroCount).run(),
-                models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: matDefIds[0]}).limit(matsCount1).run(),
-                models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: matDefIds[1]}).limit(matsCount2).run()
-            ];
-        })
-        .spread(function (_heroes, _mat1, _mat2) {
-            heroes = _heroes;
-            mat1 = _mat1;
-            mat2 = _mat2;
-            if (heroes.length < heroCount) {
+            if (hero.heroDefId !== mat.heroDefId) {
                 return Promise.reject(Constants.HeroFailed.NO_MATERIAL_HERO);
             }
-            if (mat1.length < matsCount1 || mat2.length < matsCount2) {
-                return Promise.reject(Constants.HeroFailed.NO_MATERIAL_ITEM);
+            if (hero.stars !== mat.stars) {
+                return Promise.reject(Constants.HeroFailed.REFINE_LEVEL_NOT_MATCH);
             }
 
             hero.stars += 1;
-            return [hero.save(), _.invoke(heroes, "delete"), _.invoke(mat1, "delete"), _.invoke(mat2, "delete")];
+            return [hero.save(), mat.delete()];
         })
         .spread(function (hero) {
             next(null, {
                 hero: hero.toClientObj(),
-                destroyedHeroes: _.pluck(heroes, "id"),
-                destroyedItems: _.pluck(mat1.concat(mat2), "id")
+                destroyedHero: mat.id
             });
             logger.logInfo("hero.refine", {
                 role: this.toLogObj(role),
                 hero: hero.toLogObj(),
-                destroyedHeroes: _.invoke(heroes, "toLogObj"),
-                destroyedItems: _.invoke(mat1.concat(mat2), "toLogObj")
+                destroyedHero: mat.toLogObj()
             });
         }), next);
     }

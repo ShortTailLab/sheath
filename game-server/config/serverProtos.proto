@@ -102,15 +102,13 @@ message EquipmentDef {
 message HeroDef {
     required int32 id           =   1;
     required string name        =   2;
-    required string desc        =   3;
     required string resKey      =   4;
     required string type        =   5;
     required int32 stars        =   6;
-    required int32 quality      =   7;
     required int32 skill        =   8;
     required int32 pSkill       =   9;
     required int32 counts       =   10;
-    required int32 contribs     =   11;
+    repeated int32 contribs     =   11;
 
     required int32 hp           =   12;
     required int32 attack       =   13;
@@ -121,17 +119,15 @@ message HeroDef {
     required float defenseGrowth=   17;
     required float expFactor    =   18;
 
-    required float hpRefine     =   19;
-    required float attackRefine =   20;
-    required float defenseRefine=   21;
-    required float matFactor    =   32;
+    repeated float hpRefine     =   19;
+    repeated float attackRefine =   20;
+    repeated float defenseRefine=   21;
 
     repeated float attackDelta  =   22;
     required float critical     =   23;
     required float interval     =   24;
     required float attackSpeed  =   25;
     required float speed        =   26;
-    required int32 ballLev      =   27;
 
     required float damage           =   28;
     required float damageReduction  =   29;
@@ -289,8 +285,7 @@ message game_heroHandler_list {
 message game_heroHandler_refine {
     optional Error error        =   1;
     optional Hero hero          =   2;
-    repeated string destroyedHeroes =   3;
-    repeated string destroyedItems  =   4;
+    optional string destroyedHero =   3;
 }
 message game_heroHandler_equip {
     optional Error error        =   1;

@@ -606,7 +606,7 @@ Role.prototype.redeemSouls = function (pomelo, cb) {
 };
 
 Role.prototype.refineHero = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.REFINE_HERO, {heroId: "2ddc3819-4330-48c7-aac6-4f1e6e22b07f"}, function (data) {
+    timePomeloRequest(ActFlagType.REFINE_HERO, {heroId: "2ddc3819-4330-48c7-aac6-4f1e6e22b07f", matId: "fcadc6a0-e40c-43a2-b818-93eacfade904"}, function (data) {
         console.log(data);
         cb();
     });

@@ -160,13 +160,13 @@ class LevelHandler extends base.HandlerBase {
             role.coins += coins || 0;
             role.exp += roleExp;
             role.levelGain = {};
+            var lGain = role.levelUp(expTables.role);
             var hUps = _.map(teamHeroes, function (h) {
                 h.exp += heroExp;
                 var heroDef = cache.heroDefById[h.heroDefId];
-                h.levelUp(expTables.hero, heroDef.expFactor);
+                h.levelUp(expTables.hero, heroDef.expFactor, role.level);
                 return h.save();
             });
-            var lGain = role.levelUp(expTables.role);
             var newItems = [];
             if (lGain) {
                 this.app.rpc.game.taskRemote.notify(session, "Role.LevelUp", role.id, {levelGain: lGain}, null);

@@ -122,16 +122,13 @@ exports.init = function (dbConfig) {
 
     var HeroDef = exports.HeroDef = schema.createModel("herodef", {
         name: {_type: String, default: ""},
-        desc: {_type: String, default: ""},
         type: {_type: String, default: ""},
         resKey: {_type: String, default: ""},
         stars: {_type: Number, default: 1},
-        quality: {_type: Number, default: 1},
-        level: {_type: Number, default: 1},
         skill: {_type: Number, default: 0},
         pSkill: {_type: Number, default: 0},
         counts: {_type: Number, default: 100},
-        contribs: {_type: Number, default: 100},
+        contribs: {_type: Array, default: function () {return [];}},
 
         hp: {_type: Number, default: 0},
         attack: {_type: Number, default: 0},
@@ -142,12 +139,10 @@ exports.init = function (dbConfig) {
         defenseGrowth: {_type: Number, default: 0},
         expFactor: {_type: Number, default: 1},
 
-        hpRefine: {_type: Number, default: 0},
-        attackRefine: {_type: Number, default: 0},
-        defenseRefine: {_type: Number, default: 0},
-        matFactor: {_type: Number, default: 1},
+        hpRefine: {_type: Array, default: function () {return [];}},
+        attackRefine: {_type: Array, default: function () {return [];}},
+        defenseRefine: {_type: Array, default: function () {return [];}},
 
-        ballLev: {_type: Number, default: 0},
         attackDelta: {_type: Array, default: function () {return [];}},
         critical: {_type: Number, default: 0},
         attackSpeed: {_type: Number, default: 0},

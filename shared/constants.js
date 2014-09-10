@@ -50,6 +50,7 @@ module.exports = {
         ALREADY_HAVE_HERO: 68,
         NO_HERO: 69,
         REFINE_MAX: 70,
+        REFINE_LEVEL_NOT_MATCH: 73,
         NO_MATERIAL_ITEM: 71,
         NO_MATERIAL_HERO: 72
     },
