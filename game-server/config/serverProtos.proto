@@ -95,9 +95,9 @@ message EquipmentDef {
     required int32 defenseGrowth=   16;
     required float growFactor   =   17;
 
-    required float hpRefine       = 18;
-    required float attackRefine   = 19;
-    required float defenseRefine  = 20;
+    repeated float hpRefine       = 18;
+    repeated float attackRefine   = 19;
+    repeated float defenseRefine  = 20;
     required float refineFactor   = 21;
     required float ironType       = 22;
 

@@ -885,6 +885,15 @@ var transformEquipmentDef = function (row) {
     ], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });
+
+    _.each(["hpRefine", "attackRefine", "defenseRefine"], function (f) {
+        if (row[f] && row[f] !== "0") {
+            row[f] = JSON.parse(row[f]);
+        }
+        else {
+            row[f] = [];
+        }
+    });
 };
 
 var transformTreasure = function (row) {

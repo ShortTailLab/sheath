@@ -204,9 +204,9 @@ exports.init = function (dbConfig) {
         growFactor: {_type:Number, default: 0},
 
         ironType: {_type: Number, default: 0},
-        hpRefine: {_type: Number, default: 0},
-        attackRefine: {_type: Number, default: 0},
-        defenseRefine: {_type: Number, default: 0},
+        hpRefine: {_type: Array, default: function () {return [];}},
+        attackRefine: {_type: Array, default: function () {return [];}},
+        defenseRefine: {_type: Array, default: function () {return [];}},
         refineFactor: {_type:Number, default: 0}
     });
 
