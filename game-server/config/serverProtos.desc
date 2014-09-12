@@ -1,5 +1,5 @@
 
-Ä+
+ÿ+
 serverProtos.proto"
 Player
 
@@ -72,24 +72,24 @@ composable	 (
 critical (
 	useTarget (
 
-itemEffect (2.ItemEffect"ö
+itemEffect (2.ItemEffect"±
 EquipmentDef
 
 id (
 type (	
 color (
-name (	
-level (
+name (	
 quality (
 counts (
 desc (	
-resKey	 (	
+resKey	 (	
+coin (
+iron (
 
 hp
  (
 attack (
-defense (
-iron (
+defense (
 hpGrowth (
 attackGrowth (
 defenseGrowth (
@@ -98,7 +98,10 @@ growFactor (
 hpRefine (
 attackRefine (
 defenseRefine (
-refineFactor ("–
+refineFactor (
+ironType (
+ironRecover (
+coinRecover ("–
 HeroDef
 
 id (

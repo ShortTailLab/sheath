@@ -771,9 +771,9 @@ var dataColumns = {
     drawNode: [],
     itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
         'composeTarget', "useTarget", "itemEffect", 'canSell', 'price', 'desc'],
-    equipmentDef: ['id', 'type', "color", 'name', "level", 'quality', "counts", "desc", 'resKey',
-        'hp', 'attack', 'defense', 'iron', 'hpGrowth', 'attackGrowth', 'defenseGrowth', 'growFactor',
-        'hpRefine', 'attackRefine', 'defenseRefine', 'refineFactor'],
+    equipmentDef: ["id", "type", "name", "color", "resKey", "desc", "hp", "attack", "defense", "hpGrowth", "attackGrowth",
+        "defenseGrowth", "growFactor", "quality", "hpRefine", "attackRefine", "defenseRefine", "irontype", "refineFactor",
+        "counts", "iron", "coin", "ironRecover", "coinRecover"],
     gemDef: ["id", "name", "quality", "subType", "level", "resKey", "levelReq", "stackSize", "composable", "composeCount",
         "composeTarget", "canSell", "price", "hp", "attack", "magic", "defense", "resist", "attackSpeed", "critical",
         "desc", "extended"],
@@ -879,9 +879,9 @@ var transformGemDef = function (row) {
 var transformEquipmentDef = function (row) {
     row.id = parseInt(row.id);
 
-    _.each(["color", "level", "quality", "counts", 'hp', 'attack', 'defense', "iron",
+    _.each(["color", "quality", "counts", 'hp', 'attack', 'defense', "iron", "coin", "ironType", "refineFactor",
         'hpGrowth', 'attackGrowth', 'defenseGrowth', 'growFactor',
-        'hpRefine', 'attackRefine', 'defenseRefine', 'refineFactor'
+        'hpRefine', 'attackRefine', 'defenseRefine', 'ironRecover', "coinRecover"
     ], function (f) {
         row[f] = parseFloat(row[f]) || 0;
     });

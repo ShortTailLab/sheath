@@ -78,16 +78,17 @@ message EquipmentDef {
     required string type        =   2;
     required int32 color        =   3;
     required string name        =   4;
-    required int32 level        =   5;
     required int32 quality      =   6;
     required int32 counts       =   7;
     required string desc        =   8;
     required string resKey      =   9;
 
+    required int32 coin         =   5;
+    required int32 iron         =   13;
+
     required int32 hp           =   10;
     required int32 attack       =   11;
     required int32 defense      =   12;
-    required int32 iron         =   13;
 
     required int32 hpGrowth     =   14;
     required int32 attackGrowth =   15;
@@ -98,6 +99,10 @@ message EquipmentDef {
     required float attackRefine   = 19;
     required float defenseRefine  = 20;
     required float refineFactor   = 21;
+    required float ironType       = 22;
+
+    required float ironRecover    = 23;
+    required float coinRecover    = 24;
 }
 message HeroDef {
     required int32 id           =   1;

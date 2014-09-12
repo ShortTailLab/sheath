@@ -184,7 +184,6 @@ exports.init = function (dbConfig) {
         name: {_type: String, default: ""},
         desc: {_type: String, default: ""},
         color: {_type: Number, default: 1},
-        level: {_type: Number, default: 1},
         quality: {_type: Number, default: 0},
         counts: {_type: Number, default: 0},
         type: {_type: String, default: ""},
@@ -193,13 +192,18 @@ exports.init = function (dbConfig) {
         hp: {_type: Number, default: 0},
         attack: {_type: Number, default: 0},
         defense: {_type: Number, default: 0},
+
+        coin: {_type: Number, default: 0},
         iron: {_type: Number, default: 0},
+        coinRecover: {_type: Number, default: 0},
+        ironRecover: {_type: Number, default: 0},
 
         hpGrowth: {_type: Number, default: 0},
         attackGrowth: {_type: Number, default: 0},
         defenseGrowth: {_type: Number, default: 0},
         growFactor: {_type:Number, default: 0},
 
+        ironType: {_type: Number, default: 0},
         hpRefine: {_type: Number, default: 0},
         attackRefine: {_type: Number, default: 0},
         defenseRefine: {_type: Number, default: 0},
