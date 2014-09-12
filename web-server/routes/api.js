@@ -798,6 +798,9 @@ var transformHeroDef = function (row) {
     _.each(["hpRefine", "defenseRefine", "attackRefine", "contribs", "coinCost"
     ], function (f) {
         row[f] = JSON.parse(row[f] || "[]");
+        if (Array.isArray(row[f])) {
+            row[f] = [];
+        }
     });
 
     _.each(["hpGrowth", "attackGrowth", "defenseGrowth", "critical", "interval", "attackSpeed", "speed", "expFactor",
@@ -833,6 +836,9 @@ var transformItemDef = function (row) {
     _.each(["composeTarget", "itemEffect"], function (f) {
         if (row[f] && row[f] !== "0") {
             row[f] = JSON.parse(row[f]);
+            if (Array.isArray(row[f])) {
+                row[f] = [];
+            }
         }
         else {
             row[f] = [];
@@ -889,6 +895,9 @@ var transformEquipmentDef = function (row) {
     _.each(["hpRefine", "attackRefine", "defenseRefine"], function (f) {
         if (row[f] && row[f] !== "0") {
             row[f] = JSON.parse(row[f]);
+            if (Array.isArray(row[f])) {
+                row[f] = [];
+            }
         }
         else {
             row[f] = [];
