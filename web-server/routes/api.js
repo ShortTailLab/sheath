@@ -1318,7 +1318,7 @@ exports.importInGameReward = function (req, res) {
 
     var level = req.body;
     level.key = undefined;
-    appModels.Level.insert(level, {upsert: true}).run().then(function () {
+    appModels.Level.insert(level, {conflict: 'replace'}).run().then(function () {
         res.send(200);
         pomeloConn.client.request("cacheMonitor", {type: "level"});
     });
