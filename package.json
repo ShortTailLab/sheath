@@ -29,6 +29,7 @@
         "traceur": "latest",
         "iweibo": "latest",
         "express": "3.5.2",
+        "connect-redis": "1.4.7",
         "spdy": "latest",
         "fast-stats": "latest",
         "double-ended-queue": "latest",

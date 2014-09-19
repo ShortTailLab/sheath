@@ -60,16 +60,6 @@ class EquipmentHandler extends base.HandlerBase {
         }), next);
     }
 
-    getIronIndex(itemDef) {
-        var ironIndice = {
-            "武器": 0,
-            "护甲": 1,
-            "头盔": 2,
-            "坐骑": 3
-        };
-        return ironIndice[itemDef.type];
-    }
-
     refine(msg, session, next) {
         wrapSession(session);
 
@@ -97,9 +87,9 @@ class EquipmentHandler extends base.HandlerBase {
             }
 
             refineOptions = refineCostTable[equipment.refinement];
-            var ironIndex = this.getIronIndex(itemDef);
+            var ironIndex = itemDef.ironType - 1;
             var coinReq = Math.ceil(refineOptions.coinCost * itemDef.refineFactor);
-            ironReq = Math.ceil(refineOptions.ironCost * itemDef.refineFactor);
+            ironReq = refineOptions.ironCost;
             if (role.coins < coinReq) {
                 return Promise.reject(Constants.NO_COINS);
             }
@@ -149,7 +139,7 @@ class EquipmentHandler extends base.HandlerBase {
         .spread((eqs, role) => {
             [equipment, itemDef] = eqs;
             var coinCostTable = this.app.get("growTable").coinCostTable;
-            var weaponLevelLimit = Math.min(role.level, itemDef.level, 120);
+            var weaponLevelLimit = Math.min(role.level, 80);
             coinsNeeded = Math.ceil(coinCostTable[equipment.level] * itemDef.growFactor);
 
             if (equipment.owner !== role.id) {
@@ -306,21 +296,23 @@ class EquipmentHandler extends base.HandlerBase {
 
             var coinCostTable = this.app.get("growTable").coinCostTable;
             var refineCostTable = this.app.get("refineTable").refineTable;
-            var ironIndex = this.getIronIndex(eqDef);
+            var ironIndex = eqDef.ironType - 1;
 
+            coins = eqDef.coin;
             for (var i=1;i<equipment.level;i++) {
-                coins += Math.ceil(coinCostTable[i] * eqDef.growFactor);
+                coins += Math.ceil(Math.ceil(coinCostTable[i] * eqDef.growFactor) * eqDef.coinRecover);
             }
 
-            irons = eqDef.iron;
-            for (var i=0;i<equipment.refinement;i++) {
-                var refineOption = refineCostTable[i];
-                coins += Math.ceil(refineOption.coinCost * eqDef.refineFactor);
-                irons += Math.ceil(refineOption.ironCost * eqDef.refineFactor);
+            if (ironIndex >= 0) {
+                irons = eqDef.iron;
+                for (var i=0;i<equipment.refinement;i++) {
+                    var refineOption = refineCostTable[i];
+                    coins += Math.ceil(Math.ceil(refineOption.coinCost * eqDef.refineFactor) * eqDef.coinRecover);
+                    irons += Math.ceil(Math.ceil(refineOption.ironCost * eqDef.refineFactor) * eqDef.ironRecover);
+                }
+                role.irons[ironIndex] += irons;
             }
-
             role.coins += coins;
-            role.irons[ironIndex] += irons;
 
             return [role.save(), equipment.delete()];
         })

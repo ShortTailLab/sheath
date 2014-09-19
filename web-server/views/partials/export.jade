@@ -178,7 +178,6 @@ include ../mixins/block
             th ID
             th 道具名
             th 颜色
-            th 最大等级
             th 最大精炼
             th 类型
             th 碎片
@@ -188,6 +187,7 @@ include ../mixins/block
             th 物理攻击
             th 物理防御
             th 精铁
+            th 铜钱
             th 强化HP提升
             th 强化物攻提升
             th 强化物防提升
@@ -196,11 +196,13 @@ include ../mixins/block
             th 精炼物攻提升
             th 精炼物防提升
             th 精炼消耗系数
+            th 精铁类型
+            th 精铁产出系数
+            th 铜钱产出系数
         tbody: tr(ng-repeat="eq in equipments | orderBy:'id'")
             td {{eq.id}}
             td {{eq.name}}
             td {{eq.color}}
-            td {{eq.level}}
             td {{eq.quality}}
             td {{eq.type}}
             td {{eq.counts}}
@@ -210,6 +212,7 @@ include ../mixins/block
             td {{eq.attack}}
             td {{eq.defense}}
             td {{eq.iron}}
+            td {{eq.coin}}
             td {{eq.hpGrowth}}
             td {{eq.attackGrowth}}
             td {{eq.defenseGrowth}}
@@ -218,6 +221,9 @@ include ../mixins/block
             td {{eq.attackRefine}}
             td {{eq.defenseRefine}}
             td {{eq.refineFactor}}
+            td {{eq.ironType}}
+            td {{eq.ironRecover}}
+            td {{eq.coinRecover}}
 
 +block("所有关卡")
     div(class="message errormsg", ng-show="level_error")

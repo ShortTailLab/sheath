@@ -183,7 +183,7 @@ exports.init = function (dbConfig) {
     var EquipmentDef = exports.EquipmentDef = schema.createModel("equipmentdef", {
         name: {_type: String, default: ""},
         desc: {_type: String, default: ""},
-        color: {_type: Number, default: 0},
+        color: {_type: Number, default: 1},
         quality: {_type: Number, default: 0},
         counts: {_type: Number, default: 0},
         type: {_type: String, default: ""},
@@ -192,16 +192,20 @@ exports.init = function (dbConfig) {
         hp: {_type: Number, default: 0},
         attack: {_type: Number, default: 0},
         defense: {_type: Number, default: 0},
+
+        coin: {_type: Number, default: 0},
         iron: {_type: Number, default: 0},
+        coinRecover: {_type: Number, default: 0},
+        ironRecover: {_type: Number, default: 0},
 
         hpGrowth: {_type: Number, default: 0},
         attackGrowth: {_type: Number, default: 0},
         defenseGrowth: {_type: Number, default: 0},
         growFactor: {_type:Number, default: 0},
-
-        hpRefine: {_type: Array, default: function() {return [];}},
-        attackRefine: {_type: Array, default: function() {return [];}},
-        defenseRefine: {_type: Array, default: function() {return [];}},
+        ironType: {_type: Number, default: 0},
+        hpRefine: {_type: Array, default: function () {return [];}},
+        attackRefine: {_type: Array, default: function () {return [];}},
+        defenseRefine: {_type: Array, default: function () {return [];}},
         refineFactor: {_type:Number, default: 0}
     });
 

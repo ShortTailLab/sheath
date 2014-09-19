@@ -811,7 +811,7 @@ function adjustField(tblName, allFields, modelSchema) {
             if (field == "extended") {
                 _.forEach(allFields, function (rowFields) {
                     var rawValue = rowFields[field];
-                    if (rawValue.length == 0) {
+                    if (rawValue === undefined || rawValue.length == 0) {
                         rowFields[field] = fieldValue.default();
                     } else {
                         rowFields[field] = {};
@@ -838,7 +838,7 @@ function adjustField(tblName, allFields, modelSchema) {
             if(fieldValue === Number) {
                 _.forEach(allFields, function(rowFields) {
                     var rawValue = rowFields[field];
-                    if(rawValue.length == 0) {
+                    if(rawValue === undefined || rawValue.length == 0) {
                         rowFields[field] = 0;
                     } else {
                         rowFields[field] = parseFloat(rawValue);
@@ -847,7 +847,7 @@ function adjustField(tblName, allFields, modelSchema) {
             } else if(fieldValue === Boolean) {
                 _.forEach(allFields, function(rowFields) {
                     var rawValue = rowFields[field];
-                    if(rawValue.length == 0 || rawValue == "0" || rawValue == "false") {
+                    if(rawValue === undefined || rawValue.length == 0 || rawValue == "0" || rawValue == "false" || rawValue == "False" || rawValue == "FALSE") {
                         rowFields[field] = false;
                     } else {
                         rowFields[field] = true;
@@ -861,7 +861,7 @@ function adjustField(tblName, allFields, modelSchema) {
             if(fieldValue._type === Number) {
                 _.forEach(allFields, function(rowFields) {
                     var rawValue = rowFields[field];
-                    if(rawValue.length == 0) {
+                    if(rawValue === undefined || rawValue.length == 0) {
                         rowFields[field] = fieldValue.default;
                     } else {
                         rowFields[field] = parseFloat(rawValue);
@@ -870,9 +870,9 @@ function adjustField(tblName, allFields, modelSchema) {
             } else if(fieldValue._type === Boolean) {
                 _.forEach(allFields, function(rowFields) {
                     var rawValue = rowFields[field];
-                    if(rawValue.length == 0) {
+                    if(rawValue === undefined || rawValue.length == 0) {
                         rowFields[field] = fieldValue.default;
-                    } else if(rawValue == "0" || rawValue == "false") {
+                    } else if(rawValue == "0" || rawValue == "false" || rawValue == "False" || rawValue == "FALSE") {
                         rowFields[field] = false;
                     } else {
                         rowFields[field] = true;
@@ -881,14 +881,14 @@ function adjustField(tblName, allFields, modelSchema) {
             } else if(fieldValue._type === String) {
                 _.forEach(allFields, function(rowFields) {
                     var rawValue = rowFields[field];
-                    if(rawValue.length == 0) {
+                    if(rawValue === undefined || rawValue.length == 0) {
                         rowFields[field] = fieldValue.default;
                     }
                 });
             } else if(fieldValue._type === Array) {
                 _.forEach(allFields, function(rowFields) {
                     var rawValue = rowFields[field];
-                    if(rawValue.length == 0 || rawValue == "0") {
+                    if(rawValue === undefined || rawValue.length == 0 || rawValue == "0") {
                         rowFields[field] = fieldValue.default();
                     } else {
                         rowFields[field] = JSON.parse(rawValue);
@@ -897,7 +897,7 @@ function adjustField(tblName, allFields, modelSchema) {
             } else if(fieldValue._type === Date) {
                 _.forEach(allFields, function(rowFields) {
                     var rawValue = rowFields[field];
-                    if(rawValue.length == 0) {
+                    if(rawValue === undefined || rawValue.length == 0) {
                         rowFields[field] = fieldValue.default();
                     } else {
                         rowFields[field] = moment(rawValue).toDate();
@@ -1261,7 +1261,7 @@ exports.importInGameReward = function (req, res) {
 
     var level = req.body;
     level.key = undefined;
-    appModels.Level.insert(level, {upsert: true}).run().then(function () {
+    appModels.Level.insert(level, {conflict: 'replace'}).run().then(function () {
         res.send(200);
         pomeloConn.client.request("cacheMonitor", {type: "level"});
     });
