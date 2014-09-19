@@ -3,6 +3,9 @@ var _ = require("lodash");
 var Promise = require("bluebird");
 var moment = require("moment");
 var appModels = require("../../shared/models");
+var excel = require("excel-parser");
+var excel_export = require("excel4node");
+var xlsx = require("xlsx");
 var r = appModels.r;
 var csv = require("csv");
 var fs = require("fs");
@@ -14,37 +17,45 @@ function diffModel(m1, m2, fields) {
     var diff = {id: m1.id};
     for (var i=0;i<fields.length;i++) {
         var field = fields[i];
-        if (_.isArray(m1[field])) {
-            if (m1[field].length !== m2[field].length) {
-                diff[field] = m2[field];
-            }
-            else {
-                for (var j=0;j<m1[field].length;j++) {
-                    if (m1[field][j] !== m2[field][j]) {
-                        diff[field] ={
-                            old: m1[field],
-                            new: m2[field]
-                        };
-                        break;
-                    }
-                }
-            }
-        }
-        else if (_.isObject(m2[field])) {
-            if(!_.isEqual(m2[field], m1[field])) {
-                diff[field] ={
-                    old: m1[field],
-                    new: m2[field]
-                };
-            }
-        }
-        else if (m1[field] !== m2[field]) {
+        if(!_.isEqual(m1[field], m2[field])) {
             diff[field] = {
                 old: m1[field],
                 new: m2[field]
             };
         }
+
+//        if (_.isArray(m1[field])) {
+//            if (m1[field].length !== m2[field].length) {
+//                diff[field] = m2[field];
+//            }
+//            else {
+//                for (var j=0;j<m1[field].length;j++) {
+//                    if (m1[field][j] !== m2[field][j]) {
+//                        diff[field] ={
+//                            old: m1[field],
+//                            new: m2[field]
+//                        };
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        else if (_.isObject(m2[field])) {
+//            if(!_.isEqual(m2[field], m1[field])) {
+//                diff[field] ={
+//                    old: m1[field],
+//                    new: m2[field]
+//                };
+//            }
+//        }
+//        else if (m1[field] !== m2[field]) {
+//            diff[field] = {
+//                old: m1[field],
+//                new: m2[field]
+//            };
+//        }
     }
+
     return diff;
 }
 
@@ -761,268 +772,287 @@ exports.removeAnn = function (req, res) {
     });
 };
 
-// data import / data export
-var dataColumns = {
-    heroDef: ["id", "name", "type", "resKey", "stars", "hp", "attack", "defense", "hpGrowth", "attackGrowth", "defenseGrowth",
-        "critical", "attackSpeed", "interval", "speed", "skill", "pSkill", "expFactor", "hpRefine", "attackRefine", "defenseRefine",
-        "coinCost", "attackDelta", "damage", "damageReduction", "damageFactor", "damageRedFactor", "counts", "contribs"],
-    heroDraw: ["id", "itemId", "isSoul", "coinWeight", "goldWeight", "paidCoinWeight", "paidGoldWeight",
-        "tenGoldWeight", "level", "count"],
-    drawNode: [],
-    itemDef: ["id", 'name', 'quality', 'type', 'subType', 'resKey', 'levelReq', 'stackSize', 'composable', 'composeCount',
-        'composeTarget', "useTarget", "itemEffect", 'canSell', 'price', 'desc'],
-    equipmentDef: ['id', 'type', "color", 'name', "level", 'quality', "counts", "desc", 'resKey',
-        'hp', 'attack', 'defense', 'iron', 'hpGrowth', 'attackGrowth', 'defenseGrowth', 'growFactor',
-        'hpRefine', 'attackRefine', 'defenseRefine', 'refineFactor'],
-    gemDef: ["id", "name", "quality", "subType", "level", "resKey", "levelReq", "stackSize", "composable", "composeCount",
-        "composeTarget", "canSell", "price", "hp", "attack", "magic", "defense", "resist", "attackSpeed", "critical",
-        "desc", "extended"],
-    treasure: ["id", "type", "count", "desc", "candidates", "weights"],
-    task: ["id", "level", "type", "weight", "name", "desc", "condition", "reward", "start", "end"],
-    storeitem: ["id", "name", "gold", "price", "defId", "isSoul", "count", "weight"],
-    ballistic: ["id", "value"]
+var modelDict = {
+    herodef: appModels.HeroDef,
+    herodraw: appModels.HeroDraw,
+    drawnode: appModels.DrawNode,
+    itemdef: appModels.ItemDef,
+    equipmentdef: appModels.EquipmentDef,
+    gemdef: appModels.ItemDef,
+    treasure: appModels.Treasure,
+    storeitem: appModels.StoreItem,
+    task: appModels.Task
 };
 
-var transformHeroDef = function (row) {
-    row.attackDelta = JSON.parse(row.attackDelta || "[]");
-    row.id = parseInt(row.id);
-    row.name = (row.name || "").trim();
-    row.resKey = (row.resKey || "").trim();
-    row.type = (row.type || "").trim();
-
-    _.each(["stars", "counts", "hp", "attack", "defense", "skill", "pSkill"
-    ], function (f) {
-        row[f] = parseInt(row[f]) || 0;
-    });
-
-    _.each(["hpRefine", "defenseRefine", "attackRefine", "contribs", "coinCost"
-    ], function (f) {
-        row[f] = JSON.parse(row[f] || "[]");
-    });
-
-    _.each(["hpGrowth", "attackGrowth", "defenseGrowth", "critical", "interval", "attackSpeed", "speed", "expFactor",
-        "damage", "damageReduction", "damageFactor", "damageRedFactor"
-    ], function (f) {
-        row[f] = parseFloat(row[f]) || 0;
-    });
-};
-
-var transformHeroDraw = function (row) {
-    row.id = parseInt(row.id);
-    row.itemId = parseInt(row.itemId);
-    row.isSoul = !!parseInt(row.isSoul || "0");
-    row.coinWeight = parseFloat(row.coinWeight || "1");
-    row.goldWeight = parseFloat(row.goldWeight || "1");
-    row.paidCoinWeight = parseFloat(row.paidCoinWeight || "1");
-    row.paidGoldWeight = parseFloat(row.paidGoldWeight || "1");
-//    row.tenCoinWeight = parseFloat(row.tenCoinWeight || "1");
-    row.tenGoldWeight = parseFloat(row.tenGoldWeight);
-    row.level = parseInt(row.level || "1");
-    row.count = parseInt(row.count || "1");
-};
-
-var transformHeroNode = function (row) {
-};
-
-var transformItemDef = function (row) {
-    row.id = parseInt(row.id);
-
-    _.each(["quality", "levelReq", "stackSize", "composable", "composeCount", "canSell", "price"], function (f) {
-        row[f] = parseFloat(row[f]) || 0;
-    });
-    _.each(["composeTarget", "itemEffect"], function (f) {
-        if (row[f] && row[f] !== "0") {
-            row[f] = JSON.parse(row[f]);
+function adjustField(tblName, allFields, modelSchema) {
+    //对字段进行统一的调整, 从model元数据里提取默认值
+    for(var field in modelSchema) {
+        var fieldValue = modelSchema[field];
+        if(tblName == "task") {
+            //任务需要做特殊处理
+            if(field == "type") {
+                _.forEach(allFields, function(rowFields) {
+                    var rawValue = rowFields[field];
+                    switch(rawValue) {
+                        case "活动":
+                            rowFields[field] = 0;
+                            break;
+                        case "随机":
+                            rowFields[field] = 1;
+                            break;
+                        case "每日":
+                            rowFields[field] = 2;
+                            break;
+                    }
+                });
+                continue;
+            }
+        } else if(tblName == "gemdef") {
+            if (field == "extended") {
+                _.forEach(allFields, function (rowFields) {
+                    var rawValue = rowFields[field];
+                    if (rawValue.length == 0) {
+                        rowFields[field] = fieldValue.default();
+                    } else {
+                        rowFields[field] = {};
+                        rowFields[field].hp = parseInt(rowFields.hp);
+                        rowFields[field].attack = parseFloat(rowFields.attack);
+                        rowFields[field].magic = parseFloat(rowFields.magic);
+                        rowFields[field].defense = parseFloat(rowFields.defense);
+                        rowFields[field].resist = parseFloat(rowFields.resist);
+                        rowFields[field].attackSpeed = parseFloat(rowFields.attackSpeed);
+                        rowFields[field].critical = parseFloat(rowFields.critical);
+                    }
+                });
+                continue;
+            } else if(field == "type") {
+                _.forEach(allFields, function(rowFields) {
+                    rowFields[field] = "宝石";
+                });
+                continue;
+            }
         }
-        else {
-            row[f] = [];
+
+        if(!_.isPlainObject(fieldValue)) {
+            //不带default参数的字段
+            if(fieldValue === Number) {
+                _.forEach(allFields, function(rowFields) {
+                    var rawValue = rowFields[field];
+                    if(rawValue.length == 0) {
+                        rowFields[field] = 0;
+                    } else {
+                        rowFields[field] = parseFloat(rawValue);
+                    }
+                });
+            } else if(fieldValue === Boolean) {
+                _.forEach(allFields, function(rowFields) {
+                    var rawValue = rowFields[field];
+                    if(rawValue.length == 0 || rawValue == "0" || rawValue == "false") {
+                        rowFields[field] = false;
+                    } else {
+                        rowFields[field] = true;
+                    }
+                });
+            } else if(fieldValue === String) {
+                //no action
+            }
+        } else {
+            //带default参数的字段
+            if(fieldValue._type === Number) {
+                _.forEach(allFields, function(rowFields) {
+                    var rawValue = rowFields[field];
+                    if(rawValue.length == 0) {
+                        rowFields[field] = fieldValue.default;
+                    } else {
+                        rowFields[field] = parseFloat(rawValue);
+                    }
+                });
+            } else if(fieldValue._type === Boolean) {
+                _.forEach(allFields, function(rowFields) {
+                    var rawValue = rowFields[field];
+                    if(rawValue.length == 0) {
+                        rowFields[field] = fieldValue.default;
+                    } else if(rawValue == "0" || rawValue == "false") {
+                        rowFields[field] = false;
+                    } else {
+                        rowFields[field] = true;
+                    }
+                });
+            } else if(fieldValue._type === String) {
+                _.forEach(allFields, function(rowFields) {
+                    var rawValue = rowFields[field];
+                    if(rawValue.length == 0) {
+                        rowFields[field] = fieldValue.default;
+                    }
+                });
+            } else if(fieldValue._type === Array) {
+                _.forEach(allFields, function(rowFields) {
+                    var rawValue = rowFields[field];
+                    if(rawValue.length == 0 || rawValue == "0") {
+                        rowFields[field] = fieldValue.default();
+                    } else {
+                        rowFields[field] = JSON.parse(rawValue);
+                    }
+                });
+            } else if(fieldValue._type === Date) {
+                _.forEach(allFields, function(rowFields) {
+                    var rawValue = rowFields[field];
+                    if(rawValue.length == 0) {
+                        rowFields[field] = fieldValue.default();
+                    } else {
+                        rowFields[field] = moment(rawValue).toDate();
+                    }
+                });
+            } else if(fieldValue._type === Object) {
+                _.forEach(allFields, function(rowFields) {
+                    var rawValue = rowFields[field];
+                    if(rawValue === undefined) {
+                        rowFields[field] = fieldValue.default();
+                    }
+                });
+            }
         }
-    });
-    row.canSell = !!row.canSell;
-    row.composable = !!row.composable;
-
-    row.useTarget = parseInt(row.useTarget || "0");
-};
-
-var transformGemDef = function (row) {
-    return {
-        id: parseInt(row.id),
-        name: row.name,
-        type: "宝石",
-        subType: row.subType.trim(),
-        quality: parseInt(row.quality),
-        levelReq: parseInt(row.levelReq),
-        resKey: row.resKey,
-        stackSize: parseInt(row.stackSize),
-        composable: !!parseInt(row.composable),
-        composeCount: parseInt(row.composeCount),
-        composeTarget: (row.composeTarget && row.composeTarget !== "0") ? [parseInt(row.composeTarget)] : [],
-        canSell: !!parseInt(row.canSell),
-        price: parseInt(row.price),
-        desc: row.desc.trim(),
-
-        useTarget: 0,
-        itemEffect: [],
-
-        extended: {
-            hp: parseInt(row.hp),
-            attack: parseFloat(row.attack),
-            magic: parseFloat(row.magic),
-            defense: parseFloat(row.defense),
-            resist: parseFloat(row.resist),
-            attackSpeed: parseFloat(row.attackSpeed),
-            critical: parseFloat(row.critical)
-        }
-    };
-};
-
-var transformEquipmentDef = function (row) {
-    row.id = parseInt(row.id);
-
-    _.each(["color", "level", "quality", "counts", 'hp', 'attack', 'defense', "iron",
-        'hpGrowth', 'attackGrowth', 'defenseGrowth', 'growFactor',
-        'hpRefine', 'attackRefine', 'defenseRefine', 'refineFactor'
-    ], function (f) {
-        row[f] = parseFloat(row[f]) || 0;
-    });
-};
-
-var transformTreasure = function (row) {
-    row.id = parseInt(row.id);
-    row.count = parseInt(row.count);
-    row.candidates = JSON.parse(row.candidates || "[]");
-    row.weights = JSON.parse(row.weights || "[]");
-};
-
-var transformTask = function (row) {
-    row.id = parseInt(row.id);
-    row.level = parseInt(row.level) || 0;
-    row.weight = parseFloat(row.weight) || 1;
-    row.reward = parseInt(row.reward) || 0;
-    row.condition = JSON.parse(row.condition || "[]");
-    row.start = row.start ? moment(row.start).toDate() : null;
-    row.end = row.end ? moment(row.end).toDate() : null;
-
-    switch (row.type) {
-        case "活动":
-            row.type = 0;
-            break;
-        case "随机":
-            row.type = 1;
-            break;
-        case "每日":
-            row.type = 2;
-            break;
     }
-};
-
-var transformStoreItem = function (row) {
-    row.id = parseInt(row.id);
-    row.gold = !!parseInt(row.gold || "0");
-    row.isSoul = !!parseInt(row.isSoul || "0");
-    row.price = parseInt(row.price);
-    row.defId = parseInt(row.defId);
-    row.count = parseInt(row.count);
-    row.weight = parseFloat(row.weight || "0");
-};
+}
 
 exports.import = function (req, res) {
     if (!req.session.user.manRole.data)
         return res.send(400, {message: "没有导入数据的权限"});
 
     var body = req.body;
-    var modelsAndTransform = {
-        heroDef: [appModels.HeroDef, transformHeroDef],
-        heroDraw: [appModels.HeroDraw, transformHeroDraw],
-        drawNode: [appModels.DrawNode, transformHeroNode],
-        itemDef: [appModels.ItemDef, transformItemDef],
-        equipmentDef: [appModels.EquipmentDef, transformEquipmentDef],
-        gemDef: [appModels.ItemDef, transformGemDef],
-        treasure: [appModels.Treasure, transformTreasure],
-        storeitem: [appModels.StoreItem, transformStoreItem],
-        task: [appModels.Task, transformTask]
-    };
 
     if (req.files) {
-        fs.readFile(req.files.file.path, function (err, data) {
-            if (body.encoding !== "utf8") {
-                try {
-                    data = GB2UTF8.convert(data);
-                }
-                catch (err) {}
+//        var workBook = xlsx.readFile(req.files.file.path);
+        excel.worksheets({
+            inFile: req.files.file.path
+        }, function (err, sheets) {
+            if (err) {
+                return res.send(400, {message: err.toString()});
             }
-            csv().from.string(data, { columns: dataColumns[body.tag] }).to.array(function (newDefs) {
-                while (newDefs.length > 0 && newDefs[0].id === "[SKIP]") {
-                    newDefs.shift();
-                }
-                if (newDefs.length === 0) {
-                    return res.send({news: [], mods: [], updates: [], tag: body.tag});
+
+            var sheetDict = {};
+            for (var i in sheets) {
+                var sheet = sheets[i];
+                var re = /\((\w+)\)/;
+
+                if (!re.test(sheet.name)) {
+                    continue;
                 }
 
-                var ids = _.pick(newDefs, "id");
-                modelsAndTransform[body.tag][0].run()
-                .then(function (stock) {
-                    stock = _.indexBy(stock, "id");
-                    var compareCols = _.without(dataColumns[body.tag], "id");
-                    var diffCol = {news: [], mods: [], updates: [], tag: body.tag};
-                    _.each(newDefs, function (value) {
-                        if (value.id === null || value.id === undefined || _.isNaN(value.id)) return;
-                        var key = value.id.toString();
-                        if (stock[key] === undefined) {
-                            diffCol.news.push(value);
-                            diffCol.updates.push(value);
-                        }
-                        else {
-                            var diff = diffModel(stock[key], value, compareCols);
-                            if (_.size(diff) > 1) {
-                                diffCol.mods.push(diff);
-                                var update = {};
-                                _.each(diff, function (value, key) {
-                                    if (value.new !== undefined && value.old !== undefined) {
-                                        update[key] = value.new;
-                                    }
-                                    else {
-                                        update[key] = value;
-                                    }
-                                });
-                                diffCol.updates.push(update);
+                var tblName = RegExp.$1;
+                var Model = modelDict[tblName];
+
+                if (Model === undefined) {
+                    continue;
+                }
+
+                sheetDict[sheet.id] = [tblName, Model];
+            }
+
+            if(_.size(sheetDict) == 0) {
+                return res.send(400, {message: "后台系统没有检测到需要导入的表"});
+            }
+
+            var allDiffColumns = [];
+            var parse = function (id) {
+                var tblName = sheetDict[id][0];
+                var Model = sheetDict[id][1];
+                excel.parse({
+                    inFile: req.files.file.path,
+                    worksheet: id
+                }, function (err, records) {
+                    if (err) {
+                        return res.send(400, {message: err.toString()});
+                    }
+
+                    if (records.length <= 2) {
+                        return res.send(400, {message: "文件行数少于两行"});
+                    }
+
+                    var allFields = [];
+                    var keys = records[1];
+
+                    for (var i = 2; i < records.length; ++i) {
+                        var record = records[i];
+                        var rowFields = {};
+
+                        for (var j = 0; j < record.length; ++j) {
+                            if (keys[j] == "id") {
+                                rowFields["id"] = parseInt(record[j]);
+                            } else {
+                                rowFields[keys[j]] = record[j].trim();
                             }
                         }
-                    });
-                    res.send(diffCol);
-                })
-                .catch(function (err) {
-                    res.send(400, {message: ""+err});
-                });
-            }).transform(function (row, index) {
-                if (index < 2) {
-                    row.id = "[SKIP]";
-                }
-                else if (body.tag !== "ballistic") {
-                    var newRow = modelsAndTransform[body.tag][1](row);
-                    if (newRow) return newRow;
-                }
-                return row;
-            });
-        });
-    }
-    else if (body.confirm) {
-        var updates = _.map(body.updates, function (d) {
-            var Model = modelsAndTransform[body.tag][0];
-            if (!d.id) {
-                return (new Model(d)).save();
-            }
-            else {
-                return Model.insert(d, {"conflict": "update"}).run();
-            }
-        });
 
-        Promise.all(updates).then(function () {
-            pomeloConn.client.request("cacheMonitor", {type: body.tag});
-            res.send(200);
-        })
-        .catch(function (err) {
-            res.send(400, {message: ""+err});
+                        allFields.push(rowFields);
+                    }
+
+                    var modelSchema = Model.__proto__._schema;
+                    adjustField(tblName, allFields, modelSchema);
+
+                    Model.run().then(function (stock) {
+                        stock = _.indexBy(stock, "id");
+                        var compareCols = _.keys(modelSchema);
+                        var diffCol = {news: [], mods: [], updates: [], tag: tblName};
+                        _.forEach(allFields, function (rowFields) {
+                            if (rowFields.id === null || rowFields.id === undefined || _.isNaN(rowFields.id)) {
+                                return;
+                            }
+                            var key = rowFields.id.toString();
+                            if (stock[key] === undefined) {
+                                diffCol.news.push(rowFields);
+                                diffCol.updates.push(rowFields);
+                            } else {
+                                var diff = diffModel(stock[key], rowFields, compareCols);
+                                if (_.size(diff) > 1) {
+                                    diffCol.mods.push(diff);
+                                    var update = {};
+                                    _.forEach(diff, function (value, key) {
+                                        if (value.new !== undefined && value.old !== undefined) {
+                                            update[key] = value.new;
+                                        } else {
+                                            update[key] = value;
+                                        }
+                                    });
+
+                                    diffCol.updates.push(update);
+                                }
+                            }
+                        });
+
+                        allDiffColumns.push(diffCol);
+                        if(allDiffColumns.length == _.size(sheetDict)) {
+                            res.send(allDiffColumns);
+                        }
+                    }).catch(function (err) {
+                        res.send(400, {message: err.toString()});
+                    });
+
+                    if (id < _.size(sheetDict)) {
+                        parse(id + 1);
+                    }
+                });
+            };
+            parse(1);
+        });
+    } else if (body.confirm) {
+        _.forEach(body.allDiff, function (tbl) {
+            var updates = _.map(tbl.updates, function (d) {
+                var Model = modelDict[tbl.tag];
+                if (!d.id) {
+                    return (new Model(d)).save();
+                }
+                else {
+                    return Model.insert(d, {"conflict": "update"}).run();
+                }
+            });
+
+            Promise.all(updates).then(function () {
+                pomeloConn.client.request("cacheMonitor", {type: tbl.tag});
+                res.send(200);
+            }).catch(function (err) {
+                res.send(400, {message: "" + err.toString()});
+            });
         });
     }
     else {
@@ -1033,130 +1063,61 @@ exports.import = function (req, res) {
 exports.export = function (req, res) {
     if (!req.session.user.manRole.data)
         return res.send(400, {message: "没有导出数据的权限"});
+    var tag = req.body.tag;
+    var Model = modelDict[tag];
 
-    var data = req.body;
-    res.header('content-type','text/csv');
-    res.header('content-disposition', 'attachment; filename=' + data.tag + '.csv');
+    if(Model === undefined) {
+        return res.send(400, {message: "后台系统没有检测到需要导出的表"});
+    }
 
-    if (data.tag === "heroDef") {
-        appModels.HeroDef.orderBy("id").run().then(function (hDefs) {
-            csv().from.array(hDefs, { columns: dataColumns[data.tag] }).to(res, {
-                header: true,
-                eof: true,
-                columns: dataColumns[data.tag]
-            }).transform(function (row) {
-                _.each(["attackDelta"], function (f) {
-                    row[f] = JSON.stringify(row[f]);
+    var wb = new excel_export.WorkBook();
+    var ws = wb.WorkSheet("(" + tag + ")");
+    var modelSchema = Model.__proto__._schema;
+    var keys = _.keys(modelSchema);
+    keys.unshift("id");
+    var writeXlsx = function(stock) {
+        var col = 1;
+        _.forEach(keys, function(field) {
+            var row = 3;
+            var fieldValue = modelSchema[field];
+            ws.Cell(1, col).String("标题 " + col);
+            ws.Cell(2, col).String(field);
+
+            if(tag == "task" && field == "type") {
+                _.forEach(stock, function(rowFields) {
+                    ws.Cell(row++, col).String(["活动", "随机", "每日"][rowFields[field]]);
                 });
-                return row;
-            });
-        });
-    }
-    else if (data.tag === "heroDraw") {
-        appModels.HeroDraw.orderBy("id").run().then(function (hDraws) {
-            csv().from.array(hDraws, { columns: dataColumns[data.tag] }).to(res, {
-                header: true,
-                eof: true,
-                columns: dataColumns[data.tag]
-            });
-        });
-    }
-    else if (data.tag === "drawNode") {
-
-    }
-    else if (data.tag === "itemDef") {
-        appModels.ItemDef.filter(r.row("type").ne("宝石")).orderBy("id").run().then(function (itemDefs) {
-            csv().from.array(itemDefs, { columns: dataColumns[data.tag] }).to(res, {
-                header: true,
-                eof: true,
-                columns: dataColumns.itemDef
-            }).transform(function (row) {
-                row.canSell = row.canSell ? 1 : 0;
-                row.composable = row.composable ? 1: 0;
-                row.composeTarget = JSON.stringify(row.composeTarget);
-                row.itemEffect = JSON.stringify(row.itemEffect);
-                return row;
-            });
-        });
-    }
-    else if (data.tag === "equipmentDef") {
-        appModels.EquipmentDef.orderBy("id").run().then(function (eqDefs) {
-            csv().from.array(eqDefs, { columns: dataColumns[data.tag] }).to(res, {
-                header: true,
-                eof: true,
-                columns: dataColumns.equipmentDef
-            }).transform(function (row) {
-                return row;
-            });
-        });
-    }
-    else if (data.tag === "gemDef") {
-        appModels.ItemDef.filter({type: "宝石"}).orderBy("id").run().then(function (itemDefs) {
-            csv().from.array(itemDefs, { columns: dataColumns[data.tag] }).to(res, {
-                header: true,
-                eof: true,
-                columns: dataColumns[data.tag]
-            }).transform(function (row) {
-                row.composeTarget = row.composeTarget.length ? row.composeTarget[0] : 0;
-                row.level = 0;
-                row.canSell = row.canSell ? 1 : 0;
-                row.composable = row.composable ? 1: 0;
-                _.extend(row, row.extended);
-                row.extended = undefined;
-                return row;
-            });
-        });
-    }
-    else if (data.tag === "stage") {
-
-    }
-    else if (data.tag === "treasure") {
-        appModels.Treasure.orderBy("id").run().then(function (treasures) {
-            csv().from.array(treasures, { columns: dataColumns[data.tag] }).to(res, {
-                header: true,
-                eof: true,
-                columns: {
-                    id: "id",
-                    type: "类型",
-                    count: "数量",
-                    desc: "说明",
-                    candidates: "选择",
-                    weights: "权重"
+            } else if(tag == "itemdef" && field == "extended") {
+                --col;
+            } else {
+                if (_.isPlainObject(fieldValue)) {
+                    if (fieldValue._type === Array || fieldValue._type === Object) {
+                        _.forEach(stock, function (rowFields) {
+                            ws.Cell(row++, col).String(JSON.stringify(rowFields[field]));
+                        });
+                    } else {
+                        _.forEach(stock, function (rowFields) {
+                            ws.Cell(row++, col).String(rowFields[field]);
+                        });
+                    }
+                } else {
+                    _.forEach(stock, function (rowFields) {
+                        ws.Cell(row++, col).String(rowFields[field]);
+                    });
                 }
-            });
-        }).transform(function (row) {
-            row.candidates = JSON.stringify(row.candidates);
-            row.weights = JSON.stringify(row.weights);
-            return row;
+            }
+            ++col;
         });
-    }
-    else if (data.tag === "task") {
-        appModels.Task.orderBy("id").run().then(function (tasks) {
-            csv().from.array(tasks, { columns: dataColumns[data.tag] }).to(res, {
-                header: true,
-                eof: true,
-                columns: dataColumns.task
-            }).transform(function (row) {
-                row.condition = JSON.stringify(row.condition);
-                row.type = ["活动", "随机", "每日"][row.type];
-                if (row.start) row.start = +row.start;
-                if (row.end) row.end = +row.end;
-                return row;
-            });
-        });
-    }
-    else if (data.tag === "storeitem") {
-        appModels.StoreItem.orderBy("id").run().then(function (items) {
-            csv().from.array(items, { columns: dataColumns[data.tag] }).to(res, {
-                header: true,
-                eof: true,
-                columns: dataColumns.storeitem
-            }).transform(function (row) {
-                row.gold = row.gold ? 1 : 0;
-                row.isSoul = row.isSoul ? 1 : 0;
-                return row;
-            });
-        });
+
+        wb.write(tag + ".xlsx", res);
+    };
+
+    if(tag == "itemdef") {
+        Model.filter(r.row("type").ne("宝石")).orderBy("id").run().then(writeXlsx);
+    } else if(tag == "gemdef") {
+        Model.filter({type: "宝石"}).orderBy("id").run().then(writeXlsx);
+    } else {
+        Model.orderBy("id").run().then(writeXlsx);
     }
 };
 

@@ -645,15 +645,20 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
         var file = $files[0];
         $upload.upload({
             url: "/api/import",
-            data: {encoding: $scope.isUTF8 ? "utf8" : "", tag: tag},
+            data: {encoding: $scope.isUTF8 ? "utf8" : ""},
             file: file
-        })
-        .success(function (data) {
-            if (data.updates.length === 0) {
+        }).success(function (data) {
+            var noChange = true;
+            for(var i = 0; i < data.length; ++i) {
+                if(data[i].updates.length > 0) {
+                    noChange = false;
+                }
+            }
+
+            if(noChange) {
                 $scope.info = "无更新";
                 $timeout(function () {$scope.info = null;}, 2000);
-            }
-            else {
+            } else {
                 $scope.error = null;
                 $scope.toConfirm = data;
             }
@@ -666,8 +671,7 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
     $scope.confirm = function () {
         var req = {
             confirm: true,
-            tag: $scope.toConfirm.tag,
-            updates: $scope.toConfirm.updates
+            allDiff: $scope.toConfirm
         };
         $http.post("/api/import", req)
         .success(function (data){
