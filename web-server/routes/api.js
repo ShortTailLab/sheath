@@ -5,7 +5,6 @@ var moment = require("moment");
 var appModels = require("../../shared/models");
 var excel = require("excel-parser");
 var excel_export = require("excel4node");
-var xlsx = require("xlsx");
 var r = appModels.r;
 var csv = require("csv");
 var fs = require("fs");
@@ -922,7 +921,6 @@ exports.import = function (req, res) {
     var body = req.body;
 
     if (req.files) {
-//        var workBook = xlsx.readFile(req.files.file.path);
         excel.worksheets({
             inFile: req.files.file.path
         }, function (err, sheets) {
