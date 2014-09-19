@@ -16,17 +16,21 @@ var express = require('express'),
 var app = express();
 var pub = __dirname + '/public';
 var view = __dirname + '/views';
-var dbConfig = require("./config/rethinkdb.json");
+var dbConfig = require("../game-server/config/rethinkdb.json");
+var redisConfig = require("../game-server/config/redis.json");
 
 switch (process.env.NODE_ENV) {
     case "production":
         dbConfig = dbConfig.production;
+        redisConfig = redisConfig.production;
         break;
     case "test":
         dbConfig = dbConfig.test;
+        redisConfig = redisConfig.test;
         break;
     default:
         dbConfig = dbConfig.development;
+        redisConfig = redisConfig.development;
         break;
 }
 
@@ -87,7 +91,19 @@ app.set('views', view);
 app.set('view engine', 'jade');
 app.use(express.bodyParser());
 app.use(express.cookieParser());
-app.use(express.session({secret: '435+43@#$234@$#44299'}));
+
+var RedisStore = require("connect-redis")(express);
+app.use(express.session({
+    store: new RedisStore({
+        host: redisConfig.host,
+        port: redisConfig.port,
+        prefix: "sess." + process.env.NODE_ENV,
+
+        parser: "hiredis"
+    }),
+    secret: '435+43@#$234@$#44299'
+}));
+
 app.use(app.router);
 
 /**
