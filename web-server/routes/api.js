@@ -6,7 +6,6 @@ var appModels = require("../../shared/models");
 var excel = require("excel-parser");
 var excel_export = require("excel4node");
 var r = appModels.r;
-var csv = require("csv");
 var fs = require("fs");
 var Iconv  = require('iconv').Iconv;
 var GB2UTF8 = new Iconv("GB18030", "UTF-8");
@@ -996,26 +995,17 @@ exports.import = function (req, res) {
                             if (rowFields.id === null || rowFields.id === undefined || _.isNaN(rowFields.id)) {
                                 return;
                             }
+
                             var key = rowFields.id.toString();
                             if (stock[key] === undefined) {
                                 diffCol.news.push(rowFields);
-                                diffCol.updates.push(rowFields);
                             } else {
                                 var diff = diffModel(stock[key], rowFields, compareCols);
                                 if (_.size(diff) > 1) {
                                     diffCol.mods.push(diff);
-                                    var update = {};
-                                    _.forEach(diff, function (value, key) {
-                                        if (value.new !== undefined && value.old !== undefined) {
-                                            update[key] = value.new;
-                                        } else {
-                                            update[key] = value;
-                                        }
-                                    });
-
-                                    diffCol.updates.push(update);
                                 }
                             }
+                            diffCol.updates.push(rowFields);
                         });
 
                         allDiffColumns.push(diffCol);
@@ -1035,21 +1025,23 @@ exports.import = function (req, res) {
         });
     } else if (body.confirm) {
         _.forEach(body.allDiff, function (tbl) {
-            var updates = _.map(tbl.updates, function (d) {
-                var Model = modelDict[tbl.tag];
-                if (!d.id) {
-                    return (new Model(d)).save();
-                }
-                else {
-                    return Model.insert(d, {"conflict": "update"}).run();
-                }
-            });
+            var Model = modelDict[tbl.tag];
+            Model.delete().run().then(function() {
+                var updates = _.map(tbl.updates, function (d) {
+                    if (!d.id) {
+                        return (new Model(d)).save();
+                    }
+                    else {
+                        return Model.insert(d, {"conflict": "update"}).run();
+                    }
+                });
+                Promise.all(updates).then(function () {
+                    pomeloConn.client.request("cacheMonitor", {type: tbl.tag});
+                    res.send(200);
+                }).catch(function (err) {
+                    res.send(400, {message: "" + err.toString()});
+                });
 
-            Promise.all(updates).then(function () {
-                pomeloConn.client.request("cacheMonitor", {type: tbl.tag});
-                res.send(200);
-            }).catch(function (err) {
-                res.send(400, {message: "" + err.toString()});
             });
         });
     }
