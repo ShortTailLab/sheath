@@ -12,9 +12,6 @@ div(ng-show="!toConfirm")
             p {{error}}
         div(class="message success", ng-show="info")
             p {{info}}
-        label.checkbox
-            input(type='checkbox', ng-model="isUTF8")
-            | UTF8
         +uploadBox("导入文件:", "upload")
         hr
 
@@ -25,32 +22,32 @@ div(ng-show="toConfirm")
         div(class="message success", ng-show="info")
             p {{info}}
         div(ng-repeat="tbl in toConfirm")
-            h2(ng-show="tbl.news.length + tbl.mods.length") 表: {{tbl.tag}}
-            div(ng-show="tbl.news")
+            h2(ng-show="tbl.news[1].length + tbl.mods[1].length") 表: {{tbl.tag}}
+            div(ng-show="tbl.news[1]")
                 h2 新条目
-                pre(ng-repeat="n in tbl.news"): table.table
+                pre(ng-repeat="n in tbl.news[1]"): table.table
                     thead
                         th key
                         th value
-                    tr(ng-repeat="(key, value) in n")
+                    tr(ng-repeat="key in tbl.news[0]" ng-if="n[key]")
                         td: | {{key}}
-                        td: | {{value}}
-            div(ng-show="tbl.mods")
+                        td: | {{n[key]}}
+            div(ng-show="tbl.mods[1]")
                 h2 修改条目
-                pre(ng-repeat="n in tbl.mods"): table.table
+                pre(ng-repeat="n in tbl.mods[1]"): table.table
                     thead
                         th key
                         th 原值
                         th
                         th 新值
-                    tr(ng-repeat="(key, value) in n")
+                    tr(ng-repeat="key in tbl.mods[0]" ng-if="n[key]")
                         td: | {{key}}
-                        td(ng-show="value.new !== undefined && value.old !== undefined"): | {{value.old}}
-                        td(ng-show="value.new !== undefined && value.old !== undefined"): |  ==>
-                        td(ng-show="value.new !== undefined && value.old !== undefined"): | {{value.new}}
-                        td(ng-show="!(value.new !== undefined && value.old !== undefined)")
-                        td(ng-show="!(value.new !== undefined && value.old !== undefined)")
-                        td(ng-show="!(value.new !== undefined && value.old !== undefined)"): | {{value}}
+                        td(ng-show="n[key].new !== undefined && n[key].old !== undefined"): | {{n[key].old}}
+                        td(ng-show="n[key].new !== undefined && n[key].old !== undefined"): | ===>
+                        td(ng-show="n[key].new !== undefined && n[key].old !== undefined"): | {{n[key].new}}
+                        td(ng-show="!(n[key].new !== undefined && n[key].old !== undefined)")
+                        td(ng-show="!(n[key].new !== undefined && n[key].old !== undefined)")
+                        td(ng-show="!(n[key].new !== undefined && n[key].old !== undefined)"): | {{n[key]}}
         hr
         .row
             button.col-md-1.col-md-offset-9(type="submit", class="btn btn-primary", ng-click="confirm()") 确认

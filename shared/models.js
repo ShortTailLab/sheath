@@ -183,8 +183,8 @@ exports.init = function (dbConfig) {
     var EquipmentDef = exports.EquipmentDef = schema.createModel("equipmentdef", {
         name: {_type: String, default: ""},
         desc: {_type: String, default: ""},
-        color: {_type: Number, default: 1},
-        quality: {_type: Number, default: 0},
+        quality: {_type: Number, default: 1},
+        refineLevel: {_type: Number, default: 0},
         counts: {_type: Number, default: 0},
         type: {_type: String, default: ""},
         resKey: {_type: String, default: ""},

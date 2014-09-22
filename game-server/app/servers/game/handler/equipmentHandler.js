@@ -82,7 +82,7 @@ class EquipmentHandler extends base.HandlerBase {
             if (equipment.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
-            if (equipment.refinement >= itemDef.quality) {
+            if (equipment.refinement >= itemDef.refineLevel) {
                 return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
             }
 

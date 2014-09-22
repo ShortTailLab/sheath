@@ -7,9 +7,6 @@ var excel = require("excel-parser");
 var excel_export = require("excel4node");
 var r = appModels.r;
 var fs = require("fs");
-var Iconv  = require('iconv').Iconv;
-var GB2UTF8 = new Iconv("GB18030", "UTF-8");
-var UTF82GB = new Iconv("UTF-8", "GB18030");
 
 function diffModel(m1, m2, fields) {
     var diff = {id: m1.id};
@@ -801,6 +798,9 @@ function adjustField(tblName, allFields, modelSchema) {
                         case "每日":
                             rowFields[field] = 2;
                             break;
+                        default:
+                            rowFields[field] = 0;
+                            break;
                     }
                 });
                 continue;
@@ -809,7 +809,7 @@ function adjustField(tblName, allFields, modelSchema) {
             if (field == "extended") {
                 _.forEach(allFields, function (rowFields) {
                     var rawValue = rowFields[field];
-                    if (rawValue === undefined || rawValue.length == 0) {
+                    if (!rawValue) {
                         rowFields[field] = fieldValue.default();
                     } else {
                         rowFields[field] = {};
@@ -831,84 +831,55 @@ function adjustField(tblName, allFields, modelSchema) {
             }
         }
 
-        if(!_.isPlainObject(fieldValue)) {
-            //不带default参数的字段
-            if(fieldValue === Number) {
-                _.forEach(allFields, function(rowFields) {
-                    var rawValue = rowFields[field];
-                    if(rawValue === undefined || rawValue.length == 0) {
-                        rowFields[field] = 0;
-                    } else {
-                        rowFields[field] = parseFloat(rawValue);
-                    }
-                });
-            } else if(fieldValue === Boolean) {
-                _.forEach(allFields, function(rowFields) {
-                    var rawValue = rowFields[field];
-                    if(rawValue === undefined || rawValue.length == 0 || rawValue == "0" || rawValue == "false" || rawValue == "False" || rawValue == "FALSE") {
-                        rowFields[field] = false;
-                    } else {
-                        rowFields[field] = true;
-                    }
-                });
-            } else if(fieldValue === String) {
-                //no action
+        var defaultValue;
+        var fieldType;
+        if(_.isPlainObject(fieldValue)) {
+            fieldType = fieldValue._type;
+            if(_.isFunction(fieldValue.default)) {
+                defaultValue = fieldValue.default();
+            } else {
+                defaultValue = fieldValue.default;
             }
         } else {
-            //带default参数的字段
-            if(fieldValue._type === Number) {
-                _.forEach(allFields, function(rowFields) {
-                    var rawValue = rowFields[field];
-                    if(rawValue === undefined || rawValue.length == 0) {
-                        rowFields[field] = fieldValue.default;
-                    } else {
-                        rowFields[field] = parseFloat(rawValue);
-                    }
-                });
-            } else if(fieldValue._type === Boolean) {
-                _.forEach(allFields, function(rowFields) {
-                    var rawValue = rowFields[field];
-                    if(rawValue === undefined || rawValue.length == 0) {
-                        rowFields[field] = fieldValue.default;
-                    } else if(rawValue == "0" || rawValue == "false" || rawValue == "False" || rawValue == "FALSE") {
-                        rowFields[field] = false;
-                    } else {
-                        rowFields[field] = true;
-                    }
-                });
-            } else if(fieldValue._type === String) {
-                _.forEach(allFields, function(rowFields) {
-                    var rawValue = rowFields[field];
-                    if(rawValue === undefined || rawValue.length == 0) {
-                        rowFields[field] = fieldValue.default;
-                    }
-                });
-            } else if(fieldValue._type === Array) {
-                _.forEach(allFields, function(rowFields) {
-                    var rawValue = rowFields[field];
-                    if(rawValue === undefined || rawValue.length == 0 || rawValue == "0") {
-                        rowFields[field] = fieldValue.default();
-                    } else {
-                        rowFields[field] = JSON.parse(rawValue);
-                    }
-                });
-            } else if(fieldValue._type === Date) {
-                _.forEach(allFields, function(rowFields) {
-                    var rawValue = rowFields[field];
-                    if(rawValue === undefined || rawValue.length == 0) {
-                        rowFields[field] = fieldValue.default();
-                    } else {
-                        rowFields[field] = moment(rawValue).toDate();
-                    }
-                });
-            } else if(fieldValue._type === Object) {
-                _.forEach(allFields, function(rowFields) {
-                    var rawValue = rowFields[field];
-                    if(rawValue === undefined) {
-                        rowFields[field] = fieldValue.default();
-                    }
-                });
-            }
+            fieldType = fieldValue;
+        }
+
+        if(fieldType === Number) {
+            defaultValue = _.isUndefined(defaultValue) ? 0 : defaultValue;
+            _.forEach(allFields, function(rowFields) {
+                var rawValue = rowFields[field];
+                rowFields[field] = rawValue ? parseFloat(rawValue) : defaultValue;
+            });
+        } else if(fieldType === Boolean) {
+            defaultValue = _.isUndefined(defaultValue) ? false : defaultValue;
+            _.forEach(allFields, function(rowFields) {
+                var rawValue = rowFields[field];
+                rowFields[field] = rawValue ? rawValue.toLowerCase() !== "false" && rawValue !== "0" : defaultValue;
+            });
+        } else if(fieldType === String) {
+            defaultValue = _.isUndefined(defaultValue) ? "" : defaultValue;
+            _.forEach(allFields, function(rowFields) {
+                var rawValue = rowFields[field];
+                rowFields[field] = rawValue ? rawValue : defaultValue;
+            });
+        } else if(fieldType === Array) {
+            defaultValue = _.isUndefined(defaultValue) ? [] : defaultValue;
+            _.forEach(allFields, function(rowFields) {
+                var rawValue = rowFields[field];
+                rowFields[field] = rawValue && rawValue !== "0" ? JSON.parse(rawValue) : defaultValue;
+            });
+        } else if(fieldType === Date) {
+            defaultValue = _.isUndefined(defaultValue) ? new Date() : defaultValue;
+            _.forEach(allFields, function(rowFields) {
+                var rawValue = rowFields[field];
+                rowFields[field] = rawValue ? moment(rawValue).toDate() : defaultValue;
+            });
+        } else if(fieldType === Object) {
+            defaultValue = _.isUndefined(defaultValue) ? {} : defaultValue;
+            _.forEach(allFields, function(rowFields) {
+                var rawValue = rowFields[field];
+                rowFields[field] = rawValue && rawValue !== "0" ? JSON.parse(rawValue) : defaultValue;
+            });
         }
     }
 }
@@ -928,9 +899,10 @@ exports.import = function (req, res) {
             }
 
             var sheetDict = {};
+            var re = /\((\w+)\)/;
+
             for (var i in sheets) {
                 var sheet = sheets[i];
-                var re = /\((\w+)\)/;
 
                 if (!re.test(sheet.name)) {
                     continue;
@@ -939,7 +911,7 @@ exports.import = function (req, res) {
                 var tblName = RegExp.$1;
                 var Model = modelDict[tblName];
 
-                if (Model === undefined) {
+                if (!Model) {
                     continue;
                 }
 
@@ -974,11 +946,7 @@ exports.import = function (req, res) {
                         var rowFields = {};
 
                         for (var j = 0; j < record.length; ++j) {
-                            if (keys[j] == "id") {
-                                rowFields["id"] = parseInt(record[j]);
-                            } else {
-                                rowFields[keys[j]] = record[j].trim();
-                            }
+                            rowFields[keys[j]] = record[j].trim();
                         }
 
                         allFields.push(rowFields);
@@ -990,19 +958,19 @@ exports.import = function (req, res) {
                     Model.run().then(function (stock) {
                         stock = _.indexBy(stock, "id");
                         var compareCols = _.keys(modelSchema);
-                        var diffCol = {news: [], mods: [], updates: [], tag: tblName};
+                        var diffCol = {news: [keys, []], mods: [keys, []], updates: [], tag: tblName};
                         _.forEach(allFields, function (rowFields) {
-                            if (rowFields.id === null || rowFields.id === undefined || _.isNaN(rowFields.id)) {
+                            if (!rowFields.id) {
                                 return;
                             }
 
                             var key = rowFields.id.toString();
-                            if (stock[key] === undefined) {
-                                diffCol.news.push(rowFields);
+                            if (stock[key] == null) {
+                                diffCol.news[1].push(rowFields);
                             } else {
                                 var diff = diffModel(stock[key], rowFields, compareCols);
                                 if (_.size(diff) > 1) {
-                                    diffCol.mods.push(diff);
+                                    diffCol.mods[1].push(diff);
                                 }
                             }
                             diffCol.updates.push(rowFields);
@@ -1024,25 +992,20 @@ exports.import = function (req, res) {
             parse(1);
         });
     } else if (body.confirm) {
-        _.forEach(body.allDiff, function (tbl) {
+        var allSavePromise = _.map(body.allDiff, function (tbl) {
+            console.log(JSON.stringify(tbl));
             var Model = modelDict[tbl.tag];
-            Model.delete().run().then(function() {
-                var updates = _.map(tbl.updates, function (d) {
-                    if (!d.id) {
-                        return (new Model(d)).save();
-                    }
-                    else {
-                        return Model.insert(d, {"conflict": "update"}).run();
-                    }
-                });
-                Promise.all(updates).then(function () {
+            return Model.delete().run().then(function() {
+                return Model.save(tbl.updates).then(function() {
                     pomeloConn.client.request("cacheMonitor", {type: tbl.tag});
-                    res.send(200);
-                }).catch(function (err) {
-                    res.send(400, {message: "" + err.toString()});
                 });
-
             });
+        });
+
+        Promise.all(allSavePromise).then(function() {
+            res.send(200);
+        }).catch(function(err) {
+            res.send(400, {message: "" + err.toString()});
         });
     }
     else {
@@ -1059,6 +1022,10 @@ exports.export = function (req, res) {
     if(Model === undefined) {
         return res.send(400, {message: "后台系统没有检测到需要导出的表"});
     }
+
+    var lcun = function() {
+
+    };
 
     var wb = new excel_export.WorkBook();
     var ws = wb.WorkSheet("(" + tag + ")");

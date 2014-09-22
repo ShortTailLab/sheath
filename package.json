@@ -6,7 +6,6 @@
     "private": true,
     "dependencies": {
         "mkdirp": "latest",
-        "csv": "0.3.7",
         "excel-parser": "latest",
         "excel4node": "latest",
         "sse4_crc32": "latest",

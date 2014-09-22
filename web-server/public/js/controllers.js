@@ -641,11 +641,11 @@ sheathControllers.controller('addAdminController', function ($scope, $http, $mod
 });
 
 sheathControllers.controller('importController', function ($scope, $http, $upload, $timeout) {
+    console.log("import function.......")
     $scope.upload = function ($files, tag) {
         var file = $files[0];
         $upload.upload({
             url: "/api/import",
-            data: {encoding: $scope.isUTF8 ? "utf8" : ""},
             file: file
         }).success(function (data) {
             var noChange = true;
@@ -661,6 +661,7 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
             } else {
                 $scope.error = null;
                 $scope.toConfirm = data;
+                console.log("have dataaaaaaa: "  + data);
             }
         })
         .error(function (err) {
