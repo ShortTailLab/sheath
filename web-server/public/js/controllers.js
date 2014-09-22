@@ -641,7 +641,6 @@ sheathControllers.controller('addAdminController', function ($scope, $http, $mod
 });
 
 sheathControllers.controller('importController', function ($scope, $http, $upload, $timeout) {
-    console.log("import function.......")
     $scope.upload = function ($files, tag) {
         var file = $files[0];
         $upload.upload({
@@ -661,7 +660,6 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
             } else {
                 $scope.error = null;
                 $scope.toConfirm = data;
-                console.log("have dataaaaaaa: "  + data);
             }
         })
         .error(function (err) {

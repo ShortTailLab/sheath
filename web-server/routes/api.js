@@ -805,7 +805,8 @@ function adjustField(tblName, allFields, modelSchema) {
                 });
                 continue;
             }
-        } else if(tblName == "gemdef") {
+        }
+        else if(tblName == "gemdef") {
             if (field == "extended") {
                 _.forEach(allFields, function (rowFields) {
                     var rawValue = rowFields[field];
@@ -837,10 +838,12 @@ function adjustField(tblName, allFields, modelSchema) {
             fieldType = fieldValue._type;
             if(_.isFunction(fieldValue.default)) {
                 defaultValue = fieldValue.default();
-            } else {
+            }
+            else {
                 defaultValue = fieldValue.default;
             }
-        } else {
+        }
+        else {
             fieldType = fieldValue;
         }
 
@@ -850,31 +853,36 @@ function adjustField(tblName, allFields, modelSchema) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue ? parseFloat(rawValue) : defaultValue;
             });
-        } else if(fieldType === Boolean) {
+        }
+        else if(fieldType === Boolean) {
             defaultValue = _.isUndefined(defaultValue) ? false : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue ? rawValue.toLowerCase() !== "false" && rawValue !== "0" : defaultValue;
             });
-        } else if(fieldType === String) {
+        }
+        else if(fieldType === String) {
             defaultValue = _.isUndefined(defaultValue) ? "" : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue ? rawValue : defaultValue;
             });
-        } else if(fieldType === Array) {
+        }
+        else if(fieldType === Array) {
             defaultValue = _.isUndefined(defaultValue) ? [] : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue && rawValue !== "0" ? JSON.parse(rawValue) : defaultValue;
             });
-        } else if(fieldType === Date) {
+        }
+        else if(fieldType === Date) {
             defaultValue = _.isUndefined(defaultValue) ? new Date() : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue ? moment(rawValue).toDate() : defaultValue;
             });
-        } else if(fieldType === Object) {
+        }
+        else if(fieldType === Object) {
             defaultValue = _.isUndefined(defaultValue) ? {} : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
@@ -967,7 +975,8 @@ exports.import = function (req, res) {
                             var key = rowFields.id.toString();
                             if (stock[key] == null) {
                                 diffCol.news[1].push(rowFields);
-                            } else {
+                            }
+                            else {
                                 var diff = diffModel(stock[key], rowFields, compareCols);
                                 if (_.size(diff) > 1) {
                                     diffCol.mods[1].push(diff);
@@ -1023,10 +1032,6 @@ exports.export = function (req, res) {
         return res.send(400, {message: "后台系统没有检测到需要导出的表"});
     }
 
-    var lcun = function() {
-
-    };
-
     var wb = new excel_export.WorkBook();
     var ws = wb.WorkSheet("(" + tag + ")");
     var modelSchema = Model.__proto__._schema;
@@ -1044,9 +1049,11 @@ exports.export = function (req, res) {
                 _.forEach(stock, function(rowFields) {
                     ws.Cell(row++, col).String(["活动", "随机", "每日"][rowFields[field]]);
                 });
-            } else if(tag == "itemdef" && field == "extended") {
+            }
+            else if(tag == "itemdef" && field == "extended") {
                 --col;
-            } else {
+            }
+            else {
                 if (_.isPlainObject(fieldValue)) {
                     if (fieldValue._type === Array || fieldValue._type === Object) {
                         _.forEach(stock, function (rowFields) {
@@ -1069,9 +1076,9 @@ exports.export = function (req, res) {
         wb.write(tag + ".xlsx", res);
     };
 
-    if(tag == "itemdef") {
+    if(tag === "itemdef") {
         Model.filter(r.row("type").ne("宝石")).orderBy("id").run().then(writeXlsx);
-    } else if(tag == "gemdef") {
+    } else if(tag === "gemdef") {
         Model.filter({type: "宝石"}).orderBy("id").run().then(writeXlsx);
     } else {
         Model.orderBy("id").run().then(writeXlsx);

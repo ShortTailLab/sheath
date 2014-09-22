@@ -12,7 +12,6 @@
         "moment": "latest",
         "seed-random": "latest",
         "jpush-sdk": "latest",
-        "iconv": "latest",
         "bluebird": "latest",
         "lodash": "latest",
         "bcrypt": "latest",
