@@ -76,9 +76,9 @@ message ItemDef {
 message EquipmentDef {
     required int32 id           =   1;
     required string type        =   2;
-    required int32 color        =   3;
+    required int32 quality      =   3;
     required string name        =   4;
-    required int32 quality      =   6;
+    required int32 refineLevel  =   6;
     required int32 counts       =   7;
     required string desc        =   8;
     required string resKey      =   9;

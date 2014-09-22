@@ -1,9 +1,9 @@
 include ../mixins/block
 
-mixin uploadBox(title, func, tag)
-    pre(ng-file-drop="#{func}($files, '#{tag}')"): form
+mixin uploadBox(title, func)
+    pre(ng-file-drop="#{func}($files)"): form
         h4= title
-        input(type="file", value="上传", ng-file-select="#{func}($files, '#{tag}')")
+        input(type="file", value="上传", ng-file-select="#{func}($files)")
         | 或将文件拖拽至此
 
 div(ng-show="!toConfirm")
@@ -12,28 +12,8 @@ div(ng-show="!toConfirm")
             p {{error}}
         div(class="message success", ng-show="info")
             p {{info}}
-        label.checkbox
-            input(type='checkbox', ng-model="isUTF8")
-            | UTF8
-        +uploadBox("武将数据:", "upload", "heroDef")
+        +uploadBox("导入文件:", "upload")
         hr
-        +uploadBox("抽将数据:", "upload", "heroDraw")
-        hr
-        +uploadBox("节点数据:", "upload", "drawNode")
-        hr
-        +uploadBox("道具数据:", "upload", "itemDef")
-        hr
-        +uploadBox("装备数据:", "upload", "equipmentDef")
-        hr
-        +uploadBox("宝石数据:", "upload", "gemDef")
-        hr
-        +uploadBox("集市数据:", "upload", "storeitem")
-        hr
-        +uploadBox("奖励数据:", "upload", "treasure")
-        hr
-        +uploadBox("关卡数据:", "upload", "stage")
-        hr
-        +uploadBox("任务数据:", "upload", "task")
 
 div(ng-show="toConfirm")
     +block("确认")
@@ -41,31 +21,33 @@ div(ng-show="toConfirm")
             p {{error}}
         div(class="message success", ng-show="info")
             p {{info}}
-        div(ng-show="toConfirm.news")
-            h2 新条目
-            pre(ng-repeat="n in toConfirm.news"): table.table
-                thead
-                    th key
-                    th value
-                tr(ng-repeat="(key, value) in n")
-                    td: | {{key}}
-                    td: | {{value}}
-        div(ng-show="toConfirm.mods")
-            h2 修改条目
-            pre(ng-repeat="n in toConfirm.mods"): table.table
-                thead
-                    th key
-                    th 原值
-                    th
-                    th 新值
-                tr(ng-repeat="(key, value) in n")
-                    td: | {{key}}
-                    td(ng-show="value.new !== undefined && value.old !== undefined"): | {{value.old}}
-                    td(ng-show="value.new !== undefined && value.old !== undefined"): |  ==>
-                    td(ng-show="value.new !== undefined && value.old !== undefined"): | {{value.new}}
-                    td(ng-show="!(value.new !== undefined && value.old !== undefined)")
-                    td(ng-show="!(value.new !== undefined && value.old !== undefined)")
-                    td(ng-show="!(value.new !== undefined && value.old !== undefined)"): | {{value}}
+        div(ng-repeat="tbl in toConfirm")
+            h2(ng-show="tbl.news[1].length + tbl.mods[1].length") 表: {{tbl.tag}}
+            div(ng-show="tbl.news[1]")
+                h2 新条目
+                pre(ng-repeat="n in tbl.news[1]"): table.table
+                    thead
+                        th key
+                        th value
+                    tr(ng-repeat="key in tbl.news[0]" ng-if="n[key]")
+                        td: | {{key}}
+                        td: | {{n[key]}}
+            div(ng-show="tbl.mods[1]")
+                h2 修改条目
+                pre(ng-repeat="n in tbl.mods[1]"): table.table
+                    thead
+                        th key
+                        th 原值
+                        th
+                        th 新值
+                    tr(ng-repeat="key in tbl.mods[0]" ng-if="n[key]")
+                        td: | {{key}}
+                        td(ng-show="n[key].new !== undefined && n[key].old !== undefined"): | {{n[key].old}}
+                        td(ng-show="n[key].new !== undefined && n[key].old !== undefined"): | ===>
+                        td(ng-show="n[key].new !== undefined && n[key].old !== undefined"): | {{n[key].new}}
+                        td(ng-show="!(n[key].new !== undefined && n[key].old !== undefined)")
+                        td(ng-show="!(n[key].new !== undefined && n[key].old !== undefined)")
+                        td(ng-show="!(n[key].new !== undefined && n[key].old !== undefined)"): | {{n[key]}}
         hr
         .row
             button.col-md-1.col-md-offset-9(type="submit", class="btn btn-primary", ng-click="confirm()") 确认

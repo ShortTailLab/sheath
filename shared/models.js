@@ -124,10 +124,10 @@ exports.init = function (dbConfig) {
         name: {_type: String, default: ""},
         type: {_type: String, default: ""},
         resKey: {_type: String, default: ""},
-        stars: {_type: Number, default: 1},
+        stars: {_type: Number, default: 0},
         skill: {_type: Number, default: 0},
         pSkill: {_type: Number, default: 0},
-        counts: {_type: Number, default: 100},
+        counts: {_type: Number, default: 0},
         contribs: {_type: Array, default: function () {return [];}},
 
         hp: {_type: Number, default: 0},
@@ -137,7 +137,7 @@ exports.init = function (dbConfig) {
         hpGrowth: {_type: Number, default: 0},
         attackGrowth: {_type: Number, default: 0},
         defenseGrowth: {_type: Number, default: 0},
-        expFactor: {_type: Number, default: 1},
+        expFactor: {_type: Number, default: 0},
 
         hpRefine: {_type: Array, default: function () {return [];}},
         attackRefine: {_type: Array, default: function () {return [];}},
@@ -158,20 +158,20 @@ exports.init = function (dbConfig) {
 
     var ItemDef = exports.ItemDef = schema.createModel("itemdef", {
         name: {_type: String, default: ""},
-        quality: {_type: Number, default: 3},
+        quality: {_type: Number, default: 0},
         type: {_type: String, default: ""},
         subType: {_type: String, default: ""},
         resKey: {_type: String, default: ""},
-        levelReq: {_type: Number, default: 1},
+        levelReq: {_type: Number, default: 0},
 
-        stackSize: {_type: Number, default: 1},
+        stackSize: {_type: Number, default: 0},
 
-        composable: {_type: Boolean, default: true},
-        composeCount: {_type: Number, default: 1},
+        composable: {_type: Boolean, default: false},
+        composeCount: {_type: Number, default: 0},
         composeTarget: {_type: Array, default: function () {return [];}},
 
-        canSell: {_type: Boolean, default: true},
-        price: {_type: Number, default: 1000},
+        canSell: {_type: Boolean, default: false},
+        price: {_type: Number, default: 0},
 
         useTarget: {_type: Number, default: 0},
         itemEffect: {_type: Array, default: function () {return [];}},
@@ -183,8 +183,8 @@ exports.init = function (dbConfig) {
     var EquipmentDef = exports.EquipmentDef = schema.createModel("equipmentdef", {
         name: {_type: String, default: ""},
         desc: {_type: String, default: ""},
-        color: {_type: Number, default: 1},
-        quality: {_type: Number, default: 0},
+        quality: {_type: Number, default: 1},
+        refineLevel: {_type: Number, default: 0},
         counts: {_type: Number, default: 0},
         type: {_type: String, default: ""},
         resKey: {_type: String, default: ""},
@@ -202,7 +202,6 @@ exports.init = function (dbConfig) {
         attackGrowth: {_type: Number, default: 0},
         defenseGrowth: {_type: Number, default: 0},
         growFactor: {_type:Number, default: 0},
-
         ironType: {_type: Number, default: 0},
         hpRefine: {_type: Array, default: function () {return [];}},
         attackRefine: {_type: Array, default: function () {return [];}},
@@ -258,13 +257,14 @@ exports.init = function (dbConfig) {
         price: {_type: Number, default: 0},
         defId: {_type: Number, default: 0},
         isSoul: {_type: Boolean, default: false},
-        count: {_type: Number, default: 1},
+        count: {_type: Number, default: 0},
         weight: {_type: Number, default: 0}
     });
 
     var Treasure = exports.Treasure = schema.createModel("treasure", {
         type: String,
         count: Number,
+        desc: String,
         candidates: {_type: Array, default: function () { return []; }},
         weights: {_type: Array, default: function () { return []; }}
     });
@@ -287,16 +287,11 @@ exports.init = function (dbConfig) {
     var HeroDraw = exports.HeroDraw = schema.createModel("herodraw", {
         itemId: Number,
         isSoul: {_type: Boolean, default: false},
-
         coinWeight: {_type: Number, default: 1},
         goldWeight: {_type: Number, default: 1},
-
         paidCoinWeight: {_type: Number, default: 1},
         paidGoldWeight: {_type: Number, default: 1},
-
-        tenCoinWeight: {_type: Number, default: 1},
-        tenGoldWeight: {_type: Number, default: 1},
-
+        tenGoldWeight: {_type: Number, default: 0},
         level: {_type: Number, default: 1},
         count: {_type: Number, default: 1}
     });
