@@ -649,7 +649,7 @@ sheathControllers.controller('importController', function ($scope, $http, $uploa
         }).success(function (data) {
             var noChange = true;
             for(var i = 0; i < data.length; ++i) {
-                if(data[i].updates.length > 0) {
+                if(data[i].news[1].length || data[i].dels[1].length || data[i].mods[1].length) {
                     noChange = false;
                 }
             }
