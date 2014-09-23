@@ -947,38 +947,42 @@ exports.import = function (req, res) {
                     }
 
                     var allFields = [];
-                    var keys = records[1];
+                    var modelSchema = Model.__proto__._schema;
+                    var compareCols = _.keys(modelSchema);
+                    var names = records[1];
+                    var keys = _.clone(compareCols);
+                    keys.unshift("id");
+
                     for (var i = 2; i < records.length; ++i) {
                         var record = records[i];
                         var rowFields = {};
 
                         for (var j = 0; j < record.length; ++j) {
-                            rowFields[keys[j]] = record[j].trim();
+                            rowFields[names[j]] = record[j].trim();
                         }
 
+                        rowFields = _.pick(rowFields, keys);
                         allFields.push(rowFields);
                     }
 
-                    var modelSchema = Model.__proto__._schema;
                     adjustField(tblName, allFields, modelSchema);
-
                     Model.run().then(function (stock) {
                         stock = _.indexBy(stock, "id");
                         var stockIds = _.keys(stock);
-                        var compareCols = _.keys(modelSchema);
                         var diffCol = {news: [keys, []], dels: [keys, []], mods: [keys, []], updates: [], tag: tblName};
+
                         _.forEach(allFields, function (rowFields) {
                             if (!rowFields.id) {
                                 return;
                             }
 
-                            var key = rowFields.id.toString();
-                            if (!stock[key]) {
+                            var id = rowFields.id.toString();
+                            if (!stock[id]) {
                                 diffCol.news[1].push(rowFields);
                             }
                             else {
-                                _.pull(stockIds, key);
-                                var diff = diffModel(stock[key], rowFields, compareCols);
+                                _.pull(stockIds, id);
+                                var diff = diffModel(stock[id], rowFields, compareCols);
                                 if (_.size(diff) > 1) {
                                     diffCol.mods[1].push(diff);
                                 }
