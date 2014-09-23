@@ -22,7 +22,16 @@ div(ng-show="toConfirm")
         div(class="message success", ng-show="info")
             p {{info}}
         div(ng-repeat="tbl in toConfirm")
-            h2(ng-show="tbl.news[1].length + tbl.mods[1].length") 表: {{tbl.tag}}
+            h2(ng-show="tbl.news[1].length + tbl.mods[1].length + tbl.dels[1].length") 表: {{tbl.tag}}
+            div(ng-show="tbl.dels[1]")
+                h2 删除条目
+                pre(ng-repeat="n in tbl.dels[1]"): table.table
+                    thead
+                        th key
+                        th value
+                    tr(ng-repeat="key in tbl.dels[0]" ng-if="n[key]")
+                        td: | {{key}}
+                        td: | {{n[key]}}
             div(ng-show="tbl.news[1]")
                 h2 新条目
                 pre(ng-repeat="n in tbl.news[1]"): table.table

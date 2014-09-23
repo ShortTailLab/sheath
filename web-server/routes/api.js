@@ -948,7 +948,6 @@ exports.import = function (req, res) {
 
                     var allFields = [];
                     var keys = records[1];
-
                     for (var i = 2; i < records.length; ++i) {
                         var record = records[i];
                         var rowFields = {};
@@ -965,24 +964,30 @@ exports.import = function (req, res) {
 
                     Model.run().then(function (stock) {
                         stock = _.indexBy(stock, "id");
+                        var stockIds = _.keys(stock);
                         var compareCols = _.keys(modelSchema);
-                        var diffCol = {news: [keys, []], mods: [keys, []], updates: [], tag: tblName};
+                        var diffCol = {news: [keys, []], dels: [keys, []], mods: [keys, []], updates: [], tag: tblName};
                         _.forEach(allFields, function (rowFields) {
                             if (!rowFields.id) {
                                 return;
                             }
 
                             var key = rowFields.id.toString();
-                            if (stock[key] == null) {
+                            if (!stock[key]) {
                                 diffCol.news[1].push(rowFields);
                             }
                             else {
+                                _.pull(stockIds, key);
                                 var diff = diffModel(stock[key], rowFields, compareCols);
                                 if (_.size(diff) > 1) {
                                     diffCol.mods[1].push(diff);
                                 }
                             }
                             diffCol.updates.push(rowFields);
+                        });
+
+                        _.forEach(stockIds, function(id) {
+                            diffCol.dels[1].push(stock[id]);
                         });
 
                         allDiffColumns.push(diffCol);
@@ -1002,7 +1007,6 @@ exports.import = function (req, res) {
         });
     } else if (body.confirm) {
         var allSavePromise = _.map(body.allDiff, function (tbl) {
-            console.log(JSON.stringify(tbl));
             var Model = modelDict[tbl.tag];
             return Model.delete().run().then(function() {
                 return Model.save(tbl.updates).then(function() {
@@ -1054,17 +1058,20 @@ exports.export = function (req, res) {
                 --col;
             }
             else {
-                if (_.isPlainObject(fieldValue)) {
-                    if (fieldValue._type === Array || fieldValue._type === Object) {
-                        _.forEach(stock, function (rowFields) {
-                            ws.Cell(row++, col).String(JSON.stringify(rowFields[field]));
-                        });
-                    } else {
-                        _.forEach(stock, function (rowFields) {
-                            ws.Cell(row++, col).String(rowFields[field]);
-                        });
-                    }
-                } else {
+                var fieldType;
+                if(_.isPlainObject(fieldValue)) {
+                    fieldType = fieldValue._type;
+                }
+                else {
+                    fieldType = fieldValue;
+                }
+
+                if(fieldType === Array || fieldType === Object) {
+                    _.forEach(stock, function (rowFields) {
+                        ws.Cell(row++, col).String(JSON.stringify(rowFields[field]));
+                    });
+                }
+                else {
                     _.forEach(stock, function (rowFields) {
                         ws.Cell(row++, col).String(rowFields[field]);
                     });
