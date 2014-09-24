@@ -215,6 +215,14 @@ var connect = function(params, url, cb){
         if (!!node_protobuf) {
             node_encoder = new node_protobuf(new Buffer(clientProtos.desc, "base64"));
             node_decoder = new node_protobuf(new Buffer(serverProtos.desc, "base64"));
+            
+            _.forEach(node_encoder.info(), function(msg) {
+                encodeRoutes[msg] = 1;
+            });
+
+            _.forEach(node_decoder.info(), function(msg) {
+                decodeRoutes[msg] = 1;
+            });
         }
     }
     //Set protoversion
