@@ -4,6 +4,7 @@ var Protocol = require('pomelo-protocol');
 var Package = Protocol.Package;
 var Message = Protocol.Message;
 var EventEmitter = require('events').EventEmitter;
+var _ = require("lodash");
 
 if (typeof Object.create !== 'function') {
     Object.create = function (o) {
@@ -55,6 +56,8 @@ var decodeIO_protobuf = tryRequire('./pomelo-decodeIO-protobuf/ProtoBuf.js');
 var decodeIO_encoder = null;
 var decodeIO_decoder = null;
 var protobuf = null;
+var encodeRoutes = {};
+var decodeRoutes = {};
 
 if (!decodeIO_protobuf) {
     protobuf = require('pomelo-protobuf');
@@ -166,9 +169,10 @@ var defaultEncode = pomelo.encode = function(reqId, route, msg) {
 
     //compress message by protobuf
     var escapedRoute = route.replace(/\./g, "_");
+
     if(protobuf && clientProtos[route]){
         msg = protobuf.encode(route, msg);
-    } else if(node_encoder && node_encoder.lookupMessage(escapedRoute)){
+    } else if(node_encoder && encodeRoutes[escapedRoute]){
         msg = node_encoder.Serialize(msg, escapedRoute);
     } else if(decodeIO_encoder && decodeIO_encoder.lookup(escapedRoute)){
         var Builder = decodeIO_encoder.build(escapedRoute);
@@ -209,8 +213,8 @@ var connect = function(params, url, cb){
             decodeIO_decoder = decodeIO_protobuf.loadJson(serverProtos);
         }
         if (!!node_protobuf) {
-            node_encoder = new node_protobuf.Protobuf(new Buffer(clientProtos.desc, "base64"));
-            node_decoder = new node_protobuf.Protobuf(new Buffer(serverProtos.desc, "base64"));
+            node_encoder = new node_protobuf(new Buffer(clientProtos.desc, "base64"));
+            node_decoder = new node_protobuf(new Buffer(serverProtos.desc, "base64"));
         }
     }
     //Set protoversion
@@ -453,7 +457,7 @@ var deCompose = function(msg){
 
     if(protobuf && serverProtos[route]){
         return protobuf.decode(route, msg.body);
-    } else if(node_decoder && node_decoder.lookupMessage(escapedRoute)){
+    } else if(node_decoder && decodeRoutes[escapedRoute]){
         return node_decoder.Parse(msg.body, escapedRoute);
     } else if(decodeIO_decoder && decodeIO_decoder.lookup(escapedRoute)){
         return decodeIO_decoder.build(escapedRoute).decode(msg.body);
@@ -517,8 +521,16 @@ var initData = function(data){
             decodeIO_decoder = decodeIO_protobuf.loadJson(serverProtos);
         }
         if (!!node_protobuf) {
-            node_encoder = new node_protobuf.Protobuf(new Buffer(clientProtos.desc, "base64"));
-            node_decoder = new node_protobuf.Protobuf(new Buffer(serverProtos.desc, "base64"));
+            node_encoder = new node_protobuf(new Buffer(clientProtos.desc, "base64"));
+            node_decoder = new node_protobuf(new Buffer(serverProtos.desc, "base64"));
+
+            _.forEach(node_encoder.info(), function(msg) {
+                encodeRoutes[msg] = 1;
+            });
+
+            _.forEach(node_decoder.info(), function(msg) {
+                decodeRoutes[msg] = 1;
+            });
         }
     }
 };
