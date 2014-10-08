@@ -228,10 +228,10 @@ exports.userList = function (req, res) {
         });
     }
 
-    var skip = (listOptions.page - 1) * listOptions.pageSize;
-    var limit = listOptions.pageSize;
+    var start = (listOptions.page - 1) * listOptions.pageSize;
+    var end = listOptions.page * listOptions.pageSize;
     var roleQ = buildRoleQuery(listOptions);
-    Promise.join(roleQ.skip(skip).limit(limit).run(), roleQ.count().execute(), ownerPromise)
+    Promise.join(roleQ.slice(start, end).run(), roleQ.count().execute(), ownerPromise)
     .spread(function (roles, roleCount, rolesByUser) {
         res.json({
             roles: _.map(roles.concat(rolesByUser[0]), roleToJson),
@@ -530,9 +530,6 @@ exports.findUsers = function (req, res) {
     var queries = [];
 
     var userQuery = appModels.User.between(hint, hint + "\uffff", {index: "authId"}).limit(10);
-    if (req.body.notAdmin) {
-        userQuery = userQuery.filter({manRole: null}, {default: true});
-    }
 
     queries.push(userQuery.run());
     queries.push(appModels.User.get(hint).execute());
