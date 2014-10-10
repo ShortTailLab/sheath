@@ -966,6 +966,14 @@ exports.import = function (req, res) {
                     }
 
                     adjustField(tblName, allFields, modelSchema);
+
+                    if(tblName === "itemdef") {
+                        Model = Model.filter(r.row("type").ne("宝石"));
+                    }
+                    else if(tblName === "gemdef") {
+                        Model = Model.filter({type: "宝石"});
+                    }
+
                     Model.run().then(function (stock) {
                         stock = _.indexBy(stock, "id");
                         var stockIds = _.keys(stock);
@@ -1011,10 +1019,20 @@ exports.import = function (req, res) {
         });
     } else if (body.confirm) {
         var allSavePromise = _.map(body.allDiff, function (tbl) {
-            var Model = modelDict[tbl.tag];
-            return Model.delete().run().then(function() {
+            var tblName = tbl.tag;
+            var Model = modelDict[tblName];
+            var delModel = Model;
+
+            if(tblName === "itemdef") {
+                delModel = Model.filter(r.row("type").ne("宝石"));
+            }
+            else if(tblName === "gemdef") {
+                delModel = Model.filter({type: "宝石"});
+            }
+
+            return delModel.delete().run().then(function() {
                 return Model.save(tbl.updates).then(function() {
-                    pomeloConn.client.request("cacheMonitor", {type: tbl.tag});
+                    pomeloConn.client.request("cacheMonitor", {type: tblName});
                 });
             });
         });

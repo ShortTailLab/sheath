@@ -208,9 +208,9 @@ class EquipmentHandler extends base.HandlerBase {
             if (gem.bound) {
                 return Promise.reject(Constants.EquipmentFailed.ALREADY_BOUND);
             }
-            if (itemDef.gemType.indexOf(gemDef.subType) === -1) {
-                return Promise.reject(Constants.EquipmentFailed.CANNOT_BIND_GEM_TYPE);
-            }
+//            if (itemDef.gemType.indexOf(gemDef.subType) === -1) {
+//                return Promise.reject(Constants.EquipmentFailed.CANNOT_BIND_GEM_TYPE);
+//            }
             return models.Item.getAll(eqId, {index: "bound"}).run();
         })
         .then((_boundGems) => {

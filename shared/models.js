@@ -194,6 +194,7 @@ exports.init = function (dbConfig) {
         defense: {_type: Number, default: 0},
 
         coin: {_type: Number, default: 0},
+        price: {_type: Number, default: 0},
         iron: {_type: Number, default: 0},
         coinRecover: {_type: Number, default: 0},
         ironRecover: {_type: Number, default: 0},
