@@ -18,7 +18,6 @@ var app = pomelo.createApp();
 app.set('name', 'sheath');
 app.loadConfig("rethinkdb", app.getBase() + "/config/rethinkdb.json");
 app.loadConfig("redis", app.getBase() + "/config/redis.json");
-app.loadConfig("opLog", app.getBase() + "/config/opLog.json");
 app.loadConfig("mKey", app.getBase() + "/config/mKey.json");
 app.enable('systemMonitor');
 app.before(pomelo.filters.toobusy(80));

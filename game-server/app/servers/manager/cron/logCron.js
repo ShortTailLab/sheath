@@ -3,8 +3,6 @@ var pLogger = require('pomelo-logger').getLogger('sheath', __filename);
 var moment = require("moment");
 var Promise = require("bluebird");
 var jobs = require("./logJobs");
-var opJobs = require("./ourpalmJobs");
-var mkdirp = require("mkdirp");
 var logger;
 
 module.exports = function (app) {
@@ -24,17 +22,7 @@ module.exports.runJobs = function(start, end) {
 class LogCron {
     constructor(app) {
         this.app = app;
-        var rawPath = app.get("opLog").path;
-        this.path = rawPath.startsWith("/") ? rawPath : (app.getBase() + "/" + rawPath);
-        mkdirp.sync(this.path);
         logger = require('../../../utils/rethinkLogger').getLogger(app);
-    }
-
-    hourlyLogRollUp() {
-        var curHour = moment().startOf("hour");
-        var prevHour = moment(curHour).subtract(1, 'h');
-
-        opJobs.rollUp(this.path, prevHour, curHour);
     }
 
     dailyLogRollUp() {

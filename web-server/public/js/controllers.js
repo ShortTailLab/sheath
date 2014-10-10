@@ -626,7 +626,7 @@ sheathControllers.controller('adminController', function ($scope, $http, $timeou
 
 sheathControllers.controller('addAdminController', function ($scope, $http, $modalInstance) {
     $scope.getUserByHint = function (val) {
-        return $http.post("/api/findUsers", {hint: val, notAdmin: true}).then(function (res) {
+        return $http.post("/api/findUsers", {hint: val}).then(function (res) {
             return res.data.users;
         });
     };

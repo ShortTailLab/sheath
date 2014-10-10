@@ -820,7 +820,7 @@ Role.prototype.doAction = function() {
 
     setTimeout(function() {
         action.call(self, opt);
-    }, 1);
+    }, 100);
 };
 
 var timePomeloRequest = function (conf, msg, cb) {
