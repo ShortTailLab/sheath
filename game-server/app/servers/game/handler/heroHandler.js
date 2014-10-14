@@ -182,12 +182,14 @@ class HeroHandler extends base.HandlerBase {
         this.safe(models.Role.get(session.get("role").id).getJoin({heroes: true}).run().bind(this)
         .then(function (role) {
             var soul = role.souls["" + heroId] || 0;
+            heroDef.souls = heroDef.souls || 0;
             if (!soul || !heroDef || soul < heroDef.souls) {
                 return Promise.reject(Constants.HeroFailed.NOT_ENOUGH_SOULS);
             }
             if (_.findWhere(role.heroes, {heroDefId: heroId})) {
                 return Promise.reject(Constants.HeroFailed.ALREADY_HAVE_HERO);
             }
+
             soul -= heroDef.souls;
             role.souls["" + heroId] = soul;
             return (new models.Hero({owner: role.id, heroDefId: heroId})).save()
@@ -241,8 +243,9 @@ class HeroHandler extends base.HandlerBase {
                 return Promise.reject(Constants.NO_COINS);
             }
 
-            hero.stars += 1;
+            heroDef.coinCost[hero.stars] = heroDef.coinCost[hero.stars] || 0;
             role.coins -= heroDef.coinCost[hero.stars];
+            hero.stars += 1;
             session.set("role", role.toSessionObj());
             return [hero.save(), mat.delete(), role.save(), session.push("role")];
         })

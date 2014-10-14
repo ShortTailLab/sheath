@@ -279,19 +279,20 @@ var monitor = function (type, name, reqId) {
     }
 };
 
-var requestAsync = Promise.promisify(function(conf, msg, cb) {
+var requestAsync = function(conf, msg) {
     monitor('start', conf.name, conf.reqId);
-    pomelo.request(conf.route, msg, function (data) {
-        monitor('end', conf.name, conf.reqId);
-
-        if (data.error) {
-            cb({code: data.error.code, message: data.error.message, conf: conf});
-        }
-        else {
-            cb(null, data);
-        }
+    return new Promise(function(resolve, reject) {
+        pomelo.request(conf.route, msg, function (data) {
+            monitor('end', conf.name, conf.reqId);
+            if (data.error) {
+                reject({code: data.error.code, message: data.error.message, conf: conf});
+            }
+            else {
+                resolve(data);
+            }
+        });
     });
-});
+};
 
 var offset = (typeof actor !== 'undefined') ? actor.id : 1;
 
@@ -304,10 +305,10 @@ var Role = function () {
 
 Role.prototype.startTest = function() {
     var self = this;
-    self.username = "test_1";// + _.random(1, 1);
+    self.username = "test_";// + _.random(1, 1000000);
     self.password = "password";
-    self.actionHistory = [];
     self.curFullAction = [];
+    self.actionCount = 0;
 
     var onReady = function() {
         pomelo.on('onKick', function (data) {
@@ -350,12 +351,19 @@ Role.prototype.resolveCommon = function(promise) {
     self = this;
     return promise.then(function() {
         self.finishAction();
-    }).catch(function(err) {
+    })
+    .catch(function(err) {
         var errMsg = "";
         if(err.message) {
             errMsg = " err.message = " + err.message;
         }
-        console.log(err.conf.route + " failed!" + errMsg + " err.code = " + err.code);
+
+        if(err.conf) {
+            console.log(err.conf.route + " failed!" + errMsg + " err.code = " + err.code);
+        }
+        else {
+            console.log("error happend : " + err);
+        }
 
         if (err.code === Constants.LoginFailed.AlreadyLoggedIn) {
             self.finishAction();
@@ -363,12 +371,18 @@ Role.prototype.resolveCommon = function(promise) {
         else if(err.code === Constants.NEED_AUTH) {
             self.addAction(self.enter);
         }
-        else if(err.code === Constants.LoginFailed.ID_PASSWORD_MISMATCH) {
-            self.username = "test_" + _.random(1, 1000000);
-            self.doAction();
-        }
+//        else if(err.code === Constants.LoginFailed.ID_PASSWORD_MISMATCH) {
+//            self.username = "test_" + _.random(1, 1000000);
+//            self.doAction();
+//        }
         else if(err.code === Constants.NO_COINS || err.code === Constants.NO_GOLDS) {
             self.addAction(self.robotGm_addMoney);
+        }
+        else if(err.code === Constants.NO_ENERGY) {
+            self.addAction(self.robotGm_addEnergy);
+        }
+        else if(err.code === Constants.StageFailed.LevelRequired) {
+            self.addAction(self.robotGm_upgradeLevel);
         }
         else if(err.code === Constants.StoreFailed.NO_PURCHASE) {
             self.addAction(self.robotGm_refreshPurchase);
@@ -380,7 +394,7 @@ Role.prototype.resolveCommon = function(promise) {
             self.doAction();
         }
         else {
-            throw err;
+            throw err; //err should be resolved in specific action.
         }
     });
 };
@@ -405,11 +419,13 @@ Role.prototype.enter = function () {
                 mac: "000000000000",
                 deviceID: ""
             }
-        }).then(function (data) {
+        })
+        .then(function (data) {
             self.user = data.user;
             self.partitions = data.partitions;
             return requestAsync(ActFlagType.ENTER_PARTITION, {partId: data.partitions[0].id});
-        }).then(function (data) {
+        })
+        .then(function (data) {
             self.role = data.role;
             self.heroCans = data.heroCans;
             self.heroDefs = data.heroDefs;
@@ -421,35 +437,43 @@ Role.prototype.enter = function () {
             self.nextGoldReset = data.nextGoldReset;
             self.nextCoinReset = data.nextCoinReset;
             self.coinDrawCount = data.coinDrawCount;
-        })).catch(function (err) {
-            //error specific to this action, should be resolved here
-        });
+        })
+    )
+    .catch(function (err) {
+        //error specific to this action, should be resolved here
+    });
 };
 
 Role.prototype.claimDailyReward = function() {
     var self = this;
     self.resolveCommon(
         requestAsync(ActFlagType.CLAIM_DAILY_REWARD, {
-        }).then(function(data) {
+        })
+        .then(function(data) {
             self.reward = data.reward;
-        })).catch(function(err) {
-            if(err.code === Constants.ALREADY_CLAIMED) {
-                self.addAction(self.robotGm_reset, {type: "claimDailyReward"});
-            }
-        });
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.ALREADY_CLAIMED) {
+            self.addAction(self.robotGm_reset, {type: "claimDailyReward"});
+        }
+    });
 };
 
 Role.prototype.claimHourlyReward = function() {
     var self = this;
     self.resolveCommon(
         requestAsync(ActFlagType.CLAIM_QHOURLY_REWARD, {
-        }).then(function(data) {
+        })
+        .then(function(data) {
             self.reward = data.reward;
-        })).catch(function(err) {
-            if(err.code === Constants.ALREADY_CLAIMED) {
-                self.addAction(self.robotGm_reset, {type: "claimHourlyReward"});
-            }
-        });
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.ALREADY_CLAIMED) {
+            self.addAction(self.robotGm_reset, {type: "claimHourlyReward"});
+        }
+    });
 };
 
 Role.prototype.setTeam = function() {
@@ -459,7 +483,8 @@ Role.prototype.setTeam = function() {
         requestAsync(ActFlagType.SET_TEAM, {
             heroes: randomHeroes,
             formation: 2
-        }).then(function(data) {
+        })
+        .then(function(data) {
             self.role = data.role;
         })
     );
@@ -469,7 +494,8 @@ Role.prototype.listItem = function() {
     var self = this;
     self.resolveCommon(
         requestAsync(ActFlagType.LIST_ITEM, {
-        }).then(function(data) {
+        })
+        .then(function(data) {
             self.items = data.items;
         })
     );
@@ -486,25 +512,28 @@ Role.prototype.upgradeEquip = function() {
     self.resolveCommon(
         requestAsync(ActFlagType.UPGRADE_EQUIPMENT, {
             equipmentId: item.id
-        }).then(function (data) {
+        })
+        .then(function (data) {
             self.role.energy = data.stateDiff.energy;
             self.role.coins = data.stateDiff.coins;
             self.role.golds = data.stateDiff.golds;
             self.role.contribs = data.stateDiff.contribs;
             self.updateEquipment(data.equipment);
-        })).catch(function(err) {
-            if (err.code === Constants.EquipmentFailed.LEVEL_MAX) {
-                if(item.level >= 80) {
-                    self.addAction(self.robotGm_reset, {type: "upgradeEquip", eqId: item.id});
-                }
-                else if (self.role.level < 80) {
-                    self.addAction(self.robotGm_upgradeLevel);
-                }
+        })
+    )
+    .catch(function(err) {
+        if (err.code === Constants.EquipmentFailed.LEVEL_MAX) {
+            if(item.level >= 80) {
+                self.addAction(self.robotGm_reset, {type: "upgradeEquip", eqId: item.id});
             }
-        });
+            else if (self.role.level < 80) {
+                self.addAction(self.robotGm_upgradeLevel);
+            }
+        }
+    });
 };
 
-Role.prototype.sellItem = function(opt) {
+Role.prototype.sellItem = function() {
     var self = this;
     if(!self.items || _.isEmpty(self.items)) {
         self.resolveCommon(Promise.resolve());
@@ -515,7 +544,8 @@ Role.prototype.sellItem = function(opt) {
     self.resolveCommon(
         requestAsync(ActFlagType.SELL, {
             itemId: item.id
-        }).then(function (data) {
+        })
+        .then(function (data) {
             self.role.coins += data.coins;
             _.remove(self.items, function(item) {
                 return item.id === data.destroyed;
@@ -529,9 +559,35 @@ Role.prototype.robotGm_addMoney = function() {
     self.resolveCommon(
         requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "addMoney"
-        }).then(function(data) {
+        })
+        .then(function(data) {
             self.role.golds = data.golds;
             self.role.coins = data.coins;
+        })
+    );
+};
+
+Role.prototype.robotGm_addEnergy = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.ROBOT_GM, {
+            cmdType: "addEnergy"
+        })
+        .then(function(data) {
+            self.role.energy = data.energy;
+        })
+    );
+};
+
+Role.prototype.robotGm_addMail = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.ROBOT_GM, {
+            cmdType: "addMail"
+        })
+        .then(function(data) {
+            self.mails = self.mails || [];
+            self.mails.push(data.mail);
         })
     );
 };
@@ -541,7 +597,8 @@ Role.prototype.robotGm_refreshPurchase = function() {
     self.resolveCommon(
         requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "refreshPurchase"
-        }).then(function(data) {
+        })
+        .then(function(data) {
         })
     );
 };
@@ -551,7 +608,8 @@ Role.prototype.robotGm_upgradeLevel = function() {
     self.resolveCommon(
         requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "upgradeLevel"
-        }).then(function(data) {
+        })
+        .then(function(data) {
             self.role.level = data.level;
         })
     );
@@ -563,21 +621,36 @@ Role.prototype.robotGm_reset = function(opt) {
         requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "reset",
             resetOpt: opt
-        }).then(function(data) {
+        })
+        .then(function(data) {
+            if(opt.type === "tutorial") {
+                self.role.tutorial = data.tutorial;
+            }
+        })
+    );
+};
+
+Role.prototype.robotGm_delHero = function(opt) {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.ROBOT_GM, {
+            cmdType: "delHero",
+            heroId: opt.heroId
+        })
+        .then(function(data) {
+            _.remove(self.heroes, function(hero) {
+                return hero.defId === opt.heroId;
+            });
         })
     );
 };
 
 Role.prototype.listStore = function() {
     var self = this;
-    if(self.storeItems) {
-        self.resolveCommon(Promise.resolve());
-        return;
-    }
-
     self.resolveCommon(
         requestAsync(ActFlagType.LIST_STORE, {
-        }).then(function(data) {
+        })
+        .then(function(data) {
             self.storeItems = data.coinItems.concat(data.goldItems);
             self.nextCoinStoreRefresh = data.nextCoinStoreRefresh;
             self.nextGoldStoreRefresh = data.nextGoldStoreRefresh;
@@ -611,6 +684,13 @@ Role.prototype.storeBuy = function(opt) {
                 });
             }).id;
         }
+        else if(opt.buyType === "useItem") {
+            storeId = _.find(self.storeItems, function(store) {
+                return _.any(self.itemDefs, function(def) {
+                    return def.id === store.defId && def.useTarget === 1 && def.itemEffect && _.size(def.itemEffect) > 0;
+                });
+            }).id;
+        }
         else {
             storeId = _.sample(self.storeItems).id;
         }
@@ -622,7 +702,8 @@ Role.prototype.storeBuy = function(opt) {
     self.resolveCommon(
         requestAsync(ActFlagType.STORE_BUY, {
             siId: storeId
-        }).then(function(data) {
+        })
+        .then(function(data) {
             self.role = data.role;
             if(!self.items) {
                 self.items = data.newItems;
@@ -634,23 +715,20 @@ Role.prototype.storeBuy = function(opt) {
     );
 };
 
-//Role.prototype.compositeEquipment = function() {
-//    var self = this;
-//    self.resolveCommon(
-//        requestAsync(ActFlagType.COMPOSITE_EQUIPMENT, {
-//            matType: 52000
-//        }).then(function(data) {
-//
-//        })
-//    );
-//};
-
 Role.prototype.updateEquipment = function(equipment) {
     var idx = _.findIndex(this.items, function(item) {
         return item.id === equipment.id;
     });
 
     this.items[idx] = equipment;
+};
+
+Role.prototype.updateHero = function(hero) {
+    var idx = _.findIndex(this.heroes, function(h) {
+        return h.id === hero.id;
+    });
+
+    this.heroes[idx] = hero;
 };
 
 Role.prototype.getOneEquipment = function() {
@@ -670,6 +748,27 @@ Role.prototype.getOneEquipment = function() {
     }
 
     return item;
+};
+
+Role.prototype.getOneUnClaimedMail = function() {
+    if(!self.mails || _.isEmpty(self.mails)) {
+        self.addAction(self.robotGm_addMail);
+        return null;
+    }
+
+    var mail = _.find(self.mails, function(mail) {
+        return !mail.claimed;
+    });
+
+    if(!mail) {
+        if(self.mails.length < 100) {
+            self.addAction(self.robotGm_addMail);
+        }
+
+        return null;
+    }
+
+    return mail;
 };
 
 Role.prototype.getOneGem = function() {
@@ -693,6 +792,28 @@ Role.prototype.getOneGem = function() {
     return item;
 };
 
+Role.prototype.getOneUseItem = function() {
+    var self = this;
+
+    if(!self.items || _.isEmpty(self.items)) {
+        self.addAction(self.storeBuy, {buyType: "useItem"});
+        return null;
+    }
+
+    var item = _.find(self.items, function (item) {
+        return _.any(self.itemDefs, function(def) {
+            return def.id === item.defId && def.useTarget === 1 && def.itemEffect && _.size(def.itemEffect) > 0;
+        });
+    });
+
+    if (!item) {
+        self.addAction(self.storeBuy, {buyType: "useItem"});
+        return null;
+    }
+
+    return item;
+};
+
 Role.prototype.refineWeapon = function() {
     var self = this;
     var item = self.getOneEquipment();
@@ -704,14 +825,17 @@ Role.prototype.refineWeapon = function() {
     self.resolveCommon(
         requestAsync(ActFlagType.REFINE_EQUIPMENT, {
             equipmentId: item.id
-        }).then(function(data) {
+        })
+        .then(function(data) {
             self.role = data.role;
             self.updateEquipment(data.equipment);
-        })).catch(function(err) {
-            if (err.code === Constants.EquipmentFailed.LEVEL_MAX) {
-                self.addAction(self.robotGm_reset, {type: "refineWeapon", eqId: item.id});
-            }
-        });
+        })
+    )
+    .catch(function(err) {
+        if (err.code === Constants.EquipmentFailed.LEVEL_MAX) {
+            self.addAction(self.robotGm_reset, {type: "refineWeapon", eqId: item.id});
+        }
+    });
 };
 
 Role.prototype.refineGem = function() {
@@ -736,20 +860,23 @@ Role.prototype.refineGem = function() {
     self.resolveCommon(
         requestAsync(ActFlagType.REFINE_GEM, {
             gemType: itemDef.id
-        }).then(function(data) {
+        })
+        .then(function(data) {
             _.remove(self.items, function(item) {
                 return _.some(data.destroyed, function(id) {
                     return id === item.id;
                 });
             });
             self.items.push(data.gem);
-        })).catch(function(err) {
-            if(err.code === Constants.EquipmentFailed.NO_MATERIAL) {
-                self.addAction(self.storeBuy, {storeId: _.find(self.storeItems, function(store) {
-                    return itemDef.id === store.defId;
-                }).id});
-            }
-        });
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.EquipmentFailed.NO_MATERIAL) {
+            self.addAction(self.storeBuy, {storeId: _.find(self.storeItems, function(store) {
+                return itemDef.id === store.defId;
+            }).id});
+        }
+    });
 };
 
 Role.prototype.setGem = function() {
@@ -770,12 +897,15 @@ Role.prototype.setGem = function() {
         requestAsync(ActFlagType.SET_GEM, {
             gemId: gem.id,
             equipmentId: item.id
-        }).then(function(data) {
-        })).catch(function(err) {
-            if(err.code === Constants.EquipmentFailed.ALREADY_BOUND) {
-                self.addAction(self.robotGm_reset, {type: "setGem", gemId: gem.id});
-            }
-        });
+        })
+        .then(function(data) {
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.EquipmentFailed.ALREADY_BOUND) {
+            self.addAction(self.robotGm_reset, {type: "setGem", gemId: gem.id});
+        }
+    });
 };
 
 Role.prototype.removeGem = function() {
@@ -789,18 +919,416 @@ Role.prototype.removeGem = function() {
     self.resolveCommon(
         requestAsync(ActFlagType.REMOVE_GEM, {
             gemId: gem.id
-        }).then(function(data) {
+        })
+        .then(function(data) {
+        })
+    );
+};
 
+Role.prototype.destroyEquipment = function() {
+    var self = this;
+    var item = self.getOneEquipment();
+
+    if(!item) {
+        return;
+    }
+
+    self.resolveCommon(
+        requestAsync(ActFlagType.DESTRUCT, {
+            equipmentId: item.id
+        })
+        .then(function(data) {
+            self.role = data.role;
+            _.remove(self.items, function(item) {
+                return item.id === data.destroyed;
+            });
+        })
+    );
+};
+
+Role.prototype.listHeroDef = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.LIST_HERO_DEF, {
+        })
+        .then(function(data) {
+            self.heroDefs = data.defs;
+        })
+    );
+};
+
+Role.prototype.listItemDef = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.LIST_ITEM_DEF, {
+        })
+        .then(function(data) {
+            self.itemDefs = data.items;
+            self.equipDefById = _.indexBy(data.equipments, "id");
+        })
+    );
+};
+
+Role.prototype.equip = function() {
+    var self = this;
+    var item = self.getOneEquipment();
+
+    if(!item) {
+        return;
+    }
+
+    var heroId = _.compact(self.heroes)[0].id;
+    self.resolveCommon(
+        requestAsync(ActFlagType.EQUIP, {
+            equipmentId: item.id,
+            heroId: heroId
+        })
+        .then(function(data) {
+            self.updateEquipment(data.equipment);
+        })
+    );
+};
+
+Role.prototype.unEquip = function() {
+    var self = this;
+    var item = self.getOneEquipment();
+
+    if(!item) {
+        return;
+    }
+
+    self.resolveCommon(
+        requestAsync(ActFlagType.UNEQUIP, {
+            equipmentId: item.id
+        })
+        .then(function(data) {
+            self.updateEquipment(data.equipment);
+        })
+    );
+};
+
+Role.prototype.listHero = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.LIST_HERO, {
+        })
+        .then(function(data) {
+            self.heroes = data.heroes;
+        })
+    );
+};
+
+Role.prototype.listMail = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.LIST_MAIL, {
+        })
+        .then(function(data) {
+            self.mails = data.mails;
+        })
+    );
+};
+
+Role.prototype.claimMail = function() {
+    var self = this;
+    var mail = self.getOneUnClaimedMail();
+
+    if(!self.mails || self.mails.length < 100) {
+        if(!mail) {
+            return;
+        }
+    }
+    else {
+        self.finishAction();
+        return;
+    }
+
+    self.resolveCommon(
+        requestAsync(ActFlagType.CLAIM_MAIL, {
+            mailId: mail.id
+        })
+        .then(function(data) {
+            self.role = data.role;
+            mail.claimed = true;
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.ALREADY_CLAIMED) {
+        }
+    });
+};
+
+Role.prototype.chat = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.CHAT, {
+            target: "*",
+            content: "this is a mail"
+        })
+        .then(function(data) {
+        })
+    );
+};
+
+Role.prototype.listTask = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.LIST_TASK, {
+        })
+        .then(function(data) {
+        })
+    );
+};
+
+Role.prototype.listLevel = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.LIST_LEVEL, {
+        })
+        .then(function(data) {
+            self.stages = data.stages;
+        })
+    );
+};
+
+Role.prototype.start = function() {
+    var self = this;
+    var stage = _.sample(self.stages);
+    var level = _.sample(stage.levels).id;
+    self.resolveCommon(
+        requestAsync(ActFlagType.START, {
+            level: level
+        })
+        .then(function(data) {
+            self.enemies = data.enemies;
+            if(self.enemies) {
+                self.level = level;
+            }
+        })
+    );
+};
+
+Role.prototype.end = function() {
+    var self = this;
+    if(!self.level) {
+        self.addAction(self.start);
+        return;
+    }
+
+    self.resolveCommon(
+        requestAsync(ActFlagType.END, {
+            level: self.level,
+            coins: 0,
+            items: []
+        })
+        .then(function(data) {
+            self.role = data.role;
+            self.heroExp = data.heroExp;
+            self.roleExp = data.roleExp;
+        })
+    );
+};
+
+Role.prototype.refreshStore = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.REFRESH_STORE, {
+            isGold: true
+        })
+        .then(function(data) {
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.StoreFailed.NO_REFRESH) {
+            self.finishAction();
+        }
+    });
+};
+
+Role.prototype.coinDraw = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.COIN_DRAW, {
+        })
+        .then(function(data) {
+            self.role = data.role;
+            self.soulHeroId = _.keys(data.souls)[0];
+        })
+    );
+};
+
+Role.prototype.goldDraw = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.GOLD_DRAW, {
+        })
+        .then(function(data) {
+            self.role = data.role;
+            self.soulHeroId = _.keys(data.souls)[0];
+        })
+    );
+};
+
+Role.prototype.useItem = function() {
+    var self = this;
+    var item = self.getOneUseItem();
+
+    if(!item) {
+        return;
+    }
+
+    self.resolveCommon(
+        requestAsync(ActFlagType.USE_ITEM, {
+            itemId: item.id,
+            target: self.role.id
+        })
+        .then(function(data) {
+            self.role = data.role;
+            _.remove(self.items, function(it) {
+                return it.id === item.id;
+            });
+        })
+    );
+};
+
+Role.prototype.replace = function() {
+    var self = this;
+    if(!self.role.team || _.size(_.compact(self.role.team)) < 2) {
+        self.addAction(self.setTeam);
+        return;
+    }
+
+    var heroes = _.sample(_.compact(self.role.team), 2);
+    self.resolveCommon(
+        requestAsync(ActFlagType.REPLACE, {
+            hero: heroes[0],
+            with: heroes[1]
+        })
+        .then(function(data) {
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.InvalidRequest) {
+            self.finishAction();
+        }
+    });
+};
+
+Role.prototype.rename = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.RENAME, {
+            name: "name" + _.random(1, 1000000)
+        })
+        .then(function(data) {
+            self.role.tutorial = data.tutorial;
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.TutorialFailed.TutorialStateError) {
+            self.addAction(self.robotGm_reset, {type: "tutorial"});
+        }
+        else if(err.code === Constants.NameInvalid) {
+            self.doAction();
+        }
+    });
+};
+
+Role.prototype.pickHero = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.PICKHERO, {
+            heroId: _.sample(self.heroCans)
+        })
+        .then(function(data) {
+            self.role.tutorial = data.tutorial;
+            self.role.team[0] = data.newHero.id;
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.TutorialFailed.TutorialStateError) {
+            if(self.role.tutorial > 2) {
+                self.addAction(self.robotGm_reset, {type: "tutorial"});
+            }
+            else {
+                self.addAction(self.rename);
+            }
+        }
+    });
+};
+
+Role.prototype.listSouls = function() {
+    var self = this;
+    self.resolveCommon(
+        requestAsync(ActFlagType.LIST_SOULS, {
+        })
+        .then(function(data) {
+            self.souls = data;
+        })
+    );
+};
+
+Role.prototype.redeemSouls = function() {
+    var self = this;
+
+    if(!self.soulHeroId) {
+        self.addAction(self.coinDraw);
+        return;
+    }
+
+    self.resolveCommon(
+        requestAsync(ActFlagType.REDEEM_SOULS, {
+            heroId: parseInt(self.soulHeroId)
+        })
+        .then(function(data) {
+        })
+    )
+    .catch(function(err) {
+        if(err.code === Constants.HeroFailed.ALREADY_HAVE_HERO) {
+            self.addAction(self.robotGm_delHero, {heroId: parseInt(self.soulHeroId)});
+        }
+    });
+};
+
+Role.prototype.refineHero = function() {
+    var self = this;
+    var hero = _.find(self.heroes, function(h) {
+        return h.stars === 0;
+    });
+
+    var mat = _.find(self.heroes, function(m) {
+        return m.stars === hero.stars && m.defId === hero.defId && m.id !== hero.id && !_.any(self.role.team, function(t) {
+            return t === m.id;
+        });
+    });
+
+    if(!hero || !mat) {
+        self.addAction(self.pickHero);
+        return;
+    }
+
+    self.resolveCommon(
+        requestAsync(ActFlagType.REFINE_HERO, {
+            heroId: hero.id,
+            matId: mat.id
+        })
+        .then(function(data) {
+            self.updateHero(data.hero);
+            _.remove(self.heroes, {id: mat.id});
         })
     );
 };
 
 Role.prototype.doAction = function() {
     self = this;
+    self.addAction.abc = 89;
 
     var actions = [
         self.claimDailyReward, self.claimHourlyReward, self.setTeam, self.upgradeEquip, self.storeBuy, self.sellItem,
-        self.listStore, self.refineWeapon, self.refineGem, self.setGem, self.removeGem
+        self.listStore, self.refineWeapon, self.refineGem, self.setGem, self.removeGem, self.destroyEquipment,
+        self.listHeroDef, self.listItemDef, self.equip, self.unEquip, self.listHero, self.listMail, self.claimMail,
+        self.chat, self.listTask, self.listLevel, self.start, self.end, self.refreshStore, self.coinDraw, self.goldDraw,
+        self.useItem, self.replace, self.rename, self.listSouls, self.redeemSouls, self.refineHero
     ];
 
     var action = null;
@@ -815,146 +1343,13 @@ Role.prototype.doAction = function() {
         opt = {};
         action = _.sample(actions);
         self.curFullAction.push([action, opt]);
-        self.actionHistory.push([action, opt]);
     }
 
     setTimeout(function() {
         action.call(self, opt);
-    }, 100);
-};
-
-var timePomeloRequest = function (conf, msg, cb) {
-    monitor('start', conf.name, conf.reqId);
-    pomelo.request(conf.route, msg, function (data) {
-        monitor('end', conf.name, conf.reqId);
-
-        if (data.error) {
-            cb({code: data.error.code, message: data.error.message, conf: conf});
-        }
-        else {
-            cb(null, data);
-        }
-    });
-};
-
-Role.prototype.equip = function (pomelo, cb) {
-    var self = this;
-    var weapon = _.findWhere(_.values(self.items), {defId: 1001});
-    var hero = _.findWhere(self.heroes, {defId: 101});
-
-    if (hero && weapon) {
-        timePomeloRequest(ActFlagType.EQUIP, {equipmentId: weapon.id, heroId: hero.id}, function (data) {
-            cb();
-        });
-    }
-    else {
-        cb();
-    }
-};
-
-Role.prototype.unEquip = function (pomelo, cb) {
-    var self = this;
-    var weapon = _.findWhere(_.values(self.items), {defId: 1001});
-
-    if (weapon) {
-        timePomeloRequest(ActFlagType.UNEQUIP, {equipmentId: weapon.id}, function (data) {
-            cb();
-        });
-    }
-    else {
-        cb();
-    }
-};
-
-Role.prototype.destroyEquipment = function (pomelo, cb) {
-    var self = this;
-    var weapon = _.findWhere(self.items, {defId: 1001});
-    if (true) {
-        timePomeloRequest(ActFlagType.DESTRUCT, {equipmentId: "914fe772-ce0a-47cd-954c-cdb0bf98cb08"}, function (data) {
-            cb();
-        });
-    }
-    else {
-        cb();
-    }
-};
-
-Role.prototype.listLevel = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.LIST_LEVEL, {}, function (data) {
-        console.log(data);
-        cb();
-    });
-};
-
-Role.prototype.start = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.START, {level: 10104}, function (data) {
-        cb();
-    });
-};
-
-Role.prototype.end = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.END, {level: 10104, coins: 0, items: []}, function (data) {
-        cb();
-    });
-};
-
-Role.prototype.refreshStore = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.REFRESH_STORE, {isGold: true}, function (data) {
-        cb();
-    });
-};
-
-Role.prototype.coinDraw = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.COIN_DRAW, {}, function (data) {
-        console.log(data);
-        cb();
-    });
-};
-
-Role.prototype.replace = function (pomelo, cb) {
-    var self = this;
-    timePomeloRequest(ActFlagType.REPLACE, {hero: "dab95958-e0b0-4ace-ad11-19b1f206b995", with: "76afabe5-5165-4e31-9f9d-98a21bb0b0ff"}, function (data) {
-        cb();
-    });
-};
-
-Role.prototype.rename = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.RENAME, {name: "set_name_" + _.random(100)}, function (data) {
-        cb();
-    });
-};
-
-Role.prototype.pickHero = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.PICKHERO, {heroId: 10001}, function (data) {
-        cb();
-    });
-};
-
-Role.prototype.listSouls = function (pomelo, cb) {
-    var self = this;
-    timePomeloRequest(ActFlagType.LIST_SOULS, {}, function (data) {
-        self.souls = data;
-        cb();
-    });
-};
-
-Role.prototype.redeemSouls = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.REDEEM_SOULS, {}, function (data) {
-        cb();
-    });
-};
-
-Role.prototype.refineHero = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.REFINE_HERO, {heroId: "2ddc3819-4330-48c7-aac6-4f1e6e22b07f", matId: "fcadc6a0-e40c-43a2-b818-93eacfade904"}, function (data) {
-        console.log(data);
-        cb();
-    });
-};
-
-Role.prototype.useItem = function (pomelo, cb) {
-    timePomeloRequest(ActFlagType.USE_ITEM, {itemId: "c3109a42-caf5-480e-9615-36e7a7cc77b2", target: "41a602cc-b724-434a-89df-112872bc4dee"}, function (data) {
-        cb();
-    });
+        ++self.actionCount;
+        console.log("执行第" + self.actionCount + "个action");
+    }, 1);
 };
 
 (new Role()).startTest();

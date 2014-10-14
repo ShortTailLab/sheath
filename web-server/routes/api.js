@@ -772,6 +772,7 @@ var modelDict = {
     equipmentdef: appModels.EquipmentDef,
     gemdef: appModels.ItemDef,
     treasure: appModels.Treasure,
+    level: appModels.Level,
     storeitem: appModels.StoreItem,
     task: appModels.Task
 };

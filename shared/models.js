@@ -441,7 +441,14 @@ exports.init = function (dbConfig) {
         var ret = this.toObject();
         _.extend(ret, ret.extended);
         ret.extended = undefined;
-        ret.itemEffect = {name: ret.itemEffect[0], amount: ret.itemEffect[1]};
+
+        if(ret.itemEffect.length >= 2) {
+            ret.itemEffect = {name: ret.itemEffect[0], amount: ret.itemEffect[1]};
+        }
+        else {
+            ret.itemEffect = null;
+        }
+
         return ret;
     });
 

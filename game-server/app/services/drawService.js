@@ -73,7 +73,8 @@ class DrawService
                     ret.items.push({
                         itemDefId: item.itemId,
                         owner: owner.id,
-                        level: item.level
+                        level: item.level,
+                        bound: null
                     });
                 }
             }
