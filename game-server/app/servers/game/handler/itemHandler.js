@@ -357,6 +357,11 @@ class ItemHandler extends base.HandlerBase {
             if (!item || item.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
+
+            if(this.app.get("cache").isEquip(itemDef.id)) {
+                return this.errorNext(Constants.InvalidRequest, next);
+            }
+
             coinInc = itemDef.price + item.level * 100 * 0.3;
             return models.Role.get(role.id).run();
         })

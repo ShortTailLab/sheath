@@ -25,7 +25,7 @@ class RobotGm extends base.HandlerBase
     {
         wrapSession(session);
 
-        if(this.app.get("env") !== "development") {
+        if(this.app.get("env") === "production") {
             next(null, {});
             return;
         }
@@ -50,16 +50,27 @@ class RobotGm extends base.HandlerBase
         }
         else if(cmdType === "addEnergy") {
             this.safe(models.Role.get(role.id).run()
-                .then(function (_role) {
-                    role = _role;
-                    role.energy += 10000;
-                    return role.save();
-                })
-                .then(function (role) {
-                    next(null, {
-                        energy: role.energy
-                    });
-                }), next);
+            .then(function (_role) {
+                role = _role;
+                role.energy += 10000;
+                return role.save();
+            })
+            .then(function (role) {
+                next(null, {
+                    energy: role.energy
+                });
+            }), next);
+        }
+        else if(cmdType === "addSoul") {
+            this.safe(models.Role.get(role.id).run()
+            .then(function (_role) {
+                role = _role;
+                role.souls["" + msg.heroId] += 1000;
+                return role.save();
+            })
+            .then(function (role) {
+                next(null, {});
+            }), next);
         }
         else if(cmdType === "refreshPurchase") {
             var mKey = this.app.mKey;

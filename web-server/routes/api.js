@@ -915,8 +915,11 @@ exports.import = function (req, res) {
                 }
 
                 var tblName = RegExp.$1;
-                var Model = modelDict[tblName];
+                if(tblName === "level") {
+                    return res.send(400, {message: "关卡数据不能通过表格导入"});
+                }
 
+                var Model = modelDict[tblName];
                 if (!Model) {
                     continue;
                 }

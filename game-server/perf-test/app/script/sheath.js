@@ -269,29 +269,12 @@ var requireUnCached = function (module) {
     return require(module);
 };
 
-var pomelo = requireUnCached(cwd + "/app/script/pomelo-client");
-
 var monitor = function (type, name, reqId) {
     if (typeof actor !== 'undefined') {
         actor.emit(type, name, reqId);
     } else {
         console.error(Array.prototype.slice.call(arguments, 0));
     }
-};
-
-var requestAsync = function(conf, msg) {
-    monitor('start', conf.name, conf.reqId);
-    return new Promise(function(resolve, reject) {
-        pomelo.request(conf.route, msg, function (data) {
-            monitor('end', conf.name, conf.reqId);
-            if (data.error) {
-                reject({code: data.error.code, message: data.error.message, conf: conf});
-            }
-            else {
-                resolve(data);
-            }
-        });
-    });
 };
 
 var offset = (typeof actor !== 'undefined') ? actor.id : 1;
@@ -303,38 +286,55 @@ if (typeof actor !== 'undefined') {
 var Role = function () {
 };
 
+Role.prototype.requestAsync = function(conf, msg) {
+    var self = this;
+    monitor('start', conf.name, conf.reqId);
+    return new Promise(function(resolve, reject) {
+        self.pomelo.request(conf.route, msg, function (data) {
+            monitor('end', conf.name, conf.reqId);
+            if (data.error) {
+                reject({code: data.error.code, message: data.error.message, conf: conf});
+            }
+            else {
+                resolve(data);
+            }
+        });
+    });
+};
+
 Role.prototype.startTest = function() {
     var self = this;
-    self.username = "test_";// + _.random(1, 1000000);
+    self.pomelo = requireUnCached(cwd + "/app/script/pomelo-client");
+    self.username = "test_" + _.random(1, 1000000);
     self.password = "password";
     self.curFullAction = [];
     self.actionCount = 0;
 
     var onReady = function() {
-        pomelo.on('onKick', function (data) {
+        self.pomelo.on('onKick', function (data) {
             console.log('You have been kicked offline.');
         });
 
-        pomelo.on('onChat', function (data) {
+        self.pomelo.on('onChat', function (data) {
             console.log('Recv chat message.' + JSON.stringify(data));
         });
 
-        pomelo.on('onAnnounce', function (data) {
+        self.pomelo.on('onAnnounce', function (data) {
             console.log('Recv Announcement.' + JSON.stringify(data));
         });
 
-        pomelo.on('onEndAnnounce', function (data) {
+        self.pomelo.on('onEndAnnounce', function (data) {
             console.log('Recv EndAnnouncement.' + JSON.stringify(data));
         });
 
-        pomelo.on('disconnect', function (reason) {
+        self.pomelo.on('disconnect', function (reason) {
             console.log('disconnect invoke!' + reason);
         });
 
         self.enter();
     };
 
-    pomelo.init({host: "127.0.0.1", port: 3010, log: true}, onReady);
+    self.pomelo.init({host: "127.0.0.1", port: 3010, log: true}, onReady);
 };
 
 Role.prototype.finishAction = function() {
@@ -345,6 +345,18 @@ Role.prototype.finishAction = function() {
 Role.prototype.addAction = function(action, opt) {
     this.curFullAction.push([action, opt || {}]);
     this.doAction();
+};
+
+Role.prototype.replaceAction_1 = function(action, opt) {
+    this.curFullAction.pop();
+    this.curFullAction.push([action, opt || {}]);
+    this.doAction();
+};
+
+Role.prototype.replaceAction_2 = function(action, opt) {
+    this.curFullAction.pop();
+    this.curFullAction.push([action, opt || {}]);
+    this.curFullAction.push([null, null]);
 };
 
 Role.prototype.resolveCommon = function(promise) {
@@ -402,7 +414,7 @@ Role.prototype.resolveCommon = function(promise) {
 Role.prototype.enter = function () {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.ENTRY, {
+        self.requestAsync(ActFlagType.ENTRY, {
             accType: "main",
             username: self.username,
             password: self.password,
@@ -423,7 +435,7 @@ Role.prototype.enter = function () {
         .then(function (data) {
             self.user = data.user;
             self.partitions = data.partitions;
-            return requestAsync(ActFlagType.ENTER_PARTITION, {partId: data.partitions[0].id});
+            return self.requestAsync(ActFlagType.ENTER_PARTITION, {partId: data.partitions[0].id});
         })
         .then(function (data) {
             self.role = data.role;
@@ -447,7 +459,7 @@ Role.prototype.enter = function () {
 Role.prototype.claimDailyReward = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.CLAIM_DAILY_REWARD, {
+        self.requestAsync(ActFlagType.CLAIM_DAILY_REWARD, {
         })
         .then(function(data) {
             self.reward = data.reward;
@@ -463,7 +475,7 @@ Role.prototype.claimDailyReward = function() {
 Role.prototype.claimHourlyReward = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.CLAIM_QHOURLY_REWARD, {
+        self.requestAsync(ActFlagType.CLAIM_QHOURLY_REWARD, {
         })
         .then(function(data) {
             self.reward = data.reward;
@@ -476,12 +488,19 @@ Role.prototype.claimHourlyReward = function() {
     });
 };
 
-Role.prototype.setTeam = function() {
+Role.prototype.setTeam = function(opt) {
     var self = this;
-    var randomHeroes = _.pluck(_.sample(self.heroes, 3), "id");
+    var heroes;
+    if(opt.heroes) {
+        heroes = opt.heroes;
+    }
+    else {
+        heroes = _.pluck(_.sample(self.heroes, 3), "id");
+    }
+
     self.resolveCommon(
-        requestAsync(ActFlagType.SET_TEAM, {
-            heroes: randomHeroes,
+        self.requestAsync(ActFlagType.SET_TEAM, {
+            heroes: heroes,
             formation: 2
         })
         .then(function(data) {
@@ -493,7 +512,7 @@ Role.prototype.setTeam = function() {
 Role.prototype.listItem = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.LIST_ITEM, {
+        self.requestAsync(ActFlagType.LIST_ITEM, {
         })
         .then(function(data) {
             self.items = data.items;
@@ -510,7 +529,7 @@ Role.prototype.upgradeEquip = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.UPGRADE_EQUIPMENT, {
+        self.requestAsync(ActFlagType.UPGRADE_EQUIPMENT, {
             equipmentId: item.id
         })
         .then(function (data) {
@@ -518,7 +537,7 @@ Role.prototype.upgradeEquip = function() {
             self.role.coins = data.stateDiff.coins;
             self.role.golds = data.stateDiff.golds;
             self.role.contribs = data.stateDiff.contribs;
-            self.updateEquipment(data.equipment);
+            self.updateItem(data.equipment);
         })
     )
     .catch(function(err) {
@@ -536,13 +555,21 @@ Role.prototype.upgradeEquip = function() {
 Role.prototype.sellItem = function() {
     var self = this;
     if(!self.items || _.isEmpty(self.items)) {
-        self.resolveCommon(Promise.resolve());
+        self.finishAction();
         return;
     }
 
-    var item = _.last(self.items);
+    var item = _.find(self.items, function(it) {
+        return self.equipDefById[it.defId] === undefined;
+    });
+
+    if(!item) {
+        self.replaceAction_1(self.destroyEquipment);
+        return;
+    }
+
     self.resolveCommon(
-        requestAsync(ActFlagType.SELL, {
+        self.requestAsync(ActFlagType.SELL, {
             itemId: item.id
         })
         .then(function (data) {
@@ -557,7 +584,7 @@ Role.prototype.sellItem = function() {
 Role.prototype.robotGm_addMoney = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.ROBOT_GM, {
+        self.requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "addMoney"
         })
         .then(function(data) {
@@ -567,10 +594,22 @@ Role.prototype.robotGm_addMoney = function() {
     );
 };
 
+Role.prototype.robotGm_addSoul = function(opt) {
+    var self = this;
+    self.resolveCommon(
+        self.requestAsync(ActFlagType.ROBOT_GM, {
+            cmdType: "addSoul",
+            heroId: opt.heroId
+        })
+        .then(function(data) {
+        })
+    );
+};
+
 Role.prototype.robotGm_addEnergy = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.ROBOT_GM, {
+        self.requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "addEnergy"
         })
         .then(function(data) {
@@ -582,7 +621,7 @@ Role.prototype.robotGm_addEnergy = function() {
 Role.prototype.robotGm_addMail = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.ROBOT_GM, {
+        self.requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "addMail"
         })
         .then(function(data) {
@@ -595,7 +634,7 @@ Role.prototype.robotGm_addMail = function() {
 Role.prototype.robotGm_refreshPurchase = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.ROBOT_GM, {
+        self.requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "refreshPurchase"
         })
         .then(function(data) {
@@ -606,7 +645,7 @@ Role.prototype.robotGm_refreshPurchase = function() {
 Role.prototype.robotGm_upgradeLevel = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.ROBOT_GM, {
+        self.requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "upgradeLevel"
         })
         .then(function(data) {
@@ -618,7 +657,7 @@ Role.prototype.robotGm_upgradeLevel = function() {
 Role.prototype.robotGm_reset = function(opt) {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.ROBOT_GM, {
+        self.requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "reset",
             resetOpt: opt
         })
@@ -633,14 +672,24 @@ Role.prototype.robotGm_reset = function(opt) {
 Role.prototype.robotGm_delHero = function(opt) {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.ROBOT_GM, {
+        self.requestAsync(ActFlagType.ROBOT_GM, {
             cmdType: "delHero",
             heroId: opt.heroId
         })
         .then(function(data) {
             _.remove(self.heroes, function(hero) {
-                return hero.defId === opt.heroId;
+                if(hero.defId === opt.heroId) {
+                    _.remove(self.role.team, function(id) {
+                        return hero.id === id;
+                    });
+
+                    return true;
+                }
+
+                return false;
             });
+
+            self.replaceAction_2(self.setTeam, {heroes: self.role.team});
         })
     );
 };
@@ -648,7 +697,7 @@ Role.prototype.robotGm_delHero = function(opt) {
 Role.prototype.listStore = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.LIST_STORE, {
+        self.requestAsync(ActFlagType.LIST_STORE, {
         })
         .then(function(data) {
             self.storeItems = data.coinItems.concat(data.goldItems);
@@ -700,7 +749,7 @@ Role.prototype.storeBuy = function(opt) {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.STORE_BUY, {
+        self.requestAsync(ActFlagType.STORE_BUY, {
             siId: storeId
         })
         .then(function(data) {
@@ -715,12 +764,12 @@ Role.prototype.storeBuy = function(opt) {
     );
 };
 
-Role.prototype.updateEquipment = function(equipment) {
-    var idx = _.findIndex(this.items, function(item) {
-        return item.id === equipment.id;
+Role.prototype.updateItem = function(item) {
+    var idx = _.findIndex(this.items, function(it) {
+        return item.id === it.id;
     });
 
-    this.items[idx] = equipment;
+    this.items[idx] = item;
 };
 
 Role.prototype.updateHero = function(hero) {
@@ -823,12 +872,12 @@ Role.prototype.refineWeapon = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.REFINE_EQUIPMENT, {
+        self.requestAsync(ActFlagType.REFINE_EQUIPMENT, {
             equipmentId: item.id
         })
         .then(function(data) {
             self.role = data.role;
-            self.updateEquipment(data.equipment);
+            self.updateItem(data.equipment);
         })
     )
     .catch(function(err) {
@@ -858,7 +907,7 @@ Role.prototype.refineGem = function() {
     });
 
     self.resolveCommon(
-        requestAsync(ActFlagType.REFINE_GEM, {
+        self.requestAsync(ActFlagType.REFINE_GEM, {
             gemType: itemDef.id
         })
         .then(function(data) {
@@ -867,7 +916,7 @@ Role.prototype.refineGem = function() {
                     return id === item.id;
                 });
             });
-            self.items.push(data.gem);
+            self.updateItem(data.gem);
         })
     )
     .catch(function(err) {
@@ -894,7 +943,7 @@ Role.prototype.setGem = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.SET_GEM, {
+        self.requestAsync(ActFlagType.SET_GEM, {
             gemId: gem.id,
             equipmentId: item.id
         })
@@ -917,7 +966,7 @@ Role.prototype.removeGem = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.REMOVE_GEM, {
+        self.requestAsync(ActFlagType.REMOVE_GEM, {
             gemId: gem.id
         })
         .then(function(data) {
@@ -925,7 +974,7 @@ Role.prototype.removeGem = function() {
     );
 };
 
-Role.prototype.destroyEquipment = function() {
+Role.prototype.destroyEquipment = function(opt) {
     var self = this;
     var item = self.getOneEquipment();
 
@@ -934,7 +983,7 @@ Role.prototype.destroyEquipment = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.DESTRUCT, {
+        self.requestAsync(ActFlagType.DESTRUCT, {
             equipmentId: item.id
         })
         .then(function(data) {
@@ -949,7 +998,7 @@ Role.prototype.destroyEquipment = function() {
 Role.prototype.listHeroDef = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.LIST_HERO_DEF, {
+        self.requestAsync(ActFlagType.LIST_HERO_DEF, {
         })
         .then(function(data) {
             self.heroDefs = data.defs;
@@ -960,7 +1009,7 @@ Role.prototype.listHeroDef = function() {
 Role.prototype.listItemDef = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.LIST_ITEM_DEF, {
+        self.requestAsync(ActFlagType.LIST_ITEM_DEF, {
         })
         .then(function(data) {
             self.itemDefs = data.items;
@@ -979,12 +1028,12 @@ Role.prototype.equip = function() {
 
     var heroId = _.compact(self.heroes)[0].id;
     self.resolveCommon(
-        requestAsync(ActFlagType.EQUIP, {
+        self.requestAsync(ActFlagType.EQUIP, {
             equipmentId: item.id,
             heroId: heroId
         })
         .then(function(data) {
-            self.updateEquipment(data.equipment);
+            self.updateItem(data.equipment);
         })
     );
 };
@@ -998,11 +1047,11 @@ Role.prototype.unEquip = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.UNEQUIP, {
+        self.requestAsync(ActFlagType.UNEQUIP, {
             equipmentId: item.id
         })
         .then(function(data) {
-            self.updateEquipment(data.equipment);
+            self.updateItem(data.equipment);
         })
     );
 };
@@ -1010,7 +1059,7 @@ Role.prototype.unEquip = function() {
 Role.prototype.listHero = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.LIST_HERO, {
+        self.requestAsync(ActFlagType.LIST_HERO, {
         })
         .then(function(data) {
             self.heroes = data.heroes;
@@ -1021,7 +1070,7 @@ Role.prototype.listHero = function() {
 Role.prototype.listMail = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.LIST_MAIL, {
+        self.requestAsync(ActFlagType.LIST_MAIL, {
         })
         .then(function(data) {
             self.mails = data.mails;
@@ -1044,7 +1093,7 @@ Role.prototype.claimMail = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.CLAIM_MAIL, {
+        self.requestAsync(ActFlagType.CLAIM_MAIL, {
             mailId: mail.id
         })
         .then(function(data) {
@@ -1054,6 +1103,7 @@ Role.prototype.claimMail = function() {
     )
     .catch(function(err) {
         if(err.code === Constants.ALREADY_CLAIMED) {
+            self.finishAction();
         }
     });
 };
@@ -1061,7 +1111,7 @@ Role.prototype.claimMail = function() {
 Role.prototype.chat = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.CHAT, {
+        self.requestAsync(ActFlagType.CHAT, {
             target: "*",
             content: "this is a mail"
         })
@@ -1073,7 +1123,7 @@ Role.prototype.chat = function() {
 Role.prototype.listTask = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.LIST_TASK, {
+        self.requestAsync(ActFlagType.LIST_TASK, {
         })
         .then(function(data) {
         })
@@ -1083,7 +1133,7 @@ Role.prototype.listTask = function() {
 Role.prototype.listLevel = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.LIST_LEVEL, {
+        self.requestAsync(ActFlagType.LIST_LEVEL, {
         })
         .then(function(data) {
             self.stages = data.stages;
@@ -1096,7 +1146,7 @@ Role.prototype.start = function() {
     var stage = _.sample(self.stages);
     var level = _.sample(stage.levels).id;
     self.resolveCommon(
-        requestAsync(ActFlagType.START, {
+        self.requestAsync(ActFlagType.START, {
             level: level
         })
         .then(function(data) {
@@ -1116,7 +1166,7 @@ Role.prototype.end = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.END, {
+        self.requestAsync(ActFlagType.END, {
             level: self.level,
             coins: 0,
             items: []
@@ -1132,7 +1182,7 @@ Role.prototype.end = function() {
 Role.prototype.refreshStore = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.REFRESH_STORE, {
+        self.requestAsync(ActFlagType.REFRESH_STORE, {
             isGold: true
         })
         .then(function(data) {
@@ -1148,7 +1198,7 @@ Role.prototype.refreshStore = function() {
 Role.prototype.coinDraw = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.COIN_DRAW, {
+        self.requestAsync(ActFlagType.COIN_DRAW, {
         })
         .then(function(data) {
             self.role = data.role;
@@ -1160,7 +1210,7 @@ Role.prototype.coinDraw = function() {
 Role.prototype.goldDraw = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.GOLD_DRAW, {
+        self.requestAsync(ActFlagType.GOLD_DRAW, {
         })
         .then(function(data) {
             self.role = data.role;
@@ -1178,7 +1228,7 @@ Role.prototype.useItem = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.USE_ITEM, {
+        self.requestAsync(ActFlagType.USE_ITEM, {
             itemId: item.id,
             target: self.role.id
         })
@@ -1200,7 +1250,7 @@ Role.prototype.replace = function() {
 
     var heroes = _.sample(_.compact(self.role.team), 2);
     self.resolveCommon(
-        requestAsync(ActFlagType.REPLACE, {
+        self.requestAsync(ActFlagType.REPLACE, {
             hero: heroes[0],
             with: heroes[1]
         })
@@ -1217,7 +1267,7 @@ Role.prototype.replace = function() {
 Role.prototype.rename = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.RENAME, {
+        self.requestAsync(ActFlagType.RENAME, {
             name: "name" + _.random(1, 1000000)
         })
         .then(function(data) {
@@ -1237,12 +1287,13 @@ Role.prototype.rename = function() {
 Role.prototype.pickHero = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.PICKHERO, {
+        self.requestAsync(ActFlagType.PICKHERO, {
             heroId: _.sample(self.heroCans)
         })
         .then(function(data) {
             self.role.tutorial = data.tutorial;
             self.role.team[0] = data.newHero.id;
+            self.heroes.push(data.newHero);
         })
     )
     .catch(function(err) {
@@ -1260,7 +1311,7 @@ Role.prototype.pickHero = function() {
 Role.prototype.listSouls = function() {
     var self = this;
     self.resolveCommon(
-        requestAsync(ActFlagType.LIST_SOULS, {
+        self.requestAsync(ActFlagType.LIST_SOULS, {
         })
         .then(function(data) {
             self.souls = data;
@@ -1277,7 +1328,7 @@ Role.prototype.redeemSouls = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.REDEEM_SOULS, {
+        self.requestAsync(ActFlagType.REDEEM_SOULS, {
             heroId: parseInt(self.soulHeroId)
         })
         .then(function(data) {
@@ -1287,15 +1338,15 @@ Role.prototype.redeemSouls = function() {
         if(err.code === Constants.HeroFailed.ALREADY_HAVE_HERO) {
             self.addAction(self.robotGm_delHero, {heroId: parseInt(self.soulHeroId)});
         }
+        else if(err.code === Constants.HeroFailed.NOT_ENOUGH_SOULS) {
+            self.addAction(self.robotGm_addSoul, {heroId: self.soulHeroId});
+        }
     });
 };
 
 Role.prototype.refineHero = function() {
     var self = this;
-    var hero = _.find(self.heroes, function(h) {
-        return h.stars === 0;
-    });
-
+    var hero = _.sample(self.heroes);
     var mat = _.find(self.heroes, function(m) {
         return m.stars === hero.stars && m.defId === hero.defId && m.id !== hero.id && !_.any(self.role.team, function(t) {
             return t === m.id;
@@ -1308,7 +1359,7 @@ Role.prototype.refineHero = function() {
     }
 
     self.resolveCommon(
-        requestAsync(ActFlagType.REFINE_HERO, {
+        self.requestAsync(ActFlagType.REFINE_HERO, {
             heroId: hero.id,
             matId: mat.id
         })
@@ -1316,18 +1367,21 @@ Role.prototype.refineHero = function() {
             self.updateHero(data.hero);
             _.remove(self.heroes, {id: mat.id});
         })
-    );
+    )
+    .catch(function(err) {
+        if(err.code === Constants.HeroFailed.REFINE_MAX) {
+            self.finishAction();
+        }
+    });
 };
 
 Role.prototype.doAction = function() {
     self = this;
-    self.addAction.abc = 89;
-
     var actions = [
         self.claimDailyReward, self.claimHourlyReward, self.setTeam, self.upgradeEquip, self.storeBuy, self.sellItem,
-        self.listStore, self.refineWeapon, self.refineGem, self.setGem, self.removeGem, self.destroyEquipment,
-        self.listHeroDef, self.listItemDef, self.equip, self.unEquip, self.listHero, self.listMail, self.claimMail,
-        self.chat, self.listTask, self.listLevel, self.start, self.end, self.refreshStore, self.coinDraw, self.goldDraw,
+        self.listStore, self.refineWeapon, self.refineGem, self.setGem, self.removeGem, self.listHeroDef,
+        self.listItemDef, self.equip, self.unEquip, self.listHero, self.listMail, self.claimMail, self.chat,
+        self.listTask, self.listLevel, self.start, self.end, self.refreshStore, self.coinDraw, self.goldDraw,
         self.useItem, self.replace, self.rename, self.listSouls, self.redeemSouls, self.refineHero
     ];
 
@@ -1349,7 +1403,9 @@ Role.prototype.doAction = function() {
         action.call(self, opt);
         ++self.actionCount;
         console.log("执行第" + self.actionCount + "个action");
-    }, 1);
+    }, 100);
 };
 
-(new Role()).startTest();
+for(var i = 0; i < 1; ++i) {
+    (new Role()).startTest();
+}

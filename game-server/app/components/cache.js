@@ -167,4 +167,8 @@ class Cache {
     getItemDef(itemId) {
         return this.itemDefById[itemId] || this.equipmentDefById[itemId];
     }
+
+    isEquip(defId) {
+        return this.equipmentDefById[defId];
+    }
 }
