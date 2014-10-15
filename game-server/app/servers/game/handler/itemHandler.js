@@ -8,7 +8,6 @@ var moment = require("moment");
 var _ = require("lodash");
 var logger;
 
-
 module.exports = function (app) {
     return new ItemHandler(app);
 };
@@ -231,6 +230,7 @@ class ItemHandler extends base.HandlerBase {
 
     buy(msg, session, next) {
         wrapSession(session);
+        Store.initOnce(this.app);
 
         var siId = msg.siId;
         var cache = this.app.get("cache");
@@ -246,6 +246,7 @@ class ItemHandler extends base.HandlerBase {
             if (this.getStacks(role, storeItem.defId, storeItem.count) > role.getStorageRoom()) {
                 return Promise.reject(Constants.NO_ROOM);
             }
+
             var store = this.getRoleStore(role, storeItem.gold);
             var mKey = this.app.mKey;
             if (!store || !_.findWhere(store, {id: storeItem.id})) {
@@ -277,7 +278,8 @@ class ItemHandler extends base.HandlerBase {
             for (var i=0;i<storeItem.count;i++) {
                 newItems.push((new models.Item({
                     itemDefId: storeItem.defId,
-                    owner: role.id
+                    owner: role.id,
+                    bound: null
                 })).save());
             }
             session.set("role", role.toSessionObj());
@@ -315,6 +317,7 @@ class ItemHandler extends base.HandlerBase {
                 if (mats.length < gemDef.composeCount) {
                     return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
                 }
+
                 mats[0].itemDefId = gemDef.composeTarget[0];
                 var promises = new Array(gemDef.composeCount + 1);
                 promises[0] = mats;
@@ -354,6 +357,11 @@ class ItemHandler extends base.HandlerBase {
             if (!item || item.owner !== role.id) {
                 return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
             }
+
+            if(this.app.get("cache").isEquip(itemDef.id)) {
+                return this.errorNext(Constants.InvalidRequest, next);
+            }
+
             coinInc = itemDef.price + item.level * 100 * 0.3;
             return models.Role.get(role.id).run();
         })

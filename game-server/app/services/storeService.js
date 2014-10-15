@@ -1,5 +1,6 @@
 var utils = require("../../../shared/utils");
 var _ = require("lodash");
+var logger;
 
 class StoreService
 {
@@ -11,6 +12,7 @@ class StoreService
 
         this.goldRefresh = null;
         this.coinRefresh = null;
+
     }
 
     initOnce(app) {
@@ -19,6 +21,8 @@ class StoreService
             this.refresh6();
             this.refresh8();
         }
+
+    logger = require('../utils/rethinkLogger').getLogger(app);
     }
 
     sampleItems(isGold, oldItems=null) {

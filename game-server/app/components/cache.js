@@ -1,6 +1,7 @@
 var Promise = require("bluebird");
 var _ = require("lodash");
 var models = require("../../../shared/models");
+var logger;
 
 var toMap = function(array, key) {
     var ret = {};
@@ -23,6 +24,7 @@ class Cache {
         this.app = app;
         this.name = "cache";
         this.cacheRole = opts.role;
+        logger = require("../utils/rethinkLogger").getLogger(app);
     }
 
     start(cb) {
@@ -164,5 +166,9 @@ class Cache {
 
     getItemDef(itemId) {
         return this.itemDefById[itemId] || this.equipmentDefById[itemId];
+    }
+
+    isEquip(defId) {
+        return this.equipmentDefById[defId];
     }
 }

@@ -24,6 +24,9 @@ class HandlerBase {
     }
 
     safe(promise, next) {
+        if(!next) {
+            throw "lack of next arg";
+        }
         promise.catch((err) => {this.errorNext(err, next);});
     }
 
@@ -81,6 +84,7 @@ class HandlerBase {
             var stackSize = itemDef.stackSize || 1;
             stack += Math.ceil(value[1]/stackSize);
         });
+
         return stack;
     }
 

@@ -116,7 +116,7 @@ TaskService.prototype.claim = function(roleId, taskId) {
 TaskService.prototype.getTaskList = function(roleId) {
     var tids = _.keys(this.tasks);
     if (tids.length === 0) {
-        return Promise.fulfilled([[], null]);
+        return Promise.resolve([[], null]);
     }
 
     return models.Role.get(roleId).run().bind(this)

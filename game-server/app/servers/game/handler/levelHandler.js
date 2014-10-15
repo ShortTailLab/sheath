@@ -175,7 +175,8 @@ class LevelHandler extends base.HandlerBase {
                 for (var i=0;i<items[itemId];i++) {
                     newItems.push({
                         itemDefId: parseInt(itemId),
-                        owner: role.id
+                        owner: role.id,
+                        bound: null
                     });
                 }
             });
