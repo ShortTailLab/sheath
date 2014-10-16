@@ -117,6 +117,58 @@ class LevelHandler extends base.HandlerBase {
         }), next);
     }
 
+    addSkillPlus(levelGain, teamHeroes, heroDefById)
+    {
+        var conf = {
+            "10001": {type: "coin", val: 5},
+            "10002": {type: "coin", val: 10},
+            "10003": {type: "coin", val: 15},
+            "10004": {type: "coin", val: 20},
+            "10005": {type: "coin", val: 25},
+            "10006": {type: "coin", val: 30},
+            "10007": {type: "coin", val: 40},
+
+            "10011": {type: "roleExp", val: 5},
+            "10012": {type: "roleExp", val: 10},
+            "10013": {type: "roleExp", val: 15},
+            "10014": {type: "roleExp", val: 20},
+            "10015": {type: "roleExp", val: 25},
+            "10016": {type: "roleExp", val: 30},
+            "10017": {type: "roleExp", val: 40},
+
+            "10241": {type: "heroExp", val: 5},
+            "10242": {type: "heroExp", val: 10},
+            "10243": {type: "heroExp", val: 15},
+            "10244": {type: "heroExp", val: 20},
+            "10245": {type: "heroExp", val: 25},
+            "10246": {type: "heroExp", val: 30},
+            "10247": {type: "heroExp", val: 35}
+        };
+
+        var coin = 0, roleExp = 0, heroExp = 0;
+        _.forEach(teamHeroes, function(h) {
+            var heroDef = heroDefById[h.heroDefId];
+            var key = heroDef.pSkill * 10 + h.stars + heroDef.stars;
+            var prop = conf[key];
+
+            if(prop) {
+                if(prop.type === "coin") {
+                    coin += prop.val;
+                }
+                else if(prop.type === "roleExp") {
+                    roleExp += prop.val;
+                }
+                else {
+                    heroExp += prop.val;
+                }
+            }
+        });
+
+        levelGain.maxCoin *= 1 + coin / 100;
+        levelGain.exp  *= 1 + roleExp / 100;
+        levelGain.hExp *= 1 + heroExp / 100;
+    }
+
     end(msg, session, next) {
         wrapSession(session);
 
@@ -151,6 +203,8 @@ class LevelHandler extends base.HandlerBase {
                     return Promise.reject(Constants.StageFailed.Invalid_End);
                 }
             }
+
+            this.addSkillPlus(levelGain, teamHeroes, cache.heroDefById);
             if (coins > levelGain.maxCoin) {
                 models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
                 return Promise.reject(Constants.StageFailed.Invalid_End);
