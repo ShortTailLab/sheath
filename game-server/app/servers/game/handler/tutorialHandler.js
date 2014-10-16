@@ -76,7 +76,7 @@ class TutorialHandler extends base.HandlerBase {
         }
 
         role.name = newName;
-        role.tutorial = 2;
+        role.tutorial = 3;
         session.set("role", role);
 
         this.safe(Promise.join(session.push("role"), models.Role.get(role.id).update({tutorial: 2, name: newName}).run())
