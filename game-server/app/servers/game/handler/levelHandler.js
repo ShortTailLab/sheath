@@ -145,6 +145,7 @@ class LevelHandler extends base.HandlerBase {
             "10247": {type: "heroExp", val: 35}
         };
 
+        var coin = 0, roleExp = 0, heroExp = 0;
         _.forEach(teamHeroes, function(h) {
             var heroDef = heroDefById[h.heroDefId];
             var key = heroDef.pSkill * 10 + h.stars + heroDef.stars;
@@ -152,16 +153,20 @@ class LevelHandler extends base.HandlerBase {
 
             if(prop) {
                 if(prop.type === "coin") {
-                    levelGain.maxCoin *= 1 + prop.val / 100;
+                    coin += prop.val;
                 }
                 else if(prop.type === "roleExp") {
-                    levelGain.exp  *= 1 + prop.val / 100;
+                    roleExp += prop.val;
                 }
                 else {
-                    levelGain.hExp *= 1 + prop.val / 100;
+                    heroExp += prop.val;
                 }
             }
         });
+
+        levelGain.maxCoin *= 1 + coin / 100;
+        levelGain.exp  *= 1 + roleExp / 100;
+        levelGain.hExp *= 1 + heroExp / 100;
     }
 
     end(msg, session, next) {
