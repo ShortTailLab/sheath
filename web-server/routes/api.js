@@ -781,7 +781,7 @@ function adjustField(tblName, allFields, modelSchema) {
     //对字段进行统一的调整, 从model元数据里提取默认值
     for(var field in modelSchema) {
         var fieldValue = modelSchema[field];
-        if(tblName == "task") {
+        if(tblName === "task") {
             //任务需要做特殊处理
             if(field == "type") {
                 _.forEach(allFields, function(rowFields) {
@@ -804,7 +804,7 @@ function adjustField(tblName, allFields, modelSchema) {
                 continue;
             }
         }
-        else if(tblName == "gemdef") {
+        else if(tblName === "gemdef") {
             if (field == "extended") {
                 _.forEach(allFields, function (rowFields) {
                     var rawValue = rowFields[field];

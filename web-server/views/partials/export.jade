@@ -177,7 +177,6 @@ include ../mixins/block
         thead: tr
             th ID
             th 道具名
-            th 颜色
             th 最大精炼
             th 类型
             th 碎片
@@ -202,7 +201,6 @@ include ../mixins/block
         tbody: tr(ng-repeat="eq in equipments | orderBy:'id'")
             td {{eq.id}}
             td {{eq.name}}
-            td {{eq.color}}
             td {{eq.quality}}
             td {{eq.type}}
             td {{eq.counts}}
