@@ -360,7 +360,7 @@ Role.prototype.replaceAction_2 = function(action, opt) {
 };
 
 Role.prototype.resolveCommon = function(promise) {
-    self = this;
+    var self = this;
     return promise.then(function() {
         self.finishAction();
     })
@@ -377,30 +377,30 @@ Role.prototype.resolveCommon = function(promise) {
             console.log("error happend : " + err);
         }
 
-        if (err.code === Constants.LoginFailed.AlreadyLoggedIn) {
+        if (err.code === Constants.LoginFailed.AlreadyLoggedIn.code) {
             self.finishAction();
         }
-        else if(err.code === Constants.NEED_AUTH) {
+        else if(err.code === Constants.NEED_AUTH.code) {
             self.addAction(self.enter);
         }
 //        else if(err.code === Constants.LoginFailed.ID_PASSWORD_MISMATCH) {
 //            self.username = "test_" + _.random(1, 1000000);
 //            self.doAction();
 //        }
-        else if(err.code === Constants.NO_COINS || err.code === Constants.NO_GOLDS) {
+        else if(err.code === Constants.NO_COINS.code || err.code === Constants.NO_GOLDS.code) {
             self.addAction(self.robotGm_addMoney);
         }
-        else if(err.code === Constants.NO_ENERGY) {
+        else if(err.code === Constants.NO_ENERGY.code) {
             self.addAction(self.robotGm_addEnergy);
         }
-        else if(err.code === Constants.StageFailed.LevelRequired) {
+        else if(err.code === Constants.StageFailed.LevelRequired.code) {
             self.addAction(self.robotGm_upgradeLevel);
         }
-        else if(err.code === Constants.StoreFailed.NO_PURCHASE) {
+        else if(err.code === Constants.StoreFailed.NO_PURCHASE.code) {
             self.addAction(self.robotGm_refreshPurchase);
         }
-        else if(err.code === Constants.NO_ROOM) {
-            for(var i = 0; i != 100; ++i) {
+        else if(err.code === Constants.NO_ROOM.code) {
+            for(var i = 0; i < 100; ++i) {
                 self.curFullAction.push([self.sellItem, {}]);
             }
             self.doAction();
@@ -466,7 +466,7 @@ Role.prototype.claimDailyReward = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.ALREADY_CLAIMED) {
+        if(err.code === Constants.ALREADY_CLAIMED.code) {
             self.addAction(self.robotGm_reset, {type: "claimDailyReward"});
         }
     });
@@ -482,7 +482,7 @@ Role.prototype.claimHourlyReward = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.ALREADY_CLAIMED) {
+        if(err.code === Constants.ALREADY_CLAIMED.code) {
             self.addAction(self.robotGm_reset, {type: "claimHourlyReward"});
         }
     });
@@ -541,7 +541,7 @@ Role.prototype.upgradeEquip = function() {
         })
     )
     .catch(function(err) {
-        if (err.code === Constants.EquipmentFailed.LEVEL_MAX) {
+        if (err.code === Constants.EquipmentFailed.LEVEL_MAX.code) {
             if(item.level >= 80) {
                 self.addAction(self.robotGm_reset, {type: "upgradeEquip", eqId: item.id});
             }
@@ -881,7 +881,7 @@ Role.prototype.refineWeapon = function() {
         })
     )
     .catch(function(err) {
-        if (err.code === Constants.EquipmentFailed.LEVEL_MAX) {
+        if (err.code === Constants.EquipmentFailed.LEVEL_MAX.code) {
             self.addAction(self.robotGm_reset, {type: "refineWeapon", eqId: item.id});
         }
     });
@@ -920,7 +920,7 @@ Role.prototype.refineGem = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.EquipmentFailed.NO_MATERIAL) {
+        if(err.code === Constants.EquipmentFailed.NO_MATERIAL.code) {
             self.addAction(self.storeBuy, {storeId: _.find(self.storeItems, function(store) {
                 return itemDef.id === store.defId;
             }).id});
@@ -951,7 +951,7 @@ Role.prototype.setGem = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.EquipmentFailed.ALREADY_BOUND) {
+        if(err.code === Constants.EquipmentFailed.ALREADY_BOUND.code) {
             self.addAction(self.robotGm_reset, {type: "setGem", gemId: gem.id});
         }
     });
@@ -1102,7 +1102,7 @@ Role.prototype.claimMail = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.ALREADY_CLAIMED) {
+        if(err.code === Constants.ALREADY_CLAIMED.code) {
             self.finishAction();
         }
     });
@@ -1189,7 +1189,7 @@ Role.prototype.refreshStore = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.StoreFailed.NO_REFRESH) {
+        if(err.code === Constants.StoreFailed.NO_REFRESH.code) {
             self.finishAction();
         }
     });
@@ -1258,7 +1258,7 @@ Role.prototype.replace = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.InvalidRequest) {
+        if(err.code === Constants.InvalidRequest.code) {
             self.finishAction();
         }
     });
@@ -1275,10 +1275,10 @@ Role.prototype.rename = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.TutorialFailed.TutorialStateError) {
+        if(err.code === Constants.TutorialFailed.TutorialStateError.code) {
             self.addAction(self.robotGm_reset, {type: "tutorial"});
         }
-        else if(err.code === Constants.NameInvalid) {
+        else if(err.code === Constants.NameInvalid.code) {
             self.doAction();
         }
     });
@@ -1297,7 +1297,7 @@ Role.prototype.pickHero = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.TutorialFailed.TutorialStateError) {
+        if(err.code === Constants.TutorialFailed.TutorialStateError.code) {
             if(self.role.tutorial > 2) {
                 self.addAction(self.robotGm_reset, {type: "tutorial"});
             }
@@ -1335,10 +1335,10 @@ Role.prototype.redeemSouls = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.HeroFailed.ALREADY_HAVE_HERO) {
+        if(err.code === Constants.HeroFailed.ALREADY_HAVE_HERO.code) {
             self.addAction(self.robotGm_delHero, {heroId: parseInt(self.soulHeroId)});
         }
-        else if(err.code === Constants.HeroFailed.NOT_ENOUGH_SOULS) {
+        else if(err.code === Constants.HeroFailed.NOT_ENOUGH_SOULS.code) {
             self.addAction(self.robotGm_addSoul, {heroId: self.soulHeroId});
         }
     });
@@ -1369,14 +1369,14 @@ Role.prototype.refineHero = function() {
         })
     )
     .catch(function(err) {
-        if(err.code === Constants.HeroFailed.REFINE_MAX) {
+        if(err.code === Constants.HeroFailed.REFINE_MAX.code) {
             self.finishAction();
         }
     });
 };
 
 Role.prototype.doAction = function() {
-    self = this;
+    var self = this;
     var actions = [
         self.claimDailyReward, self.claimHourlyReward, self.setTeam, self.upgradeEquip, self.storeBuy, self.sellItem,
         self.listStore, self.refineWeapon, self.refineGem, self.setGem, self.removeGem, self.listHeroDef,

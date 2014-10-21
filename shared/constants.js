@@ -1,3 +1,13 @@
+var _ = require("lodash");
+
+var makeErrorObject = function (errorId, errorMessage) {
+    return {
+        code: errorId,
+        message: errorMessage,
+        __sheath__error__: true
+    };
+};
+
 module.exports = {
     OK: 0,
     UnknownError: 1,
@@ -64,7 +74,7 @@ module.exports = {
     StageFailed: {
         NO_LEVEL: 700,
         Invalid_End: 701,
-        LevelRequired: 702
+        LevelRequired: makeErrorObject(702, "use level too low")
     },
     StoreFailed: {
         NO_REFRESH: 800,
@@ -81,3 +91,16 @@ module.exports = {
 
     InternalServerError: 55555
 };
+
+var iterateObject = function (errors) {
+    _.forEach(errors, function (value, key) {
+        if (_.isNumber(value)) {
+            errors[key] = makeErrorObject(value, key);
+        }
+        else if (_.isObject(value) && _.isUndefined(value.code) && _.isUndefined(value.message)) {
+            iterateObject(value);
+        }
+    });
+};
+
+iterateObject(module.exports);
