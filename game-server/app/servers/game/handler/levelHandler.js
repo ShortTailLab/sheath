@@ -55,13 +55,13 @@ class LevelHandler extends base.HandlerBase {
             var seedGen = this.seedGen;
             var maxCoin = 0, items = {};
             role.fillEnergy(this.app.get("energyTable"));
-            if (role.energy < level.energy) {
-                return Promise.reject(Constants.NO_ENERGY);
-            }
+//            if (role.energy < level.energy) {
+//                return Promise.reject(Constants.NO_ENERGY);
+//            }
             if (role.level < level.min_level) {
                 return Promise.reject(Constants.StageFailed.LevelRequired);
             }
-            role.energy -= level.energy;
+//            role.energy -= level.energy;
 
             var missingItem;
             seeds = _.compact(_.map(level.enemies, function (e) {
