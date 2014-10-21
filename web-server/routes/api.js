@@ -373,7 +373,7 @@ exports.addHero = function (req, res) {
         role = _role;
         var heroes = _.map(newHeroes, function (heroId) {
             return {
-                heroDefId: heroId,
+                heroDefId: parseInt(heroId),
                 owner: roleId
             };
         });
@@ -412,7 +412,7 @@ exports.addItem = function (req, res) {
         if (exists) {
             var items = _.map(newItems, function (itemId) {
                 return {
-                    itemDefId: itemId,
+                    itemDefId: parseInt(itemId),
                     owner: roleId
                 };
             });
@@ -927,7 +927,7 @@ exports.import = function (req, res) {
                 sheetDict[sheet.id] = [tblName, Model];
             }
 
-            if(_.size(sheetDict) == 0) {
+            if(_.size(sheetDict) === 0) {
                 return res.send(400, {message: "后台系统没有检测到需要导入的表"});
             }
 
@@ -966,7 +966,11 @@ exports.import = function (req, res) {
                         allFields.push(rowFields);
                     }
 
-                    adjustField(tblName, allFields, modelSchema);
+                    var fieldTypes = _.clone(modelSchema);
+                    if (!fieldTypes.id) {
+                        fieldTypes.id = Number;
+                    }
+                    adjustField(tblName, allFields, fieldTypes);
 
                     if(tblName === "itemdef") {
                         Model = Model.filter(r.row("type").ne("宝石"));
