@@ -7,7 +7,7 @@ var logger = require('pomelo-logger').getLogger('sheath', __filename);
 
 class HandlerBase {
     errorNext(err, next) {
-        var result = {error: {code: Constants.UnknownError}};
+        var result = {error: {code: Constants.UnknownError.code}};
         if (err === undefined || err === null) {
         }
         if (typeof err === "number") {

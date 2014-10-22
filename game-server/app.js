@@ -10,6 +10,7 @@ var authFilter = require("./app/filters/authFilter");
 var statsFilter = require("./app/filters/perfStatsFilter");
 var Patcher = require("./app/utils/monkeyPatch");
 var dispatcher = require("./app/utils/dispatcher");
+var _ = require("lodash");
 
 /**
  * Init app for client.
@@ -131,10 +132,10 @@ var errorHandler = function (err, msg, resp, session, cb) {
         cb(null, {error: {code: err.code}});
     }
     else if (err.code === 500 && err.message === "Server toobusy!") {
-        cb(null, {error: {code: Constants.TIME_OUT, message: "Server too busy"}});
+        cb(null, {error: {code: Constants.TIME_OUT.code, message: "Server too busy"}});
     }
     else {
-        cb(null, {error: {code: Constants.InternalServerError, message: "Internal Server Error"}});
+        cb(null, {error: _.pick(Constants.InternalServerError, "code", "message")});
         logger.error('exception. ' + err.stack);
     }
 };

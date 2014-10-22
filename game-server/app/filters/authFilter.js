@@ -8,10 +8,7 @@ class AuthFilter {
 
     before(msg, session, next) {
         if (!_.contains(this.excludeList, msg.__route__) && (!session.uid || !session.get("role"))) {
-            next({
-                __sheath__error__: true,
-                code: Constants.NEED_AUTH
-            });
+            next(Constants.NEED_AUTH);
         }
         else {
             next();
