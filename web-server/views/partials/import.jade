@@ -29,7 +29,7 @@ div(ng-show="toConfirm")
                     thead
                         th key
                         th value
-                    tr(ng-repeat="key in tbl.dels[0]")
+                    tr(ng-repeat="key in tbl.dels[0]" ng-if="n[key] !== undefined")
                         td: | {{key}}
                         td: | {{n[key]}}
             div(ng-show="tbl.news[1]")
@@ -38,7 +38,7 @@ div(ng-show="toConfirm")
                     thead
                         th key
                         th value
-                    tr(ng-repeat="key in tbl.news[0]")
+                    tr(ng-repeat="key in tbl.news[0]" ng-if="n[key] !== undefined")
                         td: | {{key}}
                         td: | {{n[key]}}
             div(ng-show="tbl.mods[1]")
@@ -49,7 +49,7 @@ div(ng-show="toConfirm")
                         th 原值
                         th
                         th 新值
-                    tr(ng-repeat="key in tbl.mods[0]")
+                    tr(ng-repeat="key in tbl.mods[0]" ng-if="n[key] !== undefined")
                         td: | {{key}}
                         td(ng-show="n[key].new !== undefined && n[key].old !== undefined"): | {{n[key].old}}
                         td(ng-show="n[key].new !== undefined && n[key].old !== undefined"): | ===>
