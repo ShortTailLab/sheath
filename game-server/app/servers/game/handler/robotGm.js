@@ -37,8 +37,8 @@ class RobotGm extends base.HandlerBase
             this.safe(models.Role.get(role.id).run()
             .then(function (_role) {
                 role = _role;
-                role.golds += 10000;
-                role.coins += 10000;
+                role.golds += 100000;
+                role.coins += 100000;
                 return role.save();
             })
             .then(function (role) {
@@ -164,7 +164,7 @@ class RobotGm extends base.HandlerBase
                 this.safe(models.Role.get(role.id).run()
                 .then(function (_role) {
                     role = _role;
-                    role.tutorial = 1;
+                    role.tutorial = 2;
                     session.set("role", role.toSessionObj());
                     return [role.save(), session.push("role")];
                 })

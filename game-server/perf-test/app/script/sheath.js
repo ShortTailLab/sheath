@@ -316,7 +316,7 @@ Role.prototype.startTest = function() {
         });
 
         self.pomelo.on('onChat', function (data) {
-            console.log('Recv chat message.' + JSON.stringify(data));
+//            console.log('Recv chat message.' + JSON.stringify(data));
         });
 
         self.pomelo.on('onAnnounce', function (data) {
@@ -359,12 +359,20 @@ Role.prototype.replaceAction_2 = function(action, opt) {
     this.curFullAction.push([null, null]);
 };
 
+Role.prototype.printActionCount = function() {
+    var self = this;
+    ++self.actionCount;
+    console.log("---------------------------------------执行完第" + self.actionCount + "个action");
+};
+
 Role.prototype.resolveCommon = function(promise) {
     var self = this;
     return promise.then(function() {
+        self.printActionCount();
         self.finishAction();
     })
     .catch(function(err) {
+        self.printActionCount();
         var errMsg = "";
         if(err.message) {
             errMsg = " err.message = " + err.message;
@@ -800,6 +808,7 @@ Role.prototype.getOneEquipment = function() {
 };
 
 Role.prototype.getOneUnClaimedMail = function() {
+    var self = this;
     if(!self.mails || _.isEmpty(self.mails)) {
         self.addAction(self.robotGm_addMail);
         return null;
@@ -1298,7 +1307,7 @@ Role.prototype.pickHero = function() {
     )
     .catch(function(err) {
         if(err.code === Constants.TutorialFailed.TutorialStateError.code) {
-            if(self.role.tutorial > 2) {
+            if(self.role.tutorial !== 2) {
                 self.addAction(self.robotGm_reset, {type: "tutorial"});
             }
             else {
@@ -1378,11 +1387,11 @@ Role.prototype.refineHero = function() {
 Role.prototype.doAction = function() {
     var self = this;
     var actions = [
-        self.claimDailyReward, self.claimHourlyReward, self.setTeam, self.upgradeEquip, self.storeBuy, self.sellItem,
+        self.claimDailyReward, self.claimHourlyReward, self.setTeam, self.upgradeEquip, self.sellItem,
         self.listStore, self.refineWeapon, self.refineGem, self.setGem, self.removeGem, self.listHeroDef,
         self.listItemDef, self.equip, self.unEquip, self.listHero, self.listMail, self.claimMail, self.chat,
         self.listTask, self.listLevel, self.start, self.end, self.refreshStore, self.coinDraw, self.goldDraw,
-        self.useItem, self.replace, self.rename, self.listSouls, self.redeemSouls, self.refineHero
+        self.useItem, self.replace, self.listSouls, self.redeemSouls, self.refineHero
     ];
 
     var action = null;
@@ -1399,11 +1408,7 @@ Role.prototype.doAction = function() {
         self.curFullAction.push([action, opt]);
     }
 
-    setTimeout(function() {
-        action.call(self, opt);
-        ++self.actionCount;
-        console.log("执行第" + self.actionCount + "个action");
-    }, 100);
+    action.call(self, opt);
 };
 
 for(var i = 0; i < 1; ++i) {
