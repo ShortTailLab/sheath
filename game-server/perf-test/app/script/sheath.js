@@ -309,6 +309,8 @@ Role.prototype.startTest = function() {
     self.password = "password";
     self.curFullAction = [];
     self.actionCount = 0;
+    self.costTime = 0;
+    self.actionTimeArr = [];
 
     var onReady = function() {
         self.pomelo.on('onKick', function (data) {
@@ -331,6 +333,7 @@ Role.prototype.startTest = function() {
             console.log('disconnect invoke!' + reason);
         });
 
+        self.lastTime = _.now();
         self.enter();
     };
 
@@ -362,7 +365,23 @@ Role.prototype.replaceAction_2 = function(action, opt) {
 Role.prototype.printActionCount = function() {
     var self = this;
     ++self.actionCount;
-    console.log("---------------------------------------执行完第" + self.actionCount + "个action");
+    var now = _.now();
+    var elapse = now - self.lastTime;
+    self.lastTime = now;
+    var msec;
+    self.actionTimeArr.push(elapse);
+
+    if(self.actionCount <= 100) {
+        self.costTime += elapse;
+        msec = self.costTime / self.actionCount;
+    }
+    else {
+        var elapseHead = self.actionTimeArr.shift();
+        self.costTime += elapse - elapseHead;
+        msec = self.costTime / 100;
+    }
+
+    console.log("---------------------------------------执行完第" + self.actionCount + "个action   每个action耗费时间 " + msec + "毫秒");
 };
 
 Role.prototype.resolveCommon = function(promise) {
@@ -388,9 +407,9 @@ Role.prototype.resolveCommon = function(promise) {
         if (err.code === Constants.LoginFailed.AlreadyLoggedIn.code) {
             self.finishAction();
         }
-        else if(err.code === Constants.NEED_AUTH.code) {
-            self.addAction(self.enter);
-        }
+//        else if(err.code === Constants.NEED_AUTH.code) {
+//            self.addAction(self.enter);
+//        }
 //        else if(err.code === Constants.LoginFailed.ID_PASSWORD_MISMATCH) {
 //            self.username = "test_" + _.random(1, 1000000);
 //            self.doAction();
