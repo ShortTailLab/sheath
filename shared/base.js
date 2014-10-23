@@ -18,7 +18,7 @@ class HandlerBase {
         }
         if (typeof err.message === "string") {
             result.error.message = err.message;
-            logger.error('handler error. ' + err.message + (err.stack || ""));
+//            logger.error('handler error. ' + err.message + (err.stack || ""));
         }
         next(null, result);
     }
