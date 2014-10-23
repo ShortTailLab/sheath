@@ -3,7 +3,6 @@
     <properties>
       <option name="frameworkName" value="node_modules" />
       <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/game-server/perf-test/node_modules" />
         <item url="file://$PROJECT_DIR$/node_modules" />
       </sourceFilesUrls>
     </properties>

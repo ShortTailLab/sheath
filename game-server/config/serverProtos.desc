@@ -1,5 +1,5 @@
 
-…,
+ó+
 serverProtos.proto"
 Player
 
@@ -195,11 +195,10 @@ drop_items ("?
 user (2.Player
 
 partitions (2
-.Partition"Í
+.Partition"»
 %connector_entryHandler_enterPartition
 error (2.Error
-role (2.Role
-heroCans (
+role (2.Role
 itemDefs (2.ItemDef$
 equipmentDefs (2.EquipmentDef
 heroDefs (2.HeroDef
