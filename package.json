@@ -21,6 +21,7 @@
         "pomelo-status-plugin": "latest",
         "pomelo-schedule": "latest",
         "hiredis": "latest",
+        "redis": "latest",
         "node-protobuf": "latest",
         "thinky": "latest",
         "traceur": "latest",
