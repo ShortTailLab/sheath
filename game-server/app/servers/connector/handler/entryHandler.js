@@ -80,7 +80,7 @@ class EntryHandler extends base.HandlerBase {
         var cache = this.app.get("cache");
         var part = cache.partitionById[msg.partId];
         var device = session.get("device");
-        var bag, heroes;
+        var bag, heroes, levels;
 
         if (!part) {
             return this.errorNext(Constants.PartitionFailed.PARTITION_DO_NOT_EXIST, next);
@@ -161,15 +161,14 @@ class EntryHandler extends base.HandlerBase {
 
                 lastRole: role.id,
                 lastLogin: new Date()
-            }, {conflict: 'replace'}).execute();
-            return [role.save(), session.pushAll(), deviceUpsert];
-        })
-        .all().then(() => {
+            }, {conflict: 'replace'}).execute({durability: "soft"});
+            var pendings = [role.save(), session.pushAll(), deviceUpsert];
+
             this.app.rpc.manager.partitionStatsRemote.joinPartition(session, part.id, null);
             this.app.rpc.chat.chatRemote.add(session, session.uid, role.name, this.app.get('serverId'), part.id, null);
             this.app.rpc.chat.announcementRemote.userJoined(session, session.uid, part.id, null);
 
-            var levels = cache.clientLevels;
+            levels = _.cloneDeep(cache.clientLevels);
             var cleared = role.levelCleared;
             _.each(levels, function (stage) {
                 _.each(stage.levels, function (l) {
@@ -177,9 +176,12 @@ class EntryHandler extends base.HandlerBase {
                 });
             });
 
+            return pendings;
+        })
+        .all().then(() => {
             next(null, {
                 role: role.toClientObj(),
-                heroCans: 0 < role.tutorial < 3 ? newRoleConf.initialHeroCandidates : [],
+                //heroCans: 0 < role.tutorial < 3 ? newRoleConf.initialHeroCandidates : [],
 
                 heroDefs: cache.clientHeroDefs,
                 itemDefs: cache.clientItemDefs,
