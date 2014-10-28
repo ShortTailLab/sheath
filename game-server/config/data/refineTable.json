@@ -1,64 +1,64 @@
 {
 	"refineTable" : [
 		{
-			"ironCost" : 45,
-			"coinCost" : 0,
-			"luck" : 0.5,
-			"luckGrowth" : 0.35
+			"ironCost" : 1,
+			"coinCost" : 25000,
+			"luck" : 1,
+			"luckGrowth" : 0
 		},
 		{
-			"ironCost" : 86,
-			"coinCost" : 0,
-			"luck" : 0.5,
-			"luckGrowth" : 0.25
+			"ironCost" : 1,
+			"coinCost" : 25000,
+			"luck" : 0.8,
+			"luckGrowth" : 0.2
 		},		
 		{
-			"ironCost" : 152,
-			"coinCost" : 0,
-			"luck" : 0.4,
-			"luckGrowth" : 0.25
+			"ironCost" : 1,
+			"coinCost" : 25000,
+			"luck" : 0.65,
+			"luckGrowth" : 0.2
 		},
 		{
-			"ironCost" : 202,
-			"coinCost" : 0,
-			"luck" : 0.3,
-			"luckGrowth" : 0.25
+			"ironCost" : 1,
+			"coinCost" : 25000,
+			"luck" : 0.5,
+			"luckGrowth" : 0.15
 		},
 		{
-			"ironCost" : 228,
-			"coinCost" : 0,
+			"ironCost" : 1,
+			"coinCost" : 25000,
+			"luck" : 0.35,
+			"luckGrowth" : 0.15
+		},
+		{
+			"ironCost" : 1,
+			"coinCost" : 25000,
 			"luck" : 0.3,
 			"luckGrowth" : 0.1
 		},
 		{
-			"ironCost" : 327,
-			"coinCost" : 0,
-			"luck" : 0.2,
-			"luckGrowth" : 0.05
+			"ironCost" : 1,
+			"coinCost" : 25000,
+			"luck" : 0.25,
+			"luckGrowth" : 0.06
 		},
 		{
-			"ironCost" : 392,
-			"coinCost" : 0,
+			"ironCost" : 1,
+			"coinCost" : 25000,
 			"luck" : 0.2,
-			"luckGrowth" : 0.0125
+			"luckGrowth" : 0.04
 		},
 		{
-			"ironCost" : 399,
-			"coinCost" : 0,
+			"ironCost" : 1,
+			"coinCost" : 25000,
 			"luck" : 0.15,
-			"luckGrowth" : 0.0075
+			"luckGrowth" : 0.03
 		},
 		{
-			"ironCost" : 428,
-			"coinCost" : 0,
+			"ironCost" : 1,
+			"coinCost" : 25000,
 			"luck" : 0.1,
-			"luckGrowth" : 0.005
-		},
-		{
-			"ironCost" : 519,
-			"coinCost" : 0,
-			"luck" : 0.1,
-			"luckGrowth" : 0.0025
+			"luckGrowth" : 0.02
 		}
 	]
 }
