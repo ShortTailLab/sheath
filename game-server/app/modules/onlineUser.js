@@ -22,6 +22,7 @@ Module.prototype.monitorHandler = function(agent, msg) {
 		return;
 	}
     var stats = connectionService.getStatisticsInfo();
+	stats.loginedList = stats.loginedList || [];
     for (var i=0;i<stats.loginedList.length;i++) {
         var user = stats.loginedList[i];
         var sessions = sessionService.getByUid(user.uid);
@@ -36,7 +37,7 @@ Module.prototype.monitorHandler = function(agent, msg) {
 Module.prototype.masterHandler = function(agent, msg) {
 	if(!msg) {
 		// pull interval callback
-		var list = agent.typeMap['connector'];
+		var list = agent.typeMap.connector;
 		if(!list || list.length === 0) {
 			return;
 		}
