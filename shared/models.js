@@ -465,7 +465,8 @@ exports.init = function (dbConfig) {
             defId: this.itemDefId,
             level: this.level,
             refinement: this.refinement,
-            bound: this.bound || undefined
+            bound: this.bound || undefined,
+            luck: this.luck || undefined
         };
     });
 

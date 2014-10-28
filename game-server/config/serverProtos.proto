@@ -146,6 +146,7 @@ message Item {
     required int32 level        =   3;
     required int32 refinement   =   4;
     optional string bound       =   6;
+    optional float luck         =   7;
 }
 message Hero {
     required string id          =   1;
