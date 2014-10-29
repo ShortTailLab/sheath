@@ -1,5 +1,5 @@
 
-Û+
+Å,
 serverProtos.proto"
 Player
 
@@ -134,7 +134,7 @@ growFactor (
 damage (
 damageReduction (
 damageFactor (
-damageRedFactor ("S
+damageRedFactor ("a
 Item
 
 id (	
@@ -142,7 +142,8 @@ growFactor (
 level (
 
 refinement (
-bound (	"L
+bound (	
+luck ("L
 Hero
 
 id (	
