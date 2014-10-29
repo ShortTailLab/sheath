@@ -4,6 +4,7 @@ require("../shared/traceurBootstrap");
 var dao = require("../shared/dao/user");
 var models = require("../shared/models");
 var readline = require('readline');
+var crypto = require("crypto");
 var Promise = require("bluebird");
 var _ = require("lodash");
 var dbConfig = require("../game-server/config/rethinkdb.json");
@@ -88,6 +89,9 @@ promptConfirm("Choose run environment.", "development", ["production", "test", "
             }
         })
         .then(function (password) {
+            var shasum = crypto.createHash("sha1");
+            shasum.update(password);
+            password = shasum.digest("hex");
             return dao.newUser("main", userName, password);
         });
     }
