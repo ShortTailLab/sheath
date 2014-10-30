@@ -48,6 +48,21 @@ class RobotGm extends base.HandlerBase
                 });
             }), next);
         }
+        else if(cmdType === "addIron") {
+            this.safe(models.Role.get(role.id).run()
+                .then(function (_role) {
+                    role = _role;
+                    for(var i = 0; i < 4; ++i) {
+                        role.irons[i] += 100000;
+                    }
+                    return role.save();
+                })
+                .then(function (role) {
+                    next(null, {
+                        irons: role.irons
+                    });
+                }), next);
+        }
         else if(cmdType === "addEnergy") {
             this.safe(models.Role.get(role.id).run()
             .then(function (_role) {
@@ -65,7 +80,7 @@ class RobotGm extends base.HandlerBase
             this.safe(models.Role.get(role.id).run()
             .then(function (_role) {
                 role = _role;
-                role.souls["" + msg.heroId] += 1000;
+                role.souls["" + msg.heroId] = (role.souls["" + msg.heroId] || 0) + 1000;
                 return role.save();
             })
             .then(function (role) {
