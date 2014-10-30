@@ -417,6 +417,9 @@ Role.prototype.resolveCommon = function(promise) {
         else if(err.code === Constants.NO_COINS.code || err.code === Constants.NO_GOLDS.code) {
             self.addAction(self.robotGm_addMoney);
         }
+        else if(err.code === Constants.NO_IRONS.code) {
+            self.addAction(self.robotGm_addIron);
+        }
         else if(err.code === Constants.NO_ENERGY.code) {
             self.addAction(self.robotGm_addEnergy);
         }
@@ -617,6 +620,18 @@ Role.prototype.robotGm_addMoney = function() {
         .then(function(data) {
             self.role.golds = data.golds;
             self.role.coins = data.coins;
+        })
+    );
+};
+
+Role.prototype.robotGm_addIron = function() {
+    var self = this;
+    self.resolveCommon(
+        self.requestAsync(ActFlagType.ROBOT_GM, {
+            cmdType: "addIron"
+        })
+        .then(function(data) {
+            self.role.irons = data.irons;
         })
     );
 };
@@ -1410,7 +1425,7 @@ Role.prototype.doAction = function() {
         self.listStore, self.refineWeapon, self.refineGem, self.setGem, self.removeGem, self.listHeroDef,
         self.listItemDef, self.equip, self.unEquip, self.listHero, self.listMail, self.claimMail, self.chat,
         self.listTask, self.listLevel, self.start, self.end, self.refreshStore, self.coinDraw, self.goldDraw,
-        self.useItem, self.replace, self.listSouls, self.redeemSouls, self.refineHero
+        self.useItem, self.replace, self.listSouls, self.redeemSouls
     ];
 
     var action = null;
