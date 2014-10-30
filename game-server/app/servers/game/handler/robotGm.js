@@ -55,8 +55,6 @@ class RobotGm extends base.HandlerBase
                     for(var i = 0; i < 4; ++i) {
                         role.irons[i] += 100000;
                     }
-                    role.golds += 100000;
-                    role.coins += 100000;
                     return role.save();
                 })
                 .then(function (role) {
