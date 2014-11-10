@@ -40,7 +40,7 @@ class EquipmentHandler extends base.HandlerBase {
         .run().bind(this).then((_mats) => {
             mats = _mats;
             if (mats.length < itemDef.composeCount) {
-                return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
+                throw Constants.EquipmentFailed.NO_MATERIAL;
             }
             var promises = _.invoke(mats, "delete");
             promises.unshift((new models.Item({owner: role.id, itemDefId: target})).save());
@@ -80,10 +80,10 @@ class EquipmentHandler extends base.HandlerBase {
             role = _role;
 
             if (equipment.owner !== role.id) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+                throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             }
             if (equipment.refinement >= itemDef.refineLevel) {
-                return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
+                throw Constants.EquipmentFailed.LEVEL_MAX;
             }
 
             refineOptions = refineCostTable[equipment.refinement];
@@ -91,10 +91,10 @@ class EquipmentHandler extends base.HandlerBase {
             var coinReq = Math.ceil(refineOptions.coinCost * itemDef.refineFactor);
             ironReq = refineOptions.ironCost;
             if (role.coins < coinReq) {
-                return Promise.reject(Constants.NO_COINS);
+                throw Constants.NO_COINS;
             }
             if (ironIndex == null || role.irons[ironIndex] < ironReq) {
-                return Promise.reject(Constants.NO_IRONS);
+                throw Constants.NO_IRONS;
             }
             role.coins -= coinReq;
             role.irons[ironIndex] -= ironReq;
@@ -143,13 +143,13 @@ class EquipmentHandler extends base.HandlerBase {
             coinsNeeded = Math.ceil(coinCostTable[equipment.level] * itemDef.growFactor);
 
             if (equipment.owner !== role.id) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+                throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             }
             if (equipment.level >= weaponLevelLimit) {
-                return Promise.reject(Constants.EquipmentFailed.LEVEL_MAX);
+                throw Constants.EquipmentFailed.LEVEL_MAX;
             }
             if (role.coins < coinsNeeded) {
-                return Promise.reject(Constants.NO_COINS);
+                throw Constants.NO_COINS;
             }
             role.coins -= coinsNeeded;
             equipment.level += 1;
@@ -197,19 +197,19 @@ class EquipmentHandler extends base.HandlerBase {
             [equipment, itemDef] = q1;
             [gem ,gemDef] = q2;
             if (itemDef.slots === 0) {
-                return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
+                throw Constants.EquipmentFailed.NO_SLOT;
             }
             if (!equipment || equipment.owner !== role.id) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+                throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             }
             if (!gem || gem.owner !== role.id) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+                throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             }
             if (gem.bound) {
-                return Promise.reject(Constants.EquipmentFailed.ALREADY_BOUND);
+                throw Constants.EquipmentFailed.ALREADY_BOUND;
             }
 //            if (itemDef.gemType.indexOf(gemDef.subType) === -1) {
-//                return Promise.reject(Constants.EquipmentFailed.CANNOT_BIND_GEM_TYPE);
+//                throw Constants.EquipmentFailed.CANNOT_BIND_GEM_TYPE;
 //            }
             return models.Item.getAll(eqId, {index: "bound"}).run();
         })
@@ -230,7 +230,7 @@ class EquipmentHandler extends base.HandlerBase {
             }
             else {
                 if (_boundGems.length + 1 > itemDef.slots) {
-                    return Promise.reject(Constants.EquipmentFailed.NO_SLOT);
+                    throw Constants.EquipmentFailed.NO_SLOT;
                 }
                 return gem.save();
             }
@@ -260,7 +260,7 @@ class EquipmentHandler extends base.HandlerBase {
         this.safe(this.getGemWithDef(gemId)
         .spread((gem) => {
             if (gem.owner !== role.id) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+                throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             }
 
             eqId = gem.bound;

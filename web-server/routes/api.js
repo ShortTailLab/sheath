@@ -223,7 +223,7 @@ exports.userList = function (req, res) {
                         return r.expr(listOptions.partitions).contains(row("partition"));
                     });
                 }
-                return Promise.join(q.run(), q.count().execute());
+                return [q.run(), q.count().execute()];
             }
         });
     }
@@ -419,7 +419,7 @@ exports.addItem = function (req, res) {
             return appModels.Item.save(items);
         }
         else {
-            return Promise.reject();
+            throw "Role do not exist";
         }
     })
     .then(function (items) {

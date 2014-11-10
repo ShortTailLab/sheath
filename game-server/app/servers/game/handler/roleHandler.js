@@ -34,7 +34,7 @@ class RoleHandler extends base.HandlerBase {
         this.safe(models.Hero.get(newHeroId).run().bind(this)
         .then(function (newHero) {
             if (newHero.owner !== role.id) {
-                return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
+                throw Constants.HeroFailed.DO_NOT_OWN_HERO;
             }
             var cache = this.app.get("cache");
             if (role.team.length > 3) role.team = role.team.slice(0, 3);
@@ -76,7 +76,7 @@ class RoleHandler extends base.HandlerBase {
         .spread(function (r, heroCount) {
             role = r;
             if (reqHeroes.length !== heroCount) {
-                return Promise.reject(Constants.RoleFailed.DO_NOT_OWN_HERO);
+                throw Constants.RoleFailed.DO_NOT_OWN_HERO;
             }
             if (role.team.length > 3) role.team = role.team.slice(0, 3);
 
@@ -118,7 +118,7 @@ class RoleHandler extends base.HandlerBase {
 //            .spread(function(r, heroCount) {
 //                role = r;
 //                if (reqHeroes.length !== heroCount) {
-//                    return Promise.reject(Constants.RoleFailed.DO_NOT_OWN_HERO);
+//                    throw Constants.RoleFailed.DO_NOT_OWN_HERO;
 //                }
 //                role.setTeam(formation, heroList);
 //                role.formation = formation;
@@ -155,7 +155,7 @@ class RoleHandler extends base.HandlerBase {
 //            role = r;
 //            var curFormationLevel = role.formationLevel[formation];
 //            if (curFormationLevel > formLevelMax) {
-//                return Promise.reject(Constants.RoleFailed.FORMATION_LEVEL_MAX);
+//                throw Constants.RoleFailed.FORMATION_LEVEL_MAX;
 //            }
 //        }), next);
 //    }
@@ -254,10 +254,10 @@ class RoleHandler extends base.HandlerBase {
         this.safe(models.get(role.id).run().bind(this)
         .then((roleObj) => {
             if (roleObj.storageRoom === 125) {
-                return Promise.reject(Constants.HeroFailed.STORAGE_MAX);
+                throw Constants.HeroFailed.STORAGE_MAX;
             }
             if (roleObj.golds < 25) {
-                return Promise.reject(Constants.HeroFailed.NO_GOLDS);
+                throw Constants.HeroFailed.NO_GOLDS;
             }
             roleObj.golds -= 25;
             roleObj.storageRoom += 5;

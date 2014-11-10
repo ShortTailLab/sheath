@@ -55,7 +55,7 @@ class HeroHandler extends base.HandlerBase {
             var now = moment();
             if (tenDraw) {
                 if (role.coins >= 90000) role.coins -= 90000;
-                else return Promise.reject(Constants.NO_COINS);
+                else throw Constants.NO_COINS;
             }
             else if (freeReq) {
                 if (freeDrawCount < 5 && (!nextFreeTime || moment(nextFreeTime).isBefore(now))) {
@@ -63,13 +63,13 @@ class HeroHandler extends base.HandlerBase {
                     role.dailyRefreshData[this.app.mKey.coinDrawCount] = freeDrawCount + 1;
                     freeDraw = true;
                 }
-                else return Promise.reject(Constants.HeroFailed.NO_FREE_REFRESH);
+                else throw Constants.HeroFailed.NO_FREE_REFRESH;
             }
             else if (role.coins >= 10000) {
                 role.coins -= 10000;
             }
             else {
-                return Promise.reject(Constants.NO_COINS);
+                throw Constants.NO_COINS;
             }
             drawResult = draw.drawWithCoins(role, tenDraw, freeDraw);
 
@@ -111,20 +111,20 @@ class HeroHandler extends base.HandlerBase {
             var now = moment();
             if (tenDraw) {
                 if (role.golds >= 2800) role.golds -= 2800;
-                else return Promise.reject(Constants.NO_GOLDS);
+                else throw Constants.NO_GOLDS;
             }
             else if (freeReq) {
                 if (!nextFreeTime || moment(nextFreeTime).isBefore(now)) {
                     role.manualRefreshData[this.app.mKey.goldDrawReset] = now.add(36, "hours").toDate();
                     freeDraw = true;
                 }
-                else return Promise.reject(Constants.HeroFailed.NO_FREE_REFRESH);
+                else throw Constants.HeroFailed.NO_FREE_REFRESH;
             }
             else if (role.golds >= 300) {
                 role.golds -= 300;
             }
             else {
-                return Promise.reject(Constants.NO_GOLDS);
+                throw Constants.NO_GOLDS;
             }
             drawResult = draw.drawWithGolds(role, tenDraw, freeDraw);
 
@@ -183,10 +183,10 @@ class HeroHandler extends base.HandlerBase {
         .then(function (role) {
             var soul = role.souls["" + heroId] || 0;
             if (!soul || !heroDef || soul < heroDef.counts) {
-                return Promise.reject(Constants.HeroFailed.NOT_ENOUGH_SOULS);
+                throw Constants.HeroFailed.NOT_ENOUGH_SOULS;
             }
             if (_.findWhere(role.heroes, {heroDefId: heroId})) {
-                return Promise.reject(Constants.HeroFailed.ALREADY_HAVE_HERO);
+                throw Constants.HeroFailed.ALREADY_HAVE_HERO;
             }
 
             soul -= heroDef.counts;
@@ -226,20 +226,20 @@ class HeroHandler extends base.HandlerBase {
             mat = heroes[1];
             role = _role;
             if (!hero || !mat || hero.owner !== role.id || mat.owner !== role.id) {
-                return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
+                throw Constants.HeroFailed.DO_NOT_OWN_HERO;
             }
             if (hero.stars >= 4) {
-                return Promise.reject(Constants.HeroFailed.REFINE_MAX);
+                throw Constants.HeroFailed.REFINE_MAX;
             }
             if (hero.heroDefId !== mat.heroDefId) {
-                return Promise.reject(Constants.HeroFailed.NO_MATERIAL_HERO);
+                throw Constants.HeroFailed.NO_MATERIAL_HERO;
             }
             if (hero.stars !== mat.stars) {
-                return Promise.reject(Constants.HeroFailed.REFINE_LEVEL_NOT_MATCH);
+                throw Constants.HeroFailed.REFINE_LEVEL_NOT_MATCH;
             }
             heroDef = this.app.get("cache").heroDefById[hero.heroDefId];
             if (role.coins < heroDef.coinCost[hero.stars]) {
-                return Promise.reject(Constants.NO_COINS);
+                throw Constants.NO_COINS;
             }
 
             heroDef.coinCost[hero.stars] = heroDef.coinCost[hero.stars] || 0;
@@ -292,10 +292,10 @@ class HeroHandler extends base.HandlerBase {
             itemDef = eqs[1];
             hero = _hero;
             if (equipment.owner !== role.id) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+                throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             }
             if (!hero || hero.owner !== role.id) {
-                return Promise.reject(Constants.HeroFailed.DO_NOT_OWN_HERO);
+                throw Constants.HeroFailed.DO_NOT_OWN_HERO;
             }
             var cache = this.app.get("cache");
             // find a same type equipment to replace
@@ -342,7 +342,7 @@ class HeroHandler extends base.HandlerBase {
         this.safe(this.getEquipmentWithDef(eqId)
         .spread((equipment, _itemDef) => {
             if (equipment.owner !== role.id) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+                throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             }
             heroId = equipment.bound;
             equipment.bound = null;
