@@ -34,6 +34,9 @@ class HandlerBase {
         return models.Item.get(itemId).run().bind(this)
         .then(function (item){
             var itemDef = this.app.get("cache").getItemDef(item.itemDefId);
+            if(!itemDef) {
+                throw Constants.InvalidRequest;
+            }
             return [item, itemDef];
         })
         .catch(models.Errors.DocumentNotFound, function(err) {
@@ -42,13 +45,16 @@ class HandlerBase {
     }
 
     getEquipmentWithDef(equipmentId) {
-        return this.getItemWithDef(equipmentId).then((results) => {
-            var itemDef = results[1];
-            var cache = this.app.get("cache");
-            if (!itemDef || !cache.equipmentDefById[itemDef.id]) {
+        return models.Item.get(equipmentId).run().bind(this)
+        .then(function (equip){
+            var equipDef = this.app.get("cache").getEquipDef(equip.itemDefId);
+            if(!equipDef) {
                 throw Constants.InvalidRequest;
             }
-            return results;
+            return [equip, equipDef];
+        })
+        .catch(models.Errors.DocumentNotFound, function(err) {
+            throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
         });
     }
 
@@ -80,7 +86,7 @@ class HandlerBase {
         }
 
         _.each(stackCounts, function (value) {
-            var itemDef = cache.getItemDef(value[0]);
+            var itemDef = cache.getItemEquipDef(value[0]);
             var stackSize = itemDef.stackSize || 1;
             stack += Math.ceil(value[1]/stackSize);
         });

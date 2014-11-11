@@ -308,7 +308,7 @@ class ItemHandler extends base.HandlerBase {
         if (!gemType) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
-        if (!gemDef.composable) {
+        if (!gemDef || !gemDef.composable) {
             return this.errorNext(Constants.EquipmentFailed.LEVEL_MAX, next);
         }
 
@@ -358,7 +358,7 @@ class ItemHandler extends base.HandlerBase {
                 throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             }
 
-            if(this.app.get("cache").isEquip(itemDef.id)) {
+            if(this.app.get("cache").getEquipDef(itemDef.id)) {
                 return this.errorNext(Constants.InvalidRequest, next);
             }
 

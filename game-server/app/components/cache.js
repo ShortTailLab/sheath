@@ -161,14 +161,18 @@ class Cache {
         return null;
     }
 
-    getPieceId(itemDef) {
+    getPieceId(id) {
     }
 
-    getItemDef(itemId) {
-        return this.itemDefById[itemId] || this.equipmentDefById[itemId];
+    getItemDef(id) {
+        return this.itemDefById[id];
     }
 
-    isEquip(defId) {
-        return this.equipmentDefById[defId];
+    getEquipDef(id) {
+        return this.equipmentDefById[id];
+    }
+
+    getItemEquipDef(id) {
+        return this.itemDefById[id] || this.equipmentDefById[id];
     }
 }
