@@ -764,35 +764,30 @@ Role.prototype.storeBuy = function(opt) {
 
     if(!opt.storeId) {
         if(opt.buyType === "equip") {
-            storeId = (_.find(self.storeItems, function(store) {
+            storeId = _.find(self.storeItems, function(store) {
                 return self.equipDefById[store.defId];
-            }) || {}).id;
+            }).id;
         }
         else if(opt.buyType === "gem") {
-            storeId = (_.find(self.storeItems, function(store) {
+            storeId = _.find(self.storeItems, function(store) {
                 return _.any(self.itemDefs, function(def) {
                     return def.id === store.defId && def.type === "宝石";
                 });
-            }) || {}).id;
+            }).id;
         }
         else if(opt.buyType === "useItem") {
-            storeId = (_.find(self.storeItems, function(store) {
+            storeId = _.find(self.storeItems, function(store) {
                 return _.any(self.itemDefs, function(def) {
                     return def.id === store.defId && def.useTarget === 1 && def.itemEffect && _.size(def.itemEffect) > 0;
                 });
-            }) || {}).id;
+            }).id;
         }
         else {
-            storeId = (_.sample(self.storeItems) || {}).id;
+            storeId = _.sample(self.storeItems).id;
         }
     }
     else {
         storeId = opt.storeId;
-    }
-
-    if (storeId === null || storeId === undefined) {
-        self.resolveCommon(Promise.resolve());
-        return;
     }
 
     self.resolveCommon(
@@ -953,11 +948,6 @@ Role.prototype.refineGem = function() {
 
         return self.equipDefById[def.composeTarget[0]];
     });
-
-    if (!itemDef) {
-        self.resolveCommon(Promise.resolve());
-        return;
-    }
 
     self.resolveCommon(
         self.requestAsync(ActFlagType.REFINE_GEM, {
