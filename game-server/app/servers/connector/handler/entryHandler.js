@@ -34,7 +34,7 @@ class EntryHandler extends base.HandlerBase {
         .then((u) => {
             user = u;
             if (!user) {
-                return Promise.reject(Constants.LoginFailed.ID_PASSWORD_MISMATCH);
+                throw Constants.LoginFailed.ID_PASSWORD_MISMATCH;
             }
             var partUCount = this.app.rpc.manager.partitionStatsRemote.getUserCountAsync(session);
             session.set("distro", msg.distro);
@@ -132,7 +132,7 @@ class EntryHandler extends base.HandlerBase {
                         };
                     });
 
-                    return Promise.join(role, models.Hero.save(heros), models.Item.save(items));
+                    return [role, models.Hero.save(heros), models.Item.save(items)];
                 })
                 .spread(function (role, _heroes, _items) {
                     heroes = _heroes;

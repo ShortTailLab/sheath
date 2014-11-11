@@ -86,12 +86,12 @@ class ItemHandler extends base.HandlerBase {
             item = _item;
             itemDef = _itemDef;
             var target = msg.target || roleId;
-            if (item.owner !== roleId) return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            if (item.owner !== roleId) throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             if (!target || !itemDef.useTarget || itemDef.useTarget > 2 || !itemDef.itemEffect || itemDef.itemEffect.length === 0) {
-                return Promise.reject(Constants.InvalidRequest);
+                throw Constants.InvalidRequest;
             }
             if (!_.contains(validEffects[itemDef.useTarget], itemDef.itemEffect[0])) {
-                return Promise.reject(Constants.InternalServerError);
+                throw Constants.InternalServerError;
             }
 
             var targetP = itemDef.useTarget === 1 ? models.Role.get(roleId) : models.Hero.get(target);
@@ -180,7 +180,7 @@ class ItemHandler extends base.HandlerBase {
             else {
                 var tokenDefId = this.app.get("specialItemId").storeRefreshToken;
                 if (tokenDefId === undefined || tokenDefId === null) {
-                    return Promise.reject(Constants.StoreFailed.NO_REFRESH);
+                    throw Constants.StoreFailed.NO_REFRESH;
                 }
                 else {
                     return models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: tokenDefId}).run().bind(this)
@@ -190,7 +190,7 @@ class ItemHandler extends base.HandlerBase {
                             return token.delete();
                         }
                         else {
-                            return Promise.reject(Constants.StoreFailed.NO_REFRESH);
+                            throw Constants.StoreFailed.NO_REFRESH;
                         }
                     });
                 }
@@ -244,13 +244,13 @@ class ItemHandler extends base.HandlerBase {
         .then(function (_role) {
             role = _role;
             if (this.getStacks(role, storeItem.defId, storeItem.count) > role.getStorageRoom()) {
-                return Promise.reject(Constants.NO_ROOM);
+                throw Constants.NO_ROOM;
             }
 
             var store = this.getRoleStore(role, storeItem.gold);
             var mKey = this.app.mKey;
             if (!store || !_.findWhere(store, {id: storeItem.id})) {
-                return Promise.reject(Constants.StoreFailed.NO_ITEM);
+                throw Constants.StoreFailed.NO_ITEM;
             }
 
             var maxDailyPurchase = this.maxDailyPurchase(role);
@@ -258,20 +258,20 @@ class ItemHandler extends base.HandlerBase {
             var goldPurchaseLeft = maxDailyPurchase - (role.dailyRefreshData[mKey.goldPurchaseNum] || 0);
             if (storeItem.gold && goldPurchaseLeft > 0) {
                 if (role.golds < storeItem.price) {
-                    return Promise.reject(Constants.NO_GOLDS);
+                    throw Constants.NO_GOLDS;
                 }
                 role.golds -= storeItem.price;
                 role.dailyRefreshData[mKey.goldPurchaseNum] = (role.dailyRefreshData[mKey.goldPurchaseNum] || 0) + 1;
             }
             else if (!storeItem.gold && coinPurchaseLeft > 0) {
                 if (role.coins < storeItem.price) {
-                    return Promise.reject(Constants.NO_GOLDS);
+                    throw Constants.NO_GOLDS;
                 }
                 role.coins -= storeItem.price;
                 role.dailyRefreshData[mKey.coinPurchaseNum] = (role.dailyRefreshData[mKey.coinPurchaseNum] || 0) + 1;
             }
             else {
-                return Promise.reject(Constants.StoreFailed.NO_PURCHASE);
+                throw Constants.StoreFailed.NO_PURCHASE;
             }
 
             var newItems = [];
@@ -315,7 +315,7 @@ class ItemHandler extends base.HandlerBase {
         this.safe(models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: gemType, bound: null}).limit(gemDef.composeCount).run().bind(this)
             .then((mats) => {
                 if (mats.length < gemDef.composeCount) {
-                    return Promise.reject(Constants.EquipmentFailed.NO_MATERIAL);
+                    throw Constants.EquipmentFailed.NO_MATERIAL;
                 }
 
                 mats[0].itemDefId = gemDef.composeTarget[0];
@@ -355,7 +355,7 @@ class ItemHandler extends base.HandlerBase {
         .spread(function (_item, itemDef) {
             item = _item;
             if (!item || item.owner !== role.id) {
-                return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+                throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
             }
 
             if(this.app.get("cache").isEquip(itemDef.id)) {

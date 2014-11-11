@@ -52,7 +52,7 @@ class MailHandler extends base.HandlerBase {
         this.safe(models.Mail.get(mailId).run()
         .then(function (mail) {
             if (!mail || mail.target !== session.get("role").id) {
-                return Promise.reject(Constants.Mail_Do_Not_Exist);
+                throw Constants.Mail_Do_Not_Exist;
             }
             return models.Mail.get(mail.id).update({"read": true}).run();
         })
@@ -73,10 +73,10 @@ class MailHandler extends base.HandlerBase {
         .then(function (_mail) {
             mail = _mail;
             if (!_mail || _mail.target !== session.get("role").id) {
-                return Promise.reject(Constants.Mail_Do_Not_Exist);
+                throw Constants.Mail_Do_Not_Exist;
             }
             if (_mail.claimed || _mail.treasures.length === 0) {
-                return Promise.reject(Constants.ALREADY_CLAIMED);
+                throw Constants.ALREADY_CLAIMED;
             }
             return models.Role.get(session.get("role").id).run();
         })

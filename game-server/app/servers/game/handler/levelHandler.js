@@ -56,10 +56,10 @@ class LevelHandler extends base.HandlerBase {
             var maxCoin = 0, items = {};
             role.fillEnergy(this.app.get("energyTable"));
 //            if (role.energy < level.energy) {
-//                return Promise.reject(Constants.NO_ENERGY);
+//                throw Constants.NO_ENERGY;
 //            }
             if (role.level < level.min_level) {
-                return Promise.reject(Constants.StageFailed.LevelRequired);
+                throw Constants.StageFailed.LevelRequired;
             }
 //            role.energy -= level.energy;
 
@@ -192,7 +192,7 @@ class LevelHandler extends base.HandlerBase {
             role = _role;
             var levelGain = role.levelGain;
             if (!levelGain) {
-                return Promise.reject(Constants.InvalidRequest);
+                throw Constants.InvalidRequest;
             }
             var itemIds = _.keys(items);
             var expTables = this.app.get("expTables");
@@ -200,14 +200,14 @@ class LevelHandler extends base.HandlerBase {
                 var itemId = itemIds[i];
                 if (items[itemId] > (levelGain.items[itemId] || 0)) {
                     models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
-                    return Promise.reject(Constants.StageFailed.Invalid_End);
+                    throw Constants.StageFailed.Invalid_End;
                 }
             }
 
             this.addSkillPlus(levelGain, teamHeroes, cache.heroDefById);
             if (coins > levelGain.maxCoin) {
                 models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
-                return Promise.reject(Constants.StageFailed.Invalid_End);
+                throw Constants.StageFailed.Invalid_End;
             }
             heroExp = levelGain.hExp || 0;
             roleExp = levelGain.exp || 0;
