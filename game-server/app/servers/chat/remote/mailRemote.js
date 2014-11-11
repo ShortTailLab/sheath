@@ -18,7 +18,7 @@ class MailRemote extends base.HandlerBase {
         this.safe(models.Role.get(target).run().bind(this)
         .then(function (_role) {
             if (!_role) {
-                return Promise.reject(Constants.Role_Do_Not_Exist);
+                throw Constants.Role_Do_Not_Exist;
             }
             role = _role;
             return (new models.Mail({

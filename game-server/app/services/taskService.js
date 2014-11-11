@@ -99,7 +99,7 @@ TaskService.prototype.claim = function(roleId, taskId) {
     .then(function (role) {
         var task = this.tasks[taskId];
         if (!role || !task) {
-            return Promise.reject(Constants.TaskFailed.NO_TASK);
+            throw Constants.TaskFailed.NO_TASK;
         }
 
         var context = {roleId: role.id, role: role};
@@ -108,7 +108,7 @@ TaskService.prototype.claim = function(roleId, taskId) {
             return task.claim(role);
         }
         else {
-            return Promise.reject(Constants.TaskFailed.TASK_NOT_DONE);
+            throw Constants.TaskFailed.TASK_NOT_DONE;
         }
     });
 };

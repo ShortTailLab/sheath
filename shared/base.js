@@ -40,7 +40,7 @@ class HandlerBase {
             return [item, itemDef];
         })
         .catch(models.Errors.DocumentNotFound, function(err) {
-            return Promise.reject(Constants.EquipmentFailed.DO_NOT_OWN_ITEM);
+            throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
         });
     }
 
@@ -62,7 +62,7 @@ class HandlerBase {
         return this.getItemWithDef(itemId).then((results) => {
             var itemDef = results[1];
             if (!itemDef || itemDef.type !== "宝石") {
-                return Promise.reject(Constants.InvalidRequest);
+                throw Constants.InvalidRequest;
             }
             return results;
         });
