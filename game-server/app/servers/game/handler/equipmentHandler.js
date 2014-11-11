@@ -17,7 +17,7 @@ class EquipmentHandler extends base.HandlerBase {
         this.app = app;
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
-
+    
     composite(msg, session, next) {
         wrapSession(session);
         return this.errorNext(Constants.InvalidRequest, next);
