@@ -86,8 +86,17 @@ class HandlerBase {
         }
 
         _.each(stackCounts, function (value) {
-            var itemDef = cache.getItemEquipDef(value[0]);
-            var stackSize = itemDef.stackSize || 1;
+            var itemId = value[0];
+            var stackSize;
+            if(cache.isFragment(itemId)) {
+                stackSize = 99;
+            }
+            else {
+                var itemDef = cache.getItemDef(itemId);
+                if(itemDef) {
+                    stackSize = itemDef.stackSize || 1;
+                }
+            }
             stack += Math.ceil(value[1]/stackSize);
         });
 

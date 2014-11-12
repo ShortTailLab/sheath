@@ -35,7 +35,7 @@ class TreasureHelper {
                     gain.heroes = 1;
                     break;
                 case "Equipment":
-                    var itemData = _(treasure.count).times(function () { return {owner: role.id, itemDefId: it}; });
+                    var itemData = _(treasure.count).times(function () { return {owner: role.id, itemDefId: it, bound: null}; });
                     promise = new models.Item(itemData).save();
                     gain.items = 1;
                     break;

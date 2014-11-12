@@ -17,6 +17,50 @@ class EquipmentHandler extends base.HandlerBase {
         this.app = app;
         logger = require('../../../utils/rethinkLogger').getLogger(app);
     }
+
+    compositeByFragment(msg, session, next) {
+        wrapSession(session);
+
+        var equipDefId = msg.equipDefId;
+        var equipDef = this.app.get("cache").getEquipDef(equipDefId);
+
+        if(!equipDef) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        var counts = equipDef.counts;
+
+        if(counts <= 0) {
+            return this.errorNext(Constants.InvalidRequest, next);
+        }
+
+        var role = session.get("role");
+        var fragments;
+        var fragmentDefId = equipDefId * 10;
+        this.safe(models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: fragmentDefId}).limit(counts)
+        .run().bind(this).then((items) => {
+            fragments = items;
+            if(fragments.length < counts) {
+                throw Constants.EquipmentFailed.NOT_ENOUGH_FRAGMENT;
+            }
+            var promises = _.invoke(fragments, "delete");
+            promises.unshift(new models.Item({owner: role.id, itemDefId: equipDefId, bound: null}).save());
+
+            return promises;
+        })
+        .spread((equip) => {
+            next(null, {
+                destroyed: _.pluck(fragments, "id"),
+                equip: equip.toClientObj();
+            });
+
+            logger.logInfo("equipment.compositeByFragment", {
+                role: this.toLogObj(role),
+                fragments: _.invoke(fragments, "toLogObj");
+                newItem: newItem.toLogObj()
+            });
+        }), next);
+    }
     
     composite(msg, session, next) {
         wrapSession(session);
@@ -43,7 +87,7 @@ class EquipmentHandler extends base.HandlerBase {
                 throw Constants.EquipmentFailed.NO_MATERIAL;
             }
             var promises = _.invoke(mats, "delete");
-            promises.unshift((new models.Item({owner: role.id, itemDefId: target})).save());
+            promises.unshift((new models.Item({owner: role.id, itemDefId: target, bound: null})).save());
 
             return promises;
         })

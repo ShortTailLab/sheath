@@ -1100,7 +1100,7 @@ exports.export = function (req, res) {
                 }
                 else {
                     _.forEach(stock, function (rowFields) {
-                        ws.Cell(row++, col).String(rowFields[field]);
+                        ws.Cell(row++, col).String(String(rowFields[field]));
                     });
                 }
             }
