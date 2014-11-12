@@ -51,13 +51,13 @@ class EquipmentHandler extends base.HandlerBase {
         .spread((equip) => {
             next(null, {
                 destroyed: _.pluck(fragments, "id"),
-                equip: equip.toClientObj();
+                equip: equip.toClientObj()
             });
 
             logger.logInfo("equipment.compositeByFragment", {
                 role: this.toLogObj(role),
-                fragments: _.invoke(fragments, "toLogObj");
-                newItem: newItem.toLogObj()
+                fragments: _.invoke(fragments, "toLogObj"),
+                newItem: equip.toLogObj()
             });
         }), next);
     }
