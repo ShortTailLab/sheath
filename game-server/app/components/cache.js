@@ -181,6 +181,6 @@ class Cache {
             return false;
         }
         
-        return !!getEquipDef(id / 10);
+        return !!this.getEquipDef(id / 10);
     }
 }
