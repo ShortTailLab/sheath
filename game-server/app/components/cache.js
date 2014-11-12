@@ -175,4 +175,12 @@ class Cache {
     getItemEquipDef(id) {
         return this.itemDefById[id] || this.equipmentDefById[id];
     }
+
+    isFragment(id) {
+        if(id < 100000) {
+            return false;
+        }
+        
+        return !!getEquipDef(id / 10);
+    }
 }

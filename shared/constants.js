@@ -43,7 +43,8 @@ module.exports = {
         NO_MATERIAL: 303,
         NO_SLOT: 304,
         ALREADY_BOUND: 305,
-        CANNOT_BIND_GEM_TYPE: 306
+        CANNOT_BIND_GEM_TYPE: 306,
+        NOT_ENOUGH_FRAGMENT: 307
     },
     HeroFailed: {
         DO_NOT_OWN_HERO: 400,

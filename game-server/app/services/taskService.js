@@ -8,18 +8,18 @@ var events = require('events');
 var fs = require("fs");
 var logger;
 
-
 var dailyTaskCount = 2;
 var randomTaskCount = 2;
 
 
-var unloadAllTasks = function (pathBase) {
-    var files = fs.readdirSync(pathBase);
-    for(var i=0, l=files.length; i<l; i++) {
-        var path = pathBase + files[i];
-        delete require.cache[require.resolve(path)];
-    }
-};
+//var unloadAllTasks = function (pathBase) {
+//    var files = fs.readdirSync(pathBase);
+//    for(var i=0, l=files.length; i<l; i++) {
+//        var path = pathBase + files[i];
+//        throw new Error("val: " + require.prototype);
+//        delete require.cache[require.resolve(path)];
+//    }
+//};
 
 var sampleTasks = function(pool, count, context) {
     var validTask = _.filter(pool, function (t) { return t.precondition(context) && !t.inProgress(context) && !t.isDone(context); });
@@ -53,7 +53,7 @@ TaskService.prototype.initOnce = function(app) {
 };
 
 TaskService.prototype.reloadAllTasks = function() {
-    unloadAllTasks(this.taskPath);
+//    unloadAllTasks(this.taskPath);
     Task = require("../../task/tasks");
     var dTasks = [], rTasks = [];
     return models.Task.run().bind(this)

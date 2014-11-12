@@ -128,7 +128,8 @@ class EntryHandler extends base.HandlerBase {
                     var items = _.map(initialItems, function (itemId) {
                         return {
                             itemDefId: itemId,
-                            owner: role.id
+                            owner: role.id,
+                            bound: null
                         };
                     });
 

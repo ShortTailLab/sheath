@@ -75,7 +75,7 @@ class LevelHandler extends base.HandlerBase {
                         }
                         if (e.items && e.items.length) {
                             var itemId = self.evalRandAtom(e.items, seedRand);
-                            if (!cache.getItemEquipDef(itemId)) {
+                            if (!cache.isFragment(itemId) && !cache.getItemEquipDef(itemId)) {
                                 missingItem = itemId;
                             }
                             if (itemId) {
