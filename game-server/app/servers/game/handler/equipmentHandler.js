@@ -40,23 +40,23 @@ class EquipmentHandler extends base.HandlerBase {
         this.safe(models.Role.get(role.id).run().bind(this)
         .then((_role) => {
             role = _role;
-            fragNum = role.fragments[equipDefId];
+            fragNum = role.fragments[fragmentDefId];
             if(!fragNum || fragNum < counts) {
                 throw Constants.EquipmentFailed.NOT_ENOUGH_FRAGMENT;
             }
 
-            role.fragments[equipDefId] = fragNum - counts;
+            role.fragments[fragmentDefId] = fragNum - counts;
             return [new models.Item({owner: role.id, itemDefId: equipDefId, bound: null}).save(), role.save()];
         })
         .spread((equip) => {
             next(null, {
-                consume: [equipDefId, counts],
+                consume: [fragmentDefId, counts],
                 newEquip: equip.toClientObj()
             });
 
             logger.logInfo("equipment.compositeByFragment", {
                 role: this.toLogObj(role),
-                consume: [equipDefId, counts],
+                consume: [fragmentDefId, counts],
                 newEquip: equip.toLogObj()
             });
         }), next);
