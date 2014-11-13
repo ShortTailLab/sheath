@@ -58,6 +58,17 @@ class RoleHandler extends base.HandlerBase {
         }), next);
     }
 
+    listFragments(msg, session, next) {
+        wrapSession(session);
+        var roleId = session.get("role").id;
+        this.safe(models.Role.get(roleId).run()
+        .then((role) => {
+            next(null, {
+                fragments: role.fragments
+            });
+        }), next);
+    }
+
     setTeam(msg, session, next) {
         wrapSession(session);
 
