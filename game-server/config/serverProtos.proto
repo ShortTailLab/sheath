@@ -373,10 +373,3 @@ message game_levelHandler_start {
     optional Error error            =   1;
     repeated ETypeWeight enemies    =   2;
 }
-message game_levelHandler_end {
-    optional Error error        =   1;
-    repeated Item newItems      =   2;
-    optional Role role          =   3;
-    optional int32 heroExp      =   4;
-    optional int32 roleExp      =   5;
-}

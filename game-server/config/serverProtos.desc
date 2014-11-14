@@ -1,5 +1,5 @@
 
-Ÿ,
+Ÿ+
 serverProtos.proto"
 Player
 
@@ -311,10 +311,4 @@ equipments (2.EquipmentDef"D
 stages (2.Stage"O
 game_levelHandler_start
 error (2.Error
-enemies (2.ETypeWeight"~
-game_levelHandler_end
-error (2.Error
-newItems (2.Item
-role (2.Role
-heroExp (
-roleExp (
+enemies (2.ETypeWeight
