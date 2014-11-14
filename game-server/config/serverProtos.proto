@@ -247,6 +247,7 @@ message game_itemHandler_list {
     optional Error error        =   1;
     repeated Item items         =   2;
 }
+
 message game_itemHandler_listStore {
     optional Error error                    =   1;
     optional int32 nextCoinStoreRefresh     =   2;
@@ -320,12 +321,6 @@ message game_heroHandler_unEquip {
 //    optional Item newItem       =   3;
 //}
 
-message game_equipmentHandler_compositeByFragment {
-    optional Error error = 1;
-    repeated string destroyed = 2;
-    optional Item equip = 3;
-}
-
 message game_equipmentHandler_redeem {
     optional Error error        =   1;
     optional Item newItem       =   3;
@@ -377,11 +372,4 @@ message game_levelHandler_list {
 message game_levelHandler_start {
     optional Error error            =   1;
     repeated ETypeWeight enemies    =   2;
-}
-message game_levelHandler_end {
-    optional Error error        =   1;
-    repeated Item newItems      =   2;
-    optional Role role          =   3;
-    optional int32 heroExp      =   4;
-    optional int32 roleExp      =   5;
 }

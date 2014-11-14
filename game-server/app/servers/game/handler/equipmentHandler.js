@@ -29,35 +29,37 @@ class EquipmentHandler extends base.HandlerBase {
         }
 
         var counts = equipDef.counts;
+        var fragNum;
 
         if(counts <= 0) {
             return this.errorNext(Constants.InvalidRequest, next);
         }
 
         var role = session.get("role");
-        var fragments;
         var fragmentDefId = equipDefId * 10;
-        this.safe(models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: fragmentDefId}).limit(counts)
-        .run().bind(this).then((items) => {
-            fragments = items;
-            if(fragments.length < counts) {
+        this.safe(models.Role.get(role.id).run().bind(this)
+        .then((_role) => {
+            role = _role;
+            fragNum = role.fragments[fragmentDefId];
+            if(!fragNum || fragNum < counts) {
                 throw Constants.EquipmentFailed.NOT_ENOUGH_FRAGMENT;
             }
-            var promises = _.invoke(fragments, "delete");
-            promises.unshift(new models.Item({owner: role.id, itemDefId: equipDefId, bound: null}).save());
 
-            return promises;
+            role.fragments[fragmentDefId] = fragNum - counts;
+            return [new models.Item({owner: role.id, itemDefId: equipDefId, bound: null}).save(), role.save()];
         })
         .spread((equip) => {
             next(null, {
-                destroyed: _.pluck(fragments, "id"),
-                equip: equip.toClientObj()
+                fragmentDefId: fragmentDefId,
+                delCount: counts,
+                newEquip: equip.toClientObj()
             });
 
             logger.logInfo("equipment.compositeByFragment", {
                 role: this.toLogObj(role),
-                fragments: _.invoke(fragments, "toLogObj"),
-                newItem: equip.toLogObj()
+                fragmentDefId: fragmentDefId,
+                delCount: counts,
+                newEquip: equip.toLogObj()
             });
         }), next);
     }
