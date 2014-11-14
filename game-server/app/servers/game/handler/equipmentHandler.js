@@ -56,7 +56,8 @@ class EquipmentHandler extends base.HandlerBase {
 
             logger.logInfo("equipment.compositeByFragment", {
                 role: this.toLogObj(role),
-                consume: [fragmentDefId, counts],
+                fragmentDefId: fragmentDefId,
+                delCount: counts,
                 newEquip: equip.toLogObj()
             });
         }), next);

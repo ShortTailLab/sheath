@@ -164,12 +164,14 @@ class HeroHandler extends base.HandlerBase {
         });
     }
 
-    listSouls(msg, session, next) {
+    listRoleExtra(msg, session, next) {
         wrapSession(session);
-
         this.safe(models.Role.get(session.get("role").id).run().bind(this)
         .then(function (role) {
-            next(null, role.souls);
+            next(null, {
+                souls: role.souls,
+                fragments: role.fragments
+            });
         }), next);
     }
 

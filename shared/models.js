@@ -160,6 +160,7 @@ exports.init = function (dbConfig) {
     var ItemDef = exports.ItemDef = schema.createModel("itemdef", {
         name: {_type: String, default: ""},
         quality: {_type: Number, default: 0},
+        color: {_type: Number, default: 0},
         type: {_type: String, default: ""},
         subType: {_type: String, default: ""},
         resKey: {_type: String, default: ""},
@@ -185,6 +186,7 @@ exports.init = function (dbConfig) {
         name: {_type: String, default: ""},
         desc: {_type: String, default: ""},
         quality: {_type: Number, default: 1},
+        color: {_type: Number, default: 0},
         refineLevel: {_type: Number, default: 0},
         counts: {_type: Number, default: 0},
         type: {_type: String, default: ""},

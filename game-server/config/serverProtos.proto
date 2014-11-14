@@ -72,6 +72,7 @@ message ItemDef {
 
     optional int32 useTarget    =  22;
     optional ItemEffect itemEffect = 23;
+    optional int32 color            = 24;
 }
 message EquipmentDef {
     required int32 id           =   1;
@@ -103,6 +104,7 @@ message EquipmentDef {
 
     required float ironRecover    = 23;
     required float coinRecover    = 24;
+    optional int32 color          = 25;
 }
 message HeroDef {
     required int32 id           =   1;
