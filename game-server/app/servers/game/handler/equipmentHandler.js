@@ -50,7 +50,8 @@ class EquipmentHandler extends base.HandlerBase {
         })
         .spread((equip) => {
             next(null, {
-                consume: [fragmentDefId, counts],
+                fragmentDefId: fragmentDefId,
+                delCount: counts,
                 newEquip: equip.toClientObj()
             });
 
