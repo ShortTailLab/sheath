@@ -86,7 +86,7 @@ class RobotGm extends base.HandlerBase
             this.safe(models.Role.get(role.id).run()
             .then(function (_role) {
                 role = _role;
-                role.souls["" + msg.heroId] = (role.souls["" + msg.heroId] || 0) + 1000;
+                role.souls[msg.heroId] = (role.souls[msg.heroId] || 0) + 1000;
                 return role.save();
             })
             .then(function (role) {
