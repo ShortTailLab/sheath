@@ -17,8 +17,6 @@ message Role {
     optional int32 coins        =   7;
     optional int32 golds        =   8;
     optional int32 contribs     =   9;
-    repeated int32 irons        =   14;
-
     optional int32 tutorial     =   10;
 }
 message Error {
@@ -328,7 +326,7 @@ message game_equipmentHandler_redeem {
 message game_equipmentHandler_refine {
     optional Error error        =   1;
     optional Role role          =   2;
-    repeated string destroyed   =   3;
+    repeated string delIrons    =   3;
     optional Item equipment     =   4;
 }
 message game_equipmentHandler_upgrade {
@@ -348,7 +346,7 @@ message game_equipmentHandler_destruct {
     optional Role   role           = 2;
     optional string destroyed      = 3;
     optional int32  coins          = 4;
-    optional int32  irons          = 5;
+    repeated Item  irons           = 5;
 }
 
 message game_taskHandler_list {

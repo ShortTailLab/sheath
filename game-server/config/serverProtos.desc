@@ -1,9 +1,9 @@
 
-Ÿ+
+—+
 serverProtos.proto"
 Player
 
-id (	"Ü
+id (	"Í
 Role
 
 id (	
@@ -17,8 +17,7 @@
 energy (
 coins (
 golds (
-contribs	 (
-irons (
+contribs	 (
 tutorial
  ("&
 Error
@@ -279,22 +278,22 @@ equipments (2.EquipmentDef"D
 	equipment (2.Item"M
 game_equipmentHandler_redeem
 error (2.Error
-newItem (2.Item"w
+newItem (2.Item"v
 game_equipmentHandler_refine
 error (2.Error
-role (2.Role
-	destroyed (	
+role (2.Role
+delIrons (	
 	equipment (2.Item"s
 game_equipmentHandler_upgrade
 error (2.Error
 	equipment (2.Item!
-	stateDiff (2.ProfileChange"}
+	stateDiff (2.ProfileChange"„
 game_equipmentHandler_destruct
 error (2.Error
 role (2.Role
 	destroyed (	
-coins (
-irons ("]
+coins (
+irons (2.Item"]
 game_taskHandler_list
 error (2.Error
 tasks (2.Task

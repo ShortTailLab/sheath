@@ -111,10 +111,9 @@ class EquipmentHandler extends base.HandlerBase {
 
         var eqId = msg.equipmentId;
         var role = session.get("role");
-        var equipment, itemDef;
-        var material, ironReq;
+        var equipment, itemDef, ironIndex, coinReq, ironReq;
         var refineCostTable = this.app.get("refineTable").refineTable;
-        var refineOptions, success;
+        var refineOptions, success, items;
 
         if (!eqId) {
             return this.errorNext(Constants.InvalidRequest, next);
@@ -132,18 +131,30 @@ class EquipmentHandler extends base.HandlerBase {
                 throw Constants.EquipmentFailed.LEVEL_MAX;
             }
 
+            if (itemDef.ironType <= 0 || itemDef.ironType > 4) {
+                throw Constants.InvalidRequest;
+            }
+
             refineOptions = refineCostTable[equipment.refinement];
-            var ironIndex = itemDef.ironType - 1;
-            var coinReq = Math.ceil(refineOptions.coinCost * itemDef.refineFactor);
+            ironIndex = itemDef.ironType - 1;
+            coinReq = Math.ceil(refineOptions.coinCost * itemDef.refineFactor);
             ironReq = refineOptions.ironCost;
+
             if (role.coins < coinReq) {
                 throw Constants.NO_COINS;
             }
-            if (ironIndex == null || role.irons[ironIndex] < ironReq) {
+
+            var ironItemDefId = this.app.get("specialItemId").ironItems[ironIndex];
+            return models.Item.getAll(role.id, {index: "owner"}).filter({itemDefId: ironItemDefId}).limit(ironReq).run();
+        })
+        .then((_items) => {
+            items = _items;
+            if(items.length < ironReq) {
                 throw Constants.NO_IRONS;
             }
+
             role.coins -= coinReq;
-            role.irons[ironIndex] -= ironReq;
+            var promises = _.invoke(items, "delete");
 
             if (Math.random() < (refineOptions.luck + (equipment.luck || 0))) {
                 equipment.refinement += 1;
@@ -155,16 +166,19 @@ class EquipmentHandler extends base.HandlerBase {
                 success = false;
             }
 
-            return [role.save(), equipment.save()];
+            promises.unshift(role.save(), equipment.save());
+            return promises;
         })
         .all().then(() => {
             next(null, {
                 role: role.toSlimClientObj(),
+                delIrons: _.pluck(items, "id"),
                 equipment: equipment.toClientObj()
             });
             logger.logInfo("equipment.refine", {
                 role: this.toLogObj(role),
                 equipment: equipment.toLogObj(),
+                delIrons: _.invoke(items, "toClientObj"),
                 success: success
             });
         }), next);
@@ -339,41 +353,49 @@ class EquipmentHandler extends base.HandlerBase {
         .spread((eqWithDef, _role) => {
             [equipment, eqDef] = eqWithDef;
             role = _role;
-
             var coinCostTable = this.app.get("growTable").coinCostTable;
             var refineCostTable = this.app.get("refineTable").refineTable;
-            var ironIndex = eqDef.ironType - 1;
-
             coins = eqDef.coin;
+
             for (var i=1;i<equipment.level;i++) {
                 coins += Math.ceil(Math.ceil(coinCostTable[i] * eqDef.growFactor) * eqDef.coinRecover);
             }
 
-            if (ironIndex >= 0) {
+            var promises = [];
+            var newIrons = [];
+            if(eqDef.ironType <= 0) {
+                irons = 0;
+            }
+            else {
                 irons = eqDef.iron;
+                var ironItemDefId = this.app.get("specialItemId").ironItems[eqDef.ironType - 1];
                 for (var i=0;i<equipment.refinement;i++) {
                     var refineOption = refineCostTable[i];
                     coins += Math.ceil(Math.ceil(refineOption.coinCost * eqDef.refineFactor) * eqDef.coinRecover);
                     irons += Math.ceil(Math.ceil(refineOption.ironCost * eqDef.refineFactor) * eqDef.ironRecover);
                 }
-                role.irons[ironIndex] += irons;
+
+                for(var i = 0; i < irons; ++i) {
+                    newIrons.push(new models.Item({owner: role.id, itemDefId: ironItemDefId, bound: null}).save());
+                }
             }
+
             role.coins += coins;
 
-            return [role.save(), equipment.delete()];
+            return [role.save(), Promise.all(newIrons), equipment.delete()];
         })
-        .spread((roleObj) => {
+        .spread((roleObj, items) => {
             next(null, {
                 role: roleObj.toClientObj(),
                 destroyed: equipment.id,
                 coins: coins,
-                irons: irons
+                irons: _.invoke(items, "toClientObj")
             });
             logger.logInfo("equipment.destruct", {
                 role: this.toLogObj(roleObj),
                 equipment: equipment.toLogObj(),
                 coins: coins,
-                irons: irons
+                irons: _.invoke(items, "toLogObj")
             });
         }), next);
     }
