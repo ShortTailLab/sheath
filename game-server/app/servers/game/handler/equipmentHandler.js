@@ -361,7 +361,6 @@ class EquipmentHandler extends base.HandlerBase {
                 coins += Math.ceil(Math.ceil(coinCostTable[i] * eqDef.growFactor) * eqDef.coinRecover);
             }
 
-            var promises = [];
             var newIrons = [];
             if(eqDef.ironType <= 0) {
                 irons = 0;

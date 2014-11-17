@@ -173,7 +173,7 @@ class EntryHandler extends base.HandlerBase {
             var cleared = role.levelCleared;
             _.each(levels, function (stage) {
                 _.each(stage.levels, function (l) {
-                    l.stars = cleared["" + l.id] || 0;
+                    l.stars = cleared[l.id] || 0;
                 });
             });
 
