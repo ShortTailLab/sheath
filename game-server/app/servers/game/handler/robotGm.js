@@ -32,6 +32,7 @@ class RobotGm extends base.HandlerBase
 
         var role = session.get("role");
         var cmdType = msg.cmdType;
+        var self = this;
 
         if (cmdType === "addMoney") {
             this.safe(models.Role.get(role.id).run()
@@ -52,12 +53,17 @@ class RobotGm extends base.HandlerBase
             this.safe(models.Role.get(role.id).run()
                 .then(function (_role) {
                     role = _role;
+                    var newIrons = [];
                     for(var i = 0; i < 4; ++i) {
-                        role.irons[i] += 100000;
+                        var ironItemDefId = self.app.get("specialItemId").ironItems[i];
+                        for(var j = 0; j < 10; ++j) {
+                            newIrons.push(new models.Item({owner: role.id, itemDefId: ironItemDefId, bound: null}).save());
+                        }
                     }
-                    return role.save();
+
+                    return newIrons;
                 })
-                .then(function (role) {
+                .then(function (items) {
                     next(null, {
                         irons: role.irons
                     });

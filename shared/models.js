@@ -97,8 +97,6 @@ exports.init = function (dbConfig) {
         coins: {_type: Number, default: 0},
         golds: {_type: Number, default: 0},
         contribs: {_type: Number, default: 0},
-        irons: {_type: Array, schema: Number, default: [0, 0, 0, 0]},
-
         energyRefreshTime: {_type: Date, default: function () {return new Date();}},
         dailyRefreshData: {_type: Object, default: function () {return {};}},
         manualRefreshData: {_type: Object, default: function () {return {};}},
@@ -396,7 +394,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "irons", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 
@@ -404,7 +402,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toSlimClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "irons", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 
@@ -412,7 +410,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toLogObj", function () {
-        return _.pick(this, "id", "name", "level", "title", "coins", "golds", "irons", "vip");
+        return _.pick(this, "id", "name", "level", "title", "coins", "golds", "vip");
     });
 
     Role.define("getStorageRoom", function () {
