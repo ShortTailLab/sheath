@@ -182,6 +182,7 @@ class LevelHandler extends base.HandlerBase {
         var coins = Math.floor(msg.coins) || 0, items = msg.items || {};
         var team = _.compact(role.team);
         var heroExp, roleExp;
+        var newFrags = {};
 
         if (!team || team.length === 0) {
             return this.errorNext(Constants.InternalServerError, next);
@@ -203,7 +204,6 @@ class LevelHandler extends base.HandlerBase {
                     throw Constants.StageFailed.Invalid_End;
                 }
             }
-
             this.addSkillPlus(levelGain, teamHeroes, cache.heroDefById);
             if (coins > levelGain.maxCoin) {
                 models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
@@ -225,13 +225,20 @@ class LevelHandler extends base.HandlerBase {
             if (lGain) {
                 this.app.rpc.game.taskRemote.notify(session, "Role.LevelUp", role.id, {levelGain: lGain}, null);
             }
+
             _.each(itemIds, function (itemId) {
-                for (var i=0;i<items[itemId];i++) {
-                    newItems.push({
-                        itemDefId: parseInt(itemId),
-                        owner: role.id,
-                        bound: null
-                    });
+                if(cache.isFragment(itemId)) {
+                    role.fragments[itemId] = (role.fragments[itemId] || 0) + items[itemId];
+                    newFrags[itemId] = (newFrags[itemId] || 0) + items[itemId];
+                }
+                else {
+                    for (var i=0;i<items[itemId];i++) {
+                        newItems.push({
+                            itemDefId: parseInt(itemId),
+                            owner: role.id,
+                            bound: null
+                        });
+                    }
                 }
             });
             session.set("role", role.toSessionObj());
@@ -242,6 +249,7 @@ class LevelHandler extends base.HandlerBase {
             next(null, {
                 level: level.id,
                 newItems: _.invoke(newItems, "toClientObj"),
+                newFrags: newFrags,
                 role: role.toClientObj(),
                 heroExp: heroExp,
                 roleExp: roleExp
@@ -249,6 +257,7 @@ class LevelHandler extends base.HandlerBase {
             logger.logInfo("level.end", {
                 level: level.id,
                 newItems: _.invoke(newItems, "toLogObj"),
+                newFrags: newFrags,
                 role: role.toLogObj()
             });
         }), next);

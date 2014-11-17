@@ -111,6 +111,7 @@ exports.init = function (dbConfig) {
         levelGain: {_type: Object, default: function () {return {};}},
 
         souls: {_type: Object, default: function () {return {};}},
+        fragments: {_type: Object, default: function() {return {};}},
 
         createTime: {_type: Date, default: function () {return new Date();}},
         lastLogOff: {_type: Date, default: null},
