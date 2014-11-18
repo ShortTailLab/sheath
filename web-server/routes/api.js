@@ -774,7 +774,11 @@ var modelDict = {
     treasure: appModels.Treasure,
     level: appModels.Level,
     storeitem: appModels.StoreItem,
-    task: appModels.Task
+    task: appModels.Task,
+    roleexp: appModels.RoleExp,
+    heroexp: appModels.HeroExp,
+    equiprefine: appModels.EquipRefine,
+    equipupgrade: appModels.EquipUpgrade
 };
 
 function adjustField(tblName, allFields, modelSchema) {

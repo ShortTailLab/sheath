@@ -112,7 +112,7 @@ class EquipmentHandler extends base.HandlerBase {
         var eqId = msg.equipmentId;
         var role = session.get("role");
         var equipment, itemDef, ironIndex, coinReq, ironReq;
-        var refineCostTable = this.app.get("refineTable").refineTable;
+        var refineCostTable = this.app.get("cache").equipRefineByLevel;
         var refineOptions, success, items;
 
         if (!eqId) {
@@ -135,7 +135,11 @@ class EquipmentHandler extends base.HandlerBase {
                 throw Constants.InvalidRequest;
             }
 
-            refineOptions = refineCostTable[equipment.refinement];
+            if(equipment.refinement + 1 > _.size(refineCostTable)) {
+                throw Constants.InvalidRequest;
+            }
+
+            refineOptions = refineCostTable[equipment.refinement + 1];
             ironIndex = itemDef.ironType - 1;
             coinReq = Math.ceil(refineOptions.coinCost * itemDef.refineFactor);
             ironReq = refineOptions.ironCost;
@@ -156,13 +160,13 @@ class EquipmentHandler extends base.HandlerBase {
             role.coins -= coinReq;
             var promises = _.invoke(items, "delete");
 
-            if (Math.random() < (refineOptions.luck + (equipment.luck || 0))) {
+            if (Math.random() < (refineOptions.luck + (equipment.luck || 0)) / 100) {
                 equipment.refinement += 1;
                 equipment.luck = 0;
                 success = true;
             }
             else {
-                equipment.luck = (equipment.luck || 0) + refineOptions.luckGrowth;
+                equipment.luck = ((equipment.luck || 0) + refineOptions.luckGrowth) / 100;
                 success = false;
             }
 
@@ -189,7 +193,7 @@ class EquipmentHandler extends base.HandlerBase {
 
         var eqId = msg.equipmentId;
         var role = session.get("role");
-        var equipment, itemDef, coinsNeeded;
+        var equipment, itemDef, coinsNeeded = 0;
 
         if (!eqId) {
             return this.errorNext(Constants.InvalidRequest, next);
@@ -198,9 +202,12 @@ class EquipmentHandler extends base.HandlerBase {
         this.safe(Promise.join(this.getEquipmentWithDef(eqId), models.Role.get(role.id).run())
         .spread((eqs, role) => {
             [equipment, itemDef] = eqs;
-            var coinCostTable = this.app.get("growTable").coinCostTable;
+            var coinCostTable = this.app.get("cache").equipUpgradeByLevel;
             var weaponLevelLimit = Math.min(role.level, 80);
-            coinsNeeded = Math.ceil(coinCostTable[equipment.level] * itemDef.growFactor);
+
+            if(coinCostTable[equipment.level]) {
+                coinsNeeded = Math.ceil(coinCostTable[equipment.level].coinCost * itemDef.growFactor);
+            }
 
             if (equipment.owner !== role.id) {
                 throw Constants.EquipmentFailed.DO_NOT_OWN_ITEM;
@@ -353,12 +360,12 @@ class EquipmentHandler extends base.HandlerBase {
         .spread((eqWithDef, _role) => {
             [equipment, eqDef] = eqWithDef;
             role = _role;
-            var coinCostTable = this.app.get("growTable").coinCostTable;
-            var refineCostTable = this.app.get("refineTable").refineTable;
+            var coinCostTable = this.app.get("cache").equipUpgradeByLevel;
+            var refineCostTable = this.app.get("cache").equipRefineByLevel;
             coins = eqDef.coin;
 
             for (var i=1;i<equipment.level;i++) {
-                coins += Math.ceil(Math.ceil(coinCostTable[i] * eqDef.growFactor) * eqDef.coinRecover);
+                coins += Math.ceil(Math.ceil(coinCostTable[i].coinCost * eqDef.growFactor) * eqDef.coinRecover);
             }
 
             var newIrons = [];
@@ -368,7 +375,7 @@ class EquipmentHandler extends base.HandlerBase {
             else {
                 irons = eqDef.iron;
                 var ironItemDefId = this.app.get("specialItemId").ironItems[eqDef.ironType - 1];
-                for (var i=0;i<equipment.refinement;i++) {
+                for (var i=1;i <= equipment.refinement;i++) {
                     var refineOption = refineCostTable[i];
                     coins += Math.ceil(Math.ceil(refineOption.coinCost * eqDef.refineFactor) * eqDef.coinRecover);
                     irons += Math.ceil(Math.ceil(refineOption.ironCost * eqDef.refineFactor) * eqDef.ironRecover);

@@ -34,11 +34,11 @@ class Cache {
 
     afterStart(cb) {
         if (this.cacheRole === "game") {
-            Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel(),
+            Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadExpConf(), this.loadEquipConf(), this.loadEquipmentDef(), this.loadLevel(),
                 this.loadStoreItem(), this.loadHeroDraws()).finally(cb);
         }
         else if (this.cacheRole === "connector") {
-            Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadEquipmentDef(), this.loadLevel(),
+            Promise.join(this.loadHeroDef(), this.loadItemDef(), this.loadExpConf(), this.loadEquipConf(), this.loadEquipmentDef(), this.loadLevel(),
                 this.loadPartition()).finally(cb);
         }
         else {
@@ -57,7 +57,7 @@ class Cache {
             this.partTimeIndex = 0;
         })
         .catch(function (err) {
-            console.log("error loading partitions. " + err);
+            logger.print("error loading partitions. " + err);
         });
     }
 
@@ -68,7 +68,7 @@ class Cache {
             this.heroDefById = toMap(this.heroDefs, "id");
         })
         .catch(function (err) {
-            console.log("error loading hero defs. " + err);
+            logger.print("error loading hero defs. " + err);
         });
     }
 
@@ -79,7 +79,29 @@ class Cache {
             this.itemDefById = toMap(this.itemDefs, "id");
         })
         .catch(function (err) {
-            console.log("error loading item defs. " + err);
+            logger.print("error loading item defs. " + err);
+        });
+    }
+
+    loadExpConf() {
+        return Promise.join(models.RoleExp.run(), models.HeroExp.run()).bind(this)
+        .spread(function(roleExp, heroExp) {
+            this.roleByLevel = _.indexBy(roleExp, "id");
+            this.heroExpByLevel = _.indexBy(heroExp, "id");
+        })
+        .catch(function(err) {
+            logger.print("error loading exp conf: " + err);
+        });
+    }
+
+    loadEquipConf() {
+        return Promise.join(models.EquipUpgrade.run(), models.EquipRefine.run()).bind(this)
+        .spread(function(equipUpgrade, equipRefine) {
+            this.equipUpgradeByLevel = _.indexBy(equipUpgrade, "id");
+            this.equipRefineByLevel = _.indexBy(equipRefine, "id");
+        })
+        .catch(function(err) {
+            logger.print("error loading equip conf: " + err);
         });
     }
 
@@ -90,7 +112,7 @@ class Cache {
             this.equipmentDefById = toMap(this.equipmentDefs, "id");
         })
         .catch(function (err) {
-            console.log("error loading equipment defs. " + err);
+            logger.print("error loading equipment defs. " + err);
         });
     }
 
@@ -107,7 +129,7 @@ class Cache {
             this.levelById = toMap(this.levels, "id");
         })
         .catch(function (err) {
-            console.log("error loading levels. " + err);
+            logger.print("error loading levels. " + err);
         });
     }
 
@@ -128,7 +150,7 @@ class Cache {
             this.storeItemById = toMap(items, "id");
         })
         .catch(function (err) {
-            console.log("error loading StoreItems. " + err);
+            logger.print("error loading StoreItems. " + err);
         });
     }
 
@@ -140,7 +162,7 @@ class Cache {
             this.heroDrawById = toMap(this.heroDraws, "id");
         })
         .catch(function (err) {
-            console.log("error loading DrawNode. " + err);
+            logger.print("error loading DrawNode. " + err);
         });
     }
 

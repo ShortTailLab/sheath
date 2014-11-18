@@ -32,6 +32,19 @@ include ../mixins/block
         .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="任务数据").submit
             input(type="hidden", name="tag", value="task")
+    .row
+        .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="角色经验").submit
+            input(type="hidden", name="tag", value="roleexp")
+        .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="武将经验").submit
+            input(type="hidden", name="tag", value="heroexp")
+        .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="装备强化").submit
+            input(type="hidden", name="tag", value="equipupgrade")
+        .col-md-1: form(method="post", action="/api/export")
+            input(type="submit", value="装备精炼").submit
+            input(type="hidden", name="tag", value="equiprefine")
 
 +block("所有武将")
     div(class="message errormsg", ng-show="hero_error")
