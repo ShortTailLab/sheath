@@ -22,6 +22,14 @@ Module.prototype.monitorHandler = function(agent, msg, cb) {
         case "itemdef":
             this.cacheIns.loadItemDef();
             break;
+        case "roleexp":
+        case "heroexp":
+            this.cacheIns.loadExpConf();
+            break;
+        case "equiprefine":
+        case "equipupgrade":
+            this.cacheIns.loadEquipConf();
+            break;
         case "equipmentdef":
             this.cacheIns.loadEquipmentDef();
             break;
@@ -56,6 +64,10 @@ Module.prototype.clientHandler = function(agent, msg, cb) {
             case "equipmentdef":
             case "gemdef":
             case "level":
+            case "roleexp":
+            case "heroexp":
+            case "equiprefine":
+            case "equipupgrade":
                 serverTypes = ["game", "connector"];
                 break;
             case "storeitem":

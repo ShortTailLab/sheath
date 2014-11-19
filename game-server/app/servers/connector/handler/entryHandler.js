@@ -145,7 +145,7 @@ class EntryHandler extends base.HandlerBase {
             else {
                 bag = role.bag;
                 heroes = role.heroes;
-                role.fillEnergy(this.app.get("energyTable"));
+                role.fillEnergy(cache.roleByLevel);
                 return role;
             }
         })
@@ -173,7 +173,7 @@ class EntryHandler extends base.HandlerBase {
             var cleared = role.levelCleared;
             _.each(levels, function (stage) {
                 _.each(stage.levels, function (l) {
-                    l.stars = cleared["" + l.id] || 0;
+                    l.stars = cleared[l.id] || 0;
                 });
             });
 
@@ -195,7 +195,11 @@ class EntryHandler extends base.HandlerBase {
 
                 nextGoldReset: Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000),
                 nextCoinReset: Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000),
-                coinDrawCount: role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0
+                coinDrawCount: role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0,
+                equipRefineDefs: cache.clientEquipRefine,
+                roleExpDefs: cache.clientRoleExp,
+                heroExpDefs: cache.clientHeroExp,
+                equipUpgradeDefs: cache.clientEquipUpgrade
             });
             logger.logInfo(logType, {
                 user: session.uid,

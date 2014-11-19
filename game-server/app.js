@@ -87,7 +87,6 @@ app.configure('development|production|test', "master", function () {
 
 app.configure('development|production|test', "connector", function () {
     app.loadConfig("roleBootstrap", app.getBase() + "/config/data/roleBootstrap.json");
-    app.loadConfig("energyTable", app.getBase() + "/config/data/energyTable.json");
     app.use(require('pomelo-protobuf-plugin'), {watchFile: false});
     app.load(require('./app/components/cache'), {role: "connector"});
 });
@@ -98,12 +97,6 @@ app.configure('development|production|test', "game", function () {
 
     // Role tables
     app.loadConfig("roleBootstrap", app.getBase() + "/config/data/roleBootstrap.json");
-    app.loadConfig("expTables", app.getBase() + "/config/data/expTables.json");
-    app.loadConfig("energyTable", app.getBase() + "/config/data/energyTable.json");
-
-    // Equipment tables
-    app.loadConfig("growTable", app.getBase() + "/config/data/growTable.json");
-    app.loadConfig("refineTable", app.getBase() + "/config/data/refineTable.json");
 
     app.load(require('./app/components/cache'), {role: "game"});
 //    profiler.profile({

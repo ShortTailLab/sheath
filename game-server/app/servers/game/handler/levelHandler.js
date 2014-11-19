@@ -29,7 +29,7 @@ class LevelHandler extends base.HandlerBase {
             var cleared = role.levelCleared;
             _.each(levels, function (stage) {
                 _.each(stage.levels, function (l) {
-                    l.stars = cleared["" + l.id] || 0;
+                    l.stars = cleared[l.id] || 0;
                 });
             });
 
@@ -54,7 +54,7 @@ class LevelHandler extends base.HandlerBase {
         .then(function (role) {
             var seedGen = this.seedGen;
             var maxCoin = 0, items = {};
-            role.fillEnergy(this.app.get("energyTable"));
+            role.fillEnergy(cache.roleByLevel);
 //            if (role.energy < level.energy) {
 //                throw Constants.NO_ENERGY;
 //            }
@@ -196,7 +196,6 @@ class LevelHandler extends base.HandlerBase {
                 throw Constants.InvalidRequest;
             }
             var itemIds = _.keys(items);
-            var expTables = this.app.get("expTables");
             for (var i=0;i<itemIds.length;i++) {
                 var itemId = itemIds[i];
                 if (items[itemId] > (levelGain.items[itemId] || 0)) {
@@ -214,11 +213,11 @@ class LevelHandler extends base.HandlerBase {
             role.coins += coins || 0;
             role.exp += roleExp;
             role.levelGain = {};
-            var lGain = role.levelUp(expTables.role);
+            var lGain = role.levelUp(cache.roleByLevel);
             var hUps = _.map(teamHeroes, function (h) {
                 h.exp += heroExp;
                 var heroDef = cache.heroDefById[h.heroDefId];
-                h.levelUp(expTables.hero, heroDef.expFactor, role.level);
+                h.levelUp(cache.heroExpByLevel, heroDef.expFactor, role.level);
                 return h.save();
             });
             var newItems = [];
@@ -241,6 +240,8 @@ class LevelHandler extends base.HandlerBase {
                     }
                 }
             });
+
+            role.levelCleared[msg.level] = 1;
             session.set("role", role.toSessionObj());
             return [role.save(), models.Item.save(newItems), hUps, session.push("role")];
         })

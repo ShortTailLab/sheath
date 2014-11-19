@@ -235,10 +235,10 @@ var ActFlagType = {
         name: "logoff",
         route:"connector.entryHandler.logOff"
     },
-    LIST_SOULS: {
+    LIST_ROLE_EXTRA: {
         reqId: 38,
         name: "souls",
-        route:"game.heroHandler.listSouls"
+        route:"game.heroHandler.listRoleExtra"
     },
     REDEEM_SOULS: {
         reqId: 39,
@@ -1351,13 +1351,13 @@ Role.prototype.pickHero = function() {
     });
 };
 
-Role.prototype.listSouls = function() {
+Role.prototype.listRoleExtra = function() {
     var self = this;
     self.resolveCommon(
-        self.requestAsync(ActFlagType.LIST_SOULS, {
+        self.requestAsync(ActFlagType.LIST_ROLE_EXTRA, {
         })
         .then(function(data) {
-            self.souls = data;
+            self.souls = data.souls;
         })
     );
 };
@@ -1425,7 +1425,7 @@ Role.prototype.doAction = function() {
         self.listStore, self.refineWeapon, self.refineGem, self.setGem, self.removeGem, self.listHeroDef,
         self.listItemDef, self.equip, self.unEquip, self.listHero, self.listMail, self.claimMail, self.chat,
         self.listTask, self.listLevel, self.start, self.end, self.refreshStore, self.coinDraw, self.goldDraw,
-        self.useItem, self.replace, self.listSouls, self.redeemSouls
+        self.useItem, self.replace, self.listRoleExtra, self.redeemSouls
     ];
 
     var action = null;
