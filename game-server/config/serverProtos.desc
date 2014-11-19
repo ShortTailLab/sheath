@@ -1,5 +1,5 @@
 
-—+
+¤.
 serverProtos.proto"
 Player
 
@@ -102,7 +102,30 @@ growFactor (
 ironType (
 ironRecover (
 coinRecover (
-color ("–
+color ("b
+EquipRefineDef
+
+id (
+coinCost (
+ironCost (
+luck (
+
+luckGrowth ("%
+
+HeroExpDef
+
+id (
+exp ("5
+
+RoleExpDef
+
+id (
+exp (
+energy ("/
+EquipUpgradeDef
+
+id (
+coinCost ("–
 HeroDef
 
 id (
@@ -197,7 +220,7 @@ drop_items ("?
 user (2.Player
 
 partitions (2
-.Partition"»
+.Partition"Õ
 %connector_entryHandler_enterPartition
 error (2.Error
 role (2.Role
@@ -210,7 +233,11 @@ partitions (2
 nextGoldReset
  (
 nextCoinReset (
-coinDrawCount ("Z
+coinDrawCount ((
+equipRefineDefs (2.EquipRefineDef 
+roleExpDefs (2.RoleExpDef 
+heroExpDefs (2.HeroExpDef*
+equipUpgradeDefs (2.EquipUpgradeDef"Z
 !game_roleHandler_claimDailyReward
 error (2.Error
 reward (2.ProfileChange"b

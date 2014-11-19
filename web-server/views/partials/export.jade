@@ -32,7 +32,9 @@ include ../mixins/block
         .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="任务数据").submit
             input(type="hidden", name="tag", value="task")
+
     .row
+        br
         .col-md-1: form(method="post", action="/api/export")
             input(type="submit", value="角色经验").submit
             input(type="hidden", name="tag", value="roleexp")

@@ -195,7 +195,11 @@ class EntryHandler extends base.HandlerBase {
 
                 nextGoldReset: Math.floor(moment(role.manualRefreshData[this.app.mKey.goldDrawReset] || undefined).diff() / 1000),
                 nextCoinReset: Math.floor(moment(role.dailyRefreshData[this.app.mKey.coinDrawReset] || undefined).diff() / 1000),
-                coinDrawCount: role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0
+                coinDrawCount: role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0,
+                equipRefineDefs: cache.clientEquipRefine,
+                roleExpDefs: cache.clientRoleExp,
+                heroExpDefs: cache.clientHeroExp,
+                equipUpgradeDefs: cache.clientEquipUpgrade
             });
             logger.logInfo(logType, {
                 user: session.uid,

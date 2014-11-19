@@ -86,7 +86,9 @@ class Cache {
     loadExpConf() {
         return Promise.join(models.RoleExp.run(), models.HeroExp.run()).bind(this)
         .spread(function(roleExp, heroExp) {
+            this.clientRoleExp = _.invoke(roleExp, "toObject");
             this.roleByLevel = _.indexBy(roleExp, "id");
+            this.clientHeroExp = _.invoke(heroExp, "toObject");
             this.heroExpByLevel = _.indexBy(heroExp, "id");
         })
         .catch(function(err) {
@@ -97,7 +99,9 @@ class Cache {
     loadEquipConf() {
         return Promise.join(models.EquipUpgrade.run(), models.EquipRefine.run()).bind(this)
         .spread(function(equipUpgrade, equipRefine) {
+            this.clientEquipUpgrade = _.invoke(equipUpgrade, "toObject");
             this.equipUpgradeByLevel = _.indexBy(equipUpgrade, "id");
+            this.clientEquipRefine = _.invoke(equipRefine, "toObject");
             this.equipRefineByLevel = _.indexBy(equipRefine, "id");
         })
         .catch(function(err) {

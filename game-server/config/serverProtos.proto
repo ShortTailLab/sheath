@@ -104,6 +104,31 @@ message EquipmentDef {
     required float coinRecover    = 24;
     optional int32 color          = 25;
 }
+
+message EquipRefineDef {
+    required int32 id             = 1;
+    required int32 coinCost       = 2;
+    required int32 ironCost       = 3;
+    required int32 luck           = 4;
+    required int32 luckGrowth     = 5;
+}
+
+message HeroExpDef {
+    required int32 id             = 1;
+    required int32 exp            = 2;
+}
+
+message RoleExpDef {
+    required int32 id             = 1;
+    required int32 exp            = 2;
+    required int32 energy         = 3;
+}
+
+message EquipUpgradeDef {
+    required int32 id             = 1;
+    required int32 coinCost       = 2;
+}
+
 message HeroDef {
     required int32 id           =   1;
     required string name        =   2;
@@ -225,6 +250,10 @@ message connector_entryHandler_enterPartition {
     optional sint32 nextGoldReset  =   10;
     optional sint32 nextCoinReset  =   11;
     optional int32 coinDrawCount   =   12;
+    repeated EquipRefineDef equipRefineDefs = 13;
+    repeated RoleExpDef roleExpDefs = 14;
+    repeated HeroExpDef heroExpDefs = 15;
+    repeated EquipUpgradeDef equipUpgradeDefs = 16;
 }
 
 message game_roleHandler_claimDailyReward {
