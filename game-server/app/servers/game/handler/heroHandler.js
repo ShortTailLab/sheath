@@ -53,11 +53,8 @@ class HeroHandler extends base.HandlerBase {
             var nextFreeTime = role.dailyRefreshData[this.app.mKey.coinDrawReset];
             var freeDrawCount = role.dailyRefreshData[this.app.mKey.coinDrawCount] || 0;
             var now = moment();
-            if (tenDraw) {
-                if (role.coins >= 90000) role.coins -= 90000;
-                else throw Constants.NO_COINS;
-            }
-            else if (freeReq) {
+
+            if (freeReq) {
                 if (freeDrawCount < 5 && (!nextFreeTime || moment(nextFreeTime).isBefore(now))) {
                     role.dailyRefreshData[this.app.mKey.coinDrawReset] = now.add(5, "minutes").toDate();
                     role.dailyRefreshData[this.app.mKey.coinDrawCount] = freeDrawCount + 1;
@@ -71,7 +68,8 @@ class HeroHandler extends base.HandlerBase {
             else {
                 throw Constants.NO_COINS;
             }
-            drawResult = draw.drawWithCoins(role, tenDraw, freeDraw);
+
+            drawResult = draw.drawWithCoins(role, false, freeDraw);
 
             session.set("role", role.toSessionObj());
             return [role.save(), models.Hero.save(drawResult.heroes), models.Item.save(drawResult.items), session.push("role")];
@@ -110,18 +108,18 @@ class HeroHandler extends base.HandlerBase {
             var nextFreeTime = role.manualRefreshData[this.app.mKey.goldDrawReset];
             var now = moment();
             if (tenDraw) {
-                if (role.golds >= 2800) role.golds -= 2800;
+                if (role.golds >= 2520) role.golds -= 2520;
                 else throw Constants.NO_GOLDS;
             }
             else if (freeReq) {
                 if (!nextFreeTime || moment(nextFreeTime).isBefore(now)) {
-                    role.manualRefreshData[this.app.mKey.goldDrawReset] = now.add(36, "hours").toDate();
+                    role.manualRefreshData[this.app.mKey.goldDrawReset] = now.add(48, "hours").toDate();
                     freeDraw = true;
                 }
                 else throw Constants.HeroFailed.NO_FREE_REFRESH;
             }
-            else if (role.golds >= 300) {
-                role.golds -= 300;
+            else if (role.golds >= 280) {
+                role.golds -= 280;
             }
             else {
                 throw Constants.NO_GOLDS;

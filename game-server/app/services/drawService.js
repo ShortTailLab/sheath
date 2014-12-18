@@ -43,8 +43,7 @@ class DrawService
         var keyMap = [
             "paidGoldWeight", "paidCoinWeight",
             "goldWeight", "coinWeight",
-            "tenGoldWeight", "tenCoinWeight",
-            "tenGoldWeight", "tenCoinWeight",
+            "tenGoldWeight"
         ];
         return keyMap[hash];
     }
@@ -55,9 +54,9 @@ class DrawService
         for (var i=0;i<results.length;i++) {
             var item = results[i];
             if (item.isSoul) {
-                var strItemId = "" + item.itemId;
-                ret.souls[strItemId] = item.count;
-                owner.souls[strItemId] = (owner.souls[strItemId] || 0) + item.level;
+                var itemId = item.itemId;
+                ret.souls[itemId] = item.count;
+                owner.souls[itemId] = (owner.souls[itemId] || 0) + item.count;
             }
             else if (cache.heroDefById[item.itemId]) {
                 for (var j=0;j<item.count;j++) {
