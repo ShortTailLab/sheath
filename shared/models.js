@@ -37,16 +37,28 @@ exports.init = function (dbConfig) {
         });
     };
 
-    var levelUp = function levelUp (expTable, expFactor=1, maxLevel=0) {
+    var levelUp = function levelUp (expByLevel, expFactor = 1, maxLevel = 0) {
         var levelGain = 0;
-        maxLevel = maxLevel || expTable.length - 1;
-        while (true) {
-            var nextLevelExp = Math.ceil(expTable[this.level] * expFactor);
-            if (this.exp < nextLevelExp || this.level >= maxLevel) break;
+
+        if(maxLevel > 0) {
+            maxLevel = Math.min(_.size(expByLevel), maxLevel);
+        }
+        else {
+            maxLevel = _.size(expByLevel);
+        }
+
+        while(this.level < maxLevel) {
+            var nextLevelExp = Math.ceil(expByLevel[this.level].exp * expFactor);
+
+            if(this.exp < nextLevelExp) {
+                break;
+            }
+
             this.level += 1;
             levelGain += 1;
             this.exp -= nextLevelExp;
         }
+
         return levelGain;
     };
 
@@ -97,8 +109,6 @@ exports.init = function (dbConfig) {
         coins: {_type: Number, default: 0},
         golds: {_type: Number, default: 0},
         contribs: {_type: Number, default: 0},
-        irons: {_type: Array, schema: Number, default: [0, 0, 0, 0]},
-
         energyRefreshTime: {_type: Date, default: function () {return new Date();}},
         dailyRefreshData: {_type: Object, default: function () {return {};}},
         manualRefreshData: {_type: Object, default: function () {return {};}},
@@ -287,6 +297,26 @@ exports.init = function (dbConfig) {
         reward: Number
     });
 
+    var RoleExp = exports.RoleExp = schema.createModel("roleexp", {
+        exp: Number,
+        energy: Number
+    });
+
+    var HeroExp = exports.HeroExp = schema.createModel("heroexp", {
+        exp: Number
+    });
+
+    var EquipUpgrade = exports.EquipUpgrade = schema.createModel("equipupgrade", {
+        coinCost: Number
+    });
+
+    var EquipRefine = exports.EquipRefine = schema.createModel("equiprefine", {
+        coinCost: Number,
+        ironCost: Number,
+        luck: Number,
+        luckGrowth: Number
+    });
+
     var HeroDraw = exports.HeroDraw = schema.createModel("herodraw", {
         itemId: Number,
         isSoul: {_type: Boolean, default: false},
@@ -397,7 +427,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "irons", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 
@@ -405,7 +435,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toSlimClientObj", function () {
-        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "irons", "tutorial");
+        var ret = _.pick(this, "id", "name", "level", "vip", "exp", "title", "energy", "coins", "golds", "contribs", "tutorial");
         ret.team = _.map(this.team, function (t) { return t || ""; });
         ret.storageRoom = this.getStorageRoom();
 
@@ -413,7 +443,7 @@ exports.init = function (dbConfig) {
     });
 
     Role.define("toLogObj", function () {
-        return _.pick(this, "id", "name", "level", "title", "coins", "golds", "irons", "vip");
+        return _.pick(this, "id", "name", "level", "title", "coins", "golds", "vip");
     });
 
     Role.define("getStorageRoom", function () {
@@ -426,12 +456,13 @@ exports.init = function (dbConfig) {
         }
     });
 
-    Role.define("fillEnergy", function (energyTable) {
+    Role.define("fillEnergy", function(energyByLevel) {
         var now = moment();
         var lastCheck = moment(this.energyRefreshTime);
         var energyGain = Math.floor(moment.duration(now - lastCheck).asMinutes()/15);
-        var maxEnergy = energyTable.maxEnergy[Math.min(this.level, energyTable.maxEnergy.length-1)];
-        if (energyGain > 0) {
+
+        if(energyGain > 0) {
+            var maxEnergy = energyByLevel[Math.min(_.size(energyByLevel), this.level)].energy;
             this.energy = Math.max(this.energy, Math.min(this.energy + energyGain, maxEnergy));
             this.energyRefreshTime = lastCheck.add(energyGain*15, "minutes").toDate();
         }

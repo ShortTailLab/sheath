@@ -1,9 +1,9 @@
 
-Ÿ+
+¤.
 serverProtos.proto"
 Player
 
-id (	"Ü
+id (	"Í
 Role
 
 id (	
@@ -17,8 +17,7 @@
 energy (
 coins (
 golds (
-contribs	 (
-irons (
+contribs	 (
 tutorial
  ("&
 Error
@@ -103,7 +102,30 @@ growFactor (
 ironType (
 ironRecover (
 coinRecover (
-color ("–
+color ("b
+EquipRefineDef
+
+id (
+coinCost (
+ironCost (
+luck (
+
+luckGrowth ("%
+
+HeroExpDef
+
+id (
+exp ("5
+
+RoleExpDef
+
+id (
+exp (
+energy ("/
+EquipUpgradeDef
+
+id (
+coinCost ("–
 HeroDef
 
 id (
@@ -198,7 +220,7 @@ drop_items ("?
 user (2.Player
 
 partitions (2
-.Partition"»
+.Partition"Õ
 %connector_entryHandler_enterPartition
 error (2.Error
 role (2.Role
@@ -211,7 +233,11 @@ partitions (2
 nextGoldReset
  (
 nextCoinReset (
-coinDrawCount ("Z
+coinDrawCount ((
+equipRefineDefs (2.EquipRefineDef 
+roleExpDefs (2.RoleExpDef 
+heroExpDefs (2.HeroExpDef*
+equipUpgradeDefs (2.EquipUpgradeDef"Z
 !game_roleHandler_claimDailyReward
 error (2.Error
 reward (2.ProfileChange"b
@@ -279,22 +305,22 @@ equipments (2.EquipmentDef"D
 	equipment (2.Item"M
 game_equipmentHandler_redeem
 error (2.Error
-newItem (2.Item"w
+newItem (2.Item"v
 game_equipmentHandler_refine
 error (2.Error
-role (2.Role
-	destroyed (	
+role (2.Role
+delIrons (	
 	equipment (2.Item"s
 game_equipmentHandler_upgrade
 error (2.Error
 	equipment (2.Item!
-	stateDiff (2.ProfileChange"}
+	stateDiff (2.ProfileChange"„
 game_equipmentHandler_destruct
 error (2.Error
 role (2.Role
 	destroyed (	
-coins (
-irons ("]
+coins (
+irons (2.Item"]
 game_taskHandler_list
 error (2.Error
 tasks (2.Task

@@ -6,6 +6,7 @@ var appModels = require("../../shared/models");
 var excel = require("excel-parser");
 var excel_export = require("excel4node");
 var r = appModels.r;
+var thinky = appModels.schema;
 var fs = require("fs");
 
 function diffModel(m1, m2, fields) {
@@ -774,7 +775,11 @@ var modelDict = {
     treasure: appModels.Treasure,
     level: appModels.Level,
     storeitem: appModels.StoreItem,
-    task: appModels.Task
+    task: appModels.Task,
+    roleexp: appModels.RoleExp,
+    heroexp: appModels.HeroExp,
+    equiprefine: appModels.EquipRefine,
+    equipupgrade: appModels.EquipUpgrade
 };
 
 function adjustField(tblName, allFields, modelSchema) {
@@ -809,7 +814,7 @@ function adjustField(tblName, allFields, modelSchema) {
                 _.forEach(allFields, function (rowFields) {
                     var rawValue = rowFields[field];
                     if (!rawValue) {
-                        rowFields[field] = fieldValue.default();
+                        rowFields[field] = fieldValue._default();
                     } else {
                         rowFields[field] = {};
                         rowFields[field].hp = parseInt(rowFields.hp);
@@ -831,56 +836,50 @@ function adjustField(tblName, allFields, modelSchema) {
         }
 
         var defaultValue;
-        var fieldType;
-        if(_.isPlainObject(fieldValue)) {
-            fieldType = fieldValue._type;
-            if(_.isFunction(fieldValue.default)) {
-                defaultValue = fieldValue.default();
-            }
-            else {
-                defaultValue = fieldValue.default;
-            }
+
+        if(_.isFunction(fieldValue._default)) {
+            defaultValue = fieldValue._default();
         }
         else {
-            fieldType = fieldValue;
+            defaultValue = fieldValue._default;
         }
 
-        if(fieldType === Number) {
+        if(thinky.type.isNumber(fieldValue)) {
             defaultValue = _.isUndefined(defaultValue) ? 0 : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue ? parseFloat(rawValue) : defaultValue;
             });
         }
-        else if(fieldType === Boolean) {
+        else if(thinky.type.isBoolean(fieldValue)) {
             defaultValue = _.isUndefined(defaultValue) ? false : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue ? rawValue.toLowerCase() !== "false" && rawValue !== "0" : defaultValue;
             });
         }
-        else if(fieldType === String) {
+        else if(thinky.type.isString(fieldValue)) {
             defaultValue = _.isUndefined(defaultValue) ? "" : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue ? rawValue : defaultValue;
             });
         }
-        else if(fieldType === Array) {
+        else if(thinky.type.isArray(fieldValue)) {
             defaultValue = _.isUndefined(defaultValue) ? [] : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue && rawValue !== "0" ? JSON.parse(rawValue) : defaultValue;
             });
         }
-        else if(fieldType === Date) {
+        else if(thinky.type.isDate(fieldValue)) {
             defaultValue = _.isUndefined(defaultValue) ? new Date() : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
                 rowFields[field] = rawValue ? moment(rawValue).toDate() : defaultValue;
             });
         }
-        else if(fieldType === Object) {
+        else if(thinky.type.isObject(fieldValue)) {
             defaultValue = _.isUndefined(defaultValue) ? {} : defaultValue;
             _.forEach(allFields, function(rowFields) {
                 var rawValue = rowFields[field];
@@ -948,7 +947,7 @@ exports.import = function (req, res) {
                     }
 
                     var allFields = [];
-                    var modelSchema = Model.__proto__._schema;
+                    var modelSchema = Model.__proto__._schema._schema;
                     var compareCols = _.keys(modelSchema);
                     var names = records[1];
                     var keys = _.clone(compareCols);
@@ -968,7 +967,7 @@ exports.import = function (req, res) {
 
                     var fieldTypes = _.clone(modelSchema);
                     if (!fieldTypes.id) {
-                        fieldTypes.id = Number;
+                        fieldTypes.id = thinky.type.number();
                     }
                     adjustField(tblName, allFields, fieldTypes);
 
@@ -1065,7 +1064,7 @@ exports.export = function (req, res) {
 
     var wb = new excel_export.WorkBook();
     var ws = wb.WorkSheet("(" + tag + ")");
-    var modelSchema = Model.__proto__._schema;
+    var modelSchema = Model.__proto__._schema._schema;
     var keys = _.keys(modelSchema);
     keys.unshift("id");
     var writeXlsx = function(stock) {
@@ -1085,15 +1084,7 @@ exports.export = function (req, res) {
                 --col;
             }
             else {
-                var fieldType;
-                if(_.isPlainObject(fieldValue)) {
-                    fieldType = fieldValue._type;
-                }
-                else {
-                    fieldType = fieldValue;
-                }
-
-                if(fieldType === Array || fieldType === Object) {
+                if(thinky.type.isArray(fieldValue) || thinky.type.isObject(fieldValue)) {
                     _.forEach(stock, function (rowFields) {
                         ws.Cell(row++, col).String(JSON.stringify(rowFields[field]));
                     });

@@ -17,8 +17,6 @@ message Role {
     optional int32 coins        =   7;
     optional int32 golds        =   8;
     optional int32 contribs     =   9;
-    repeated int32 irons        =   14;
-
     optional int32 tutorial     =   10;
 }
 message Error {
@@ -106,6 +104,31 @@ message EquipmentDef {
     required float coinRecover    = 24;
     optional int32 color          = 25;
 }
+
+message EquipRefineDef {
+    required int32 id             = 1;
+    required int32 coinCost       = 2;
+    required int32 ironCost       = 3;
+    required int32 luck           = 4;
+    required int32 luckGrowth     = 5;
+}
+
+message HeroExpDef {
+    required int32 id             = 1;
+    required int32 exp            = 2;
+}
+
+message RoleExpDef {
+    required int32 id             = 1;
+    required int32 exp            = 2;
+    required int32 energy         = 3;
+}
+
+message EquipUpgradeDef {
+    required int32 id             = 1;
+    required int32 coinCost       = 2;
+}
+
 message HeroDef {
     required int32 id           =   1;
     required string name        =   2;
@@ -227,6 +250,10 @@ message connector_entryHandler_enterPartition {
     optional sint32 nextGoldReset  =   10;
     optional sint32 nextCoinReset  =   11;
     optional int32 coinDrawCount   =   12;
+    repeated EquipRefineDef equipRefineDefs = 13;
+    repeated RoleExpDef roleExpDefs = 14;
+    repeated HeroExpDef heroExpDefs = 15;
+    repeated EquipUpgradeDef equipUpgradeDefs = 16;
 }
 
 message game_roleHandler_claimDailyReward {
@@ -328,7 +355,7 @@ message game_equipmentHandler_redeem {
 message game_equipmentHandler_refine {
     optional Error error        =   1;
     optional Role role          =   2;
-    repeated string destroyed   =   3;
+    repeated string delIrons    =   3;
     optional Item equipment     =   4;
 }
 message game_equipmentHandler_upgrade {
@@ -348,7 +375,7 @@ message game_equipmentHandler_destruct {
     optional Role   role           = 2;
     optional string destroyed      = 3;
     optional int32  coins          = 4;
-    optional int32  irons          = 5;
+    repeated Item  irons           = 5;
 }
 
 message game_taskHandler_list {
