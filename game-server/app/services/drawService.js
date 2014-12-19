@@ -17,14 +17,49 @@ class DrawService
 
     sample(weightKey, count, oldItems=null) {
         if (count === 0) return [];
-
-        var heroes = this.app.get("cache").heroDraws;
+        var cache = this.app.get("cache");
+        var heroes = cache.heroDraws;
         var weights = _.pluck(heroes, weightKey);
         var candidate = [];
 
         for (var i=0;i<10;i++) {
-            candidate = utils.sampleWithWeight(heroes, weights, count, true);
+            candidate = utils.sampleWithWeight(heroes, weights, count);
             if (candidate.length === heroes.length || !oldItems || oldItems.length === 0) {
+                if(count === 10) {
+                    var heroCount = 0;
+                    _.forEach(candidate, function(row) {
+                        if (!row.isSoul && cache.heroDefById[row.itemId]) {
+                            ++heroCount;
+                        }
+                    });
+
+                    if(heroCount < 2) {
+                        var heroArray = [];
+                        _.forEach(heroes, function(row) {
+                            if (!row.isSoul && cache.heroDefById[row.itemId]) {
+                                heroArray.push(row);
+                            }
+                        });
+
+                        if(heroArray.length > 0) {
+                            while(heroCount++ < 2) {
+                                var idx = _.random(0, heroArray.length - 1);
+                                var removedOne = false;
+
+                                _.remove(candidate, function(row) {
+                                    if(!removedOne && (row.isSoul || !cache.heroDefById[row.itemId])) {
+                                        removedOne = true;
+                                        return true;
+                                    }
+                                    return false;
+                                });
+
+                                candidate.push(heroArray[idx]);
+                            }
+                        }
+                    }
+                }
+
                 return candidate;
             }
             else {
