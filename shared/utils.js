@@ -42,6 +42,55 @@ export function sampleWithWeight(list, weights, count=1, distinct=false) {
     }
 }
 
+export function sampleLimit(list, weights, low, high, pred, count=1, distinct=false) {
+    if (list.length <= count) {
+        if (count === 1) {
+            if (list.length)
+                return list[0];
+            else
+                return null;
+        }
+        return list;
+    }
+    var cumDist = _.clone(weights);
+    for (var i=1;i<weights.length;i++) {
+        cumDist[i] += cumDist[i-1];
+    }
+    if (count === 1) {
+        return list[getIndexInWeights(cumDist)];
+    }
+    else {
+        var predCount = 0;
+        var ret = [];
+        while (ret.length < count) {
+            var idx = getIndexInWeights(cumDist);
+            if(distinct) {
+                if(_.contains(ret, idx)) {
+                    continue;
+                }
+            }
+            if(pred(list[idx])) {
+                if(predCount + 1 > high) {
+                    continue;
+                }
+                ++predCount;
+            } else {
+                if(predCount === low - 1 && ret.length === count - 1) {
+                    continue;
+                }
+                if(predCount === low - 2 && ret.length === count - 2) {
+                    continue;
+                }
+            }
+            ret.push(idx);
+        }
+        for (var j=0;j<ret.length;j++) {
+            ret[j] = list[ret[j]];
+        }
+        return ret;
+    }
+}
+
 var initOnceMap = {};
 export function initOnce(key) {
     if (!initOnceMap[key]) {

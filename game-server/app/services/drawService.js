@@ -20,56 +20,17 @@ class DrawService
         var cache = this.app.get("cache");
         var heroes = cache.heroDraws;
         var weights = _.pluck(heroes, weightKey);
-        var candidate = [];
+        var candidate;
 
-        for (var i=0;i<10;i++) {
-            candidate = utils.sampleWithWeight(heroes, weights, count);
-            if (candidate.length === heroes.length || !oldItems || oldItems.length === 0) {
-                if(count === 10) {
-                    var heroCount = 0;
-                    _.forEach(candidate, function(row) {
-                        if (!row.isSoul && cache.heroDefById[row.itemId]) {
-                            ++heroCount;
-                        }
-                    });
-
-                    if(heroCount < 2) {
-                        var heroArray = [];
-                        _.forEach(heroes, function(row) {
-                            if (!row.isSoul && cache.heroDefById[row.itemId]) {
-                                heroArray.push(row);
-                            }
-                        });
-
-                        if(heroArray.length > 0) {
-                            while(heroCount++ < 2) {
-                                var idx = _.random(0, heroArray.length - 1);
-                                var removedOne = false;
-
-                                _.remove(candidate, function(row) {
-                                    if(!removedOne && (row.isSoul || !cache.heroDefById[row.itemId])) {
-                                        removedOne = true;
-                                        return true;
-                                    }
-                                    return false;
-                                });
-
-                                candidate.push(heroArray[idx]);
-                            }
-                        }
-                    }
-                }
-
-                return candidate;
-            }
-            else {
-                var oldIds = _.pluck(oldItems, "id");
-                var newIds = _.pluck(candidate, "itemId");
-                if (_.difference(newIds, oldIds).length > 0) {
-                    return candidate;
-                }
-            }
+        if(count === 10) {
+            candidate = utils.sampleLimit(heroes, weights, 2, 4, function(row) {
+                return !row.isSoul && cache.heroDefById[row.itemId];
+            }, count);
         }
+        else {
+            candidate = utils.sampleWithWeight(heroes, weights, count);
+        }
+
         return candidate;
     }
 
