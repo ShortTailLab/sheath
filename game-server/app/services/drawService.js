@@ -17,24 +17,20 @@ class DrawService
 
     sample(weightKey, count, oldItems=null) {
         if (count === 0) return [];
-
-        var heroes = this.app.get("cache").heroDraws;
+        var cache = this.app.get("cache");
+        var heroes = cache.heroDraws;
         var weights = _.pluck(heroes, weightKey);
-        var candidate = [];
+        var candidate;
 
-        for (var i=0;i<10;i++) {
-            candidate = utils.sampleWithWeight(heroes, weights, count, true);
-            if (candidate.length === heroes.length || !oldItems || oldItems.length === 0) {
-                return candidate;
-            }
-            else {
-                var oldIds = _.pluck(oldItems, "id");
-                var newIds = _.pluck(candidate, "itemId");
-                if (_.difference(newIds, oldIds).length > 0) {
-                    return candidate;
-                }
-            }
+        if(count === 10) {
+            candidate = utils.sampleLimit(heroes, weights, 2, 4, function(row) {
+                return !row.isSoul && cache.heroDefById[row.itemId];
+            }, count);
         }
+        else {
+            candidate = utils.sampleWithWeight(heroes, weights, count);
+        }
+
         return candidate;
     }
 

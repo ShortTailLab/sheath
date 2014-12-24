@@ -123,7 +123,7 @@ class EntryHandler extends base.HandlerBase {
                         return {
                             heroDefId: hid,
                             owner: role.id,
-                            level: 10
+                            level: 1
                         };
                     });
                     var items = _.map(initialItems, function (itemId) {
