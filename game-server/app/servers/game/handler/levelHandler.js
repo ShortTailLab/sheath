@@ -196,18 +196,20 @@ class LevelHandler extends base.HandlerBase {
                 throw Constants.InvalidRequest;
             }
             var itemIds = _.keys(items);
-            for (var i=0;i<itemIds.length;i++) {
-                var itemId = itemIds[i];
-                if (items[itemId] > (levelGain.items[itemId] || 0)) {
-                    models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
+                
+//            for (var i=0;i<itemIds.length;i++) {
+//                var itemId = itemIds[i];
+//                if (items[itemId] > (levelGain.items[itemId] || 0)) {
+//                    models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
 //                    throw Constants.StageFailed.Invalid_End;
-                }
-            }
+//                }
+//            }
             this.addSkillPlus(levelGain, teamHeroes, cache.heroDefById);
-            if (coins > levelGain.maxCoin) {
-                models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
+//            if (coins > levelGain.maxCoin) {
+//                models.Role.get(role.id).update({"levelGain": r.literal({})}).run();
 //                throw Constants.StageFailed.Invalid_End;
-            }
+//            }
+
             heroExp = levelGain.hExp || 0;
             roleExp = levelGain.exp || 0;
             role.coins += coins || 0;
