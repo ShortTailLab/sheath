@@ -218,9 +218,10 @@ message Level {
     required string name        =   2;
     required string path        =   3;
     required int32 energy       =   4;
+    optional int32 stars        =   8;
     optional int32 requirement  =   5;
     optional int32 min_level    =   6;
-    optional int32 drop_items   =   7;
+    repeated int32 drop_items   =   7;
 }
 message Stage {
     required int32 stageId      =   1;

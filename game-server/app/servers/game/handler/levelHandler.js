@@ -174,6 +174,7 @@ class LevelHandler extends base.HandlerBase {
 
         var level = msg.level, role = session.get("role");
         var cache = this.app.get("cache");
+        var stars = parseInt(msg.stars);
         level = cache.levelById[level];
         if (!level) {
             return this.errorNext(Constants.StageFailed.NO_LEVEL, next);
@@ -243,7 +244,7 @@ class LevelHandler extends base.HandlerBase {
                 }
             });
 
-            role.levelCleared[msg.level] = 1;
+            role.levelCleared[msg.level] = stars || 1;
             session.set("role", role.toSessionObj());
             return [role.save(), models.Item.save(newItems), hUps, session.push("role")];
         })
